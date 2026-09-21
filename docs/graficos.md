@@ -39,10 +39,3 @@ Sem intraday, 1D e 5D usam os pontos disponíveis; não são inventadas amostras
 
 Tema e fontes são lidos das variáveis CSS existentes.
 A página inclui somente Visão geral, períodos, linha/velas e volume.
-
-
-## Escala global
-A cópia local da biblioteca normaliza coordenadas do ponteiro, pinça e roda
-pela relação entre dimensões CSS e visuais. Isso mantém a interação alinhada
-com o zoom de 80% do site. A inicialização usa clientWidth/clientHeight,
-como o ResizeObserver. Preserve essa correção ao atualizar a biblioteca.

@@ -39,7 +39,7 @@
     display: flex;
     flex-direction: column;
     width: var(--sidebar-width);
-    height: var(--viewport-height);
+    height: 100svh;
     overflow: hidden;
     border-right: 1px solid var(--border);
     background: var(--surface);
@@ -202,7 +202,7 @@
 }
 
 .workspace__content {
-    min-height: var(--viewport-height);
+    min-height: 100svh;
     padding-top: var(--header-height);
     margin-left: var(--sidebar-width);
     transition: margin-left var(--sidebar-duration) var(--sidebar-easing);
@@ -282,7 +282,7 @@
 @media (width < 640px) {
     .sidebar {
         width: 280px;
-        max-width: calc(100vw / var(--site-scale) - 32px);
+        max-width: calc(100vw - 32px);
         transform: translateX(0);
         transition: transform var(--sidebar-duration) var(--sidebar-easing), visibility var(--sidebar-duration);
     }

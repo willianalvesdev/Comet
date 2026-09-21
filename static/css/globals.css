@@ -15,8 +15,6 @@
 }
 
 :root {
-    --site-scale: 0.8;
-    --viewport-height: calc(100svh / var(--site-scale));
 
     --bg: #171615;
     --surface: #1E1D1B;
@@ -27,12 +25,12 @@
     --green: #539E55;
     --red: #DC6973;
 
-    --font-size-1: 80px;
-    --font-size-2: 24px;
-    --font-size-3: 20px;
-    --font-size-4: 16px;
-    --font-size-5: 14px;
-    --font-size-6: 12px;
+    --font-size-1: 64px;
+    --font-size-2: 19.2px;
+    --font-size-3: 16px;
+    --font-size-4: 12.8px;
+    --font-size-5: 11.2px;
+    --font-size-6: 9.6px;
 
     --margin-inline-1: 8rem;
     --margin-inline-2: 2.5rem;
@@ -50,7 +48,6 @@
 }
 
 html {
-    zoom: var(--site-scale);
     overflow-x: clip;
 }
 
@@ -86,7 +83,7 @@ html {
 body {
     position: relative;
     isolation: isolate;
-    min-height: calc(100vh / var(--site-scale));
+    min-height: 100vh;
     background-color: var(--bg);
     color: var(--text);
     font-family: "Inter", sans-serif;

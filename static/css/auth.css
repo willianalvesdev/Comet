@@ -1,6 +1,6 @@
 .auth {
     width: min(760px, calc(100% - 32px));
-    max-height: calc(var(--viewport-height) - 32px);
+    max-height: calc(100svh - 32px);
     margin: auto;
     padding: 76px 48px 64px;
     overflow-y: auto;
@@ -175,7 +175,7 @@ html:has(.auth[open]) {
     }
 
     .auth__title {
-        font-size: 36px;
+        font-size: calc(var(--font-size-2) * 1.5);
     }
 
     .auth__policy,
