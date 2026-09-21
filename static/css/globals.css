@@ -15,6 +15,8 @@
 }
 
 :root {
+    --site-scale: 0.8;
+    --viewport-height: calc(100svh / var(--site-scale));
 
     --bg: #171615;
     --surface: #1E1D1B;
@@ -48,6 +50,7 @@
 }
 
 html {
+    zoom: var(--site-scale);
     overflow-x: clip;
 }
 
@@ -83,7 +86,7 @@ html {
 body {
     position: relative;
     isolation: isolate;
-    min-height: 100vh;
+    min-height: calc(100vh / var(--site-scale));
     background-color: var(--bg);
     color: var(--text);
     font-family: "Inter", sans-serif;

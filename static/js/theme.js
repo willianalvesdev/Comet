@@ -12,6 +12,12 @@
     function applyTheme(value) {
         theme = value;
         root.dataset.theme = theme;
+        const favicon = document.querySelector('link[rel="icon"]');
+        if (favicon) {
+            favicon.setAttribute("href", theme === "light"
+                ? "./static/img/icons/favicon-light.svg"
+                : "./static/img/icons/favicon.svg");
+        }
         document.querySelector('meta[name="color-scheme"]').content = theme;
         const themeColor = document.querySelector('meta[name="theme-color"]');
         themeColor.content = theme === "light" ? "#fdfbfa" : "#171615";

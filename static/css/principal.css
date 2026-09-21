@@ -39,7 +39,7 @@
     display: flex;
     flex-direction: column;
     width: var(--sidebar-width);
-    height: 100svh;
+    height: var(--viewport-height);
     overflow: hidden;
     border-right: 1px solid var(--border);
     background: var(--surface);
@@ -196,13 +196,13 @@
     font-size: var(--font-size-6);
 }
 
-.sidebar button:focus-visible {
+.sidebar :is(button, a):focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: -2px;
 }
 
 .workspace__content {
-    min-height: 100svh;
+    min-height: var(--viewport-height);
     padding-top: var(--header-height);
     margin-left: var(--sidebar-width);
     transition: margin-left var(--sidebar-duration) var(--sidebar-easing);
@@ -282,7 +282,7 @@
 @media (width < 640px) {
     .sidebar {
         width: 280px;
-        max-width: calc(100vw - 32px);
+        max-width: calc(100vw / var(--site-scale) - 32px);
         transform: translateX(0);
         transition: transform var(--sidebar-duration) var(--sidebar-easing), visibility var(--sidebar-duration);
     }
@@ -351,4 +351,9 @@
     .workspace__content {
         transition: none;
     }
+}
+
+.sidebar__link[aria-current="page"] {
+    color: var(--text);
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
 }

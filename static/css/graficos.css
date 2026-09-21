@@ -1,0 +1,356 @@
+.finance-page {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    margin-inline: auto;
+    padding: 28px 40px 40px;
+}
+
+.finance-tabs {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    min-width: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.finance-tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 18px 16px;
+    color: var(--text);
+    font-size: var(--font-size-4);
+    white-space: nowrap;
+}
+
+.finance-tab::after {
+    position: absolute;
+    right: 18px;
+    bottom: -1px;
+    left: 18px;
+    height: 2px;
+    background: var(--text);
+    content: "";
+}
+
+.market-card {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--surface);
+}
+
+.market-summary {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.market-summary__values {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 12px;
+    row-gap: 4px;
+    font-variant-numeric: tabular-nums;
+}
+
+.market-price {
+    color: var(--text);
+    font-size: var(--font-size-3);
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.market-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--text-secondary);
+    font-size: var(--font-size-4);
+    line-height: 1.5;
+}
+
+.market-change[data-trend="up"] {
+    color: var(--green);
+}
+
+.market-change[data-trend="down"] {
+    color: var(--red);
+}
+
+.market-change svg {
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.market-period {
+    margin: 3px 0 0;
+    color: var(--text-secondary);
+    font-size: var(--font-size-6);
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.chart-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 10px;
+}
+
+.chart-ranges,
+.chart-styles {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+    padding: 3px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.chart-ranges {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.chart-ranges::-webkit-scrollbar {
+    display: none;
+}
+
+.chart-range,
+.chart-style {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 32px;
+    padding: 0 9px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: var(--font-size-6);
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 160ms ease, color 160ms ease;
+}
+
+.chart-range[aria-pressed="true"],
+.chart-style[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--text) 9%, transparent);
+    color: var(--text);
+}
+
+.chart-style {
+    width: 36px;
+    padding: 0;
+}
+
+.chart-style svg {
+    width: 19px;
+    height: 19px;
+}
+
+.chart-range:focus-visible,
+.chart-style:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+.chart-stage {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    height: 420px;
+}
+
+.market-chart {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.chart-tooltip {
+    position: absolute;
+    z-index: 5;
+    min-width: 148px;
+    max-width: calc(100% - 24px);
+    padding: 11px 13px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: var(--font-size-6);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.6;
+    pointer-events: none;
+}
+
+.chart-tooltip[hidden],
+.chart-tooltip[data-hidden="true"] {
+    display: none;
+}
+
+.chart-tooltip strong {
+    display: block;
+    font-size: var(--font-size-5);
+    font-weight: 500;
+}
+
+.chart-tooltip time,
+.chart-tooltip small {
+    display: block;
+    color: var(--text-secondary);
+    font-size: inherit;
+}
+
+.chart-footer {
+    margin: 0;
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: var(--font-size-6);
+    line-height: 1.6;
+}
+
+.chart-empty {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    padding: 24px;
+    color: var(--text-secondary);
+    font-size: var(--font-size-5);
+    line-height: 1.6;
+    text-align: center;
+}
+
+.chart-empty[hidden] {
+    display: none;
+}
+
+@media (hover: hover) {
+    .chart-range:hover,
+    .chart-style:hover {
+        background: color-mix(in srgb, var(--text) 6%, transparent);
+        color: var(--text);
+    }
+
+    .chart-range[aria-pressed="true"]:hover,
+    .chart-style[aria-pressed="true"]:hover {
+        background: color-mix(in srgb, var(--text) 12%, transparent);
+    }
+}
+
+@media (width >= 1100px) {
+    .finance-tabs {
+        margin-bottom: 64px;
+    }
+
+    .market-card {
+        width: min(1048px, calc((100% - 40px) * 0.7));
+    }
+
+    .chart-stage {
+        height: 340px;
+    }
+}
+@media (width < 640px) {
+    .finance-page {
+        padding: 20px 16px 28px;
+    }
+
+    .finance-tabs {
+        margin-bottom: 16px;
+    }
+
+    .finance-tab {
+        min-height: 42px;
+        padding: 0 8px 14px;
+    }
+
+    .finance-tab::after {
+        right: 8px;
+        left: 8px;
+    }
+
+    .market-card {
+        border-radius: 16px;
+    }
+
+    .market-summary {
+        padding: 14px;
+    }
+
+    .market-summary__values {
+        column-gap: 10px;
+    }
+
+    .market-change {
+        font-size: var(--font-size-5);
+    }
+
+    .chart-toolbar {
+        gap: 7px;
+        padding: 8px;
+    }
+
+    .chart-range {
+        min-width: 30px;
+        padding-inline: 7px;
+    }
+
+    .chart-stage {
+        height: 360px;
+    }
+
+    .chart-footer {
+        padding: 11px 14px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chart-range,
+    .chart-style {
+        transition: none;
+    }
+}
+
+.finance-tab { font-weight: 400; }
+.market-chart:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -3px;
+}
+
+
+.chart-description {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+.chart-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px 16px;
+}
+.chart-footer a:hover { color: var(--text); }

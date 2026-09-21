@@ -1,6 +1,6 @@
 .auth {
     width: min(760px, calc(100% - 32px));
-    max-height: calc(100svh - 32px);
+    max-height: calc(var(--viewport-height) - 32px);
     margin: auto;
     padding: 76px 48px 64px;
     overflow-y: auto;

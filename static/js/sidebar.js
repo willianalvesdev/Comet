@@ -66,7 +66,7 @@
             (smallScreen.matches ? mobileToggle : toggle).focus();
         }
         if (event.key === "Tab" && smallScreen.matches) {
-            const buttons = [...sidebar.querySelectorAll("button")];
+            const buttons = [...sidebar.querySelectorAll("button, a[href]")];
             const first = buttons[0];
             const last = buttons[buttons.length - 1];
             if (event.shiftKey && document.activeElement === first) {

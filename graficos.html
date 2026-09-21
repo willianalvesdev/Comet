@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#171615">
+    <meta name="color-scheme" content="dark">
+    <title>Ascensão — Gráficos</title>
+    <link rel="icon" type="image/svg+xml" href="./static/img/icons/favicon.svg">
+    <script src="./static/js/theme.js"></script>
+    <link rel="stylesheet" href="./static/css/globals.css">
+    <link rel="stylesheet" href="./static/css/principal.css">
+    <link rel="stylesheet" href="./static/css/graficos.css">
+    <script src="./static/js/sidebar.js" defer></script>
+    <script src="./static/js/vendor/lightweight-charts.js" defer></script>
+    <script src="./static/js/chart-demo.js" defer></script>
+    <script src="./static/js/graficos.js" defer></script>
+</head>
+<body class="workspace">
+    <aside class="sidebar" id="sidebar" aria-label="Menu lateral">
+        <div class="sidebar__top">
+            <a class="sidebar__logo" href="./principal.html" aria-label="Ascensão — tela principal"></a>
+            <button class="sidebar__toggle" type="button" aria-label="Recolher menu" aria-expanded="true" aria-controls="sidebar-nav" title="Recolher menu">
+                <span class="sidebar__toggle-icon" aria-hidden="true"></span>
+            </button>
+        </div>
+
+        <nav class="sidebar__nav" id="sidebar-nav" aria-label="Navegação principal">
+            <button class="sidebar__link" type="button" aria-label="Computer" title="Computer">
+                <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="4" y="4" width="16" height="12" rx="2"/>
+                    <path d="M2 20h20M9 8v4m6-4v4"/>
+                </svg>
+                <span class="sidebar__label">Computer</span>
+            </button>
+            <button class="sidebar__link" type="button" aria-label="Artefatos" title="Artefatos">
+                <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="4" y="3" width="16" height="18" rx="2"/>
+                    <path d="m10 3 4 18M4 12h8"/>
+                </svg>
+                <span class="sidebar__label">Artefatos</span>
+            </button>
+            <button class="sidebar__link" type="button" aria-label="Personalizar" title="Personalizar">
+                <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m12 2 9 5v10l-9 5-9-5V7Z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <span class="sidebar__label">Personalizar</span>
+            </button>
+            <a class="sidebar__link" href="./graficos.html" aria-current="page" aria-label="Gráficos" title="Gráficos">
+                <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 3v18h18M6 15l4-5 4 3 6-8"/>
+                </svg>
+                <span class="sidebar__label">Gráficos</span>
+            </a>
+        </nav>
+
+        <div class="sidebar__profile" aria-label="Perfil do usuário">
+            <span class="sidebar__avatar" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="9"/>
+                    <circle cx="12" cy="9" r="3"/>
+                    <path d="M6 18c.7-3 2.7-4 6-4s5.3 1 6 4"/>
+                </svg>
+            </span>
+            <div class="sidebar__profile-info">
+                <span class="sidebar__profile-label" title="Usuário">Usuário</span>
+                <span class="sidebar__profile-email" title="usuario@exemplo.com">usuario@exemplo.com</span>
+            </div>
+        </div>
+    </aside>
+    <button class="sidebar-backdrop" type="button" tabindex="-1" aria-label="Fechar menu" hidden></button>
+    <main class="workspace__content" aria-label="Área de trabalho">
+        <header class="workspace__header">
+            <div class="workspace__mobile-brand">
+                <button class="workspace__header-button workspace__menu-toggle" type="button" aria-label="Abrir menu lateral" aria-expanded="false" aria-controls="sidebar">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg>
+                </button>
+                <span class="workspace__brand-logo" role="img" aria-label="Ascensão"></span>
+            </div>
+            <span class="workspace__title">Gráficos</span>
+            <div class="workspace__header-actions">
+                <button class="workspace__header-button" type="button" aria-label="Notificações" title="Notificações">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>
+                    </svg>
+                </button>
+                <button class="workspace__header-button" data-theme-toggle type="button" aria-label="Ativar modo claro" title="Ativar modo claro">
+                    <svg class="theme-icon--sun" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4"/>
+                        <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>
+                    </svg>
+                    <svg class="theme-icon--moon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <section class="finance-page" aria-labelledby="overview-title">
+            <div class="finance-tabs">
+                <h1 class="finance-tab" id="overview-title">Visão geral</h1>
+            </div>
+            <section class="market-card" aria-label="Evolução dos valores">
+                <div class="market-summary">
+                    <div class="market-summary__values">
+                        <span class="market-price" id="market-price">—</span>
+                        <span class="market-change" id="market-change" data-trend="up"></span>
+                    </div>
+                    <p class="market-period" id="market-period"></p>
+                </div>
+                <div class="chart-toolbar">
+                    <div class="chart-ranges" role="group" aria-label="Período do gráfico">
+                        <button class="chart-range" type="button" data-range="1D" aria-pressed="false" aria-label="Um dia">1D</button>
+                        <button class="chart-range" type="button" data-range="5D" aria-pressed="false" aria-label="Cinco dias">5D</button>
+                        <button class="chart-range" type="button" data-range="1M" aria-pressed="false" aria-label="Um mês">1M</button>
+                        <button class="chart-range" type="button" data-range="6M" aria-pressed="true" aria-label="Seis meses">6M</button>
+                        <button class="chart-range" type="button" data-range="YTD" aria-pressed="false" aria-label="Desde o início do ano">YTD</button>
+                        <button class="chart-range" type="button" data-range="1Y" aria-pressed="false" aria-label="Um ano">1A</button>
+                        <button class="chart-range" type="button" data-range="5Y" aria-pressed="false" aria-label="Cinco anos">5A</button>
+                        <button class="chart-range" type="button" data-range="MAX" aria-pressed="false" aria-label="Todo o período">MÁX</button>
+                    </div>
+                    <div class="chart-styles" role="group" aria-label="Tipo de gráfico">
+                        <button class="chart-style" type="button" data-chart-style="line" aria-label="Gráfico de linha" title="Gráfico de linha" aria-pressed="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18h16M5 14l5-6 4 3 5-6"/></svg>
+                        </button>
+                        <button class="chart-style" type="button" data-chart-style="candles" aria-label="Gráfico de velas" title="Gráfico de velas" aria-pressed="false">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M6 3v3m0 9v6M12 3v6m0 8v4M18 3v2m0 9v7"/><rect x="4" y="6" width="4" height="9" rx="1"/><rect x="10" y="9" width="4" height="8" rx="1"/><rect x="16" y="5" width="4" height="9" rx="1"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="chart-stage">
+                    <div class="market-chart" id="market-chart" role="group" tabindex="0" aria-label="Gráfico interativo de valores e volume" aria-describedby="chart-description"></div>
+                    <p class="chart-empty" id="chart-state" role="status">Carregando gráfico…</p>
+                    <div class="chart-tooltip" id="chart-tooltip" hidden aria-hidden="true">
+                        <time></time><strong></strong><small></small>
+                    </div>
+                </div>
+                <p class="chart-description" id="chart-description" aria-live="polite"></p>
+                <noscript><p class="chart-footer">Ative o JavaScript para visualizar o gráfico.</p></noscript>
+                <footer class="chart-footer">
+                    <span id="chart-demo-label">Dados fictícios · demonstração</span>
+                    <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">Gráfico por TradingView</a>
+                </footer>
+            </section>
+        </section>
+    </main>
+</body>
+</html>
