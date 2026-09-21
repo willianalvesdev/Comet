@@ -5,7 +5,7 @@
     padding: 76px 48px 64px;
     overflow-y: auto;
     border: 1px solid var(--border);
-    border-radius: 20px;
+    border-radius: 10px;
     background: var(--bg);
     color: var(--text);
     text-align: center;
@@ -70,8 +70,8 @@ html:has(.auth[open]) {
     right: 16px;
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 36px;
+    width: 18px;
+    height: 18px;
     border: 0;
     border-radius: 8px;
     background: transparent;
@@ -80,7 +80,7 @@ html:has(.auth[open]) {
 
 .auth__title {
     font-family: "Serrif", Georgia, serif;
-    font-size: calc(var(--font-size-2) * 2);
+    font-size: 1.875rem;
     font-weight: 400;
     line-height: 1.12;
     text-wrap: balance;
@@ -108,7 +108,7 @@ html:has(.auth[open]) {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    width: min(100%, 440px);
+    width: min(100%, 400px);
     margin: 36px auto 0;
 }
 
@@ -119,7 +119,7 @@ html:has(.auth[open]) {
 .auth__form input {
     width: 100%;
     min-width: 0;
-    height: 50px;
+    height: 45px;
     padding: 12px 28px;
     border: 1px solid var(--border);
     border-radius: 10px;
@@ -140,6 +140,7 @@ html:has(.auth[open]) {
     background: var(--text);
     color: var(--bg);
     font-size: var(--font-size-3);
+    font-weight: 600;
     line-height: 1.3;
 }
 
@@ -165,6 +166,39 @@ html:has(.auth[open]) {
     outline-offset: 4px;
 }
 
+@media (width >= 640px) {
+    .auth__close {
+        top: 16px;
+        right: 16px;
+    }
+
+    .auth__submit {
+        height: 45px;
+        min-height: 45px;
+        padding-block: 0;
+    }
+    .auth {
+        width: min(600px, calc(100% - 32px));
+        padding: 48px 40px 40px;
+    }
+
+    .auth__panel {
+        min-height: 460px;
+    }
+
+    .auth__form {
+        gap: 12px;
+        margin-top: 28px;
+    }
+
+    .auth__form--login {
+        margin-top: 36px;
+    }
+
+    .auth__switch {
+        margin-top: 32px;
+    }
+}
 @media (width < 640px) {
     .auth {
         padding: 64px 24px 40px;
@@ -186,6 +220,7 @@ html:has(.auth[open]) {
     }
 
     .auth__form {
+        gap: 12px;
         margin-top: 32px;
     }
 

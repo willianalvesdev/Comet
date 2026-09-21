@@ -1,8 +1,96 @@
 @font-face {
-    font-family: "Inter";
-    src: url("../fonts/Inter/Inter-VariableFont_opsz,wght.ttf") format("truetype");
-    font-weight: 100 900;
+    font-family: "Saans";
+    src: url("../fonts/saans/saans-trial-light.woff2") format("woff2");
+    font-weight: 300;
     font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Saans";
+    src: url("../fonts/saans/saans-trial-lightitalic.woff2") format("woff2");
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Saans";
+    src: url("../fonts/saans/saans-trial-regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Saans";
+    src: url("../fonts/saans/saans-trial-regularitalic.woff2") format("woff2");
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Saans";
+    src: url("../fonts/saans/saans-trial-medium.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Saans";
+    src: url("../fonts/saans/saans-trial-mediumitalic.woff2") format("woff2");
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Saans";
+    src: url("../fonts/saans/saans-trial-semibold.woff2") format("woff2");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Saans";
+    src: url("../fonts/saans/saans-trial-semibolditalic.woff2") format("woff2");
+    font-weight: 600;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Saans";
+    src: url("../fonts/saans/saans-trial-bold.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Saans";
+    src: url("../fonts/saans/saans-trial-bolditalic.woff2") format("woff2");
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Saans";
+    src: url("../fonts/saans/saans-trial-heavy.woff2") format("woff2");
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Saans";
+    src: url("../fonts/saans/saans-trial-heavyitalic.woff2") format("woff2");
+    font-weight: 900;
+    font-style: italic;
     font-display: swap;
 }
 
@@ -22,20 +110,22 @@
     --border: #d6d5d41A;
     --text: #D6D5D4;
     --text-secondary: #959593;
+    --text-white: #ffffff;
     --green: #539E55;
     --red: #DC6973;
 
-    --font-size-1: 64px;
-    --font-size-2: 19.2px;
+    --font-size-1: 72px;
+    --font-size-2: 24px;
     --font-size-3: 16px;
-    --font-size-4: 12.8px;
-    --font-size-5: 11.2px;
-    --font-size-6: 9.6px;
+    --font-size-4: 14px;
+    --font-size-5: 12px;
+    --font-size-6: 10px;
 
-    --margin-inline-1: 8rem;
+    --margin-inline-1: 6rem;
     --margin-inline-2: 2.5rem;
     --gap: 3rem;
-    --header-height: 84px;
+    --gap-half: 1.5rem;
+    --header-height: 68px;
 
 }
 
@@ -86,7 +176,7 @@ body {
     min-height: 100vh;
     background-color: var(--bg);
     color: var(--text);
-    font-family: "Inter", sans-serif;
+    font-family: "Saans", sans-serif;
     font-size: var(--font-size-4);
     font-weight: 400;
     line-height: 1.5;
@@ -118,10 +208,9 @@ body {
 .page-background::after {
     background: linear-gradient(
         to bottom,
-        color-mix(in srgb, var(--bg) 35%, transparent) 0%,
-        color-mix(in srgb, var(--bg) 35%, transparent) 35%,
-        color-mix(in srgb, var(--bg) 65%, transparent) 70%,
-        color-mix(in srgb, var(--bg) 95%, transparent) 100%
+        color-mix(in srgb, var(--bg) 30%, transparent) 0%,
+        color-mix(in srgb, var(--bg) 40%, transparent) 70%,
+        color-mix(in srgb, var(--bg) 70%, transparent) 100%
     );
 }
 
@@ -164,7 +253,7 @@ button:not(:disabled) {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     color: var(--text);
-    font-family: "Inter", sans-serif;
+    font-family: "Saans", sans-serif;
     font-size: var(--font-size-3);
     font-weight: 400;
     line-height: 1.2;
