@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#171615">
+    <meta name="color-scheme" content="dark">
+    <script src="./static/js/theme.js"></script>
+    <title>Ascensão — Tela principal</title>
+    <link rel="icon" type="image/svg+xml" href="./static/img/icons/favicon.svg">
+    <link rel="stylesheet" href="./static/css/globals.css">
+    <link rel="stylesheet" href="./static/css/principal.css">
+    <script src="./static/js/sidebar.js" defer></script>
+</head>
+<body class="workspace">
+    <aside class="sidebar" id="sidebar" aria-label="Menu lateral">
+        <div class="sidebar__top">
+            <span class="sidebar__logo" role="img" aria-label="Ascensão"></span>
+            <button class="sidebar__toggle" type="button" aria-label="Recolher menu" aria-expanded="true" aria-controls="sidebar-nav" title="Recolher menu">
+                <span class="sidebar__toggle-icon" aria-hidden="true"></span>
+            </button>
+        </div>
+
+        <nav class="sidebar__nav" id="sidebar-nav" aria-label="Navegação principal">
+            <button class="sidebar__link" type="button" aria-label="Computer" title="Computer">
+                <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="4" y="4" width="16" height="12" rx="2"/>
+                    <path d="M2 20h20M9 8v4m6-4v4"/>
+                </svg>
+                <span class="sidebar__label">Computer</span>
+            </button>
+            <button class="sidebar__link" type="button" aria-label="Artefatos" title="Artefatos">
+                <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="4" y="3" width="16" height="18" rx="2"/>
+                    <path d="m10 3 4 18M4 12h8"/>
+                </svg>
+                <span class="sidebar__label">Artefatos</span>
+            </button>
+            <button class="sidebar__link" type="button" aria-label="Personalizar" title="Personalizar">
+                <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m12 2 9 5v10l-9 5-9-5V7Z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <span class="sidebar__label">Personalizar</span>
+            </button>
+        </nav>
+
+        <div class="sidebar__profile" aria-label="Perfil do usuário">
+            <span class="sidebar__avatar" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="9"/>
+                    <circle cx="12" cy="9" r="3"/>
+                    <path d="M6 18c.7-3 2.7-4 6-4s5.3 1 6 4"/>
+                </svg>
+            </span>
+            <div class="sidebar__profile-info">
+                <span class="sidebar__profile-label" title="Usuário">Usuário</span>
+                <span class="sidebar__profile-email" title="usuario@exemplo.com">usuario@exemplo.com</span>
+            </div>
+        </div>
+    </aside>
+    <button class="sidebar-backdrop" type="button" tabindex="-1" aria-label="Fechar menu" hidden></button>
+    <main class="workspace__content" aria-label="Área de trabalho">
+        <header class="workspace__header">
+            <div class="workspace__mobile-brand">
+                <button class="workspace__header-button workspace__menu-toggle" type="button" aria-label="Abrir menu lateral" aria-expanded="false" aria-controls="sidebar">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg>
+                </button>
+                <span class="workspace__brand-logo" role="img" aria-label="Ascensão"></span>
+            </div>
+            <span class="workspace__title">Rota Financeira</span>
+            <div class="workspace__header-actions">
+                <button class="workspace__header-button" type="button" aria-label="Notificações" title="Notificações">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>
+                    </svg>
+                </button>
+                <button class="workspace__header-button" data-theme-toggle type="button" aria-label="Ativar modo claro" title="Ativar modo claro">
+                    <svg class="theme-icon--sun" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4"/>
+                        <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>
+                    </svg>
+                    <svg class="theme-icon--moon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+    </main>
+</body>
+</html>
