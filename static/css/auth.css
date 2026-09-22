@@ -132,6 +132,10 @@ html:has(.auth[open]) {
     opacity: 1;
 }
 
+.auth__message { color: var(--red); font-size: var(--font-size-4); text-align: left; }
+.auth__message:empty { display: none; }
+.auth__submit:disabled { opacity: 0.65; cursor: wait; }
+
 .auth__submit {
     min-height: 50px;
     padding: 12px 20px;

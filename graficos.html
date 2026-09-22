@@ -27,13 +27,13 @@
         </div>
 
         <nav class="sidebar__nav" id="sidebar-nav" aria-label="Navegação principal">
-            <button class="sidebar__link" type="button" aria-label="Computer" title="Computer">
+            <a class="sidebar__link" href="./principal.html?mode=computer" aria-label="Computer" title="Computer">
                 <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="4" y="4" width="16" height="12" rx="2"/>
                     <path d="M2 20h20M9 8v4m6-4v4"/>
                 </svg>
                 <span class="sidebar__label">Computer</span>
-            </button>
+            </a>
             <button class="sidebar__link" type="button" aria-label="Artefatos" title="Artefatos">
                 <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="4" y="3" width="16" height="18" rx="2"/>
@@ -65,18 +65,18 @@
                 </svg>
             </span>
             <span class="sidebar__profile-info">
-                <span class="sidebar__profile-label" title="Usuário">Usuário</span>
-                <span class="sidebar__profile-email" title="usuario@exemplo.com">usuario@exemplo.com</span>
+                <span class="sidebar__profile-label" title="{{ user.nome }}">{{ user.nome }}</span>
+                <span class="sidebar__profile-email" title="{{ user.email }}">{{ user.email }}</span>
             </span>
         </button>
 
         <div class="profile-menu" id="profile-menu" popover aria-label="Menu do perfil">
             <div class="profile-menu__main">
-                <div class="profile-menu__identity"><span class="sidebar__avatar">U</span><div><span>Usuário</span><small>usuario@exemplo.com</small></div></div>
+                <div class="profile-menu__identity"><span class="sidebar__avatar">{{ user.nome[0]|upper }}</span><div><span>{{ user.nome }}</span><small>{{ user.email }}</small></div></div>
                 <button class="profile-menu__item" type="button" data-profile-submenu="appearance" aria-expanded="false" aria-controls="profile-appearance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z"/></svg><span>Aparência<small data-theme-label>Escuro</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
                 <button class="profile-menu__item" type="button" data-profile-submenu="language" aria-expanded="false" aria-controls="profile-language"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h12M9 3v2M5 5c0 6 7 10 7 10M13 5c0 6-8 10-8 10m10 6 4-10 4 10m-6-4h4"/></svg><span>Idioma<small>Português (Brasil)</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
                 <div class="profile-menu__divider"></div>
-                <button class="profile-menu__item" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H4v16h6m4-12 4 4-4 4m-6-4h10"/></svg><span>Sair</span></button>
+                <form action="/logout" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="profile-menu__item" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H4v16h6m4-12 4 4-4 4m-6-4h10"/></svg><span>Sair</span></button></form>
             </div>
             <div class="profile-menu__submenu" id="profile-appearance" aria-label="Aparência" hidden>
                 <button class="profile-menu__back" type="button">‹ Aparência</button>

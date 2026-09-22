@@ -103,12 +103,14 @@
         <section class="auth__panel" data-auth-panel="login">
             <h2 class="auth__title" id="auth-login-title" tabindex="-1">Faça login ou cadastre-se<br> gratuitamente</h2>
             <p class="auth__policy" id="auth-login-policy">Ao continuar, você concorda com nossa <button class="auth__link" type="button">política de privacidade</button>.</p>
-            <form class="auth__form auth__form--login">
+            <form class="auth__form auth__form--login" action="/api/auth/login" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <label class="sr-only" for="login-email">Email</label>
-                <input id="login-email" type="email" autocomplete="email" placeholder="Introduza o seu email">
+                <input id="login-email" name="email" type="email" autocomplete="email" placeholder="Introduza o seu email" required maxlength="254">
                 <label class="sr-only" for="login-password">Senha</label>
-                <input id="login-password" type="password" autocomplete="current-password" placeholder="Digite sua senha">
-                <button class="auth__submit" type="button">Entrar</button>
+                <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Digite sua senha" required maxlength="128">
+                <p class="auth__message" role="alert"></p>
+                <button class="auth__submit" type="submit">Entrar</button>
             </form>
             <p class="auth__switch">Ainda não tem uma conta? <button class="auth__link" type="button" data-auth-switch="signup">Comece por aqui.</button></p>
         </section>
@@ -116,16 +118,18 @@
         <section class="auth__panel" data-auth-panel="signup" hidden>
             <h2 class="auth__title" id="auth-signup-title" tabindex="-1">Crie Sua conta</h2>
             <p class="auth__policy" id="auth-signup-policy">Ao continuar, você concorda com nossa <button class="auth__link" type="button">política de privacidade</button>.</p>
-            <form class="auth__form">
+            <form class="auth__form" action="/api/auth/signup" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <label class="sr-only" for="signup-name">Nome</label>
-                <input id="signup-name" type="text" autocomplete="name" placeholder="Como podemos chamá-lo?">
+                <input id="signup-name" name="name" type="text" autocomplete="name" placeholder="Como podemos chamá-lo?" required minlength="2" maxlength="100">
                 <label class="sr-only" for="signup-email">Email</label>
-                <input id="signup-email" type="email" autocomplete="email" placeholder="Digite o seu email">
+                <input id="signup-email" name="email" type="email" autocomplete="email" placeholder="Digite o seu email" required maxlength="254">
                 <label class="sr-only" for="signup-password">Senha</label>
-                <input id="signup-password" type="password" autocomplete="new-password" placeholder="Crie uma senha">
+                <input id="signup-password" name="password" type="password" autocomplete="new-password" placeholder="Crie uma senha" required minlength="8" maxlength="128">
                 <label class="sr-only" for="signup-confirm">Confirme sua senha</label>
-                <input id="signup-confirm" type="password" autocomplete="new-password" placeholder="Confirme sua senha">
-                <button class="auth__submit" type="button">Criar Conta</button>
+                <input id="signup-confirm" name="confirmation" type="password" autocomplete="new-password" placeholder="Confirme sua senha" required minlength="8" maxlength="128">
+                <p class="auth__message" role="alert"></p>
+                <button class="auth__submit" type="submit">Criar Conta</button>
             </form>
             <p class="auth__switch">Já tem uma conta? <button class="auth__link" type="button" data-auth-switch="login">Entre aqui.</button></p>
         </section>

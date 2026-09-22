@@ -181,8 +181,8 @@
 }
 
 .hero__action--primary {
-    border: 1px solid color-mix(in srgb, var(--accent) 80%, transparent);
-    background-color: color-mix(in srgb, var(--accent) 60%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 70%, transparent);
+    background-color: color-mix(in srgb, var(--accent) 50%, transparent);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
 }

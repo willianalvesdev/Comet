@@ -240,6 +240,10 @@ textarea {
     color: inherit;
 }
 
+textarea {
+    resize: none;
+}
+
 button:not(:disabled) {
     cursor: pointer;
 }
