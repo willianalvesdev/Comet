@@ -14,7 +14,6 @@
     const periodElement = document.querySelector("#market-period");
     const tooltip = document.querySelector("#chart-tooltip");
     const description = document.querySelector("#chart-description");
-    const demoLabel = document.querySelector("#chart-demo-label");
     const ranges = [...document.querySelectorAll("[data-range]")];
     const styles = [...document.querySelectorAll("[data-chart-style]")];
     let model = { currency: "BRL", demo: true, points: [], intraday: [] };
@@ -51,6 +50,13 @@
     function readColors() {
         return Object.fromEntries(["surface", "border", "text-secondary", "green", "red"].map((name) => [name, cssColor("--" + name)]));
     }
+    function fills() {
+        const alpha = (color, opacity) => color.replace(/,[^,]+\)$/, ',' + opacity + ')');
+        return {
+            topFillColor1: alpha(colors.green, .20), topFillColor2: alpha(colors.green, .02),
+            bottomFillColor1: alpha(colors.red, .02), bottomFillColor2: alpha(colors.red, .20)
+        };
+    }
     colors = readColors();
     const chart = createChart(host, {
         autoSize: true,
@@ -58,7 +64,7 @@
             background: { type: "solid", color: colors.surface },
             textColor: colors["text-secondary"],
             fontFamily: getComputedStyle(document.body).fontFamily,
-            fontSize: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--font-size-6")),
+            fontSize: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--font-size-5")),
             attributionLogo: false
         },
         grid: {
@@ -67,7 +73,7 @@
         },
         leftPriceScale: { visible: true, borderVisible: false, scaleMargins: { top: .17, bottom: .2 }, minimumWidth: 60 },
         rightPriceScale: { visible: false },
-        timeScale: { borderColor: colors.border, rightOffset: 0, lockVisibleTimeRangeOnResize: true, fixLeftEdge: true, fixRightEdge: true },
+        timeScale: { allowBoldLabels: false, borderColor: colors.border, rightOffset: 0, lockVisibleTimeRangeOnResize: true, fixLeftEdge: true, fixRightEdge: true },
         crosshair: {
             mode: CrosshairMode.Normal,
             vertLine: { color: colors["text-secondary"], labelVisible: false, style: LineStyle.Dashed },
@@ -81,8 +87,8 @@
     const line = chart.addSeries(BaselineSeries, {
         ...common, lineWidth: 2, lineType: LineType.Curved,
         topLineColor: colors.green, bottomLineColor: colors.red,
-        topFillColor1: "transparent", topFillColor2: "transparent",
-        bottomFillColor1: "transparent", bottomFillColor2: "transparent"
+        ...fills(),
+
     });
     const candles = chart.addSeries(CandlestickSeries, {
         ...common, visible: false, borderVisible: false,
@@ -237,7 +243,7 @@
             timeScale: { borderColor: colors.border },
             crosshair: { vertLine: { color: colors["text-secondary"] }, horzLine: { color: colors["text-secondary"] } }
         });
-        line.applyOptions({ topLineColor: colors.green, bottomLineColor: colors.red });
+        line.applyOptions({ topLineColor: colors.green, bottomLineColor: colors.red, ...fills() });
         candles.applyOptions({ upColor: colors.green, downColor: colors.red, wickUpColor: colors.green, wickDownColor: colors.red });
         if (baseline) baseline.applyOptions({ color: colors["text-secondary"] });
     }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
@@ -254,7 +260,6 @@
         priceFormat = { type: "custom", minMove: .01, formatter: (value) => quantity.format(value) };
         line.applyOptions({ priceFormat });
         candles.applyOptions({ priceFormat });
-        demoLabel.textContent = model.demo ? "Dados fictícios · demonstração" : "Dados do site";
         setRange();
         setStyle();
     }

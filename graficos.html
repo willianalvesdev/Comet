@@ -54,21 +54,20 @@
                 </svg>
                 <span class="sidebar__label">Gráficos</span>
             </a>
+            <a class="sidebar__link" href="./descobrir.html" aria-label="Descobrir" title="Descobrir"><span class="sidebar__icon sidebar__discover-icon" aria-hidden="true"></span><span class="sidebar__label">Descobrir</span></a>
         </nav>
 
-        <button class="sidebar__profile" type="button" popovertarget="profile-menu" aria-expanded="false" aria-controls="profile-menu" aria-label="Abrir menu do perfil">
-            <span class="sidebar__avatar" aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="9"/>
-                    <circle cx="12" cy="9" r="3"/>
-                    <path d="M6 18c.7-3 2.7-4 6-4s5.3 1 6 4"/>
-                </svg>
-            </span>
+        <div class="sidebar__footer">
+<button class="sidebar__profile" type="button" popovertarget="profile-menu" aria-expanded="false" aria-controls="profile-menu" aria-label="Abrir menu do perfil">
+            <span class="sidebar__avatar" aria-hidden="true">{{ user.nome[0]|upper }}</span>
             <span class="sidebar__profile-info">
                 <span class="sidebar__profile-label" title="{{ user.nome }}">{{ user.nome }}</span>
                 <span class="sidebar__profile-email" title="{{ user.email }}">{{ user.email }}</span>
             </span>
+            <span class="sidebar__profile-open" aria-hidden="true"></span>
         </button>
+        <button class="sidebar__notification" type="button" aria-label="Notificações" title="Notificações"><span aria-hidden="true"></span></button>
+        </div>
 
         <div class="profile-menu" id="profile-menu" popover aria-label="Menu do perfil">
             <div class="profile-menu__main">
@@ -101,13 +100,6 @@
                 <span class="workspace__brand-logo" role="img" aria-label="Ascensão"></span>
             </div>
             <span class="workspace__title">Gráficos</span>
-            <div class="workspace__header-actions">
-                <button class="workspace__header-button" type="button" aria-label="Notificações" title="Notificações">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>
-                    </svg>
-                </button>
-            </div>
         </header>
 
         <section class="finance-page" aria-labelledby="overview-title">
@@ -151,10 +143,6 @@
                 </div>
                 <p class="chart-description" id="chart-description" aria-live="polite"></p>
                 <noscript><p class="chart-footer">Ative o JavaScript para visualizar o gráfico.</p></noscript>
-                <footer class="chart-footer">
-                    <span id="chart-demo-label">Dados fictícios · demonstração</span>
-                    <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">Gráfico por TradingView</a>
-                </footer>
             </section>
         </section>
     </main>

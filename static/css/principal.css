@@ -406,3 +406,24 @@
     .profile-menu__submenu { position: static; width: 100%; border: 0; padding: 0; box-shadow: none; }
     .profile-menu__back { display: block; width: 100%; padding: 10px 8px; border: 0; border-bottom: 1px solid var(--border); background: transparent; color: var(--text-secondary); text-align: left; }
 }
+
+.sidebar__avatar { color: #fff; text-align: center; line-height: 1; }
+
+.sidebar__footer { display: flex; align-items: center; flex: 0 0 60px; margin-top: auto; padding: 6px 8px; border-top: 1px solid var(--border); }
+.sidebar__footer .sidebar__profile { flex: 1; min-width: 0; width: auto; height: 46px; margin: 0; padding: 6px 8px; gap: 8px; border: 0; border-radius: 12px 0 0 12px; }
+.sidebar__profile-open { flex: 0 0 14px; width: 14px; height: 14px; opacity: 0; background: currentColor; -webkit-mask: url("../img/icons/profile-open.svg") center / contain no-repeat; mask: url("../img/icons/profile-open.svg") center / contain no-repeat; transition: opacity 160ms ease; }
+.sidebar__profile:hover .sidebar__profile-open, .sidebar__profile:focus-visible .sidebar__profile-open, .sidebar__profile[aria-expanded="true"] .sidebar__profile-open { opacity: 1; }
+.sidebar__notification { display: grid; place-items: center; flex: 0 0 36px; height: 46px; padding: 0; border: 0; border-left: 1px solid transparent; border-radius: 0 12px 12px 0; background: transparent; color: var(--text-secondary); }
+.sidebar__notification span { width: 16px; height: 16px; background: currentColor; -webkit-mask: url("../img/icons/notification.svg") center / contain no-repeat; mask: url("../img/icons/notification.svg") center / contain no-repeat; }
+.sidebar__footer:has(.sidebar__profile[aria-expanded="true"]) > button, .sidebar__footer:focus-within > button { background: color-mix(in srgb, var(--text) 5%, transparent); }
+@media (hover: hover) {
+    .sidebar__footer:hover > button { background: color-mix(in srgb, var(--text) 5%, transparent); }
+    .sidebar__footer:hover .sidebar__notification { border-left-color: var(--border); }
+}
+.is-sidebar-collapsed .sidebar__footer { flex-direction: column; flex-basis: auto; gap: 2px; }
+.is-sidebar-collapsed .sidebar__footer .sidebar__profile { flex: 0 0 40px; width: 100%; padding: 0; border-radius: 10px; }
+.is-sidebar-collapsed .sidebar__profile-open { display: none; }
+.is-sidebar-collapsed .sidebar__notification { flex: 0 0 32px; width: 100%; border-left: 0; border-radius: 10px; }
+.is-sidebar-collapsed .profile-menu { bottom: 92px; }
+
+.sidebar__discover-icon { display: inline-block; background: currentColor; -webkit-mask: url("../img/icons/discover.svg") center / contain no-repeat; mask: url("../img/icons/discover.svg") center / contain no-repeat; }

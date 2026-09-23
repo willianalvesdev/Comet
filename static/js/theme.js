@@ -11,7 +11,7 @@
         const theme = preference === "system" ? (system.matches ? "dark" : "light") : preference;
         root.dataset.theme = theme;
         const favicon = document.querySelector('link[rel="icon"]');
-        if (favicon) favicon.href = theme === "light" ? "./static/img/icons/favicon-light.svg" : "./static/img/icons/favicon.svg";
+        if (favicon) favicon.href = favicon.dataset.pageIcon || (theme === "light" ? "./static/img/icons/favicon-light.svg" : "./static/img/icons/favicon.svg");
         const scheme = document.querySelector('meta[name="color-scheme"]');
         if (scheme) scheme.content = theme;
         const color = document.querySelector('meta[name="theme-color"]');

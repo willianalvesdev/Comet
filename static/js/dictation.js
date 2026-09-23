@@ -30,7 +30,7 @@
             return;
         }
         if (!Recognition) {
-            indicate(false, "Este navegador não oferece ditado por voz. Tente usar o Chrome ou Safari.");
+            indicate(false, "Este navegador não oferece ditado por voz.");
             return;
         }
         if (!window.isSecureContext) {
@@ -66,7 +66,7 @@
             failed = true;
             const messages = {
                 "not-allowed": "Permita o uso do microfone nas configurações do navegador e tente novamente.",
-                "service-not-allowed": "O serviço de ditado não está disponível neste navegador. Tente outro navegador.",
+                "service-not-allowed": "O serviço de ditado não está disponível neste navegador.",
                 "audio-capture": "Não foi possível acessar o microfone. Confira se ele está conectado e disponível.",
                 "network": "Não foi possível conectar ao serviço de ditado. Confira sua conexão e tente novamente.",
                 "no-speech": "Não ouvi nenhuma fala. Toque no microfone para tentar novamente.",
