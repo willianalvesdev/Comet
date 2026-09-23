@@ -9,7 +9,7 @@
 }
 
 .hero h1 {
-    font-family: "Serrif", Georgia, serif;
+    font-family: "Kalice", Georgia, serif;
     font-size: var(--font-size-1);
     font-weight: 500;
     line-height: 1.15;
@@ -257,16 +257,16 @@
 
 @media (width < 640px) {
     .hero__composer {
-        min-height: 120px;
-        padding: 8px;
-        border-radius: 20px;
+        min-height: 124px;
+        padding: 10px;
+        border-radius: 24px;
     }
 
     .hero__input-bar {
         min-height: 62px;
         gap: 8px;
         padding: 10px;
-        border-radius: 14px;
+        border-radius: 18px;
     }
 
     .hero__symbol {

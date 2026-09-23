@@ -1,4 +1,84 @@
 @font-face {
+    font-family: "Kalice";
+    src: url("../fonts/kalice/kalicetrial-regular.otf") format("opentype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Kalice";
+    src: url("../fonts/kalice/kalicetrial-italic.otf") format("opentype");
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Kalice";
+    src: url("../fonts/kalice/kalicetrial-medium.otf") format("opentype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Kalice";
+    src: url("../fonts/kalice/kalicetrial-mediumitalic.otf") format("opentype");
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Kalice";
+    src: url("../fonts/kalice/kalicetrial-bold.otf") format("opentype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Kalice";
+    src: url("../fonts/kalice/kalicetrial-bolditalic.otf") format("opentype");
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Kalice";
+    src: url("../fonts/kalice/kalicetrial-extrabold.otf") format("opentype");
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Kalice";
+    src: url("../fonts/kalice/kalicetrial-extrabolditalic.otf") format("opentype");
+    font-weight: 800;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Kalice";
+    src: url("../fonts/kalice/kalicetrial-black.otf") format("opentype");
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Kalice";
+    src: url("../fonts/kalice/kalicetrial-blackitalic.otf") format("opentype");
+    font-weight: 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
     font-family: "Saans";
     src: url("../fonts/saans/saans-trial-light.woff2") format("woff2");
     font-weight: 300;
@@ -103,6 +183,8 @@
 }
 
 :root {
+    --font-body: "Saans", sans-serif;
+    --font-heading: "Kalice", "Serrif", Georgia, serif;
 
     --bg: #171615;
     --surface: #1E1D1B;
@@ -176,7 +258,7 @@ body {
     min-height: 100vh;
     background-color: var(--bg);
     color: var(--text);
-    font-family: "Saans", sans-serif;
+    font-family: var(--font-body);
     font-size: var(--font-size-4);
     font-weight: 400;
     line-height: 1.5;
@@ -244,6 +326,15 @@ textarea {
     resize: none;
 }
 
+input:is(:autofill, :-webkit-autofill),
+textarea:is(:autofill, :-webkit-autofill),
+select:is(:autofill, :-webkit-autofill) {
+    -webkit-box-shadow: 0 0 0 1000px color-mix(in srgb, var(--accent) 50%, var(--surface)) inset;
+    box-shadow: 0 0 0 1000px color-mix(in srgb, var(--accent) 50%, var(--surface)) inset;
+    -webkit-text-fill-color: var(--text);
+    caret-color: var(--text);
+}
+
 button:not(:disabled) {
     cursor: pointer;
 }
@@ -257,7 +348,7 @@ button:not(:disabled) {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     color: var(--text);
-    font-family: "Saans", sans-serif;
+    font-family: var(--font-body);
     font-size: var(--font-size-3);
     font-weight: 400;
     line-height: 1.2;

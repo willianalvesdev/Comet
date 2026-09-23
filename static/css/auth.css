@@ -79,7 +79,7 @@ html:has(.auth[open]) {
 }
 
 .auth__title {
-    font-family: "Serrif", Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 1.875rem;
     font-weight: 400;
     line-height: 1.12;
