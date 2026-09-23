@@ -1,4 +1,4 @@
-"""Marketaux financial feed. Tokens and requests stay on the server."""
+"""NewsAPI discovery feed. Tokens and requests stay on the server."""
 import hashlib
 import ipaddress
 import json
@@ -57,48 +57,71 @@ def public_url(value):
         return None
 
 
-def is_political(item):
-    text = ' '.join(plain(item.get(field), 20000) for field in
-                    ('title', 'description', 'snippet', 'keywords'))
+PAGE_SIZE = 100
+TOPICS = {
+    'technology': 'technology OR science OR tecnologia OR ciencia',
+    'business': 'finance OR business OR economia OR investimentos',
+    'culture': 'art OR culture OR arte OR cultura',
+    'sports': 'sports OR football OR esportes OR futebol',
+    'entertainment': 'entertainment OR music OR cinema OR entretenimento',
+}
+EXCLUSIONS = (' NOT (crime OR murder OR violence OR porn OR sex OR robbery OR war OR '
+              'homicidio OR assassinato OR estupro OR tiroteio)')
+UNSUITABLE_TERMS = re.compile(
+    r'\b(crim\w*|murder\w*|homicid\w*|assassin\w*|robber\w*|roub\w*|'
+    r'furto\w*|theft|stolen|fraud\w*|scam\w*|golpes?|police|policial|policiais|'
+    r'arrest\w*|prisao|presos?|sequestr\w*|kidnap\w*|trafic\w*|'
+    r'terror\w*|shootings?|tiroteio\w*|lavagem de dinheiro|money laundering|'
+    r'corrup\w*|extor\w*|violen\w*|delito\w*|asesinat\w*|'
+    r'estafa\w*|meurtre\w*|betrug\w*|mord\w*|porn\w*|sex\w*|nude\w*|'
+    r'nudi\w*|erotic\w*|estupro\w*|rape|rapist\w*|abuso\w*|onlyfans|'
+    r'massacr\w*|guerra\w*|war|warfare|bomb\w*|gore|suicid\w*|'
+    r'esfaque\w*|stabb\w*|behead\w*|tortur\w*|agress\w*)\b')
+
+
+def topic_selection(value):
+    values = tuple(sorted(set(filter(None, value.split(',')))))
+    if any(topic not in TOPICS for topic in values):
+        raise ValueError('Tópico inválido.')
+    return values
+
+
+def news_query(topics=()):
+    subjects = ' OR '.join(TOPICS[topic] for topic in (topics or TOPICS))
+    if not topics:
+        subjects += ' OR health OR travel OR education OR world OR politics'
+    return '(' + subjects + ')' + EXCLUSIONS
+
+
+def suitable_news(item):
+    text = ' '.join(plain(item.get(field), 20000) for field in ('title', 'description', 'content'))
     text = ''.join(c for c in unicodedata.normalize('NFKD', text.casefold())
                    if not unicodedata.combining(c))
-    # Financial policy and company presidents are not party politics.
-    text = re.sub(r'\bpoliticas?\s+(monetaria|cambial|de dividendos|de credito|de investimentos)\b', '', text)
-    return bool(re.search(
-        r'\b(politic[ao]s?|eleic\w*|eleitor\w*|partidari\w*|campanha presidencial|'
-        r'congresso nacional|senado|senador\w*|deputad\w*|parlament\w*|'
-        r'governo|governador\w*|prefeit\w*|casa branca|impeachment|'
-        r'presidente da republica|presidente dos estados unidos|'
-        r'trump|bolsonaro|lula|biden|putin|zelensky|netanyahu|milei|xi jinping)\b', text))
+    return not UNSUITABLE_TERMS.search(text)
 
 
 def normalize_article(item):
     if not isinstance(item, dict):
         return None
-    if is_political(item):
+    if not suitable_news(item):
         return None
     url, title = public_url(item.get('url')), plain(item.get('title'), 300)
-    if not url or not title:
+    image = public_url(item.get('urlToImage'))
+    if not url or not title or not image:
         return None
-    source = plain(item.get('source'), 120) or urlsplit(url).hostname
-    sources, seen = [{'name': source, 'url': url}], {source.casefold()}
-    similar = item.get('similar')
-    for other in (similar if isinstance(similar, list) else [])[:30]:
-        if not isinstance(other, dict) or is_political(other):
-            continue
-        other_url, name = public_url(other.get('url')), plain(other.get('source'), 120)
-        if other_url and name and name.casefold() not in seen:
-            seen.add(name.casefold())
-            sources.append({'name': name, 'url': other_url})
+    source_data = item.get('source')
+    source = plain(source_data.get('name'), 120) if isinstance(source_data, dict) else ''
+    source = source or urlsplit(url).hostname
+    sources = [{'name': source, 'url': url}]
     published = None
     try:
-        date = datetime.fromisoformat(item.get('published_at', '').replace('Z', '+00:00'))
+        date = datetime.fromisoformat(item.get('publishedAt', '').replace('Z', '+00:00'))
         published = date.replace(tzinfo=date.tzinfo or timezone.utc).isoformat()
     except (ValueError, AttributeError, TypeError):
         pass
     return dict(id=hashlib.sha256(url.encode()).hexdigest()[:24], title=title,
-                description=plain(item.get('description') or item.get('snippet'), 550),
-                url=url, image=public_url(item.get('image_url')), published_at=published,
+                description=plain(item.get('description') or item.get('content'), 550),
+                url=url, image=image, published_at=published,
                 source=source, sources=sources)
 
 
@@ -107,21 +130,19 @@ class NoRedirect(HTTPRedirectHandler):
         return None
 
 
-def fetch_marketaux(token, page):
-    query = urlencode({'api_token': token, 'language': 'pt', 'group_similar': 'true',
-                       'sort': 'published_at', 'page': page,
-                       'search': '(finanças | investimentos | bolsa | ações | empresas | juros | economia) '
-                                 '-eleições -eleitoral -partidário -senado -deputado '
-                                 '-Trump -Bolsonaro -Lula -Biden -Putin -impeachment'})
-    request = Request('https://api.marketaux.com/v1/news/all?' + query,
-                      headers={'Accept': 'application/json', 'User-Agent': 'Ascenda/1.0'})
+def fetch_newsapi(token, page, topics=(), mode='for-you'):
+    query = urlencode({'q': news_query(topics), 'searchIn': 'title,description',
+                       'sortBy': 'popularity' if mode == 'top' else 'publishedAt', 'pageSize': PAGE_SIZE, 'page': page})
+    request = Request('https://newsapi.org/v2/everything?' + query,
+                      headers={'Accept': 'application/json', 'User-Agent': 'Ascenda/1.0',
+                               'X-Api-Key': token})
     try:
         with build_opener(NoRedirect).open(request, timeout=10) as response:
             raw = response.read(2_000_001)
         if len(raw) > 2_000_000:
             raise ValueError
         result = json.loads(raw)
-        if not isinstance(result, dict) or not isinstance(result.get('data'), list):
+        if not isinstance(result, dict) or result.get('status') != 'ok' or not isinstance(result.get('articles'), list):
             raise ValueError
         return result
     except HTTPError as exc:
@@ -137,17 +158,18 @@ def fetch_marketaux(token, page):
 
 
 class NewsService:
-    def __init__(self, token, fetcher=fetch_marketaux, clock=time.monotonic):
+    def __init__(self, token, fetcher=fetch_newsapi, clock=time.monotonic):
         self.token, self.fetcher, self.clock = token, fetcher, clock
         self.cache, self.errors = {}, {}
         self.lock = Lock()
 
-    def get(self, page):
+    def get(self, page, topics=(), mode='for-you'):
         if not self.token:
             raise NewsError('configuration', 'As notícias estarão disponíveis em breve.')
+        key = (page, topics, mode)
         with self.lock:
             now = self.clock()
-            cached, failure = self.cache.get(page), self.errors.get(page)
+            cached, failure = self.cache.get(key), self.errors.get(key)
             if cached and now - cached[0] < 1800:
                 return dict(cached[1], stale=False)
             if failure and now < failure[0]:
@@ -155,26 +177,29 @@ class NewsService:
                     return dict(cached[1], stale=True)
                 raise failure[1]
             try:
-                payload = self.fetcher(self.token, page)
+                payload = self.fetcher(self.token, page, topics, mode)
                 articles, seen = [], set()
-                for item in payload['data'][:100]:
+                for item in payload['articles'][:100]:
                     article = normalize_article(item)
                     if article and article['id'] not in seen:
                         seen.add(article['id'])
                         articles.append(article)
-                meta = payload.get('meta') or {}
-                found, limit = int(meta.get('found', 0)), int(meta.get('limit', len(payload['data']) or 1))
+                found, limit = int(payload.get('totalResults', 0)), PAGE_SIZE
                 result = dict(articles=articles, page=page,
-                              has_more=bool(payload['data']) and page < 10 and page * limit < found,
-                              updated_at=datetime.now(timezone.utc).isoformat(), provider='Marketaux')
-                self.cache[page] = (now, result)
-                self.errors.pop(page, None)
+                              has_more=bool(payload['articles']) and page < 10 and page * limit < found,
+                              updated_at=datetime.now(timezone.utc).isoformat(), provider='NewsAPI')
+                if len(self.cache) >= 64:
+                    self.cache.pop(next(iter(self.cache)))
+                self.cache[key] = (now, result)
+                self.errors.pop(key, None)
                 return dict(result, stale=False)
             except (TypeError, ValueError, KeyError):
                 error = NewsError('unavailable', 'Não foi possível atualizar as notícias. Tente novamente em instantes.')
             except NewsError as exc:
                 error = exc
-            self.errors[page] = (now + 300, error)
+            if len(self.errors) >= 64:
+                self.errors.pop(next(iter(self.errors)))
+            self.errors[key] = (now + 300, error)
             if cached and now - cached[0] < 86400:
                 return dict(cached[1], stale=True)
             raise error

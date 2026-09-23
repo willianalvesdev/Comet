@@ -13,7 +13,69 @@
         if (Array.isArray(stored)) likes = new Set(stored.filter(id => typeof id === 'string').slice(-500));
     } catch {}
     const seen = new Set();
-    let currentPage = 0, busy = false;
+    let currentPage = 0, busy = false, generation = 0;
+    let mode = 'for-you', selectedTopic = '';
+    const interestKey = 'ascenda-news-interests-' + page.dataset.userId;
+    const interestButtons = [...document.querySelectorAll('[data-interest]')];
+    const validTopics = interestButtons.map(button => button.dataset.interest);
+    let interests = [];
+    try {
+        const saved = JSON.parse(localStorage.getItem(interestKey) || '[]');
+        if (Array.isArray(saved)) interests = saved.filter(topic => validTopics.includes(topic));
+    } catch {}
+    for (const button of interestButtons) {
+        button.setAttribute('aria-pressed', String(interests.includes(button.dataset.interest)));
+        button.addEventListener('click', () => button.setAttribute('aria-pressed', String(button.getAttribute('aria-pressed') !== 'true')));
+    }
+    const topicsMenu = document.getElementById('discovery-topics');
+    function refreshFeed() {
+        generation++;
+        busy = false;
+        seen.clear();
+        currentPage = 0;
+        feed.replaceChildren();
+        update.textContent = '';
+        more.hidden = true;
+        document.querySelectorAll('[data-news-mode]').forEach(button => {
+            if (!selectedTopic && button.dataset.newsMode === mode) button.setAttribute('aria-current', 'page');
+            else button.removeAttribute('aria-current');
+        });
+        topicsMenu.classList.toggle('is-active', Boolean(selectedTopic));
+        load();
+    }
+    document.querySelectorAll('[data-news-mode]').forEach(button => button.addEventListener('click', () => {
+        mode = button.dataset.newsMode;
+        selectedTopic = '';
+        document.getElementById('topic-label').textContent = 'Tópicos';
+        topicsMenu.open = false;
+        refreshFeed();
+    }));
+    document.querySelectorAll('[data-topic]').forEach(button => button.addEventListener('click', () => {
+        selectedTopic = button.dataset.topic;
+        mode = 'for-you';
+        document.getElementById('topic-label').textContent = button.textContent;
+        topicsMenu.open = false;
+        refreshFeed();
+    }));
+    document.getElementById('save-interests').addEventListener('click', () => {
+        interests = interestButtons.filter(button => button.getAttribute('aria-pressed') === 'true').map(button => button.dataset.interest);
+        try { localStorage.setItem(interestKey, JSON.stringify(interests)); } catch {}
+        selectedTopic = '';
+        mode = 'for-you';
+        document.getElementById('topic-label').textContent = 'Tópicos';
+        refreshFeed();
+        update.textContent = 'Interesses atualizados.';
+    });
+    document.querySelector('.interests-close').addEventListener('click', () => {
+        document.getElementById('interests-panel').hidden = true;
+        document.getElementById('edit-interests').hidden = false;
+    });
+    document.getElementById('edit-interests').addEventListener('click', event => {
+        document.getElementById('interests-panel').hidden = false;
+        event.currentTarget.hidden = true;
+    });
+    document.addEventListener('click', event => { if (!topicsMenu.contains(event.target)) topicsMenu.open = false; });
+    topicsMenu.addEventListener('keydown', event => { if (event.key === 'Escape') { topicsMenu.open = false; topicsMenu.querySelector('summary').focus(); } });
     const relative = new Intl.RelativeTimeFormat('pt-BR', { numeric: 'auto' });
     function element(tag, className, text) {
         const node = document.createElement(tag);
@@ -36,19 +98,29 @@
         const unit = seconds > -3600 ? 'minute' : seconds > -86400 ? 'hour' : 'day';
         return 'Publicado ' + relative.format(Math.round(seconds / ({ minute: 60, hour: 3600, day: 86400 }[unit])), unit);
     }
-    function card(article, featured) {
+    function loadCover(url) {
+        if (!url) return Promise.resolve(null);
+        return new Promise(resolve => {
+            const image = new Image();
+            image.alt = '';
+            image.referrerPolicy = 'no-referrer';
+            const finish = valid => {
+                clearTimeout(timer);
+                image.onload = image.onerror = null;
+                if (!valid) image.removeAttribute('src');
+                resolve(valid ? image : null);
+            };
+            const timer = setTimeout(() => finish(false), 12000);
+            image.onload = () => finish(image.naturalWidth > 0 && image.naturalHeight > 0);
+            image.onerror = () => finish(false);
+            image.src = url;
+        });
+    }
+    function card(article, featured, image) {
         const node = element('article', 'news-card' + (featured ? ' news-card--featured' : ''));
         const media = link(article.url, '', 'news-card__media');
         media.setAttribute('aria-label', 'Ler: ' + article.title);
-        if (article.image) {
-            const image = element('img');
-            image.alt = '';
-            image.loading = featured ? 'eager' : 'lazy';
-            image.referrerPolicy = 'no-referrer';
-            image.addEventListener('error', () => { image.remove(); media.classList.add('is-empty'); });
-            image.src = article.image;
-            media.append(image);
-        } else media.classList.add('is-empty');
+        media.append(image);
         const body = element('div', 'news-card__body');
         const heading = element('h2', 'news-card__title');
         heading.append(link(article.url, article.title));
@@ -102,6 +174,7 @@
     async function load() {
         if (busy) return;
         busy = true;
+        const version = generation;
         feed.setAttribute('aria-busy', 'true');
         more.disabled = true;
         more.textContent = 'Carregando…';
@@ -115,36 +188,44 @@
             const timer = setTimeout(() => controller.abort(), 15000);
             let response, data;
             try {
-                response = await fetch('/api/news?page=' + (currentPage + 1), { signal: controller.signal });
+                const topics = selectedTopic || (mode === 'for-you' ? interests.join(',') : '');
+                const query = new URLSearchParams({ page: currentPage + 1, topics, mode });
+                response = await fetch('/api/news?' + query, { signal: controller.signal });
                 data = await response.json();
             } finally {
                 clearTimeout(timer);
             }
+            if (version !== generation) return;
             if (response.status === 401) { location.assign('/?login=1'); return; }
             if (!response.ok) {
                 const error = new Error(data.error || 'Não foi possível carregar as notícias.');
                 error.code = data.code;
                 throw error;
             }
-            for (const article of data.articles) {
-                if (seen.has(article.id)) continue;
-                feed.append(card(article, seen.size % 4 === 0));
+            const candidates = data.articles.filter(article => !seen.has(article.id) && article.image);
+            const covers = await Promise.all(candidates.map(article => loadCover(article.image)));
+            if (version !== generation) return;
+            candidates.forEach((article, index) => {
+                if (!covers[index] || seen.has(article.id)) return;
+                feed.append(card(article, seen.size % 4 === 0, covers[index]));
                 seen.add(article.id);
-            }
+            });
             currentPage = data.page;
             status.hidden = seen.size > 0;
-            if (!seen.size) statusText.textContent = 'Nenhuma notícia financeira disponível no momento.';
+            if (!seen.size) statusText.textContent = 'Nenhuma notícia com foto disponível no momento.';
             more.hidden = !data.has_more;
             stale = stale || data.stale;
             update.textContent = stale ? 'Mostrando a última atualização disponível.' : '';
             if (!data.has_more || seen.size >= targetCount) break;
           }
         } catch (error) {
+            if (version !== generation) return;
             more.hidden = true;
             const message = error.name === 'AbortError' ? 'A conexão demorou mais que o esperado. Tente novamente.' : error.message;
             if (seen.size) { update.textContent = message; more.hidden = false; }
             else { status.hidden = false; statusText.textContent = message; retry.hidden = error.code === 'configuration'; }
         } finally {
+            if (version !== generation) return;
             busy = false;
             feed.setAttribute('aria-busy', 'false');
             more.disabled = false;

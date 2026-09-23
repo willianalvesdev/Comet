@@ -34,22 +34,28 @@ Execute `venv\Scripts\python.exe -m unittest discover -s tests -v`.
 Os testes de integração usam contas temporárias no banco configurado e removem apenas
 essas contas ao final. Sem MySQL configurado, esses testes são marcados como ignorados.
 
-## Notícias financeiras — Descobrir
+## Notícias — Descobrir
 
-A página `/descobrir.html` usa a [Marketaux](https://www.marketaux.com/documentation)
-para buscar notícias financeiras em português, com imagens, datas e links para as
-fontes. Crie uma conta no provedor, obtenha o token e execute `configurar_noticias.bat`.
-Também é possível definir `MARKETAUX_API_TOKEN` diretamente no `.env`. Reinicie o
-servidor depois de configurar. A chave nunca é enviada ao navegador.
+A página usa a [NewsAPI](https://newsapi.org/docs) para notícias internacionais de
+assuntos variados. Configure `NEWS_API_KEY` no `.env` ou execute
+`configurar_noticias.bat` e reinicie o servidor. A chave permanece no servidor.
+A API gratuita é destinada a desenvolvimento; produção requer plano apropriado.
 
-Sem chave, a página mostra um estado de indisponibilidade, sem notícias fictícias.
-O número de artigos por página respeita o plano da API; Carregar mais busca a página
-seguinte (até 10). Há cache de 30 minutos por página, compartilhado entre visitantes
-da mesma instância, e uma espera de 5 minutos após falhas. Se a API falhar, os dados
-anteriores podem aparecer por até 24 horas, com aviso. Nenhuma busca ocorre em segundo
-plano sem acesso à página. As curtidas ficam no navegador, separadas por usuário, e
-não são sincronizadas entre dispositivos. Os testes usam respostas simuladas e não
-consomem a cota da Marketaux.
+Para Você usa os interesses salvos localmente por usuário; Top ordena por popularidade
+das fontes na NewsAPI. O menu permite escolher um tópico. Sem interesses, a busca é
+ampla. Política é permitida. Crimes, violência e conteúdo adulto são filtrados por
+termos na consulta e no texto recebido, sem garantia absoluta (as imagens não são
+classificadas). Só são exibidos artigos cuja imagem carrega no navegador.
+
+Há cache de 30 minutos por página, tópico e ordenação (até 64 entradas), pausa de
+5 minutos após erros e uso do cache anterior por até 24 horas com aviso. São buscadas
+até 10 páginas, respeitando os limites do plano. Os testes usam respostas simuladas.
+
+O clima usa Open-Meteo com previsão de cinco dias. O botão Usar minha localização
+pede permissão ao navegador. Após a permissão, latitude e longitude arredondadas a
+duas casas decimais são enviadas ao Open-Meteo para obter a previsão da região.
+Essas coordenadas não ficam salvas no navegador. Geolocalização exige HTTPS ou
+localhost. A página informa recusas, indisponibilidade e tempo esgotado.
 
 ## Publicação
 

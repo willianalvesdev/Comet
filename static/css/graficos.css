@@ -96,7 +96,20 @@
     overflow-wrap: anywhere;
 }
 
+.chart-plot {
+    position: relative;
+    --chart-height: 420px;
+    display: grid;
+    grid-template-rows: auto var(--chart-height);
+    isolation: isolate;
+}
+
 .chart-toolbar {
+    position: relative;
+    grid-area: 1 / 1;
+    z-index: 2;
+    align-self: start;
+    pointer-events: none;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -107,6 +120,10 @@
 
 .chart-ranges,
 .chart-styles {
+    pointer-events: auto;
+    background: color-mix(in srgb, var(--surface) 65%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     gap: 2px;
@@ -158,7 +175,11 @@
     padding: 0;
 }
 
-.chart-style svg {
+.chart-style__icon {
+    display: block;
+    background: currentColor;
+    -webkit-mask: var(--chart-style-icon) center / contain no-repeat;
+    mask: var(--chart-style-icon) center / contain no-repeat;
     width: 19px;
     height: 19px;
 }
@@ -169,11 +190,16 @@
     outline-offset: -2px;
 }
 
+.chart-style__icon--line { --chart-style-icon: url("../img/icons/chart-line.svg"); }
+.chart-style__icon--candles { --chart-style-icon: url("../img/icons/chart-candles.svg"); }
+
 .chart-stage {
+    z-index: 0;
+    grid-area: 1 / 1 / 3 / 2;
     position: relative;
     width: 100%;
     min-width: 0;
-    height: 420px;
+    height: 100%;
 }
 
 .market-chart {
@@ -264,8 +290,8 @@
         width: min(1048px, calc((100% - 40px) * 0.7));
     }
 
-    .chart-stage {
-        height: 340px;
+    .chart-plot {
+        --chart-height: 340px;
     }
 }
 @media (width < 640px) {
@@ -313,8 +339,8 @@
         padding-inline: 7px;
     }
 
-    .chart-stage {
-        height: 360px;
+    .chart-plot {
+        --chart-height: 360px;
     }
 
     .chart-footer {
@@ -354,3 +380,16 @@
     gap: 6px 16px;
 }
 .chart-footer a:hover { color: var(--text); }
+
+/* Keep price-axis labels below the floating controls. */
+.chart-stage::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: var(--price-axis-width, 60px);
+    height: var(--chart-toolbar-height, 60px);
+    background: var(--surface);
+    pointer-events: none;
+}

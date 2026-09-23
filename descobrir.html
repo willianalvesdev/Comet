@@ -14,6 +14,7 @@
     <script src="./static/js/news.js" defer></script>
     <script src="./static/js/sidebar.js" defer></script>
     <script src="./static/js/profile-menu.js" defer></script>
+    <script src="/static/js/weather.js" defer></script>
 </head>
 <body class="workspace">
     <aside class="sidebar" id="sidebar" aria-label="Menu lateral">
@@ -32,13 +33,6 @@
                 </svg>
                 <span class="sidebar__label">Computer</span>
             </a>
-            <button class="sidebar__link" type="button" aria-label="Artefatos" title="Artefatos">
-                <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <rect x="4" y="3" width="16" height="18" rx="2"/>
-                    <path d="m10 3 4 18M4 12h8"/>
-                </svg>
-                <span class="sidebar__label">Artefatos</span>
-            </button>
             <button class="sidebar__link" type="button" aria-label="Personalizar" title="Personalizar">
                 <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="m12 2 9 5v10l-9 5-9-5V7Z"/>
@@ -70,16 +64,16 @@
         <div class="profile-menu" id="profile-menu" popover aria-label="Menu do perfil">
             <div class="profile-menu__main">
                 <div class="profile-menu__identity"><span class="sidebar__avatar">{{ user.nome[0]|upper }}</span><div><span>{{ user.nome }}</span><small>{{ user.email }}</small></div></div>
-                <button class="profile-menu__item" type="button" data-profile-submenu="appearance" aria-expanded="false" aria-controls="profile-appearance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z"/></svg><span>Aparência<small data-theme-label>Escuro</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-                <button class="profile-menu__item" type="button" data-profile-submenu="language" aria-expanded="false" aria-controls="profile-language"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h12M9 3v2M5 5c0 6 7 10 7 10M13 5c0 6-8 10-8 10m10 6 4-10 4 10m-6-4h4"/></svg><span>Idioma<small>Português (Brasil)</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+                <button class="profile-menu__item" type="button" data-profile-submenu="appearance" aria-expanded="false" aria-controls="profile-appearance"><i class="profile-menu__icon profile-menu__icon--dark" aria-hidden="true"></i><span>Aparência<small data-theme-label>Escuro</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+                <button class="profile-menu__item" type="button" data-profile-submenu="language" aria-expanded="false" aria-controls="profile-language"><i class="profile-menu__icon profile-menu__icon--language" aria-hidden="true"></i><span>Idioma<small>Português (Brasil)</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
                 <div class="profile-menu__divider"></div>
-                <form action="/logout" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="profile-menu__item" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H4v16h6m4-12 4 4-4 4m-6-4h10"/></svg><span>Sair</span></button></form>
+                <form action="/logout" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="profile-menu__item" type="submit"><i class="profile-menu__icon profile-menu__icon--logout" aria-hidden="true"></i><span>Sair</span></button></form>
             </div>
             <div class="profile-menu__submenu" id="profile-appearance" aria-label="Aparência" hidden>
                 <button class="profile-menu__back" type="button">‹ Aparência</button>
-                <button class="profile-menu__item" type="button" data-theme-choice="light" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1 1m12 12 1 1M5 19l1-1M18 6l1-1"/></svg><span>Claro</span><span class="profile-menu__check" aria-hidden="true">✓</span></button>
-<button class="profile-menu__item" type="button" data-theme-choice="dark" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z"/></svg><span>Escuro</span><span class="profile-menu__check" aria-hidden="true">✓</span></button>
-<button class="profile-menu__item" type="button" data-theme-choice="system" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg><span>Sistema</span><span class="profile-menu__check" aria-hidden="true">✓</span></button>
+                <button class="profile-menu__item" type="button" data-theme-choice="light" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--light" aria-hidden="true"></i><span>Claro</span><span class="profile-menu__check" aria-hidden="true">✓</span></button>
+<button class="profile-menu__item" type="button" data-theme-choice="dark" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--dark" aria-hidden="true"></i><span>Escuro</span><span class="profile-menu__check" aria-hidden="true">✓</span></button>
+<button class="profile-menu__item" type="button" data-theme-choice="system" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--system" aria-hidden="true"></i><span>Sistema</span><span class="profile-menu__check" aria-hidden="true">✓</span></button>
             </div>
             <div class="profile-menu__submenu profile-menu__languages" id="profile-language" aria-label="Idioma" hidden>
                 <button class="profile-menu__back" type="button">‹ Idioma</button>
@@ -93,18 +87,53 @@
         <header class="workspace__header">
             <div class="workspace__mobile-brand">
                 <button class="workspace__header-button workspace__menu-toggle" type="button" aria-label="Abrir menu lateral" aria-expanded="false" aria-controls="sidebar">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg>
+                    <span class="workspace__mobile-menu-icon" aria-hidden="true"></span>
                 </button>
                 <span class="workspace__brand-logo" role="img" aria-label="Ascensão"></span>
             </div>
             <span class="workspace__title">Descobrir</span>
         </header>
 
-        <section class="news-page" aria-label="Notícias de finanças" data-user-id="{{ user.id }}">
-            <h1 class="news-page__title">Finanças</h1>
-            <div class="news-status" role="status" aria-live="polite"><span class="sidebar__discover-icon" aria-hidden="true"></span><p id="news-status-text">Buscando as últimas notícias…</p><button id="news-retry" type="button" hidden>Tentar novamente</button></div>
-            <div class="news-feed" id="news-feed" aria-busy="true"></div>
-            <div class="news-bottom"><p id="news-update" role="status"></p><button id="news-more" type="button" hidden>Carregar mais notícias</button><a href="https://www.marketaux.com/" target="_blank" rel="noopener noreferrer">Notícias via Marketaux</a></div>
+        <section class="news-page" aria-label="Descobrir notícias" data-user-id="{{ user.id }}">
+            <nav class="discovery-nav" aria-label="Navegar pelas notícias">
+                <button type="button" data-news-mode="for-you" aria-current="page">Para Você</button>
+                <button type="button" data-news-mode="top">Top</button>
+                <details class="discovery-topics" id="discovery-topics">
+                    <summary><span id="topic-label">Tópicos</span><span class="discovery-icon icon-menu" aria-hidden="true"></span></summary>
+                    <div class="discovery-dropdown"><button type="button" data-topic="technology"><span class="discovery-icon icon-technology" aria-hidden="true"></span>Tecnologia & Ciência</button>
+<button type="button" data-topic="business"><span class="discovery-icon icon-business" aria-hidden="true"></span>Negócios</button>
+<button type="button" data-topic="culture"><span class="discovery-icon icon-culture" aria-hidden="true"></span>Arte & Cultura</button>
+<button type="button" data-topic="sports"><span class="discovery-icon icon-sports" aria-hidden="true"></span>Esportes</button>
+<button type="button" data-topic="entertainment"><span class="discovery-icon icon-entertainment" aria-hidden="true"></span>Entretenimento</button></div>
+                </details>
+            </nav>
+            <div class="discovery-layout">
+                <div class="discovery-stories">
+                    <div class="news-status" role="status" aria-live="polite"><span class="sidebar__discover-icon" aria-hidden="true"></span><p id="news-status-text">Buscando as últimas notícias…</p><button id="news-retry" type="button" hidden>Tentar novamente</button></div>
+                    <div class="news-feed" id="news-feed" aria-busy="true"></div>
+                    <div class="news-bottom"><p id="news-update" role="status"></p><button id="news-more" type="button" hidden>Carregar mais notícias</button><a href="https://newsapi.org/" target="_blank" rel="noopener noreferrer">Notícias via NewsAPI</a></div>
+                </div>
+                <aside class="discovery-widgets" aria-label="Interesses e clima">
+                    <section class="discovery-panel interests-panel" id="interests-panel">
+                        <button type="button" class="interests-close" aria-label="Recolher escolha de interesses">×</button>
+                        <h2>Faça dele o seu</h2>
+                        <p>Selecione tópicos e interesses para personalizar sua experiência de Descoberta</p>
+                        <div class="interest-choices"><button type="button" data-interest="technology" aria-pressed="false"><span class="discovery-icon icon-technology" aria-hidden="true"></span>Tecnologia & Ciência</button>
+<button type="button" data-interest="business" aria-pressed="false"><span class="discovery-icon icon-business" aria-hidden="true"></span>Negócios</button>
+<button type="button" data-interest="culture" aria-pressed="false"><span class="discovery-icon icon-culture" aria-hidden="true"></span>Arte & Cultura</button>
+<button type="button" data-interest="sports" aria-pressed="false"><span class="discovery-icon icon-sports" aria-hidden="true"></span>Esportes</button>
+<button type="button" data-interest="entertainment" aria-pressed="false"><span class="discovery-icon icon-entertainment" aria-hidden="true"></span>Entretenimento</button></div>
+                        <div class="interests-save"><button type="button" id="save-interests">Salvar interesses</button></div>
+                    </section>
+                    <button type="button" id="edit-interests" hidden>Personalizar interesses</button>
+                    <section class="discovery-panel weather-panel" aria-label="Previsão do tempo">
+                        <button id="weather-locate" type="button">Usar minha localização</button>
+                        <p id="weather-status" role="status">Permita sua localização para ver o clima da região.</p>
+                        <div id="weather-content" hidden></div>
+                        <a class="weather-credit" href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Clima por Open-Meteo</a>
+                    </section>
+                </aside>
+            </div>
             <noscript><p>Ative o JavaScript para carregar as notícias.</p></noscript>
         </section>
     </main>

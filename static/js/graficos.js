@@ -83,6 +83,22 @@
         handleScroll: { mouseWheel: false, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
         handleScale: { mouseWheel: false, pinch: true, axisPressedMouseMove: true }
     });
+    const toolbar = document.querySelector(".chart-toolbar");
+    const plot = document.querySelector(".chart-plot");
+    function reserveToolbarSpace() {
+        const toolbarHeight = toolbar.getBoundingClientRect().height;
+        const paneHeight = Math.max(1, host.clientHeight - chart.timeScale().height());
+        const availableHeight = Math.max(0, paneHeight - toolbarHeight);
+        chart.priceScale("left").applyOptions({
+            scaleMargins: { top: Math.min(.7, (toolbarHeight + availableHeight * .17) / paneHeight), bottom: .2 }
+        });
+        plot.style.setProperty("--chart-toolbar-height", toolbarHeight + "px");
+        plot.style.setProperty("--price-axis-width", chart.priceScale("left").width() + "px");
+    }
+    const plotObserver = new ResizeObserver(reserveToolbarSpace);
+    plotObserver.observe(toolbar);
+    plotObserver.observe(host);
+
     const common = { priceScaleId: "left", priceLineVisible: false, lastValueVisible: false };
     const line = chart.addSeries(BaselineSeries, {
         ...common, lineWidth: 2, lineType: LineType.Curved,

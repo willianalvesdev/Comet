@@ -45,7 +45,7 @@ def create_app(test_config=None):
         MAX_CONTENT_LENGTH=16 * 1024, MAX_FORM_MEMORY_SIZE=16 * 1024,
         RATELIMIT_STORAGE_URI=os.getenv('RATELIMIT_STORAGE_URI', 'memory://'),
         RATELIMIT_HEADERS_ENABLED=True,
-        MARKETAUX_API_TOKEN=os.getenv('MARKETAUX_API_TOKEN', ''),
+        NEWS_API_KEY=os.getenv('NEWS_API_KEY', ''),
     )
     if test_config:
         app.config.update(test_config)
@@ -55,8 +55,8 @@ def create_app(test_config=None):
     CSRFProtect(app)
     limiter = Limiter(key_func=get_remote_address, app=app)
     app.extensions['ascenda_limiter'] = limiter
-    from .news import NewsService, NewsError
-    news_service = NewsService(app.config['MARKETAUX_API_TOKEN'])
+    from .news import NewsService, NewsError, topic_selection
+    news_service = NewsService(app.config['NEWS_API_KEY'])
     app.extensions['ascenda_news'] = news_service
     app.teardown_appcontext(db.close_db)
     dummy_hash = generate_password_hash(secrets.token_urlsafe(32))
@@ -126,17 +126,21 @@ def create_app(test_config=None):
 
     @app.get('/api/news')
     @limiter.limit('30 per minute')
-    def financial_news():
+    def discovery_news():
         if not current_user():
             return jsonify(error='Entre novamente para ver as notícias.', code='unauthorized'), 401
         try:
+            topics = topic_selection(request.args.get('topics', ''))
+            mode = request.args.get('mode', 'for-you')
+            if mode not in ('for-you', 'top'):
+                raise ValueError
             page = int(request.args.get('page', '1'))
             if not 1 <= page <= 10:
                 raise ValueError
         except ValueError:
-            return jsonify(error='Página inválida.'), 400
+            return jsonify(error='Página ou tópico inválido.'), 400
         try:
-            return jsonify(news_service.get(page))
+            return jsonify(news_service.get(page, topics, mode))
         except NewsError as exc:
             return jsonify(error=exc.message, code=exc.code), 503
 
@@ -205,7 +209,7 @@ def create_app(test_config=None):
         response.headers['X-Frame-Options'] = 'DENY'
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
         # Keep the microphone available for the dictation feature.
-        response.headers['Permissions-Policy'] = 'camera=(), microphone=(self), geolocation=()'
+        response.headers['Permissions-Policy'] = 'camera=(), microphone=(self), geolocation=(self)'
         if response.mimetype in ('text/html', 'application/json'):
             response.headers['Cache-Control'] = 'no-store'
         return response

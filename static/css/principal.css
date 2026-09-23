@@ -427,3 +427,12 @@
 .is-sidebar-collapsed .profile-menu { bottom: 92px; }
 
 .sidebar__discover-icon { display: inline-block; background: currentColor; -webkit-mask: url("../img/icons/discover.svg") center / contain no-repeat; mask: url("../img/icons/discover.svg") center / contain no-repeat; }
+
+.workspace__mobile-menu-icon { display: block; width: 16px; height: 16px; background: currentColor; -webkit-mask: url("../img/icons/menumobile.svg") center / contain no-repeat; mask: url("../img/icons/menumobile.svg") center / contain no-repeat; }
+
+.profile-menu__icon { display: block; width: 16px; height: 16px; flex: 0 0 16px; background: currentColor; -webkit-mask: var(--profile-icon) center / contain no-repeat; mask: var(--profile-icon) center / contain no-repeat; }
+.profile-menu__icon--logout { --profile-icon: url("../img/icons/profile-logout.svg"); }
+.profile-menu__icon--system { --profile-icon: url("../img/icons/profile-system.svg"); }
+.profile-menu__icon--dark { --profile-icon: url("../img/icons/profile-dark.svg"); }
+.profile-menu__icon--light { --profile-icon: url("../img/icons/profile-light.svg"); }
+.profile-menu__icon--language { --profile-icon: url("../img/icons/profile-language.svg"); }

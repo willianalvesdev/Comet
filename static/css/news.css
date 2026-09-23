@@ -56,3 +56,59 @@
     .news-card__title { font-size: calc(var(--font-size-3) * 1.15); }
     .news-icon-button { width: 36px; height: 36px; }
 }
+
+/* Discovery navigation and the interests/weather column. */
+.news-page { max-width: 1480px; padding-top: 0; }
+.discovery-nav { display: flex; align-items: stretch; gap: 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+.discovery-nav > button, .discovery-topics > summary { display: flex; align-items: center; gap: 8px; padding: 20px 0 16px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--text-secondary); font-size: var(--font-size-4); cursor: pointer; white-space: nowrap; }
+.discovery-nav > button[aria-current], .discovery-topics.is-active > summary { border-bottom-color: var(--text); color: var(--text); }
+.discovery-topics { position: relative; min-width: 0; }
+.discovery-topics > summary { list-style: none; }
+.discovery-topics > summary::-webkit-details-marker { display: none; }
+#topic-label { overflow: hidden; text-overflow: ellipsis; }
+.discovery-dropdown { position: absolute; top: 100%; left: 0; z-index: 20; width: 255px; max-width: calc(100vw - 32px); padding: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 12px 30px #0002; }
+.discovery-dropdown button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; border: 0; border-radius: 8px; background: none; text-align: left; color: var(--text); font-size: var(--font-size-4); cursor: pointer; }
+.discovery-dropdown button:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
+.discovery-icon { display: inline-block; flex-shrink: 0; width: 18px; height: 18px; background: currentColor; mask: var(--discovery-icon) center / contain no-repeat; -webkit-mask: var(--discovery-icon) center / contain no-repeat; }
+.icon-technology { --discovery-icon: url('../img/icons/topic-technology.svg'); }
+.icon-business { --discovery-icon: url('../img/icons/topic-business.svg'); }
+.icon-culture { --discovery-icon: url('../img/icons/topic-culture.svg'); }
+.icon-sports { --discovery-icon: url('../img/icons/topic-sports.svg'); }
+.icon-entertainment { --discovery-icon: url('../img/icons/topic-entertainment.svg'); }
+.icon-menu { --discovery-icon: url('../img/icons/topic-menu.svg'); width: 12px; height: 12px; }
+.icon-sun { --discovery-icon: url('../img/icons/weather-sun.svg'); }
+.icon-partly-cloudy { --discovery-icon: url('../img/icons/weather-partly-cloudy.svg'); }
+.icon-cloud { --discovery-icon: url('../img/icons/weather-cloud.svg'); }
+.icon-rain { --discovery-icon: url('../img/icons/weather-rain.svg'); }
+.discovery-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 30%); gap: 28px; align-items: start; }
+.discovery-stories { min-width: 0; }
+.discovery-widgets { display: grid; gap: 28px; min-width: 0; }
+.discovery-panel { border: 1px solid var(--border); background: var(--surface); border-radius: 16px; padding: 20px; }
+.interests-panel { position: relative; }
+.interests-panel h2 { font-family: var(--font-body); font-size: var(--font-size-3); font-weight: 400; padding-right: 20px; }
+.interests-panel p { color: var(--text-secondary); font-size: var(--font-size-4); line-height: 1.5; margin-top: 6px; }
+.interests-close { position: absolute; right: 12px; top: 10px; border: 0; background: none; color: var(--text-secondary); font-size: 20px; cursor: pointer; }
+.interest-choices { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.interest-choices button { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: color-mix(in srgb, var(--text) 3%, transparent); color: var(--text); font-size: var(--font-size-5); cursor: pointer; }
+.interest-choices button[aria-pressed='true'] { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.interests-save { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+#save-interests { width: 100%; border: 0; border-radius: 8px; padding: 10px; color: var(--bg); background: var(--text); font-size: var(--font-size-4); cursor: pointer; }
+#edit-interests { border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: var(--surface); color: var(--text); cursor: pointer; }
+.weather-panel { font-size: var(--font-size-5); }
+#weather-locate { display: block; width: 100%; margin-bottom: 16px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text); font-size: var(--font-size-5); cursor: pointer; }
+#weather-locate:hover { background: color-mix(in srgb, var(--text) 5%, transparent); }
+#weather-locate:disabled { opacity: .6; cursor: wait; }
+#weather-status { color: var(--text-secondary); }
+.weather-now, .weather-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.weather-temp { display: flex; align-items: center; gap: 8px; font-size: var(--font-size-3); white-space: nowrap; }
+.weather-description { color: var(--text-secondary); text-align: right; }
+.weather-meta { color: var(--text-secondary); margin: 20px 0; }
+.weather-days { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.weather-day { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.weather-day small { color: var(--text-secondary); }
+.weather-credit { display: block; margin-top: 20px; font-size: var(--font-size-6); color: var(--text-secondary); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (width >= 1100px) { .discovery-stories .news-card--featured { gap: 24px; } }
+@media (width < 1200px) { .discovery-layout { grid-template-columns: minmax(0, 1fr) 270px; gap: 20px; } .discovery-stories .news-feed { grid-template-columns: repeat(2, minmax(0, 1fr)); } .discovery-stories .news-card--featured { display: flex; gap: 16px; } }
+@media (width < 1000px) { .discovery-layout { grid-template-columns: minmax(0, 1fr); } .discovery-widgets { grid-row: 1; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (width < 640px) { .news-page { padding-top: 0; } .discovery-nav { gap: 20px; margin-bottom: 24px; } .discovery-dropdown { left: auto; right: 0; } .discovery-widgets { grid-template-columns: minmax(0, 1fr); gap: 16px; } .discovery-stories .news-feed { grid-template-columns: minmax(0, 1fr); } }
