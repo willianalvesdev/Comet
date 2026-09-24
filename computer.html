@@ -4,6 +4,7 @@
     <script src="/static/js/cookies.js"></script>
     <link rel="stylesheet" href="/static/css/cookies.css">
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#171615">
     <meta name="color-scheme" content="dark">
@@ -14,6 +15,9 @@
     <link rel="stylesheet" href="./static/css/principal.css">
     <link rel="stylesheet" href="./static/css/home.css">
     <link rel="stylesheet" href="./static/css/computer.css">
+    <link rel="stylesheet" href="/static/css/sessions.css">
+    <script src="/static/js/sessions.js" defer></script>
+    <script src="./static/js/computer-service.js" defer></script>
     <script src="./static/js/computer.js" defer></script>
     <script src="./static/js/dictation.js" defer></script>
     <script src="./static/js/sidebar.js" defer></script>
@@ -92,6 +96,7 @@
     <button class="sidebar-backdrop" type="button" tabindex="-1" aria-label="Fechar menu" hidden></button>
     <main class="workspace__content" aria-label="Área de trabalho">
         <header class="workspace__header computer-header">
+            <button class="workspace__menu-toggle" type="button" aria-label="Abrir menu" aria-controls="sidebar" aria-expanded="false"><span class="sidebar__toggle-icon" aria-hidden="true"></span></button>
             <a class="workspace__header-button computer-header__back" href="./principal.html" aria-label="Voltar para Novo"><i class="ui-arrow ui-arrow--left" aria-hidden="true"></i></a>
             <span class="computer-header__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M2 20h20M9 8v4m6-4v4"/></svg><span>Welcome to Computer</span></span>
         </header>
@@ -100,9 +105,11 @@
             <div class="computer-intro">
                 <h1 id="computer-title"><span class="computer-intro__logo" aria-hidden="true"></span><span>O que vamos criar hoje?</span></h1>
             </div>
+            <button class="computer-history__older" type="button" hidden>Carregar mensagens anteriores</button>
+            <section class="computer-messages" aria-label="Conversa com Computer" aria-live="polite" aria-relevant="additions text" hidden></section>
                 <form class="home__composer" aria-label="Escrever uma mensagem">
                     <p class="home__dictation-status" role="status" aria-live="polite" id="dictation-status"></p>
-                    <textarea class="home__input" aria-label="Mensagem" placeholder="Faça qualquer coisa..." rows="2"></textarea>
+                    <textarea class="home__input" aria-label="Mensagem" placeholder="Faça qualquer coisa..." rows="2" maxlength="8000" readonly></textarea>
                     <div class="home__toolbar">
                         <div class="home__modes" role="group" aria-label="Modo da mensagem">
                             <button class="home__mode" type="button" data-composer-mode="computer" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M2 20h20M9 8v4m6-4v4"/></svg><span>Computer</span></button>

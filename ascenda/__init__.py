@@ -1,5 +1,6 @@
 """Flask application and authentication for Ascenda."""
 import os
+import json
 import secrets
 from datetime import datetime, timedelta, timezone
 from functools import wraps
@@ -8,7 +9,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from email_validator import EmailNotValidError, validate_email
-from flask import Flask, g, jsonify, redirect, render_template, request, session
+from flask import Flask, Response, g, jsonify, redirect, render_template, request, session
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf.csrf import CSRFError, CSRFProtect
@@ -52,12 +53,28 @@ def create_app(test_config=None):
     if (not app.config['SECRET_KEY'] or len(app.config['SECRET_KEY']) < 32
             or app.config['SECRET_KEY'].startswith('gere-')):
         raise RuntimeError('Execute iniciar.bat para preparar a configuração local.')
+    # Only chat accepts a larger body; authentication forms retain their limits.
+    @app.before_request
+    def chat_request_limit():
+        if request.path == '/api/ai/chat':
+            request.max_content_length = 256 * 1024
+
     CSRFProtect(app)
     limiter = Limiter(key_func=get_remote_address, app=app)
     app.extensions['ascenda_limiter'] = limiter
     from .news import NewsService, NewsError, topic_selection
     news_service = NewsService(app.config['NEWS_API_KEY'])
     app.extensions['ascenda_news'] = news_service
+    from .ai.config import AIConfig
+    from .ai.ollama import OllamaProvider
+    from .ai.service import ComputerService
+    from .ai.errors import AIError
+    from .ai.conversations import ConversationStore
+    ai_config = app.config.get('AI_CONFIG') or AIConfig.from_env()
+    computer_service = ComputerService(OllamaProvider(ai_config), ai_config)
+    app.extensions['ascenda_computer'] = computer_service
+    conversation_store = ConversationStore(app.config)
+    app.extensions['ascenda_conversations'] = conversation_store
     app.teardown_appcontext(db.close_db)
     dummy_hash = generate_password_hash(secrets.token_urlsafe(32))
 
@@ -110,6 +127,85 @@ def create_app(test_config=None):
     @protected
     def principal():
         return render_template('principal.html', user=g.user)
+
+    @app.post('/api/ai/chat')
+    @limiter.limit('10 per minute')
+    def computer_chat():
+        user = current_user()
+        if not user:
+            return jsonify(error='Entre novamente para conversar com a Computer.', code='unauthorized'), 401
+        # Do not hold a database connection during generation.
+        db.close_db()
+        try:
+            payload = conversation_store.validate(request.get_json(silent=True))
+            source = computer_service.stream_saved(user['id'], payload, conversation_store)
+            first = next(source)
+        except AIError as exc:
+            app.logger.warning('Computer request failed (%s)', exc.code)
+            return jsonify(error=exc.message, code=exc.code), exc.status
+
+        def encode(event):
+            return json.dumps(event, ensure_ascii=False) + '\n'
+
+        def generate():
+            try:
+                yield encode(first)
+                for event in source:
+                    yield encode(event)
+            except AIError as exc:
+                app.logger.warning('Computer stream failed (%s)', exc.code)
+                yield encode({'type': 'error', 'error': exc.message, 'code': exc.code})
+            except Exception:
+                app.logger.exception('Unexpected Computer stream failure')
+                yield encode({'type': 'error', 'error': 'A resposta foi interrompida. Tente novamente.'})
+            finally:
+                source.close()
+
+        response = Response(generate(), content_type='application/x-ndjson; charset=utf-8')
+        response.headers['Cache-Control'] = 'no-store'
+        response.headers['X-Accel-Buffering'] = 'no'
+        response.call_on_close(source.close)
+        return response
+
+    @app.get('/api/ai/conversations')
+    def computer_conversations():
+        user = current_user()
+        if not user:
+            return jsonify(error='Entre novamente para acessar suas conversas.'), 401
+        try:
+            offset = int(request.args.get('offset', '0'))
+            if not 0 <= offset <= 1000000:
+                raise ValueError
+            return jsonify(conversation_store.list(user['id'], offset))
+        except ValueError:
+            return jsonify(error='Página inválida.'), 422
+
+    @app.get('/api/ai/conversations/<cid>')
+    def computer_conversation(cid):
+        user = current_user()
+        if not user:
+            return jsonify(error='Entre novamente para acessar suas conversas.'), 401
+        try:
+            return jsonify(conversation_store.get(user['id'], cid, request.args.get('before')))
+        except AIError as exc:
+            return jsonify(error=exc.message, code=exc.code), exc.status
+
+    @app.route('/api/ai/conversations/<cid>', methods=['PATCH', 'DELETE'])
+    @limiter.limit('30 per minute')
+    def change_computer_conversation(cid):
+        user = current_user()
+        if not user:
+            return jsonify(error='Entre novamente para acessar suas conversas.'), 401
+        try:
+            title = None
+            if request.method == 'PATCH':
+                payload = request.get_json(silent=True)
+                if not isinstance(payload, dict) or set(payload) != {'title'}:
+                    raise AIError('invalid_title', 422)
+                title = payload['title']
+            return jsonify(conversation_store.change(user['id'], cid, title, request.method == 'DELETE'))
+        except AIError as exc:
+            return jsonify(error=exc.message, code=exc.code), exc.status
 
     @app.get('/computer.html')
     @protected

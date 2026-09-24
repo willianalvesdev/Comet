@@ -16,6 +16,8 @@ if __name__ == '__main__':
         with app.app_context(), db.cursor() as cur:
             cur.execute('SELECT id FROM usuarios LIMIT 0')
             cur.execute('SELECT token_hash FROM sessoes LIMIT 0')
+            cur.execute('SELECT id FROM computer_conversas LIMIT 0')
+            cur.execute('SELECT id FROM computer_mensagens LIMIT 0')
     except mysql.connector.Error:
         raise SystemExit('Banco indisponível. Execute configurar_banco.bat e confira se o MySQL está iniciado.')
     host = os.getenv('APP_HOST', '127.0.0.1')

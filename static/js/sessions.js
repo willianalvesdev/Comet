@@ -1,0 +1,116 @@
+(() => {
+    const nav = document.querySelector('.sidebar__nav');
+    if (!nav) return;
+    const inComputer = !!document.querySelector('.computer-page');
+    const items = new Map();
+    let selected = new URL(location.href).searchParams.get('conversation'), busy = false, nextOffset = null, target = null, opener = null;
+    const section = document.createElement('details');
+    section.className = 'sessions'; section.open = true;
+    section.innerHTML = `<summary>Sessões<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></summary><div class="sessions__list"></div><p class="sessions__status" role="status"></p><div class="sessions__tools"><button type="button" data-action="new">Nova conversa</button><button type="button" data-action="more" hidden>Mais sessões</button><button type="button" data-action="refresh">Atualizar histórico</button></div>`;
+    nav.append(section);
+    const list = section.querySelector('.sessions__list'), status = section.querySelector('.sessions__status');
+    const more = section.querySelector('[data-action="more"]');
+    const menu = document.createElement('div');
+    menu.className = 'sessions-menu'; menu.id = 'sessions-menu'; menu.setAttribute('popover','auto');
+    menu.setAttribute('aria-label','Opções da conversa');
+    menu.innerHTML = '<button type="button" data-action="rename"><i class="sessions-icon sessions-icon--rename" aria-hidden="true"></i>Renomear</button><button type="button" class="sessions-menu__delete" data-action="delete"><i class="sessions-icon sessions-icon--delete" aria-hidden="true"></i>Excluir</button>';
+    document.querySelector('.sidebar').append(menu);
+    const dialog = document.createElement('dialog');
+    dialog.className = 'sessions-dialog';
+    dialog.setAttribute('aria-labelledby','sessions-dialog-title');
+    dialog.innerHTML = '<form><h2 id="sessions-dialog-title"></h2><p class="sessions-dialog__description"></p><label>Nome da conversa<input name="title" maxlength="100" required autocomplete="off"></label><p class="sessions-dialog__error" role="alert"></p><div><button type="button" data-cancel>Cancelar</button><button type="submit" data-confirm>Salvar</button></div></form>';
+    document.body.append(dialog);
+    let action = null, changing = false;
+    const field = dialog.querySelector('input'), error = dialog.querySelector('.sessions-dialog__error');
+    function emit(name, detail = {}) { window.dispatchEvent(new CustomEvent('sessions:' + name, {detail})); }
+    function closeMobile() { if (matchMedia('(width < 640px)').matches && !document.body.classList.contains('is-sidebar-collapsed')) document.querySelector('.sidebar__toggle').click(); }
+    async function request(path, method = 'GET', data) {
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('[name="csrf_token"]')?.value;
+        const response = await fetch(path, {method, credentials:'same-origin', cache:'no-store', headers:{'Content-Type':'application/json','X-CSRFToken':csrf}, body:data ? JSON.stringify(data) : undefined});
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Não foi possível atualizar as sessões.');
+        return result;
+    }
+    function draw() {
+        list.replaceChildren();
+        for (const item of items.values()) {
+            const row = document.createElement('div'); row.className = 'sessions__row'; row.dataset.id = item.id;
+            const link = document.createElement('a'); link.className = 'sessions__link'; link.href = `/computer.html?conversation=${encodeURIComponent(item.id)}`;
+            link.textContent = item.title; link.title = item.title;
+            if (item.id === selected && inComputer) link.setAttribute('aria-current','page');
+            link.addEventListener('click', event => {
+                if (!inComputer || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+                event.preventDefault(); if (busy) return;
+                emit('open', {id:item.id}); closeMobile();
+            });
+            const options = document.createElement('button'); options.type = 'button'; options.className = 'sessions__more';
+            options.innerHTML = '<i class="sessions-icon sessions-icon--more" aria-hidden="true"></i>';
+            options.setAttribute('aria-label', `Opções de ${item.title}`); options.setAttribute('aria-expanded','false'); options.setAttribute('aria-controls',menu.id); options.disabled = busy;
+            options.addEventListener('click', () => {
+                if (menu.matches(':popover-open') && opener === options) { menu.hidePopover(); return; }
+                if (menu.matches(':popover-open')) menu.hidePopover();
+                target = item; opener = options;
+                const rect = options.getBoundingClientRect();
+                menu.style.left = Math.max(8, Math.min(rect.left, innerWidth - 224)) + 'px';
+                menu.style.top = Math.max(8, Math.min(rect.bottom + 6, innerHeight - 112)) + 'px';
+                menu.showPopover(); options.setAttribute('aria-expanded','true'); menu.querySelector('button').focus();
+            });
+            row.append(link,options); list.append(row);
+        }
+        status.textContent = items.size ? '' : 'Nenhuma conversa ainda.';
+    }
+    menu.addEventListener('keydown', event => { if (event.key === 'Escape') event.stopPropagation(); });
+    menu.addEventListener('toggle', event => { if (event.newState === 'closed') opener?.setAttribute('aria-expanded','false'); });
+    for (const event of ['resize','scroll']) window.addEventListener(event, () => { if (menu.matches(':popover-open')) menu.hidePopover(); }, event === 'scroll');
+    menu.addEventListener('click', event => {
+        const button = event.target.closest('button'); if (!button || !target) return;
+        action = button.dataset.action; menu.hidePopover();
+        dialog.querySelector('h2').textContent = action === 'rename' ? 'Renomear conversa' : 'Excluir conversa?';
+        dialog.querySelector('.sessions-dialog__description').textContent = action === 'delete' ? `A conversa “${target.title}” e suas mensagens serão excluídas.` : '';
+        field.closest('label').hidden = action !== 'rename'; field.disabled = action !== 'rename'; field.value = target.title;
+        dialog.querySelector('[data-confirm]').textContent = action === 'rename' ? 'Salvar' : 'Excluir';
+        dialog.querySelector('[data-confirm]').classList.toggle('sessions-menu__delete', action === 'delete');
+        error.textContent = ''; dialog.showModal();
+        if (action === 'rename') { field.focus(); field.select(); } else dialog.querySelector('[data-cancel]').focus();
+    });
+    dialog.querySelector('[data-cancel]').addEventListener('click', () => { if (!changing) dialog.close(); });
+    dialog.addEventListener('cancel', event => { if (changing) event.preventDefault(); });
+    dialog.addEventListener('close', () => { (opener?.isConnected ? opener : section.querySelector('summary')).focus(); });
+    dialog.querySelector('form').addEventListener('submit', async event => {
+        event.preventDefault(); if (changing) return;
+        changing = true; dialog.querySelectorAll('button').forEach(button=>button.disabled=true); error.textContent = '';
+        try {
+            const id = target.id, deleted = action === 'delete';
+            const result = await request(`/api/ai/conversations/${id}`, deleted ? 'DELETE' : 'PATCH', deleted ? undefined : {title:field.value.trim()});
+            if (deleted) items.delete(id); else items.set(id, {...target, title:result.title});
+            dialog.close(); draw(); emit('changed',{id,deleted,title:result.title});
+            if (!inComputer) await load();
+        } catch (failure) { error.textContent = failure.message; }
+        finally { changing=false; dialog.querySelectorAll('button').forEach(button=>button.disabled=false); }
+    });
+    section.querySelector('.sessions__tools').addEventListener('click', async event => {
+        const button = event.target.closest('button'); if (!button || busy) return;
+        const command=button.dataset.action;
+        if (inComputer) { emit(command); if (command==='new') closeMobile(); }
+        else if(command==='new') location.href='/computer.html?new=1';
+        else await load(command==='more');
+    });
+    function render(data, append=false, hasMore=false) {
+        if (!append) items.clear(); data.forEach(item=>items.set(item.id,item));
+        more.hidden=!hasMore; draw();
+    }
+    function select(id,title) {
+        selected=id;
+        if(id&&!items.has(id)) items.set(id,{id,title:title||'Conversa atual'});
+        draw();
+    }
+    function setBusy(value) { busy=value; section.querySelectorAll('button').forEach(button=>button.disabled=value); }
+    async function load(append=false) {
+        setBusy(true);
+        try { const result=await request(`/api/ai/conversations?offset=${append ? nextOffset : 0}`); nextOffset=result.next_offset; render(result.conversations,append,nextOffset!==null); }
+        catch(failure) { status.textContent='Não foi possível carregar as sessões. Use Atualizar histórico.'; }
+        finally { setBusy(false); }
+    }
+    window.ComputerSessions={render,select,setBusy};
+    if (!inComputer) load();
+})();

@@ -10,7 +10,7 @@ from ascenda import create_app, db
 
 
 def csrf(client):
-    html = client.get('/').get_data(as_text=True)
+    html = client.get('/', follow_redirects=True).get_data(as_text=True)
     return re.search(r'name="csrf_token" value="([^"]+)"', html).group(1)
 
 

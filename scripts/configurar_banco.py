@@ -30,8 +30,10 @@ def main():
     password = getpass.getpass('Senha do administrador MySQL (não será salva): ')
     options = db.options(config, database=False)
     options.update(user=admin, password=password)
+    stage = 'conectar como administrador'
     try:
         with mysql.connector.connect(**options) as connection:
+            stage = 'criar as tabelas do Ascenda'
             with connection.cursor() as cur:
                 cur.execute(f'CREATE DATABASE IF NOT EXISTS `{name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci')
                 cur.execute(f'USE `{name}`')
@@ -41,13 +43,21 @@ def main():
                 cur.execute("CREATE USER IF NOT EXISTS %s@'localhost' IDENTIFIED BY %s", (user, config['DB_PASSWORD']))
                 cur.execute(f"GRANT SELECT, INSERT, UPDATE, DELETE ON `{name}`.* TO %s@'localhost'", (user,))
             connection.commit()
+        stage = 'conferir a conexão do site'
         with mysql.connector.connect(**db.options(config)) as connection:
             with connection.cursor() as cur:
                 cur.execute('SELECT id FROM usuarios LIMIT 0')
         print('Banco pronto. Agora execute iniciar.bat.')
     except mysql.connector.Error as error:
-        print(f'Não foi possível configurar o MySQL (código {error.errno}).')
-        print('Confira o serviço MySQL, a senha administrativa e os dados do .env. Nenhuma senha foi alterada.')
+        detail = str(error.msg or type(error).__name__)
+        for secret in (password, config['DB_PASSWORD']):
+            if secret:
+                detail = detail.replace(secret, '[senha ocultada]')
+        print(f'Não foi possível configurar o MySQL ao {stage} (código {error.errno}).')
+        print(f'Detalhe: {detail}')
+        if error.errno == 1045:
+            print('O MySQL recusou o usuário ou a senha. Use o administrador do MySQL, não a senha do Windows ou do site.')
+        print('Nenhuma senha foi alterada. Os dados existentes foram preservados.')
         raise SystemExit(1) from None
 
 

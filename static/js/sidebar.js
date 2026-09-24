@@ -25,7 +25,7 @@
         const label = collapsed ? "Expandir menu" : "Recolher menu";
         toggle.setAttribute("aria-label", label);
         toggle.title = label;
-        mobileToggle.setAttribute("aria-expanded", String(!collapsed));
+        mobileToggle?.setAttribute("aria-expanded", String(!collapsed));
         sidebar.inert = smallScreen.matches && collapsed;
         content.inert = smallScreen.matches && !collapsed;
         backdrop.hidden = !smallScreen.matches || collapsed;
@@ -41,15 +41,15 @@
     smallScreen.addEventListener("change", (event) => {
         const focusWasInSidebar = sidebar.contains(document.activeElement);
         setCollapsed(event.matches);
-        if (event.matches && focusWasInSidebar) mobileToggle.focus();
+        if (event.matches && focusWasInSidebar) mobileToggle?.focus();
     });
 
     function closeMobileMenu() {
         setCollapsed(true);
-        mobileToggle.focus();
+        mobileToggle?.focus();
     }
 
-    mobileToggle.addEventListener("click", () => {
+    mobileToggle?.addEventListener("click", () => {
         setCollapsed(false);
         toggle.focus();
     });
@@ -57,13 +57,13 @@
 
     toggle.addEventListener("click", () => {
         setCollapsed(!workspace.classList.contains("is-sidebar-collapsed"));
-        if (smallScreen.matches) mobileToggle.focus();
+        if (smallScreen.matches) mobileToggle?.focus();
     });
 
     sidebar.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
             setCollapsed(true);
-            (smallScreen.matches ? mobileToggle : toggle).focus();
+            (smallScreen.matches ? mobileToggle : toggle)?.focus();
         }
         if (event.key === "Tab" && smallScreen.matches) {
             const buttons = [...sidebar.querySelectorAll("button, a[href]")].filter(button => button.getClientRects().length && getComputedStyle(button).visibility !== "hidden");

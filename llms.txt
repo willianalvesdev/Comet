@@ -9,7 +9,7 @@
 ## Recursos
 
 A área autenticada reúne uma interface para escrever ou ditar mensagens, visualização de gráficos financeiros e leitura de notícias com preferências de temas e idiomas.
-Os gráficos, os resumos financeiros e o histórico de transferências atualmente exibem dados demonstrativos. A interface conversacional está em desenvolvimento; não representa uma integração de inteligência artificial concluída.
+Os gráficos, os resumos financeiros e o histórico de transferências atualmente exibem dados demonstrativos. A página Computer tem integração com um modelo local, conforme a configuração do servidor. A conversa não tem acesso a contas financeiras, transações, arquivos ou ferramentas. O histórico do Computer é salvo no MySQL, vinculado à conta autenticada, e pode ser retomado ao voltar ao site.
 
 ## Acesso e privacidade
 

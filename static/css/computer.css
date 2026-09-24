@@ -41,3 +41,34 @@
 .computer-intro__logo { width: 42px; height: 42px; flex: 0 0 42px; background: var(--text); mask: url('../img/icons/computer-composer.svg') center / contain no-repeat; -webkit-mask: url('../img/icons/computer-composer.svg') center / contain no-repeat; }
 .computer-note:empty { display: none; }
 @media (width < 640px) { .computer-page { padding-block: 36px 12svh; } .computer-intro { margin-bottom: 28px; } .computer-intro h1 { gap: 10px; } .computer-intro__logo { width: 32px; height: 32px; flex-basis: 32px; } }
+
+/* Conversation states extend the existing page only after the first message. */
+.computer-page.has-conversation { justify-content: flex-start; padding-bottom: 32px; }
+.computer-messages[hidden] { display: none; }
+.computer-messages { display: grid; gap: 28px; margin-bottom: 28px; }
+.computer-message { min-width: 0; }
+.computer-message h2 { margin: 0 0 8px; color: var(--text-secondary); font: inherit; font-size: var(--font-size-5); }
+.computer-message__text { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text); line-height: 1.65; }
+.computer-message--user { justify-self: end; width: fit-content; max-width: 85%; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; }
+.computer-message__warning { margin-top: 8px; color: var(--text-secondary); font-size: var(--font-size-5); }
+.computer-page .home__composer.is-responding .home__send .ui-arrow { mask-image: url('../img/icons/pause.svg'); -webkit-mask-image: url('../img/icons/pause.svg'); }
+.computer-page .home__microphone:disabled { opacity: .4; cursor: default; }
+
+.computer-thinking { color: var(--text-secondary); }
+.computer-thinking__toggle { display: flex; align-items: center; gap: 6px; width: fit-content; min-height: 32px; list-style: none; cursor: pointer; font-size: var(--font-size-5); }
+.computer-thinking__toggle::-webkit-details-marker { display: none; }
+.computer-thinking__toggle::marker { content: ''; }
+.computer-thinking__toggle:hover { color: var(--text); }
+.computer-thinking__toggle:focus-visible, .computer-thinking__content:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+.computer-thinking__arrow { width: 12px; height: 12px; flex: 0 0 12px; transition: transform .2s ease; }
+.computer-thinking[open] .computer-thinking__arrow { transform: rotate(90deg); }
+.computer-thinking__content { max-height: 260px; overflow-y: auto; overscroll-behavior: contain; margin-top: 8px; padding: 4px 0 4px 14px; border-left: 1px solid var(--border); white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--font-size-5); line-height: 1.65; }
+.computer-thinking__content:empty::before { content: 'Aguardando o pensamento…'; }
+.computer-thinking:not([hidden]) + .computer-message__text:not([hidden]) { margin-top: 14px; }
+.computer-thinking.is-thinking .computer-thinking__toggle > span { animation: computer-thinking 1.8s ease-in-out infinite; }
+@keyframes computer-thinking { 50% { opacity: .5; } }
+@media (prefers-reduced-motion: reduce) { .computer-thinking.is-thinking .computer-thinking__toggle > span { animation: none; } .computer-thinking__arrow { transition: none; } }
+
+.computer-history__older { align-self: center; margin-bottom: 20px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: transparent; color: var(--text-secondary); cursor: pointer; }
+.computer-header > .workspace__menu-toggle { display: none; }
+@media (width < 640px) { .computer-header > .workspace__menu-toggle { display: flex; align-items: center; justify-content: center; position: absolute; left: 12px; width: 32px; height: 32px; border: 0; background: transparent; color: var(--text); } .computer-header__back { display: none; } .computer-header > .workspace__menu-toggle .sidebar__toggle-icon { position: static; } }
