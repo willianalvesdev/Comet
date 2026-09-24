@@ -60,11 +60,17 @@ class NewsTests(unittest.TestCase):
         query = parse_qs(urlsplit(request.full_url).query)
         self.assertEqual(request.get_header('X-api-key'), 'private-secret')
         self.assertNotIn('private-secret', request.full_url)
-        self.assertNotIn('language', query)
+        self.assertEqual(query['language'], ['en'])
+        self.assertEqual(opener.open.call_count, 2)
+        first_query = parse_qs(urlsplit(opener.open.call_args_list[0].args[0].full_url).query)
+        self.assertEqual(first_query['language'], ['pt'])
         self.assertNotIn('country', query)
         self.assertEqual(query['page'], ['2'])
         self.assertEqual(query['pageSize'], ['100'])
-        self.assertEqual(len(payload['articles']), 1)
+        self.assertEqual(len(payload['articles']), 2)
+        with patch('ascenda.news.build_opener', return_value=opener):
+            fetch_newsapi('private-secret', 1, languages='all')
+        self.assertNotIn('language', parse_qs(urlsplit(opener.open.call_args.args[0].full_url).query))
 
     def test_topics_and_cache_are_isolated(self):
         from ascenda.news import news_query, topic_selection
@@ -79,7 +85,8 @@ class NewsTests(unittest.TestCase):
         service.get(1, ('business',))
         service.get(1, ('sports',))
         service.get(1, (), 'top')
-        self.assertEqual(fetcher.call_count, 3)
+        service.get(1, (), 'top', 'all')
+        self.assertEqual(fetcher.call_count, 4)
 
     def test_missing_token_does_not_request(self):
         fetcher = Mock()

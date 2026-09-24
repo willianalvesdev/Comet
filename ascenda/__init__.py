@@ -130,6 +130,9 @@ def create_app(test_config=None):
         if not current_user():
             return jsonify(error='Entre novamente para ver as notícias.', code='unauthorized'), 401
         try:
+            languages = request.args.get('languages', 'pt-en')
+            if languages not in ('pt-en', 'all'):
+                raise ValueError
             topics = topic_selection(request.args.get('topics', ''))
             mode = request.args.get('mode', 'for-you')
             if mode not in ('for-you', 'top'):
@@ -140,7 +143,7 @@ def create_app(test_config=None):
         except ValueError:
             return jsonify(error='Página ou tópico inválido.'), 400
         try:
-            return jsonify(news_service.get(page, topics, mode))
+            return jsonify(news_service.get(page, topics, mode, languages))
         except NewsError as exc:
             return jsonify(error=exc.message, code=exc.code), 503
 
@@ -206,7 +209,7 @@ def create_app(test_config=None):
     @app.after_request
     def headers(response):
         response.headers['X-Content-Type-Options'] = 'nosniff'
-        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN' if request.endpoint == 'descobrir' else 'DENY'
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
         # Keep the microphone available for the dictation feature.
         response.headers['Permissions-Policy'] = 'camera=(), microphone=(self), geolocation=(self)'

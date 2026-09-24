@@ -11,7 +11,7 @@ O frontend continua usando HTML, CSS e JavaScript. O banco `ascenda_db` e a cont
    as bibliotecas e gera `.env` com chaves aleatórias. Informe o administrador do
    MySQL e sua senha na janela. A senha administrativa não é salva.
 3. Abra `iniciar.bat` e acesse **http://127.0.0.1:5001**. Mantenha a janela aberta;
-   Ctrl+C encerra o servidor. A porta 5001 evita conflito com o Rota Financeira.
+   Digite R + Enter para reiniciar o servidor ou S + Enter para encerrar. Ctrl+C também encerra. A porta 5001 evita conflito com o Rota Financeira.
 
 Os iniciadores também reconhecem o Python disponibilizado pelo Codex nesta máquina.
 O `.env` existente é preservado. Ajuste nele host, porta e credenciais se necessário.
@@ -41,11 +41,13 @@ assuntos variados. Configure `NEWS_API_KEY` no `.env` ou execute
 `configurar_noticias.bat` e reinicie o servidor. A chave permanece no servidor.
 A API gratuita é destinada a desenvolvimento; produção requer plano apropriado.
 
-Para Você usa os interesses salvos localmente por usuário; Top ordena por popularidade
-das fontes na NewsAPI. O menu permite escolher um tópico. Sem interesses, a busca é
-ampla. Política é permitida. Crimes, violência e conteúdo adulto são filtrados por
-termos na consulta e no texto recebido, sem garantia absoluta (as imagens não são
-classificadas). Só são exibidos artigos cuja imagem carrega no navegador.
+O padrão é finanças em português e inglês. Em Perfil → Notícias, o usuário pode
+escolher assuntos e permitir todos os idiomas. As preferências ficam salvas no
+navegador por usuário e valem tanto para Para Você quanto para Top. Top ordena por
+popularidade das fontes. Português e inglês usam duas consultas por página,
+intercaladas no feed; todos os idiomas usa uma consulta sem restrição de idioma.
+Crimes, violência e conteúdo adulto continuam filtrados por termos, sem garantia
+absoluta. Só aparecem notícias com imagens que carregam.
 
 Há cache de 30 minutos por página, tópico e ordenação (até 64 entradas), pausa de
 5 minutos após erros e uso do cache anterior por até 24 horas com aviso. São buscadas

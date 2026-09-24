@@ -16,6 +16,7 @@
     <script src="./static/js/vendor/lightweight-charts.js" defer></script>
     <script src="./static/js/chart-demo.js" defer></script>
     <script src="./static/js/graficos.js" defer></script>
+    <script src="/static/js/discovery-panel.js" defer></script>
 </head>
 <body class="workspace">
     <aside class="sidebar" id="sidebar" aria-label="Menu lateral">
@@ -27,13 +28,14 @@
         </div>
 
         <nav class="sidebar__nav" id="sidebar-nav" aria-label="Navegação principal">
-            <a class="sidebar__link" href="./principal.html?mode=computer" aria-label="Computer" title="Computer">
+            <a class="sidebar__link" href="./principal.html" aria-label="Novo" title="Novo"><span class="sidebar__new-icon" aria-hidden="true"></span><span class="sidebar__label">Novo</span></a>
+            <button class="sidebar__link" type="button" aria-label="Computer" title="Computer">
                 <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="4" y="4" width="16" height="12" rx="2"/>
                     <path d="M2 20h20M9 8v4m6-4v4"/>
                 </svg>
                 <span class="sidebar__label">Computer</span>
-            </a>
+            </button>
             <button class="sidebar__link" type="button" aria-label="Personalizar" title="Personalizar">
                 <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="m12 2 9 5v10l-9 5-9-5V7Z"/>
@@ -62,25 +64,27 @@
         <button class="sidebar__notification" type="button" aria-label="Notificações" title="Notificações"><span aria-hidden="true"></span></button>
         </div>
 
-        <div class="profile-menu" id="profile-menu" popover aria-label="Menu do perfil">
+        <div class="profile-menu" id="profile-menu" data-user-id="{{ user.id }}" popover aria-label="Menu do perfil">
             <div class="profile-menu__main">
                 <div class="profile-menu__identity"><span class="sidebar__avatar">{{ user.nome[0]|upper }}</span><div><span>{{ user.nome }}</span><small>{{ user.email }}</small></div></div>
                 <button class="profile-menu__item" type="button" data-profile-submenu="appearance" aria-expanded="false" aria-controls="profile-appearance"><i class="profile-menu__icon profile-menu__icon--dark" aria-hidden="true"></i><span>Aparência<small data-theme-label>Escuro</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
                 <button class="profile-menu__item" type="button" data-profile-submenu="language" aria-expanded="false" aria-controls="profile-language"><i class="profile-menu__icon profile-menu__icon--language" aria-hidden="true"></i><span>Idioma<small>Português (Brasil)</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+<button class="profile-menu__item" type="button" data-profile-submenu="news" aria-expanded="false" aria-controls="profile-news"><i class="profile-menu__icon profile-menu__icon--discover" aria-hidden="true"></i><span>Notícias<small data-news-preference-label>Finanças · PT / EN</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
                 <div class="profile-menu__divider"></div>
                 <form action="/logout" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="profile-menu__item" type="submit"><i class="profile-menu__icon profile-menu__icon--logout" aria-hidden="true"></i><span>Sair</span></button></form>
             </div>
             <div class="profile-menu__submenu" id="profile-appearance" aria-label="Aparência" hidden>
-                <button class="profile-menu__back" type="button">‹ Aparência</button>
-                <button class="profile-menu__item" type="button" data-theme-choice="light" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--light" aria-hidden="true"></i><span>Claro</span><span class="profile-menu__check" aria-hidden="true">✓</span></button>
-<button class="profile-menu__item" type="button" data-theme-choice="dark" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--dark" aria-hidden="true"></i><span>Escuro</span><span class="profile-menu__check" aria-hidden="true">✓</span></button>
-<button class="profile-menu__item" type="button" data-theme-choice="system" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--system" aria-hidden="true"></i><span>Sistema</span><span class="profile-menu__check" aria-hidden="true">✓</span></button>
+                <button class="profile-menu__back" type="button"><i class="ui-arrow ui-arrow--left" aria-hidden="true"></i> Aparência</button>
+                <button class="profile-menu__item" type="button" data-theme-choice="light" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--light" aria-hidden="true"></i><span>Claro</span><span class="profile-menu__check" aria-hidden="true"></span></button>
+<button class="profile-menu__item" type="button" data-theme-choice="dark" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--dark" aria-hidden="true"></i><span>Escuro</span><span class="profile-menu__check" aria-hidden="true"></span></button>
+<button class="profile-menu__item" type="button" data-theme-choice="system" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--system" aria-hidden="true"></i><span>Sistema</span><span class="profile-menu__check" aria-hidden="true"></span></button>
             </div>
             <div class="profile-menu__submenu profile-menu__languages" id="profile-language" aria-label="Idioma" hidden>
-                <button class="profile-menu__back" type="button">‹ Idioma</button>
-                <button class="profile-menu__item" type="button"><span>Português (Brasil)</span><span class="profile-menu__check" aria-hidden="true">✓</span></button>
+                <button class="profile-menu__back" type="button"><i class="ui-arrow ui-arrow--left" aria-hidden="true"></i> Idioma</button>
+                <button class="profile-menu__item" type="button"><span>Português (Brasil)</span><span class="profile-menu__check" aria-hidden="true"></span></button>
                 <button class="profile-menu__item" type="button"><span>English</span></button>
             </div>
+<div class="profile-menu__submenu" id="profile-news" aria-label="Preferências de notícias" hidden><button class="profile-menu__back" type="button"><i class="ui-arrow ui-arrow--left" aria-hidden="true"></i> Notícias</button><p class="profile-news-heading">Assuntos</p><button class="profile-menu__item" type="button" data-news-topic="business" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--topic-business" aria-hidden="true"></i><span>Finanças</span><span class="profile-menu__check" aria-hidden="true"></span></button><button class="profile-menu__item" type="button" data-news-topic="technology" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--topic-technology" aria-hidden="true"></i><span>Tecnologia & Ciência</span><span class="profile-menu__check" aria-hidden="true"></span></button><button class="profile-menu__item" type="button" data-news-topic="culture" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--topic-culture" aria-hidden="true"></i><span>Arte & Cultura</span><span class="profile-menu__check" aria-hidden="true"></span></button><button class="profile-menu__item" type="button" data-news-topic="sports" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--topic-sports" aria-hidden="true"></i><span>Esportes</span><span class="profile-menu__check" aria-hidden="true"></span></button><button class="profile-menu__item" type="button" data-news-topic="entertainment" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--topic-entertainment" aria-hidden="true"></i><span>Entretenimento</span><span class="profile-menu__check" aria-hidden="true"></span></button><div class="profile-menu__divider"></div><p class="profile-news-heading">Idiomas das notícias</p><button class="profile-menu__item" type="button" data-news-languages="pt-en" aria-pressed="false"><span>Português e inglês</span><span class="profile-menu__check" aria-hidden="true"></span></button><button class="profile-menu__item" type="button" data-news-languages="all" aria-pressed="false"><span>Todos os idiomas</span><span class="profile-menu__check" aria-hidden="true"></span></button></div>
         </div>
     </aside>
     <button class="sidebar-backdrop" type="button" tabindex="-1" aria-label="Fechar menu" hidden></button>
@@ -93,6 +97,7 @@
                 <span class="workspace__brand-logo" role="img" aria-label="Ascensão"></span>
             </div>
             <span class="workspace__title">Gráficos</span>
+            <button class="workspace__header-button mobile-discover-toggle" type="button" aria-label="Abrir Descobrir" aria-controls="mobile-discovery-panel" aria-expanded="false"><span class="sidebar__discover-icon" aria-hidden="true"></span></button>
         </header>
 
         <section class="finance-page" aria-labelledby="overview-title">
@@ -141,5 +146,9 @@
             </section>
         </section>
     </main>
+    <dialog class="mobile-discovery-panel" id="mobile-discovery-panel" aria-label="Descobrir">
+        <div class="mobile-discovery-panel__header"><button type="button" class="mobile-discovery-back" aria-label="Voltar"><i class="ui-arrow ui-arrow--left" aria-hidden="true"></i></button><span>Descobrir</span></div>
+        <iframe title="Notícias do Descobrir" data-src="/descobrir.html?panel=1"></iframe>
+    </dialog>
 </body>
 </html>

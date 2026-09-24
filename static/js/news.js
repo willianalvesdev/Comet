@@ -14,20 +14,7 @@
     } catch {}
     const seen = new Set();
     let currentPage = 0, busy = false, generation = 0;
-    let mode = 'for-you', selectedTopic = '';
-    const interestKey = 'ascenda-news-interests-' + page.dataset.userId;
-    const interestButtons = [...document.querySelectorAll('[data-interest]')];
-    const validTopics = interestButtons.map(button => button.dataset.interest);
-    let interests = [];
-    try {
-        const saved = JSON.parse(localStorage.getItem(interestKey) || '[]');
-        if (Array.isArray(saved)) interests = saved.filter(topic => validTopics.includes(topic));
-    } catch {}
-    for (const button of interestButtons) {
-        button.setAttribute('aria-pressed', String(interests.includes(button.dataset.interest)));
-        button.addEventListener('click', () => button.setAttribute('aria-pressed', String(button.getAttribute('aria-pressed') !== 'true')));
-    }
-    const topicsMenu = document.getElementById('discovery-topics');
+    let mode = 'for-you';
     function refreshFeed() {
         generation++;
         busy = false;
@@ -37,45 +24,16 @@
         update.textContent = '';
         more.hidden = true;
         document.querySelectorAll('[data-news-mode]').forEach(button => {
-            if (!selectedTopic && button.dataset.newsMode === mode) button.setAttribute('aria-current', 'page');
+            if (button.dataset.newsMode === mode) button.setAttribute('aria-current', 'page');
             else button.removeAttribute('aria-current');
         });
-        topicsMenu.classList.toggle('is-active', Boolean(selectedTopic));
         load();
     }
+    window.addEventListener('news-preferences-change', refreshFeed);
     document.querySelectorAll('[data-news-mode]').forEach(button => button.addEventListener('click', () => {
         mode = button.dataset.newsMode;
-        selectedTopic = '';
-        document.getElementById('topic-label').textContent = 'Tópicos';
-        topicsMenu.open = false;
         refreshFeed();
     }));
-    document.querySelectorAll('[data-topic]').forEach(button => button.addEventListener('click', () => {
-        selectedTopic = button.dataset.topic;
-        mode = 'for-you';
-        document.getElementById('topic-label').textContent = button.textContent;
-        topicsMenu.open = false;
-        refreshFeed();
-    }));
-    document.getElementById('save-interests').addEventListener('click', () => {
-        interests = interestButtons.filter(button => button.getAttribute('aria-pressed') === 'true').map(button => button.dataset.interest);
-        try { localStorage.setItem(interestKey, JSON.stringify(interests)); } catch {}
-        selectedTopic = '';
-        mode = 'for-you';
-        document.getElementById('topic-label').textContent = 'Tópicos';
-        refreshFeed();
-        update.textContent = 'Interesses atualizados.';
-    });
-    document.querySelector('.interests-close').addEventListener('click', () => {
-        document.getElementById('interests-panel').hidden = true;
-        document.getElementById('edit-interests').hidden = false;
-    });
-    document.getElementById('edit-interests').addEventListener('click', event => {
-        document.getElementById('interests-panel').hidden = false;
-        event.currentTarget.hidden = true;
-    });
-    document.addEventListener('click', event => { if (!topicsMenu.contains(event.target)) topicsMenu.open = false; });
-    topicsMenu.addEventListener('keydown', event => { if (event.key === 'Escape') { topicsMenu.open = false; topicsMenu.querySelector('summary').focus(); } });
     const relative = new Intl.RelativeTimeFormat('pt-BR', { numeric: 'auto' });
     function element(tag, className, text) {
         const node = document.createElement(tag);
@@ -188,8 +146,9 @@
             const timer = setTimeout(() => controller.abort(), 15000);
             let response, data;
             try {
-                const topics = selectedTopic || (mode === 'for-you' ? interests.join(',') : '');
-                const query = new URLSearchParams({ page: currentPage + 1, topics, mode });
+                const preferences = window.AscendaNewsPreferences || { topics: ['business'], languages: 'pt-en' };
+                const topics = preferences.topics.join(',');
+                const query = new URLSearchParams({ page: currentPage + 1, topics, mode, languages: preferences.languages });
                 response = await fetch('/api/news?' + query, { signal: controller.signal });
                 data = await response.json();
             } finally {

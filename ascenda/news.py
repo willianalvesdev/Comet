@@ -60,7 +60,7 @@ def public_url(value):
 PAGE_SIZE = 100
 TOPICS = {
     'technology': 'technology OR science OR tecnologia OR ciencia',
-    'business': 'finance OR business OR economia OR investimentos',
+    'business': 'finance OR stocks OR investments OR economia OR investimentos OR juros OR bolsa',
     'culture': 'art OR culture OR arte OR cultura',
     'sports': 'sports OR football OR esportes OR futebol',
     'entertainment': 'entertainment OR music OR cinema OR entretenimento',
@@ -87,9 +87,7 @@ def topic_selection(value):
 
 
 def news_query(topics=()):
-    subjects = ' OR '.join(TOPICS[topic] for topic in (topics or TOPICS))
-    if not topics:
-        subjects += ' OR health OR travel OR education OR world OR politics'
+    subjects = ' OR '.join(TOPICS[topic] for topic in (topics or ('business',)))
     return '(' + subjects + ')' + EXCLUSIONS
 
 
@@ -130,9 +128,20 @@ class NoRedirect(HTTPRedirectHandler):
         return None
 
 
-def fetch_newsapi(token, page, topics=(), mode='for-you'):
+def fetch_newsapi(token, page, topics=(), mode='for-you', languages='pt-en'):
+    if languages == 'pt-en':
+        results = [fetch_newsapi(token, page, topics, mode, language) for language in ('pt', 'en')]
+        articles = []
+        for index in range(PAGE_SIZE):
+            for result in results:
+                if index < len(result['articles']):
+                    articles.append(result['articles'][index])
+        return {'articles': articles, 'totalResults': sum(result.get('totalResults', 0) for result in results),
+                'has_more': any(page * PAGE_SIZE < result.get('totalResults', 0) for result in results)}
     query = urlencode({'q': news_query(topics), 'searchIn': 'title,description',
                        'sortBy': 'popularity' if mode == 'top' else 'publishedAt', 'pageSize': PAGE_SIZE, 'page': page})
+    if languages in ('pt', 'en'):
+        query += '&language=' + languages
     request = Request('https://newsapi.org/v2/everything?' + query,
                       headers={'Accept': 'application/json', 'User-Agent': 'Ascenda/1.0',
                                'X-Api-Key': token})
@@ -163,10 +172,10 @@ class NewsService:
         self.cache, self.errors = {}, {}
         self.lock = Lock()
 
-    def get(self, page, topics=(), mode='for-you'):
+    def get(self, page, topics=(), mode='for-you', languages='pt-en'):
         if not self.token:
             raise NewsError('configuration', 'As notícias estarão disponíveis em breve.')
-        key = (page, topics, mode)
+        key = (page, topics, mode, languages)
         with self.lock:
             now = self.clock()
             cached, failure = self.cache.get(key), self.errors.get(key)
@@ -177,16 +186,16 @@ class NewsService:
                     return dict(cached[1], stale=True)
                 raise failure[1]
             try:
-                payload = self.fetcher(self.token, page, topics, mode)
+                payload = self.fetcher(self.token, page, topics, mode, languages)
                 articles, seen = [], set()
-                for item in payload['articles'][:100]:
+                for item in payload['articles'][:200]:
                     article = normalize_article(item)
                     if article and article['id'] not in seen:
                         seen.add(article['id'])
                         articles.append(article)
                 found, limit = int(payload.get('totalResults', 0)), PAGE_SIZE
                 result = dict(articles=articles, page=page,
-                              has_more=bool(payload['articles']) and page < 10 and page * limit < found,
+                              has_more=bool(payload['articles']) and page < 10 and payload.get('has_more', page * limit < found),
                               updated_at=datetime.now(timezone.utc).isoformat(), provider='NewsAPI')
                 if len(self.cache) >= 64:
                     self.cache.pop(next(iter(self.cache)))

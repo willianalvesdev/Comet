@@ -66,3 +66,21 @@
 .home__dictation-status { position: absolute; left: 8px; right: 8px; bottom: calc(100% + 8px); padding: 6px 10px; border-radius: 8px; background: var(--bg); color: var(--text-secondary); font-size: var(--font-size-5); text-align: left; }
 .home__dictation-status:empty { display: none; }
 .home__microphone[aria-pressed="true"] { color: var(--red); background: color-mix(in srgb, var(--red) 12%, transparent); }
+
+/* Keep the composer size stable while the sidebar opens or closes. */
+@media (width >= 640px) {
+    .home__inner { width: min(800px, calc(100vw - 304px)); flex-shrink: 0; }
+}
+@media (width < 640px) {
+    .workspace .home__heading,
+    .workspace .home__composer {
+        width: calc(100vw - 32px);
+        max-width: none;
+        right: auto;
+        transition: translate var(--sidebar-duration) var(--sidebar-easing), border-color 200ms ease, box-shadow 200ms ease;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .workspace .home__heading,
+    .workspace .home__composer { transition: none; }
+}

@@ -15,6 +15,7 @@
     <script src="./static/js/dictation.js" defer></script>
     <script src="./static/js/sidebar.js" defer></script>
     <script src="./static/js/profile-menu.js" defer></script>
+    <script src="/static/js/discovery-panel.js" defer></script>
 </head>
 <body class="workspace">
     <aside class="sidebar" id="sidebar" aria-label="Menu lateral">
@@ -26,6 +27,7 @@
         </div>
 
         <nav class="sidebar__nav" id="sidebar-nav" aria-label="Navegação principal">
+            <a class="sidebar__link" href="./principal.html" aria-label="Novo" title="Novo" aria-current="page"><span class="sidebar__new-icon" aria-hidden="true"></span><span class="sidebar__label">Novo</span></a>
             <button class="sidebar__link" type="button" aria-label="Computer" title="Computer">
                 <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="4" y="4" width="16" height="12" rx="2"/>
@@ -61,25 +63,27 @@
         <button class="sidebar__notification" type="button" aria-label="Notificações" title="Notificações"><span aria-hidden="true"></span></button>
         </div>
 
-        <div class="profile-menu" id="profile-menu" popover aria-label="Menu do perfil">
+        <div class="profile-menu" id="profile-menu" data-user-id="{{ user.id }}" popover aria-label="Menu do perfil">
             <div class="profile-menu__main">
                 <div class="profile-menu__identity"><span class="sidebar__avatar">{{ user.nome[0]|upper }}</span><div><span>{{ user.nome }}</span><small>{{ user.email }}</small></div></div>
                 <button class="profile-menu__item" type="button" data-profile-submenu="appearance" aria-expanded="false" aria-controls="profile-appearance"><i class="profile-menu__icon profile-menu__icon--dark" aria-hidden="true"></i><span>Aparência<small data-theme-label>Escuro</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
                 <button class="profile-menu__item" type="button" data-profile-submenu="language" aria-expanded="false" aria-controls="profile-language"><i class="profile-menu__icon profile-menu__icon--language" aria-hidden="true"></i><span>Idioma<small>Português (Brasil)</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+<button class="profile-menu__item" type="button" data-profile-submenu="news" aria-expanded="false" aria-controls="profile-news"><i class="profile-menu__icon profile-menu__icon--discover" aria-hidden="true"></i><span>Notícias<small data-news-preference-label>Finanças · PT / EN</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
                 <div class="profile-menu__divider"></div>
                 <form action="/logout" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="profile-menu__item" type="submit"><i class="profile-menu__icon profile-menu__icon--logout" aria-hidden="true"></i><span>Sair</span></button></form>
             </div>
             <div class="profile-menu__submenu" id="profile-appearance" aria-label="Aparência" hidden>
-                <button class="profile-menu__back" type="button">‹ Aparência</button>
-                <button class="profile-menu__item" type="button" data-theme-choice="light" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--light" aria-hidden="true"></i><span>Claro</span><span class="profile-menu__check" aria-hidden="true">✓</span></button>
-<button class="profile-menu__item" type="button" data-theme-choice="dark" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--dark" aria-hidden="true"></i><span>Escuro</span><span class="profile-menu__check" aria-hidden="true">✓</span></button>
-<button class="profile-menu__item" type="button" data-theme-choice="system" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--system" aria-hidden="true"></i><span>Sistema</span><span class="profile-menu__check" aria-hidden="true">✓</span></button>
+                <button class="profile-menu__back" type="button"><i class="ui-arrow ui-arrow--left" aria-hidden="true"></i> Aparência</button>
+                <button class="profile-menu__item" type="button" data-theme-choice="light" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--light" aria-hidden="true"></i><span>Claro</span><span class="profile-menu__check" aria-hidden="true"></span></button>
+<button class="profile-menu__item" type="button" data-theme-choice="dark" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--dark" aria-hidden="true"></i><span>Escuro</span><span class="profile-menu__check" aria-hidden="true"></span></button>
+<button class="profile-menu__item" type="button" data-theme-choice="system" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--system" aria-hidden="true"></i><span>Sistema</span><span class="profile-menu__check" aria-hidden="true"></span></button>
             </div>
             <div class="profile-menu__submenu profile-menu__languages" id="profile-language" aria-label="Idioma" hidden>
-                <button class="profile-menu__back" type="button">‹ Idioma</button>
-                <button class="profile-menu__item" type="button"><span>Português (Brasil)</span><span class="profile-menu__check" aria-hidden="true">✓</span></button>
+                <button class="profile-menu__back" type="button"><i class="ui-arrow ui-arrow--left" aria-hidden="true"></i> Idioma</button>
+                <button class="profile-menu__item" type="button"><span>Português (Brasil)</span><span class="profile-menu__check" aria-hidden="true"></span></button>
                 <button class="profile-menu__item" type="button"><span>English</span></button>
             </div>
+<div class="profile-menu__submenu" id="profile-news" aria-label="Preferências de notícias" hidden><button class="profile-menu__back" type="button"><i class="ui-arrow ui-arrow--left" aria-hidden="true"></i> Notícias</button><p class="profile-news-heading">Assuntos</p><button class="profile-menu__item" type="button" data-news-topic="business" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--topic-business" aria-hidden="true"></i><span>Finanças</span><span class="profile-menu__check" aria-hidden="true"></span></button><button class="profile-menu__item" type="button" data-news-topic="technology" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--topic-technology" aria-hidden="true"></i><span>Tecnologia & Ciência</span><span class="profile-menu__check" aria-hidden="true"></span></button><button class="profile-menu__item" type="button" data-news-topic="culture" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--topic-culture" aria-hidden="true"></i><span>Arte & Cultura</span><span class="profile-menu__check" aria-hidden="true"></span></button><button class="profile-menu__item" type="button" data-news-topic="sports" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--topic-sports" aria-hidden="true"></i><span>Esportes</span><span class="profile-menu__check" aria-hidden="true"></span></button><button class="profile-menu__item" type="button" data-news-topic="entertainment" aria-pressed="false"><i class="profile-menu__icon profile-menu__icon--topic-entertainment" aria-hidden="true"></i><span>Entretenimento</span><span class="profile-menu__check" aria-hidden="true"></span></button><div class="profile-menu__divider"></div><p class="profile-news-heading">Idiomas das notícias</p><button class="profile-menu__item" type="button" data-news-languages="pt-en" aria-pressed="false"><span>Português e inglês</span><span class="profile-menu__check" aria-hidden="true"></span></button><button class="profile-menu__item" type="button" data-news-languages="all" aria-pressed="false"><span>Todos os idiomas</span><span class="profile-menu__check" aria-hidden="true"></span></button></div>
         </div>
     </aside>
     <button class="sidebar-backdrop" type="button" tabindex="-1" aria-label="Fechar menu" hidden></button>
@@ -92,6 +96,7 @@
                 <span class="workspace__brand-logo" role="img" aria-label="Ascensão"></span>
             </div>
             <span class="workspace__title">Rota Financeira</span>
+            <button class="workspace__header-button mobile-discover-toggle" type="button" aria-label="Abrir Descobrir" aria-controls="mobile-discovery-panel" aria-expanded="false"><span class="sidebar__discover-icon" aria-hidden="true"></span></button>
         </header>
 
         <section class="home" aria-labelledby="home-title">
@@ -113,14 +118,16 @@
 <path d="M2.75 18.5H5.75V16.4482C2.51357 16.019 0 12.8493 0 9C0 8.7193 0.234954 8.50016 0.515625 8.5H0.818359C1.0888 8.5 1.2998 8.72956 1.2998 9C1.2998 12.3137 3.62812 15 6.5 15C9.37188 15 11.7002 12.3137 11.7002 9C11.7002 8.72956 11.9112 8.5 12.1816 8.5H12.4844C12.765 8.50016 13 8.7193 13 9C13 12.8493 10.4864 16.019 7.25 16.4482V18.5H10.25C10.6642 18.5 11 18.8358 11 19.25C11 19.6642 10.6642 20 10.25 20H2.75C2.33579 20 2 19.6642 2 19.25C2 18.8358 2.33579 18.5 2.75 18.5Z" fill="currentColor"/>
 <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 0C8.433 0 10 1.567 10 3.5V10C10 11.933 8.433 13.5 6.5 13.5C4.567 13.5 3 11.933 3 10V3.5C3 1.567 4.567 0 6.5 0ZM6.5 1.5C5.39543 1.5 4.5 2.39543 4.5 3.5V10C4.5 11.1046 5.39543 12 6.5 12C7.60457 12 8.5 11.1046 8.5 10V3.5C8.5 2.39543 7.60457 1.5 6.5 1.5Z" fill="currentColor"/>
 </svg></button>
-                            <button class="home__send" type="submit" aria-label="Enviar mensagem"><svg width="13" height="13" aria-hidden="true" focusable="false" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M5.68312 0.238626C5.98875 -0.0795421 6.48517 -0.0795421 6.7908 0.238626L11.7708 5.42398C12.0764 5.74216 12.0764 6.25789 11.7708 6.57605L6.7908 11.7614C6.48518 12.0795 5.98874 12.0795 5.68312 11.7614C5.3775 11.4432 5.37752 10.9265 5.68312 10.6083L9.32818 6.81474H0.782614C0.350409 6.81474 3.44182e-05 6.44994 0 6.00002C0 5.55006 0.350388 5.1853 0.782614 5.1853H9.32818L5.68312 1.39175C5.3775 1.0736 5.37752 0.556797 5.68312 0.238626Z" fill="currentColor"/>
-</svg></button>
+                            <button class="home__send" type="submit" aria-label="Enviar mensagem"><i class="ui-arrow" aria-hidden="true"></i></button>
                         </div>
                     </div>
                 </form>
             </div>
         </section>
     </main>
+    <dialog class="mobile-discovery-panel" id="mobile-discovery-panel" aria-label="Descobrir">
+        <div class="mobile-discovery-panel__header"><button type="button" class="mobile-discovery-back" aria-label="Voltar"><i class="ui-arrow ui-arrow--left" aria-hidden="true"></i></button><span>Descobrir</span></div>
+        <iframe title="Notícias do Descobrir" data-src="/descobrir.html?panel=1"></iframe>
+    </dialog>
 </body>
 </html>

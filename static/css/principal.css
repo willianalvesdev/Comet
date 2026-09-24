@@ -436,3 +436,59 @@
 .profile-menu__icon--dark { --profile-icon: url("../img/icons/profile-dark.svg"); }
 .profile-menu__icon--light { --profile-icon: url("../img/icons/profile-light.svg"); }
 .profile-menu__icon--language { --profile-icon: url("../img/icons/profile-language.svg"); }
+
+.profile-news-heading { padding: 8px; color: var(--text-secondary); font-size: var(--font-size-5); }
+#profile-news [aria-pressed="false"] .profile-menu__check { visibility: hidden; }
+
+.profile-menu__icon--discover { --profile-icon: url("../img/icons/discover.svg"); }
+.profile-menu__icon--topic-business { --profile-icon: url("../img/icons/topic-business.svg"); }
+.profile-menu__icon--topic-technology { --profile-icon: url("../img/icons/topic-technology.svg"); }
+.profile-menu__icon--topic-culture { --profile-icon: url("../img/icons/topic-culture.svg"); }
+.profile-menu__icon--topic-sports { --profile-icon: url("../img/icons/topic-sports.svg"); }
+.profile-menu__icon--topic-entertainment { --profile-icon: url("../img/icons/topic-entertainment.svg"); }
+
+.mobile-discover-toggle { display: none; }
+.mobile-discovery-panel { display: none; }
+@media (width < 640px) {
+    .mobile-discover-toggle { display: grid; margin-left: auto; }
+    .mobile-discover-toggle span { width: 18px; height: 18px; }
+    .sidebar__link[href="./descobrir.html"], .sidebar__link[href="/descobrir.html"] { display: none; }
+    .mobile-discovery-panel[open] { display: flex; flex-direction: column; position: fixed; inset: 0; width: 100%; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; background: var(--bg); color: var(--text); transform: translateX(100%); transition: transform var(--sidebar-duration) var(--sidebar-easing); overflow: hidden; }
+    .mobile-discovery-panel.is-visible { transform: translateX(0); }
+    .mobile-discovery-panel::backdrop { background: transparent; }
+    .mobile-discovery-panel__header { display: flex; align-items: center; gap: 20px; min-height: var(--header-height); padding: 8px 16px; border-bottom: 1px solid var(--border); }
+    .mobile-discovery-back { padding: 8px; border: 0; background: transparent; color: var(--text); cursor: pointer; }
+    .mobile-discovery-panel iframe { display: block; width: 100%; flex: 1; min-height: 0; border: 0; }
+    html.discovery-panel-open { overflow: hidden; }
+}
+html.discovery-embedded .sidebar, html.discovery-embedded .workspace__header, html.discovery-embedded .sidebar-backdrop, html.discovery-embedded .mobile-discovery-panel { display: none !important; }
+html.discovery-embedded .workspace__content { margin: 0; padding-top: 0; border: 0; border-radius: 0; width: 100%; }
+html.discovery-embedded .workspace { --sidebar-width: 0px; }
+@media (prefers-reduced-motion: reduce) { .mobile-discovery-panel[open] { transition: none; } }
+
+@media (width < 640px) {
+    .workspace { --mobile-menu-width: min(240px, calc(100vw - 32px)); --mobile-menu-offset: var(--mobile-menu-width); overflow-x: clip; }
+    .workspace.is-sidebar-collapsed { --mobile-menu-offset: 0px; }
+    .workspace__content { width: 100%; margin-left: var(--mobile-menu-offset); }
+    .workspace__header { left: var(--mobile-menu-offset); right: auto; width: 100%; }
+    .home__heading, .home__composer { translate: var(--mobile-menu-offset) 0; transition: translate var(--sidebar-duration) var(--sidebar-easing); }
+    .sidebar-backdrop:not([hidden]) { left: var(--mobile-menu-width); background: transparent; }
+    html.discovery-embedded .workspace { --mobile-menu-offset: 0px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .home__heading, .home__composer { transition: none; }
+}
+
+@media (width < 640px) {
+    html.discovery-panel-shift .workspace { --mobile-menu-offset: -100vw; }
+}
+
+.profile-menu__check { display: inline-block; width: 16px; height: 16px; flex: 0 0 16px; background: currentColor; -webkit-mask: url('../img/icons/check.svg') center / contain no-repeat; mask: url('../img/icons/check.svg') center / contain no-repeat; }
+.mobile-discovery-back { display: grid; place-items: center; width: 36px; height: 36px; }
+
+.sidebar__new-icon { display: grid; place-items: center; width: 24px; height: 24px; flex: 0 0 24px; margin-inline: -4px; border-radius: 50%; background: color-mix(in srgb, var(--text) 6%, transparent); }
+.sidebar__new-icon::before { content: ""; width: 18px; height: 18px; background: currentColor; -webkit-mask: url('../img/icons/new.svg') center / contain no-repeat; mask: url('../img/icons/new.svg') center / contain no-repeat; }
+
+@media (width < 640px) {
+    .workspace { --sidebar-duration: 450ms; }
+}

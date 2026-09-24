@@ -159,7 +159,13 @@
         priceElement.textContent = money.format(point.close);
         changeElement.dataset.trend = delta >= 0 ? "up" : "down";
         changeElement.textContent = sign + money.format(Math.abs(delta)) +
-            (percentage === null ? "" : "  " + (delta >= 0 ? "↗ " : "↘ ") + quantity.format(Math.abs(percentage)) + "%");
+            (percentage === null ? "" : "  " + quantity.format(Math.abs(percentage)) + "%");
+        if (percentage !== null) {
+            const arrow = document.createElement('i');
+            arrow.className = 'ui-arrow ' + (delta >= 0 ? 'ui-arrow--up' : 'ui-arrow--down');
+            arrow.setAttribute('aria-hidden', 'true');
+            changeElement.prepend(arrow);
+        }
         periodElement.textContent = shortDate.format(visiblePoints[0].time * 1000) + " — " + shortDate.format(point.time * 1000) +
             (selectedRange === "1D" || selectedRange === "5D" ? ", " + shortTime.format(point.time * 1000) + " UTC" : "");
     }
