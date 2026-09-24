@@ -34,13 +34,13 @@
 
         <nav class="sidebar__nav" id="sidebar-nav" aria-label="Navegação principal">
             <a class="sidebar__link" href="./principal.html" aria-label="Novo" title="Novo"><span class="sidebar__new-icon" aria-hidden="true"></span><span class="sidebar__label">Novo</span></a>
-            <button class="sidebar__link" type="button" aria-label="Computer" title="Computer">
+            <a class="sidebar__link" href="./computer.html" aria-label="Computer" title="Computer">
                 <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="4" y="4" width="16" height="12" rx="2"/>
                     <path d="M2 20h20M9 8v4m6-4v4"/>
                 </svg>
                 <span class="sidebar__label">Computer</span>
-            </button>
+            </a>
             <button class="sidebar__link" type="button" aria-label="Personalizar" title="Personalizar">
                 <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="m12 2 9 5v10l-9 5-9-5V7Z"/>
@@ -99,7 +99,7 @@
                 <button class="workspace__header-button workspace__menu-toggle" type="button" aria-label="Abrir menu lateral" aria-expanded="false" aria-controls="sidebar">
                     <span class="workspace__mobile-menu-icon" aria-hidden="true"></span>
                 </button>
-                <span class="workspace__brand-logo" role="img" aria-label="Ascensão"></span>
+                <span class="workspace__brand-logo" role="img" aria-label="Ascenda"></span>
             </div>
             <span class="workspace__title">Gráficos</span>
             <button class="workspace__header-button mobile-discover-toggle" type="button" aria-label="Abrir Descobrir" aria-controls="mobile-discovery-panel" aria-expanded="false"><span class="sidebar__discover-icon" aria-hidden="true"></span></button>
@@ -110,25 +110,23 @@
                 <h1 class="finance-tab" id="overview-title">Visão geral</h1>
             </div>
             <div class="finance-layout">
-            <div class="finance-chart-column">
-            <section class="finance-totals" aria-label="Resumo financeiro demonstrativo">
-                <article class="finance-total">
-                    <h2>Balanço total</h2>
-                    <div class="finance-total__values"><p>R$ 9.865,00</p><span class="finance-total__change" aria-label="Aumento de R$ 1.865,00, 23,31% em relação ao mês passado"><span class="ui-arrow ui-arrow--up" aria-hidden="true"></span><span>+R$ 1.865,00<small>+23,31%</small></span></span></div>
-                    <span class="finance-total__comparison">Em relação ao mês passado</span>
+            <section class="finance-totals" aria-labelledby="finance-totals-title">
+                <h2 class="finance-section-title finance-totals__title" id="finance-totals-title">Resumo atual</h2>
+                <article class="finance-total finance-total--balance">
+                    <div class="finance-total__header"><h2>Balanço total</h2><div class="finance-total__values"><p>R$ 9.865,00</p><span class="finance-total__change" title="Aumento em relação ao mês passado"><i class="ui-arrow ui-arrow--up" aria-hidden="true"></i> 23,31%</span></div><span class="finance-total__comparison">+R$ 1.865,00 vs. mês passado</span></div>
+                    <svg class="finance-total__sparkline" viewBox="0 0 260 76" preserveAspectRatio="none" role="img" aria-label="Evolução mensal ilustrativa"><defs><linearGradient id="total-balance" x1="0" y1="0" x2="0" y2="1"><stop stop-color="currentColor" stop-opacity=".2"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M0 14 H260" class="finance-total__baseline"/><path d="M0 48 L25 47 L50 50 L75 39 L100 42 L125 32 L150 35 L175 26 L200 29 L225 20 L260 17 L260 76 L0 76 Z" fill="url(#total-balance)"/><path d="M0 48 L25 47 L50 50 L75 39 L100 42 L125 32 L150 35 L175 26 L200 29 L225 20 L260 17" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>
                 </article>
                 <article class="finance-total finance-total--income">
-                    <h2>Receitas do mês</h2>
-                    <div class="finance-total__values"><p>R$ 12.500,00</p><span class="finance-total__change" aria-label="Aumento de R$ 2.500,00, 25% em relação ao mês passado"><span class="ui-arrow ui-arrow--up" aria-hidden="true"></span><span>+R$ 2.500,00<small>+25%</small></span></span></div>
-                    <span class="finance-total__comparison">Em relação ao mês passado</span>
+                    <div class="finance-total__header"><h2>Receitas do mês</h2><div class="finance-total__values"><p>R$ 12.500,00</p><span class="finance-total__change" title="Aumento em relação ao mês passado"><i class="ui-arrow ui-arrow--up" aria-hidden="true"></i> 25%</span></div><span class="finance-total__comparison">+R$ 2.500,00 vs. mês passado</span></div>
+                    <svg class="finance-total__sparkline" viewBox="0 0 260 76" preserveAspectRatio="none" role="img" aria-label="Evolução mensal ilustrativa"><defs><linearGradient id="total-income" x1="0" y1="0" x2="0" y2="1"><stop stop-color="currentColor" stop-opacity=".2"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M0 14 H260" class="finance-total__baseline"/><path d="M0 52 L25 49 L50 44 L75 47 L100 34 L125 36 L150 25 L175 29 L200 18 L225 21 L260 12 L260 76 L0 76 Z" fill="url(#total-income)"/><path d="M0 52 L25 49 L50 44 L75 47 L100 34 L125 36 L150 25 L175 29 L200 18 L225 21 L260 12" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>
                 </article>
                 <article class="finance-total finance-total--expense">
-                    <h2>Gastos do mês</h2>
-                    <div class="finance-total__values"><p>R$ 2.635,00</p><span class="finance-total__change" aria-label="Aumento de R$ 635,00, 31,75% em relação ao mês passado"><span class="ui-arrow ui-arrow--up" aria-hidden="true"></span><span>+R$ 635,00<small>+31,75%</small></span></span></div>
-                    <span class="finance-total__comparison">Em relação ao mês passado</span>
+                    <div class="finance-total__header"><h2>Gastos do mês</h2><div class="finance-total__values"><p>R$ 2.635,00</p><span class="finance-total__change" title="Aumento em relação ao mês passado"><i class="ui-arrow ui-arrow--up" aria-hidden="true"></i> 31,75%</span></div><span class="finance-total__comparison">+R$ 635,00 vs. mês passado</span></div>
+                    <svg class="finance-total__sparkline" viewBox="0 0 260 76" preserveAspectRatio="none" role="img" aria-label="Evolução mensal ilustrativa"><defs><linearGradient id="total-expense" x1="0" y1="0" x2="0" y2="1"><stop stop-color="currentColor" stop-opacity=".2"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M0 14 H260" class="finance-total__baseline"/><path d="M0 50 L25 51 L50 51 L75 52 L100 52 L125 53 L150 54 L175 54 L200 54 L225 53 L260 52 L260 76 L0 76 Z" fill="url(#total-expense)"/><path d="M0 50 L25 51 L50 51 L75 52 L100 52 L125 53 L150 54 L175 54 L200 54 L225 53 L260 52" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>
                 </article>
             </section>
-            <h2 class="finance-section-title">Resumo atual</h2>
+            <div class="finance-chart-column">
+            <h2 class="finance-section-title">Gráfico</h2>
             <section class="market-card" aria-label="Evolução dos valores">
                 <div class="market-summary">
                     <div class="market-summary__values">
@@ -171,7 +169,7 @@
             </section>
             </div>
             <section class="transfer-history" aria-labelledby="history-title">
-                <h2 class="finance-section-title" id="history-title">Histórico</h2>
+                <h2 class="finance-section-title" id="history-title">Recentes</h2>
                 <div class="transfer-card">
                     <ul class="transfer-list" aria-label="Transferências demonstrativas">
 <li class="transfer-row"><span class="transfer-avatar" aria-hidden="true"></span><div class="transfer-description"><span>Cache</span><small>Hoje, 18:30</small></div><div class="transfer-values"><span>R$ 9.865,00</span><span class="transfer-change transfer-change--income">+54,7%</span></div></li>
@@ -194,10 +192,7 @@
                             <button class="home__mode" type="button" data-composer-mode="computer" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M2 20h20M9 8v4m6-4v4"/></svg><span>Computer</span></button>
                         </div>
                         <div class="home__actions">
-                            <button class="home__microphone" type="button" aria-label="Ditar mensagem" aria-pressed="false" aria-describedby="dictation-status"><svg width="13" height="20" aria-hidden="true" focusable="false" viewBox="0 0 13 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M2.75 18.5H5.75V16.4482C2.51357 16.019 0 12.8493 0 9C0 8.7193 0.234954 8.50016 0.515625 8.5H0.818359C1.0888 8.5 1.2998 8.72956 1.2998 9C1.2998 12.3137 3.62812 15 6.5 15C9.37188 15 11.7002 12.3137 11.7002 9C11.7002 8.72956 11.9112 8.5 12.1816 8.5H12.4844C12.765 8.50016 13 8.7193 13 9C13 12.8493 10.4864 16.019 7.25 16.4482V18.5H10.25C10.6642 18.5 11 18.8358 11 19.25C11 19.6642 10.6642 20 10.25 20H2.75C2.33579 20 2 19.6642 2 19.25C2 18.8358 2.33579 18.5 2.75 18.5Z" fill="currentColor"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 0C8.433 0 10 1.567 10 3.5V10C10 11.933 8.433 13.5 6.5 13.5C4.567 13.5 3 11.933 3 10V3.5C3 1.567 4.567 0 6.5 0ZM6.5 1.5C5.39543 1.5 4.5 2.39543 4.5 3.5V10C4.5 11.1046 5.39543 12 6.5 12C7.60457 12 8.5 11.1046 8.5 10V3.5C8.5 2.39543 7.60457 1.5 6.5 1.5Z" fill="currentColor"/>
-</svg></button>
+                            <button class="home__microphone" type="button" aria-label="Ditar mensagem" aria-pressed="false" aria-describedby="dictation-status"><span class="microphone-icon" aria-hidden="true"></span></button>
                             <button class="home__send" type="submit" aria-label="Enviar mensagem"><i class="ui-arrow" aria-hidden="true"></i></button>
                         </div>
                     </div>

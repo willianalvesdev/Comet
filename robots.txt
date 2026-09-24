@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /principal.html
+Disallow: /graficos.html
+Disallow: /descobrir.html
+Disallow: /logout
+Disallow: /?login=
+Disallow: /computer.html

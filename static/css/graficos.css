@@ -462,20 +462,40 @@
     pointer-events: none;
 }
 
-.finance-totals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-bottom: 28px; }
-.finance-total { min-width: 0; padding: 20px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); }
-.finance-total h2 { margin: 0 0 12px; color: var(--text-secondary); font-size: var(--font-size-4); font-weight: 400; }
-.finance-total p { margin: 0; color: var(--text); font-size: var(--font-size-2); font-weight: 400; font-variant-numeric: tabular-nums; }
-.finance-total--income p { color: var(--green); }
-.finance-total--expense p { color: var(--red); }
-@media (width < 640px) {
-    .finance-totals { grid-template-columns: minmax(0, 1fr); gap: 12px; margin-bottom: 24px; }
-    .finance-total { padding: 16px; }
-}
 
-.finance-total__values { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; }
-.finance-total__values > p { white-space: nowrap; }
-.finance-total__change { display: inline-flex; align-items: center; gap: 4px; color: var(--green); font-size: var(--font-size-6); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.finance-total__change small { display: block; margin-top: 2px; font-size: inherit; }
-.finance-total--expense .finance-total__change { color: var(--red); }
-.finance-total__comparison { display: block; margin-top: 12px; color: var(--text-secondary); font-size: var(--font-size-6); }
+@font-face { font-family: Geist; src: url('../fonts/geist/Geist-Variable.ttf') format('truetype'); font-weight: 100 900; font-style: normal; font-display: swap; }
+:root { --font-numbers: 'Geist', var(--font-body); }
+.finance-totals { grid-column: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.finance-chart-column { grid-column: 1; grid-row: 2; }
+.transfer-history { grid-column: 2; grid-row: 1 / span 2; }
+.finance-total { min-width: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); color: var(--green); }
+.finance-total--expense { color: var(--red); }
+.finance-total__header { padding: 14px 16px 4px; }
+.finance-total h2 { margin: 0 0 8px; color: var(--text-secondary); font-size: var(--font-size-6); font-weight: 400; }
+.finance-total__values { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+.finance-total p { margin: 0; color: var(--text); font-size: var(--font-size-4); font-weight: 400; white-space: nowrap; }
+.finance-total__change { display: inline-flex; align-items: center; gap: 4px; font-size: var(--font-size-6); white-space: nowrap; }
+.finance-total__comparison { display: block; margin-top: 4px; color: var(--text-secondary); font-size: var(--font-size-6); }
+.finance-total__sparkline { display: block; width: 100%; height: 64px; }
+.finance-total__baseline { fill: none; stroke: var(--text-secondary); stroke-opacity: .4; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+.finance-total__values, .finance-total__comparison, .market-summary__values, .market-period, .chart-tooltip, .transfer-values, .transfer-description small, .chart-range { font-family: var(--font-numbers); font-variant-numeric: tabular-nums; }
+.market-change__percentage { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+@media (width < 1200px) { .transfer-history { grid-column: 1; grid-row: 3; } }
+@media (width < 640px) { .finance-totals { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
+
+.finance-totals__title { grid-column: 1 / -1; margin-bottom: 0; }
+
+/* Keep history rows compact while aligned with the summary cards. */
+.transfer-history { align-self: start; }
+.transfer-card, .transfer-list { flex: none; }
+.transfer-list { grid-template-rows: none; grid-auto-rows: minmax(48px, auto); }
+
+/* Compact transaction history. */
+.transfer-card { border-radius: 14px; }
+.transfer-list { padding: 12px 14px; gap: 14px; grid-auto-rows: minmax(40px, auto); }
+.transfer-row { gap: 10px; }
+.transfer-avatar { width: 40px; height: 40px; flex-basis: 40px; border-radius: 6px; }
+.transfer-description, .transfer-values { font-size: var(--font-size-5); line-height: 1.25; }
+.transfer-description small { margin-top: 3px; }
+.transfer-change { margin-top: 2px; }
+.transfer-more { padding: 8px; }

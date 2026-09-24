@@ -33,15 +33,11 @@
         notice.className = 'cookie-notice';
         notice.setAttribute('aria-labelledby', 'cookie-title');
         notice.innerHTML = `<h2 id="cookie-title"><span class="cookie-notice__icon" aria-hidden="true"></span>Política de Cookies</h2><p>Na Ascenda, sua privacidade faz parte da experiência, inclusive ao usar recursos de inteligência artificial. Usamos cookies essenciais para manter seu acesso e proteger sua conta. Com sua permissão, também armazenamos preferências neste navegador, como aparência, interesses e curtidas, para personalizar sua experiência. Ao selecionar “Entendi”, você permite esse armazenamento opcional. Você pode recusá-lo e continuar usando o site.</p><div class="cookie-actions"><button type="button" data-cookie-choice="rejected">Recusar opcionais</button><button type="button" data-cookie-choice="accepted">Entendi</button></div>`;
-        const reopen = document.createElement('button');
-        reopen.type = 'button'; reopen.className = 'cookie-settings'; reopen.textContent = 'Cookies';
-        reopen.setAttribute('aria-label', 'Rever preferências de cookies');
-        function show(visible) { notice.hidden = !visible; reopen.hidden = visible; }
+        function show(visible) { notice.hidden = !visible; }
         notice.querySelectorAll('[data-cookie-choice]').forEach(button => button.addEventListener('click', () => {
             save(button.dataset.cookieChoice); show(false);
         }));
-        reopen.addEventListener('click', () => { show(true); notice.querySelector('button').focus(); });
-        document.body.append(notice, reopen);
+        document.body.append(notice);
         show(!['accepted', 'rejected'].includes(choice));
         window.addEventListener('storage', event => { if (event.key === key) show(!['accepted', 'rejected'].includes(choice)); });
     });

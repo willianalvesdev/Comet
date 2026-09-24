@@ -111,10 +111,25 @@ def create_app(test_config=None):
     def principal():
         return render_template('principal.html', user=g.user)
 
+    @app.get('/computer.html')
+    @protected
+    def computer():
+        return render_template('computer.html', user=g.user)
+
     @app.get('/graficos.html')
     @protected
     def graficos():
         return render_template('graficos.html', user=g.user)
+
+    @app.get('/robots.txt')
+    def robots():
+        from flask import send_from_directory
+        return send_from_directory(ROOT, 'robots.txt', mimetype='text/plain')
+
+    @app.get('/llms.txt')
+    def llms():
+        from flask import send_from_directory
+        return send_from_directory(ROOT, 'llms.txt', mimetype='text/plain')
 
     @app.get('/manifest.webmanifest')
     def manifest():

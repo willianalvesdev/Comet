@@ -63,7 +63,7 @@
         layout: {
             background: { type: "solid", color: colors.surface },
             textColor: colors["text-secondary"],
-            fontFamily: getComputedStyle(document.body).fontFamily,
+            fontFamily: getComputedStyle(document.documentElement).getPropertyValue("--font-numbers").trim(),
             fontSize: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--font-size-5")),
             attributionLogo: false
         },
@@ -158,13 +158,15 @@
         const sign = delta >= 0 ? "+" : "−";
         priceElement.textContent = money.format(point.close);
         changeElement.dataset.trend = delta >= 0 ? "up" : "down";
-        changeElement.textContent = sign + money.format(Math.abs(delta)) +
-            (percentage === null ? "" : "  " + quantity.format(Math.abs(percentage)) + "%");
+        changeElement.textContent = sign + money.format(Math.abs(delta));
         if (percentage !== null) {
+            const group = document.createElement('span');
+            group.className = 'market-change__percentage';
             const arrow = document.createElement('i');
             arrow.className = 'ui-arrow ' + (delta >= 0 ? 'ui-arrow--up' : 'ui-arrow--down');
             arrow.setAttribute('aria-hidden', 'true');
-            changeElement.prepend(arrow);
+            group.append(arrow, document.createTextNode(quantity.format(Math.abs(percentage)) + '%'));
+            changeElement.append(group);
         }
         periodElement.textContent = shortDate.format(visiblePoints[0].time * 1000) + " — " + shortDate.format(point.time * 1000) +
             (selectedRange === "1D" || selectedRange === "5D" ? ", " + shortTime.format(point.time * 1000) + " UTC" : "");

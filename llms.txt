@@ -1,0 +1,20 @@
+# Ascenda
+
+> Plataforma de organização financeira pessoal com interface conversacional, gráficos e descoberta de notícias.
+
+## Página pública
+
+- [Página inicial](/): apresentação da Ascenda e acesso ao cadastro e login.
+
+## Recursos
+
+A área autenticada reúne uma interface para escrever ou ditar mensagens, visualização de gráficos financeiros e leitura de notícias com preferências de temas e idiomas.
+Os gráficos, os resumos financeiros e o histórico de transferências atualmente exibem dados demonstrativos. A interface conversacional está em desenvolvimento; não representa uma integração de inteligência artificial concluída.
+
+## Acesso e privacidade
+
+As páginas internas e as APIs exigem autenticação. Dados de contas e informações financeiras pessoais não são conteúdo público. Este arquivo descreve o produto e não concede acesso a áreas privadas.
+
+## Rastreamento
+
+- [robots.txt](/robots.txt): orientações de rastreamento do site.

@@ -84,3 +84,24 @@
     .workspace .home__heading,
     .workspace .home__composer { transition: none; }
 }
+
+.home__microphone[aria-pressed="true"] { color: var(--text); background: transparent; }
+.home__microphone[aria-pressed="true"] svg { display: none; }
+ .home__microphone[aria-pressed="true"]::before { content: ""; width: 16px; height: 16px; background: currentColor; mask: url('../img/icons/pause.svg') center / contain no-repeat; -webkit-mask: url('../img/icons/pause.svg') center / contain no-repeat; }
+.home__actions { position: relative; }
+.dictation-equalizer { position: absolute; right: calc(100% + 8px); top: 50%; transform: translateY(-50%); display: grid; grid-template-columns: repeat(9, 3px); grid-template-rows: repeat(3, 3px); gap: 2px; color: var(--accent); pointer-events: none; }
+.dictation-equalizer[hidden] { display: none; }
+.dictation-equalizer i { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .22; transition: opacity 320ms ease; }
+.home__toolbar.is-dictating .home__send .ui-arrow { mask-image: url('../img/icons/check.svg'); -webkit-mask-image: url('../img/icons/check.svg'); }
+@media (prefers-reduced-motion: reduce) { .dictation-equalizer i { transition: none; } }
+
+.microphone-icon { display: block; width: 16px; height: 16px; background: currentColor; mask: url('../img/icons/microphone.svg') center / contain no-repeat; -webkit-mask: url('../img/icons/microphone.svg') center / contain no-repeat; }
+.home__send { width: 32px; height: 32px; }
+.home__send .ui-arrow { width: 13px; height: 13px; flex-basis: 13px; }
+.home__microphone[aria-pressed="true"] .microphone-icon { display: none; }
+.dictation-equalizer { grid-template-columns: repeat(9, 4px); grid-template-rows: repeat(3, 4px); gap: 3px; }
+.dictation-equalizer i { width: 4px; height: 4px; }
+
+@media (width < 640px) { .home__toolbar.is-dictating .home__mode { padding-inline: 6px; gap: 4px; } }
+
+@media (width < 640px) { .home__toolbar.is-dictating .home__mode span { display: none; } .home__toolbar.is-dictating .home__mode { min-width: 36px; } }

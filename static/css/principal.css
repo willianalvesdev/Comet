@@ -345,11 +345,11 @@
     }
 
     .workspace__brand-logo {
-        width: 100px;
-        height: 24px;
+        width: 90px;
+        height: 18px;
         background: var(--text);
-        -webkit-mask: url("../img/logos/textlogo.svg") center / contain no-repeat;
-        mask: url("../img/logos/textlogo.svg") center / contain no-repeat;
+        -webkit-mask: url("../img/logos/onlytextlogo.svg") center / contain no-repeat;
+        mask: url("../img/logos/onlytextlogo.svg") center / contain no-repeat;
     }
 
     .workspace__header-actions {
