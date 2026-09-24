@@ -40,3 +40,16 @@ CREATE TABLE IF NOT EXISTS computer_mensagens (
     FOREIGN KEY (conversa_id) REFERENCES computer_conversas(id) ON DELETE CASCADE,
     INDEX computer_mensagens_conversa (conversa_id, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE IF NOT EXISTS computer_personalizacao (
+    usuario_id BIGINT UNSIGNED PRIMARY KEY,
+    nome_preferido VARCHAR(100) NOT NULL DEFAULT '',
+    ocupacao VARCHAR(200) NOT NULL DEFAULT '',
+    sobre TEXT NOT NULL,
+    memoria_ativa BOOLEAN NOT NULL DEFAULT TRUE,
+    resumo TEXT NOT NULL,
+    versao BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    atualizado_em DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

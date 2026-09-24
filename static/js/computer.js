@@ -8,10 +8,33 @@
     const note = page.querySelector('.computer-note');
     const conversation = page.querySelector('.computer-messages');
     const sessions = window.ComputerSessions;
+    const models = window.ComputerModels;
     const olderButton = page.querySelector('.computer-history__older');
     const service = new window.ComputerService();
     let currentId = null, active = null, loading = true, ready = false, remoteActive = false;
     let nextOffset = null, before = null, turns = [], pollTimer = null, leaving = false, revision = 0;
+
+    const composer = page.querySelector('.computer-composer');
+    function syncComposerSpace() {
+        page.style.setProperty('--computer-composer-height', `${Math.ceil(composer.getBoundingClientRect().height)}px`);
+    }
+    new ResizeObserver(syncComposerSpace).observe(composer);
+    function syncKeyboard() {
+        const viewport = window.visualViewport;
+        const offset = viewport && matchMedia('(width < 640px)').matches && viewport.scale === 1
+            ? Math.max(0, innerHeight - viewport.height - viewport.offsetTop) : 0;
+        page.style.setProperty('--computer-keyboard-offset', `${offset}px`);
+    }
+    window.visualViewport?.addEventListener('resize', syncKeyboard);
+    window.visualViewport?.addEventListener('scroll', syncKeyboard);
+    window.addEventListener('resize', syncKeyboard);
+    syncKeyboard();
+    function nearLatest() {
+        return document.documentElement.scrollHeight - window.scrollY - innerHeight < 160;
+    }
+    function scrollToLatest() {
+        requestAnimationFrame(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+    }
 
     function addMessage(role, text) {
         const article = document.createElement('article');
@@ -42,7 +65,7 @@
         panel.className = 'computer-thinking__content';
         panel.tabIndex = 0;
         panel.setAttribute('role', 'region');
-        panel.setAttribute('aria-label', 'Pensamento do Computer');
+        panel.setAttribute('aria-label', 'Resumo do raciocínio do Computer');
         const text = document.createTextNode('');
         panel.append(text);
         details.append(summary, panel);
@@ -68,6 +91,7 @@
         microphone.disabled = busy || unavailable;
         conversation.setAttribute('aria-busy', String(busy || remoteActive));
         sessions.setBusy(loading || busy);
+        models.setBusy(loading || busy || remoteActive);
         olderButton.disabled = loading || busy || !ready;
     }
     function showConversation() {
@@ -97,7 +121,7 @@
                 thinking.details.open = opened.has(turn.id);
                 const running = turn.status === 'running' && !turn.answer;
                 thinking.details.classList.toggle('is-thinking', running);
-                thinking.label.textContent = running ? 'Pensando…' : ['completed', 'running'].includes(turn.status) ? 'Pensamento' : 'Pensamento interrompido';
+                thinking.label.textContent = running ? 'Pensando…' : ['completed', 'running'].includes(turn.status) ? 'Resumo do raciocínio' : 'Pensamento interrompido';
             }
             assistant.body.hidden = !turn.answer;
             if (turn.status === 'interrupted' || turn.status === 'failed') {
@@ -125,7 +149,7 @@
                 turns = [...turns.filter(turn => !updatedIds.has(turn.id)), ...result.turns];
                 remoteActive = result.active;
                 renderTurns(turns, true);
-                note.textContent = remoteActive ? 'Resposta em andamento…' : 'Conversa atualizada.';
+                note.textContent = remoteActive ? 'Resposta em andamento…' : '';
             } catch (error) {
                 if (currentId !== id || revision !== version || leaving) return;
                 remoteActive = false;
@@ -140,7 +164,7 @@
         revision++;
         clearTimeout(pollTimer);
         loading = true; ready = false; controls();
-        note.textContent = 'Carregando conversa…';
+        note.textContent = '';
         try {
             const result = await service.load(id);
             remember(result.conversation.id, result.conversation.title);
@@ -153,7 +177,7 @@
             input.value = '';
             input.dispatchEvent(new Event('input', { bubbles: true }));
             note.textContent = remoteActive ? 'Resposta em andamento…' : '';
-            form.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+            scrollToLatest();
         } catch (error) {
             sessions.select(currentId);
             note.textContent = error.message + ' Use Atualizar histórico para tentar novamente.';
@@ -174,7 +198,7 @@
     async function initialize() {
         const draft = input.value, previousId = currentId;
         loading = true; ready = false; controls();
-        note.textContent = 'Carregando suas conversas…';
+        note.textContent = '';
         try {
             const items = await listConversations();
             const requested = new URL(location.href).searchParams.get('conversation');
@@ -217,27 +241,28 @@
         const text = input.value.trim();
         if (!text) { input.focus(); return; }
         if (text.length > 8000) { note.textContent = 'Escreva uma mensagem com até 8.000 caracteres.'; return; }
-        const payload = { conversation_id: currentId, message: text, request_id: crypto.randomUUID() };
+        if (models.error()) { note.textContent = models.error(); return; }
+        const payload = { conversation_id: currentId, message: text, request_id: crypto.randomUUID(), provider: models.selected() };
         const user = addMessage('user', text);
         const assistant = addMessage('assistant', '');
         const thinking = addThinking(assistant);
-        showConversation(); note.textContent = 'Pensando…';
+        showConversation(); note.textContent = '';
         input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true }));
         const controller = new AbortController(); active = controller;
         let timedOut = false, answer = '', persisted = false, savedTurnId = null;
         const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, 310000);
-        controls(); form.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+        controls(); scrollToLatest();
         try {
             await service.chat(payload, delta => {
-                const nearBottom = form.getBoundingClientRect().bottom <= innerHeight + 120;
+                const nearBottom = nearLatest();
                 answer += delta;
-                thinking.details.classList.remove('is-thinking'); thinking.label.textContent = 'Pensamento';
+                thinking.details.classList.remove('is-thinking'); thinking.label.textContent = 'Resumo do raciocínio';
                 if (!thinking.text.length) thinking.details.hidden = true;
                 assistant.body.hidden = false; assistant.body.textContent = answer;
-                note.textContent = 'Computer está respondendo…';
-                if (nearBottom) form.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+                note.textContent = '';
+                if (nearBottom) scrollToLatest();
             }, controller.signal, delta => {
-                if (answer) throw new Error('A resposta foi interrompida. Tente novamente.');
+                thinking.details.hidden = false;
                 if (thinking.text.length + delta.length > 48000) throw new Error('O pensamento excedeu o limite. Tente novamente.');
                 const follow = thinking.panel.scrollHeight - thinking.panel.scrollTop - thinking.panel.clientHeight < 40;
                 thinking.text.appendData(delta);
@@ -250,7 +275,7 @@
             });
             if (!answer.trim()) throw new Error('A resposta veio vazia. Tente novamente.');
             turns.push({ id: savedTurnId, message: text, answer, thinking: thinking.text.data, status: 'completed' });
-            note.textContent = 'Resposta concluída e salva.';
+            note.textContent = '';
         } catch (error) {
             thinking.details.classList.remove('is-thinking'); thinking.label.textContent = 'Pensamento interrompido';
             if (!answer && !thinking.text.length) thinking.details.hidden = true;
@@ -260,8 +285,10 @@
             note.textContent = timedOut ? 'A resposta demorou mais que o esperado.'
                 : error.name === 'AbortError' ? 'Resposta interrompida.' : error.message;
             // Re-read the authoritative history before another send after a connection loss.
-            ready = false;
-            note.textContent += ' Use Atualizar histórico antes de continuar.';
+            if (persisted) {
+                ready = false;
+                note.textContent += ' Use Atualizar histórico antes de continuar.';
+            }
         } finally {
             clearTimeout(timeout); active = null; controls();
             if (!leaving) {

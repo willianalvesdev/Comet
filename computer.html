@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/static/css/sessions.css">
     <script src="/static/js/sessions.js" defer></script>
     <script src="./static/js/computer-service.js" defer></script>
+    <script src="./static/js/model-menu.js" defer></script>
     <script src="./static/js/computer.js" defer></script>
     <script src="./static/js/dictation.js" defer></script>
     <script src="./static/js/sidebar.js" defer></script>
@@ -42,13 +43,7 @@
                 </svg>
                 <span class="sidebar__label">Computer</span>
             </a>
-            <button class="sidebar__link" type="button" aria-label="Personalizar" title="Personalizar">
-                <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="m12 2 9 5v10l-9 5-9-5V7Z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                </svg>
-                <span class="sidebar__label">Personalizar</span>
-            </button>
+
             <a class="sidebar__link" href="./graficos.html" aria-label="Gráficos" title="Gráficos">
                 <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M3 3v18h18M6 15l4-5 4 3 6-8"/>
@@ -56,6 +51,7 @@
                 <span class="sidebar__label">Gráficos</span>
             </a>
             <a class="sidebar__link" href="./descobrir.html" aria-label="Descobrir" title="Descobrir"><span class="sidebar__icon sidebar__discover-icon" aria-hidden="true"></span><span class="sidebar__label">Descobrir</span></a>
+
         </nav>
 
         <div class="sidebar__footer">
@@ -76,7 +72,8 @@
                 <button class="profile-menu__item" type="button" data-profile-submenu="appearance" aria-expanded="false" aria-controls="profile-appearance"><i class="profile-menu__icon profile-menu__icon--dark" aria-hidden="true"></i><span>Aparência<small data-theme-label>Escuro</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
                 <button class="profile-menu__item" type="button" data-profile-submenu="language" aria-expanded="false" aria-controls="profile-language"><i class="profile-menu__icon profile-menu__icon--language" aria-hidden="true"></i><span>Idioma<small>Português (Brasil)</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
 <button class="profile-menu__item" type="button" data-profile-submenu="news" aria-expanded="false" aria-controls="profile-news"><i class="profile-menu__icon profile-menu__icon--discover" aria-hidden="true"></i><span>Notícias<small data-news-preference-label>Finanças · PT / EN</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-                <div class="profile-menu__divider"></div>
+                <button class="profile-menu__item" type="button" data-open-settings><i class="settings-icon" style="--icon:url(/static/img/icons/settings-settings.svg)" aria-hidden="true"></i><span>Todas as configurações</span></button>
+<div class="profile-menu__divider"></div>
                 <form action="/logout" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="profile-menu__item" type="submit"><i class="profile-menu__icon profile-menu__icon--logout" aria-hidden="true"></i><span>Sair</span></button></form>
             </div>
             <div class="profile-menu__submenu" id="profile-appearance" aria-label="Aparência" hidden>
@@ -107,6 +104,7 @@
             </div>
             <button class="computer-history__older" type="button" hidden>Carregar mensagens anteriores</button>
             <section class="computer-messages" aria-label="Conversa com Computer" aria-live="polite" aria-relevant="additions text" hidden></section>
+            <div class="computer-composer">
                 <form class="home__composer" aria-label="Escrever uma mensagem">
                     <p class="home__dictation-status" role="status" aria-live="polite" id="dictation-status"></p>
                     <textarea class="home__input" aria-label="Mensagem" placeholder="Faça qualquer coisa..." rows="2" maxlength="8000" readonly></textarea>
@@ -115,17 +113,24 @@
                             <button class="home__mode" type="button" data-composer-mode="computer" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M2 20h20M9 8v4m6-4v4"/></svg><span>Computer</span></button>
                         </div>
                         <div class="home__actions">
+                            <button class="model-picker" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="computer-model-menu" title="Escolher modelo (Qwen selecionado)"><span>Qwen</span><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                            <div class="model-menu" id="computer-model-menu" popover role="menu" aria-label="Modelo da conversa">
+                                <button type="button" role="menuitemradio" aria-checked="true" data-provider="qwen"><i class="model-icon model-icon--qwen" aria-hidden="true"></i><span>Qwen</span><small>Local</small><i class="model-check" aria-hidden="true"></i></button>
+                                <button type="button" role="menuitemradio" aria-checked="false" data-provider="gemini"><i class="model-icon model-icon--gemini" aria-hidden="true"></i><span>Gemini</span><small></small><i class="model-check" aria-hidden="true"></i></button>
+                            </div>
                             <button class="home__microphone" type="button" aria-label="Ditar mensagem" aria-pressed="false" aria-describedby="dictation-status"><span class="microphone-icon" aria-hidden="true"></span></button>
                             <button class="home__send" type="submit" aria-label="Enviar mensagem"><i class="ui-arrow" aria-hidden="true"></i></button>
                         </div>
                     </div>
                 </form>
-            <p class="computer-note" role="status"></p>
+                <p class="computer-note" role="status"></p>
+            </div>
         </section>
     </main>
     <dialog class="mobile-discovery-panel" id="mobile-discovery-panel" aria-label="Descobrir">
         <div class="mobile-discovery-panel__header"><button type="button" class="mobile-discovery-back" aria-label="Voltar"><i class="ui-arrow ui-arrow--left" aria-hidden="true"></i></button><span>Descobrir</span></div>
         <iframe title="Notícias do Descobrir" data-src="/descobrir.html?panel=1"></iframe>
     </dialog>
+{% include 'settings.html' %}
 </body>
 </html>

@@ -43,7 +43,7 @@ def create_app(test_config=None):
         SESSION_COOKIE_SAMESITE='Lax',
         SESSION_COOKIE_SECURE=os.getenv('SESSION_COOKIE_SECURE', 'false').lower() == 'true',
         SESSION_REFRESH_EACH_REQUEST=False, PERMANENT_SESSION_LIFETIME=timedelta(days=30),
-        MAX_CONTENT_LENGTH=16 * 1024, MAX_FORM_MEMORY_SIZE=16 * 1024,
+        MAX_CONTENT_LENGTH=64 * 1024, MAX_FORM_MEMORY_SIZE=16 * 1024,
         RATELIMIT_STORAGE_URI=os.getenv('RATELIMIT_STORAGE_URI', 'memory://'),
         RATELIMIT_HEADERS_ENABLED=True,
         NEWS_API_KEY=os.getenv('NEWS_API_KEY', ''),
@@ -66,15 +66,21 @@ def create_app(test_config=None):
     news_service = NewsService(app.config['NEWS_API_KEY'])
     app.extensions['ascenda_news'] = news_service
     from .ai.config import AIConfig
+    from .ai.remote import RemoteProvider
     from .ai.ollama import OllamaProvider
     from .ai.service import ComputerService
     from .ai.errors import AIError
     from .ai.conversations import ConversationStore
     ai_config = app.config.get('AI_CONFIG') or AIConfig.from_env()
-    computer_service = ComputerService(OllamaProvider(ai_config), ai_config)
+    providers = {'qwen': OllamaProvider(ai_config), 'gemini': RemoteProvider.from_env('gemini', ai_config)}
+    computer_service = ComputerService(providers['qwen'], ai_config, providers)
     app.extensions['ascenda_computer'] = computer_service
     conversation_store = ConversationStore(app.config)
     app.extensions['ascenda_conversations'] = conversation_store
+    from .ai.personalization import PersonalizationStore
+    personalization = PersonalizationStore(conversation_store)
+    computer_service.personalization = personalization
+    app.extensions['ascenda_personalization'] = personalization
     app.teardown_appcontext(db.close_db)
     dummy_hash = generate_password_hash(secrets.token_urlsafe(32))
 
@@ -127,6 +133,15 @@ def create_app(test_config=None):
     @protected
     def principal():
         return render_template('principal.html', user=g.user)
+
+    @app.get('/api/ai/models')
+    def computer_models():
+        if not current_user():
+            return jsonify(error='Entre novamente para escolher um modelo.'), 401
+        response = jsonify(models=[{'id': name, 'name': provider.label, 'configured': name == 'qwen' or bool(provider.key)}
+                                   for name, provider in providers.items()])
+        response.headers['Cache-Control'] = 'no-store'
+        return response
 
     @app.post('/api/ai/chat')
     @limiter.limit('10 per minute')
@@ -206,6 +221,27 @@ def create_app(test_config=None):
             return jsonify(conversation_store.change(user['id'], cid, title, request.method == 'DELETE'))
         except AIError as exc:
             return jsonify(error=exc.message, code=exc.code), exc.status
+
+    @app.get('/personalizar.html')
+    @protected
+    def personalizar():
+        return redirect('/principal.html?settings=personalization')
+
+    @app.route('/api/ai/personalization', methods=['GET', 'PUT'])
+    @limiter.limit('30 per minute')
+    def computer_personalization():
+        user = current_user()
+        if not user:
+            return jsonify(error='Entre novamente para personalizar o Computer.'), 401
+        try:
+            data = personalization.get(user['id']) if request.method == 'GET' else personalization.update(user['id'], request.get_json(silent=True))
+            response = jsonify(data)
+            response.headers['Cache-Control'] = 'no-store'
+            return response
+        except AIError as exc:
+            return jsonify(error=exc.message), exc.status
+        except DatabaseError:
+            return jsonify(error='A personalização precisa da atualização do banco. Execute configurar_banco.bat e recarregue esta página.'), 503
 
     @app.get('/computer.html')
     @protected

@@ -12,6 +12,8 @@ MAX_LINE = 65536
 
 
 class OllamaProvider:
+    label = 'Qwen'
+
     def __init__(self, config):
         self.config = config
 
@@ -54,7 +56,10 @@ class OllamaProvider:
             if values and not any(value is True for value in values):
                 log.warning('Model %s does not support think:true; configure a compatible OLLAMA_MODEL', self.config.model)
                 raise AIError('incompatible', 503)
-            payload = {'model': self.config.model, 'messages': messages,
+            local_messages = [dict(message) for message in messages]
+            if local_messages and local_messages[0]['role'] == 'system':
+                local_messages[0]['content'] += f'\nModelo desta resposta: {self.config.model}. Provedor: Ollama local. O processamento acontece no computador que hospeda o Ascenda.'
+            payload = {'model': self.config.model, 'messages': local_messages,
                        'stream': True, 'think': True}
             chars = 0
             received = False

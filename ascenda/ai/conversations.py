@@ -36,7 +36,10 @@ class ConversationStore:
 
     @staticmethod
     def validate(payload):
-        if not isinstance(payload, dict) or set(payload) != {'conversation_id', 'message', 'request_id'}:
+        if not isinstance(payload, dict) or set(payload) not in ({'conversation_id', 'message', 'request_id'}, {'conversation_id', 'message', 'request_id', 'provider'}):
+            raise AIError('invalid_request', 422)
+        provider = payload.get('provider', 'qwen')
+        if not isinstance(provider, str) or provider not in ('qwen', 'gemini'):
             raise AIError('invalid_request', 422)
         cid, text, rid = payload['conversation_id'], payload['message'], payload['request_id']
         if cid is not None:
@@ -48,7 +51,7 @@ class ConversationStore:
                 raise ValueError
         except (ValueError, AttributeError):
             raise AIError('invalid_request', 422) from None
-        return {'conversation_id': cid, 'message': text.strip(), 'request_id': rid}
+        return {'conversation_id': cid, 'message': text.strip(), 'request_id': rid, 'provider': provider}
 
     @staticmethod
     def owned(cur, user_id, cid, lock=False):
@@ -96,6 +99,9 @@ class ConversationStore:
                 'before': str(rows[29]['id']) if len(rows) > 30 else None}
 
     def begin(self, user_id, payload, config):
+        provider = payload.get('provider', 'qwen')
+        if not isinstance(provider, str) or provider not in ('qwen', 'gemini'):
+            raise AIError('invalid_request', 422)
         cid, text, rid = payload['conversation_id'], payload['message'], payload['request_id']
         try:
             with self.cursor() as cur:

@@ -53,15 +53,15 @@
                 const rect = options.getBoundingClientRect();
                 menu.style.left = Math.max(8, Math.min(rect.left, innerWidth - 224)) + 'px';
                 menu.style.top = Math.max(8, Math.min(rect.bottom + 6, innerHeight - 112)) + 'px';
-                menu.showPopover(); options.setAttribute('aria-expanded','true'); menu.querySelector('button').focus();
+                menu.showPopover(); options.setAttribute('aria-expanded','true'); menu.querySelector('button').focus({preventScroll:true});
             });
             row.append(link,options); list.append(row);
         }
         status.textContent = items.size ? '' : 'Nenhuma conversa ainda.';
     }
-    menu.addEventListener('keydown', event => { if (event.key === 'Escape') event.stopPropagation(); });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape' && menu.matches(':popover-open')) { event.preventDefault(); event.stopPropagation(); menu.hidePopover(); opener?.focus({preventScroll:true}); } }, true);
     menu.addEventListener('toggle', event => { if (event.newState === 'closed') opener?.setAttribute('aria-expanded','false'); });
-    for (const event of ['resize','scroll']) window.addEventListener(event, () => { if (menu.matches(':popover-open')) menu.hidePopover(); }, event === 'scroll');
+    window.addEventListener('resize', () => { if (menu.matches(':popover-open')) menu.hidePopover(); });
     menu.addEventListener('click', event => {
         const button = event.target.closest('button'); if (!button || !target) return;
         action = button.dataset.action; menu.hidePopover();

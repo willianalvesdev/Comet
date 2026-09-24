@@ -218,6 +218,7 @@ class ComputerRouteTests(unittest.TestCase):
         self.csrf = re.search(r'name="csrf_token" value="([^"]+)"', html).group(1)
         self.service = self.app.extensions['ascenda_computer']
         self.store = self.app.extensions['ascenda_conversations']
+        self.service.personalization = None  # Covered with real account data in personalization tests.
         begin = patch.object(self.store, 'begin', side_effect=lambda user, payload, config: {
             'conversation_id': '1', 'turn_id': '1', 'request_id': payload['request_id'],
             'messages': [{'role': 'user', 'content': payload['message']}]})
@@ -295,6 +296,33 @@ class ComputerRouteTests(unittest.TestCase):
             response = self.post()
             response.close()
             self.assertFalse(self.service._active)
+
+    def test_model_catalog_private_and_provider_routing(self):
+        self.assertEqual(self.client.get('/api/ai/models').status_code, 401)
+        self.login()
+        with self.db:
+            response = self.client.get('/api/ai/models')
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual([m['id'] for m in response.json['models']], ['qwen', 'gemini'])
+            self.assertTrue(response.json['models'][0]['configured'])
+            self.assertTrue(all(set(m) == {'id','name','configured'} for m in response.json['models']))
+            def local(messages):
+                yield {'type':'delta','text':'Qwen answer'}
+            def remote(messages):
+                yield {'type':'delta','text':'Gemini answer'}
+            with patch.object(self.service.provider, 'stream', side_effect=local) as qwen, patch.object(self.service.providers['gemini'], 'stream', side_effect=remote) as gemini:
+                for selected, expected in [(None,'Qwen answer'),('gemini','Gemini answer'),('qwen','Qwen answer')]:
+                    payload = {'conversation_id':None,'message':'Hi','request_id':str(uuid4())}
+                    if selected is not None:
+                        payload['provider'] = selected
+                    response = self.client.post('/api/ai/chat', json=payload, headers={'X-CSRFToken':self.csrf})
+                    self.assertIn(expected, response.get_data(as_text=True))
+                    if selected is None:
+                        gemini.assert_not_called()
+                self.assertEqual(qwen.call_count,2)
+                self.assertEqual(gemini.call_count,1)
+            invalid = self.client.post('/api/ai/chat', json={'conversation_id':None,'message':'Hi','request_id':str(uuid4()),'provider':'unknown'}, headers={'X-CSRFToken':self.csrf})
+            self.assertEqual(invalid.status_code,422)
 
     def test_saved_chat_rejects_client_history_and_oversized_messages(self):
         self.login()

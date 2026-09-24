@@ -25,7 +25,7 @@ As páginas principal e de gráficos exigem autenticação. As sessões duram 30
 são verificadas no MySQL e invalidadas ao sair. As senhas são armazenadas com hash
 scrypt, e os formulários têm proteção CSRF e limite de tentativas por IP.
 
-Gráficos e o envio de mensagens em Novo continuam demonstrativos. A página Computer tem chat local. O ditado usa o reconhecimento
+Gráficos e o envio de mensagens em Novo continuam demonstrativos. A página Computer tem chat com Qwen local e Gemini. O ditado usa o reconhecimento
 de voz do navegador; a permissão de microfone permanece disponível.
 
 ## Verificação
@@ -67,7 +67,7 @@ secreta própria e `RATELIMIT_STORAGE_URI` compartilhado (por exemplo Redis) se 
 mais de uma instância. Não versione `.env`, o ambiente Python ou dados do banco.
 
 
-## Computer — conversa com IA local
+## Computer — conversa com Qwen local e Gemini
 
 A página existente é `computer.html`. Seu layout inicial, menu, tema, campo de texto
 e ditado foram mantidos. O envio usa `static/js/computer.js` (estado da conversa)
@@ -75,45 +75,50 @@ e `static/js/computer-service.js` (streaming da API interna). Apenas a área de
 mensagens e os estados de resposta foram acrescentados ao conteúdo existente.
 
 Fluxo: Computer → `POST /api/ai/chat` (Flask) → `ComputerService` →
-`OllamaProvider` → `POST http://localhost:11434/api/chat`. O navegador não acessa
-diretamente o Ollama. Não há serviço pago, fallback externo, ferramentas,
+`OllamaProvider` (Qwen local, padrão) ou `RemoteProvider` (API Gemini). O navegador não recebe as chaves.
+Não há troca automática de provedor, ferramentas,
 consultas financeiras nem acesso direto do modelo ao banco. O servidor salva o histórico
 no MySQL e envia ao modelo apenas o contexto da conversa selecionada.
 
 - Identidade e system prompt: `ascenda/ai/prompt.py`.
 - Configuração e limites: `ascenda/ai/config.py`, com opções no `.env`.
 - Validação de histórico e concorrência: `ascenda/ai/service.py`.
-- Transporte local e leitura do streaming: `ascenda/ai/ollama.py`.
+- Transporte HTTPS e leitura do streaming: `ascenda/ai/remote.py`.
 - Mensagens de erro: `ascenda/ai/errors.py`.
 
-### Iniciar e conferir
+### Escolher Qwen ou Gemini
 
-1. Abra o Ollama (ou execute `ollama serve` se ele não estiver rodando).
-2. Verifique a API no PowerShell:
-   `Invoke-RestMethod http://localhost:11434/api/version`.
-3. Instale a variante compatível com `ollama pull qwen3:4b-q4_K_M`.
-   Execute `ollama list` para conferir os modelos instalados.
-4. Configure `OLLAMA_BASE_URL` e `OLLAMA_MODEL` no `.env`, conforme `.env.example`.
-5. Abra `iniciar.bat`, entre na sua conta e selecione Computer. Se o Ascenda já
-   estiver aberto, use **R + Enter** na janela do iniciador para carregar as alterações.
-6. Envie “Meu nome é Lia” e depois “Qual é meu nome?”. A resposta deve chegar
-   progressivamente e usar o contexto da mesma aba.
+O Computer abre com Qwen local (`qwen3:4b-q4_K_M`) selecionado. Mantenha o Ollama
+em execução; `OLLAMA_MODEL` e `OLLAMA_BASE_URL` preservam a configuração anterior.
+O menu permite mudar para Gemini e voltar para Qwen na mesma conversa, mantendo
+o histórico. Recarregar a página restaura Qwen como padrão.
 
-**Modelo configurado:** `qwen3:4b-q4_K_M`, instalado e validado nesta máquina,
-é o padrão de `OLLAMA_MODEL` no `.env`, no exemplo e na configuração do servidor.
-A integração envia `think: true` e `stream: true`. O Computer mostra “Pensando…”
-enquanto prepara a resposta e passa a exibir o texto progressivamente quando ela
-começa. A seta ao lado de “Pensando…” abre um painel com o texto de thinking
-transmitido pelo modelo em tempo real. O painel fica recolhido inicialmente e
-permanece consultável após a resposta. Esse texto é salvo junto da conversa no MySQL,
-separado da resposta, sem ser enviado como contexto nas próximas mensagens.
-O limite por pensamento é de 48 mil caracteres.
-Modelos que declarem não suportar thinking são recusados com aviso de configuração.
-O modelo anterior e a cópia local `qwen3:4b-ascenda-backup` foram preservados.
+### Configurar Gemini
 
-Documentação: [API de chat](https://docs.ollama.com/api/chat),
-[controle de thinking](https://docs.ollama.com/capabilities/thinking) e
-[variantes oficiais Qwen3](https://ollama.com/library/qwen3/tags).
+No `.env` privado, preencha `GEMINI_API_KEY`, criada no Google AI Studio.
+Nunca coloque essa chave no HTML/JavaScript ou no Git.
+O Gemini é opcional no menu Modelo. O identificador do modelo fica
+no servidor: `GEMINI_MODEL=gemini-3.8-flash`. A versão 2.5 Flash não está mais
+acessível para novas contas; a API recomenda a versão 3.8 Flash.
+
+Gemini tem faixa gratuita sujeita às cotas da conta. Uma chave de projeto com
+faturamento ativo segue o plano desse projeto. O site não habilita faturamento,
+compra créditos ou troca de provedor automaticamente.
+
+Abra `iniciar.bat` ou use **R + Enter** para carregar as chaves/alterações.
+Entre na conta, abra Computer e envie uma mensagem. A pergunta e o contexto da
+conversa selecionada são enviados ao modelo escolhido. Somente a opção Gemini
+usa a API externa. O prompt da identidade Computer
+permanece em `ascenda/ai/prompt.py`.
+
+O adaptador `ascenda/ai/remote.py` usa HTTPS e streaming da API oficial Gemini
+GenerateContent, com a chave somente em cabeçalhos privados. Exibe “Pensando…” e
+os resumos de raciocínio disponibilizados pela API, sem inventar um pensamento.
+Os resumos ficam separados da resposta no histórico MySQL e não são reenviados
+como contexto. O Qwen transmite o thinking pelo Ollama local.
+
+Documentação: [Gemini](https://ai.google.dev/gemini-api/docs/generate-content/thinking)
+e [preços Gemini](https://ai.google.dev/gemini-api/docs/pricing?authuser=3).
 
 ### Comportamento e limites desta etapa
 
@@ -139,9 +144,9 @@ Documentação: [API de chat](https://docs.ollama.com/api/chat),
   Após uma falha de conexão, “Atualizar histórico” confere o que foi salvo antes de reenviar.
   Se o processo for encerrado abruptamente, até cerca de um segundo de texto pode se perder.
   Uma geração abandonada expira após seis minutos e aparece como interrompida.
-- Conta e CSRF continuam obrigatórios. O modelo, endereço e system prompt são
-  definidos no servidor; o navegador não pode substituí-los.
-- A inferência do chat acontece só no computador que hospeda o Ascenda. O ditado
+- Conta e CSRF continuam obrigatórios. O navegador escolhe apenas o provedor permitido; modelo, endereço e system prompt são
+  definidos no servidor.
+- A inferência do chat acontece localmente com Qwen ou na API Gemini, conforme a escolha. O ditado
   já existente usa a API de voz do navegador, que pode utilizar seu próprio serviço;
   ele não foi convertido em reconhecimento de voz local nesta tarefa.
 
@@ -158,10 +163,43 @@ O site usa apenas SELECT/INSERT/UPDATE/DELETE; a conta de execução não precis
 `ascenda/ai/conversations.py` controla propriedade, paginação, deduplicação e gravação.
 GET `/api/ai/conversations` lista somente conversas da conta autenticada; GET
 `/api/ai/conversations/<id>` recupera seus envios. POST `/api/ai/chat` recebe somente
-`conversation_id`, `message` e um UUID `request_id`; o navegador não fornece o histórico.
+`conversation_id`, `message`, um UUID `request_id` e `provider` (`qwen` ou `gemini`, padrão `qwen`); o navegador não fornece o histórico.
 Conexões MySQL são fechadas após cada gravação. Uma reserva por conversa evita respostas
 simultâneas em abas/processos distintos. As respostas da API não são armazenadas em cache.
 
 A lista Sessões aparece nas páginas internas. Cada conversa tem um menu de três pontos
 para renomear ou excluir (com confirmação). Essas ações exigem sessão e CSRF, verificam
 o proprietário e ficam bloqueadas enquanto a conversa tem uma resposta em andamento.
+
+Testes das APIs sem consumir créditos: `venv\Scripts\python.exe -m unittest discover -s tests -p test_remote_ai.py -v`.
+
+
+### Personalização e memória por conta
+
+O menu do perfil abre **Todas as configurações**, com Personalização e Configurações
+de memória separadas. Conta, Preferências e Notificações ficam reservadas para depois.
+Nome preferido, ocupação, empresa, nascimento, gênero, instruções, localização opcional
+e preferências de resposta são usados no contexto de Qwen e Gemini. A localização
+é solicitada apenas ao clicar em Compartilhar e arredondada a duas casas decimais.
+As preferências adicionais ficam em um envelope JSON versionado na coluna `sobre`,
+compatível com o texto dos perfis antigos, sem exigir uma nova migração.
+`/personalizar.html` redireciona para a janela de configurações.
+Sem nome preferido, o nome do cadastro é usado. O histórico continua separado por
+conversa, mas o resumo de memória acompanha a conta em todas elas.
+
+A memória começa ativada e vazia. Após uma resposta concluída, registra declarações
+pessoais explícitas das novas mensagens (por exemplo, “Sou estudante”, “Moro em
+Recife” e “Prefiro respostas curtas”). A extração é conservadora, baseada em padrões:
+não entende toda formulação, não resume todo o histórico anterior e não deduz fatos
+pelas respostas da IA. O resumo é editável e limitado a 6.000 caracteres; ao atingir
+o limite, pode ser reduzido na página. Os dados não são compartilhados entre contas.
+
+Desativar e salvar impede novas memórias e omite o resumo do contexto das próximas
+mensagens. Os campos de perfil continuam ativos. Limpar e salvar apaga o resumo;
+as conversas continuam salvas, mas não são reimportadas automaticamente. Desativar
+não remove informações já presentes no histórico da conversa aberta.
+
+`computer_personalizacao` é criada pelo `configurar_banco.bat`. GET/PUT
+`/api/ai/personalization` exige sessão e PUT exige CSRF; a versão impede sobrescrever
+memórias alteradas em outra aba ou por uma resposta simultânea. A tabela é removida
+em cascata com a conta. O nome de modelo/credenciais nunca são editáveis neste endpoint.

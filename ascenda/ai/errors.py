@@ -1,5 +1,15 @@
 """Safe messages for the UI; technical exceptions stay in server logs."""
 MESSAGES = {
+    'invalid_personalization': 'Confira os campos e os limites de tamanho da personalização.',
+    'personalization_changed': 'A memória mudou desde que você abriu esta página. Recarregue para ver a versão atual antes de salvar.',
+
+    'provider_missing': 'Configure a chave do modelo escolhido no servidor para começar.',
+    'provider_auth': 'A chave deste modelo não foi aceita. Confira a configuração da API.',
+    'provider_quota': 'O limite de uso ou os créditos deste modelo acabaram. Tente mais tarde ou escolha outro modelo.',
+    'provider_unavailable': 'O serviço do modelo está indisponível. Tente novamente em instantes.',
+    'provider_model': 'Este modelo não está disponível para a chave configurada. Confira o modelo no servidor.',
+    'provider_blocked': 'O provedor não conseguiu responder a esta solicitação. Reformule sua mensagem.',
+
     'invalid_title': 'Use um nome com 1 a 100 caracteres, sem quebras de linha.',
     'conversation_missing': 'Essa conversa não está disponível na sua conta.',
     'duplicate_request': 'Esta mensagem já foi recebida. Reabra a conversa para conferir a resposta.',

@@ -7,3 +7,4 @@ Disallow: /descobrir.html
 Disallow: /logout
 Disallow: /?login=
 Disallow: /computer.html
+Disallow: /personalizar.html

@@ -34,7 +34,7 @@ def main():
     try:
         with mysql.connector.connect(**options) as connection:
             stage = 'criar as tabelas do Ascenda'
-            with connection.cursor() as cur:
+            with connection.cursor(buffered=True) as cur:
                 cur.execute(f'CREATE DATABASE IF NOT EXISTS `{name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci')
                 cur.execute(f'USE `{name}`')
                 for statement in (ROOT / 'setup_banco.sql').read_text(encoding='utf-8').split(';'):
@@ -45,7 +45,7 @@ def main():
             connection.commit()
         stage = 'conferir a conexão do site'
         with mysql.connector.connect(**db.options(config)) as connection:
-            with connection.cursor() as cur:
+            with connection.cursor(buffered=True) as cur:
                 cur.execute('SELECT id FROM usuarios LIMIT 0')
         print('Banco pronto. Agora execute iniciar.bat.')
     except mysql.connector.Error as error:

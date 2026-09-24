@@ -11,9 +11,11 @@ from .prompt import COMPUTER_PROMPT
 
 
 class ComputerService:
-    def __init__(self, provider, config):
+    def __init__(self, provider, config, providers=None):
         self.provider = provider
+        self.providers = providers or {}
         self.config = config
+        self.personalization = None
         self._lock = Lock()
         self._active = set()
 
@@ -47,8 +49,8 @@ class ComputerService:
             with self._lock:
                 self._active.discard(user_id)
 
-    def generate(self, messages):
-        source = self.provider.stream([{'role': 'system', 'content': COMPUTER_PROMPT}, *messages])
+    def generate(self, messages, provider=None, context=""):
+        source = (provider or self.provider).stream([{'role': 'system', 'content': COMPUTER_PROMPT + context}, *messages])
         try:
             yield from source
         finally:
@@ -67,9 +69,14 @@ class ComputerService:
             status = 'interrupted'
             saved = False
             try:
+                name = payload.get('provider', 'qwen')
+                if self.providers and name not in self.providers:
+                    raise AIError('invalid_request', 422)
+                provider = self.providers.get(name, self.provider)
+                context = self.personalization.context(user_id) if self.personalization else ''
                 turn = store.begin(user_id, payload, self.config)
                 yield {'type': 'conversation', 'conversation_id': turn['conversation_id'], 'turn_id': turn['turn_id']}
-                source = self.generate(turn['messages'])
+                source = self.generate(turn['messages'], provider, context)
                 checkpoint = time.monotonic()
                 for event in source:
                     if event['type'] == 'thinking':
@@ -84,6 +91,11 @@ class ComputerService:
                     raise AIError('invalid_response')
                 store.save(user_id, turn, answer, thinking, 'completed')
                 saved = True
+                if self.personalization:
+                    try:
+                        self.personalization.remember(user_id, payload['message'])
+                    except DatabaseError:
+                        logging.getLogger(__name__).warning('Could not update account memory')
                 yield {'type': 'done'}
             except DatabaseError:
                 status = 'failed'
