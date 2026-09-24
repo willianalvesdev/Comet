@@ -11,7 +11,7 @@
     let initialCollapsed = smallScreen.matches;
 
     try {
-        const savedState = localStorage.getItem(storageKey);
+        const savedState = window.AscendaStorage.getItem(storageKey);
         if (savedState === "true" || savedState === "false") {
             initialCollapsed = savedState === "true";
         }
@@ -30,7 +30,7 @@
         content.inert = smallScreen.matches && !collapsed;
         backdrop.hidden = !smallScreen.matches || collapsed;
         try {
-            localStorage.setItem(storageKey, String(collapsed));
+            window.AscendaStorage.setItem(storageKey, String(collapsed));
         } catch {
             // The menu remains usable even when its state cannot be saved.
         }

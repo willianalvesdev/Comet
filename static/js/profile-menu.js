@@ -6,7 +6,7 @@
     const topicButtons = [...menu.querySelectorAll('[data-news-topic]')];
     let preferences = { topics: ['business'], languages: 'pt-en' };
     try {
-        const saved = JSON.parse(localStorage.getItem(preferenceKey));
+        const saved = JSON.parse(window.AscendaStorage.getItem(preferenceKey));
         const topics = saved?.topics?.filter(topic => topicButtons.some(button => button.dataset.newsTopic === topic));
         if (topics?.length) preferences.topics = topics;
         if (saved?.languages === 'all') preferences.languages = 'all';
@@ -17,7 +17,7 @@
         menu.querySelector('[data-news-preference-label]').textContent = (preferences.topics.length === 1 ? topicButtons.find(button => button.dataset.newsTopic === preferences.topics[0]).querySelector('span').textContent : preferences.topics.length + ' assuntos') + ' · ' + (preferences.languages === 'all' ? 'Todos os idiomas' : 'PT / EN');
         window.AscendaNewsPreferences = { topics: [...preferences.topics], languages: preferences.languages };
         if (save) {
-            try { localStorage.setItem(preferenceKey, JSON.stringify(preferences)); } catch {}
+            try { window.AscendaStorage.setItem(preferenceKey, JSON.stringify(preferences)); } catch {}
             window.dispatchEvent(new Event('news-preferences-change'));
         }
     }

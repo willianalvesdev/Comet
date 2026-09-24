@@ -41,7 +41,7 @@ def create_app(test_config=None):
         SESSION_COOKIE_NAME='ascenda_session', SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE='Lax',
         SESSION_COOKIE_SECURE=os.getenv('SESSION_COOKIE_SECURE', 'false').lower() == 'true',
-        SESSION_REFRESH_EACH_REQUEST=False, PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
+        SESSION_REFRESH_EACH_REQUEST=False, PERMANENT_SESSION_LIFETIME=timedelta(days=30),
         MAX_CONTENT_LENGTH=16 * 1024, MAX_FORM_MEMORY_SIZE=16 * 1024,
         RATELIMIT_STORAGE_URI=os.getenv('RATELIMIT_STORAGE_URI', 'memory://'),
         RATELIMIT_HEADERS_ENABLED=True,
@@ -102,6 +102,8 @@ def create_app(test_config=None):
     @app.get('/')
     @app.get('/index.html')
     def landing():
+        if current_user():
+            return redirect('/principal.html')
         return render_template('index.html')
 
     @app.get('/principal.html')

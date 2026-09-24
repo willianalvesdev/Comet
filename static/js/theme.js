@@ -4,7 +4,7 @@
     const system = matchMedia("(prefers-color-scheme: dark)");
     let preference = "system";
     try {
-        const saved = localStorage.getItem(storageKey);
+        const saved = window.AscendaStorage.getItem(storageKey);
         if (["light", "dark", "system"].includes(saved)) preference = saved;
     } catch {}
     function applyTheme() {
@@ -27,7 +27,7 @@
         applyTheme();
         document.querySelectorAll("[data-theme-choice]").forEach(button => button.addEventListener("click", () => {
             preference = button.dataset.themeChoice;
-            try { localStorage.setItem(storageKey, preference); } catch {}
+            try { window.AscendaStorage.setItem(storageKey, preference); } catch {}
             applyTheme();
         }));
     });

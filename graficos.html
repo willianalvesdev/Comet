@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script src="/static/js/cookies.js"></script>
+    <link rel="stylesheet" href="/static/css/cookies.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#171615">
@@ -10,6 +12,7 @@
     <script src="./static/js/theme.js"></script>
     <link rel="stylesheet" href="./static/css/globals.css">
     <link rel="stylesheet" href="./static/css/principal.css">
+    <link rel="stylesheet" href="./static/css/home.css">
     <link rel="stylesheet" href="./static/css/graficos.css">
     <script src="./static/js/sidebar.js" defer></script>
     <script src="./static/js/profile-menu.js" defer></script>
@@ -17,6 +20,8 @@
     <script src="./static/js/chart-demo.js" defer></script>
     <script src="./static/js/graficos.js" defer></script>
     <script src="/static/js/discovery-panel.js" defer></script>
+    <script src="./static/js/graph-composer.js" defer></script>
+    <script src="./static/js/dictation.js" defer></script>
 </head>
 <body class="workspace">
     <aside class="sidebar" id="sidebar" aria-label="Menu lateral">
@@ -104,6 +109,26 @@
             <div class="finance-tabs">
                 <h1 class="finance-tab" id="overview-title">Visão geral</h1>
             </div>
+            <div class="finance-layout">
+            <div class="finance-chart-column">
+            <section class="finance-totals" aria-label="Resumo financeiro demonstrativo">
+                <article class="finance-total">
+                    <h2>Balanço total</h2>
+                    <div class="finance-total__values"><p>R$ 9.865,00</p><span class="finance-total__change" aria-label="Aumento de R$ 1.865,00, 23,31% em relação ao mês passado"><span class="ui-arrow ui-arrow--up" aria-hidden="true"></span><span>+R$ 1.865,00<small>+23,31%</small></span></span></div>
+                    <span class="finance-total__comparison">Em relação ao mês passado</span>
+                </article>
+                <article class="finance-total finance-total--income">
+                    <h2>Receitas do mês</h2>
+                    <div class="finance-total__values"><p>R$ 12.500,00</p><span class="finance-total__change" aria-label="Aumento de R$ 2.500,00, 25% em relação ao mês passado"><span class="ui-arrow ui-arrow--up" aria-hidden="true"></span><span>+R$ 2.500,00<small>+25%</small></span></span></div>
+                    <span class="finance-total__comparison">Em relação ao mês passado</span>
+                </article>
+                <article class="finance-total finance-total--expense">
+                    <h2>Gastos do mês</h2>
+                    <div class="finance-total__values"><p>R$ 2.635,00</p><span class="finance-total__change" aria-label="Aumento de R$ 635,00, 31,75% em relação ao mês passado"><span class="ui-arrow ui-arrow--up" aria-hidden="true"></span><span>+R$ 635,00<small>+31,75%</small></span></span></div>
+                    <span class="finance-total__comparison">Em relação ao mês passado</span>
+                </article>
+            </section>
+            <h2 class="finance-section-title">Resumo atual</h2>
             <section class="market-card" aria-label="Evolução dos valores">
                 <div class="market-summary">
                     <div class="market-summary__values">
@@ -144,6 +169,41 @@
                 <p class="chart-description" id="chart-description" aria-live="polite"></p>
                 <noscript><p class="chart-footer">Ative o JavaScript para visualizar o gráfico.</p></noscript>
             </section>
+            </div>
+            <section class="transfer-history" aria-labelledby="history-title">
+                <h2 class="finance-section-title" id="history-title">Histórico</h2>
+                <div class="transfer-card">
+                    <ul class="transfer-list" aria-label="Transferências demonstrativas">
+<li class="transfer-row"><span class="transfer-avatar" aria-hidden="true"></span><div class="transfer-description"><span>Cache</span><small>Hoje, 18:30</small></div><div class="transfer-values"><span>R$ 9.865,00</span><span class="transfer-change transfer-change--income">+54,7%</span></div></li>
+<li class="transfer-row"><span class="transfer-avatar" aria-hidden="true"></span><div class="transfer-description"><span>Supermercado</span><small>Ontem, 20:30</small></div><div class="transfer-values"><span>R$ 340,00</span><span class="transfer-change transfer-change--expense">-14,2%</span></div></li>
+<li class="transfer-row"><span class="transfer-avatar" aria-hidden="true"></span><div class="transfer-description"><span>Cache</span><small>Hoje, 18:30</small></div><div class="transfer-values"><span>R$ 9.865,00</span><span class="transfer-change transfer-change--income">+54,7%</span></div></li>
+<li class="transfer-row"><span class="transfer-avatar" aria-hidden="true"></span><div class="transfer-description"><span>Supermercado</span><small>Ontem, 20:30</small></div><div class="transfer-values"><span>R$ 340,00</span><span class="transfer-change transfer-change--expense">-14,2%</span></div></li>
+<li class="transfer-row"><span class="transfer-avatar" aria-hidden="true"></span><div class="transfer-description"><span>Cache</span><small>Hoje, 18:30</small></div><div class="transfer-values"><span>R$ 9.865,00</span><span class="transfer-change transfer-change--income">+54,7%</span></div></li>
+<li class="transfer-row"><span class="transfer-avatar" aria-hidden="true"></span><div class="transfer-description"><span>Supermercado</span><small>Ontem, 20:30</small></div><div class="transfer-values"><span>R$ 340,00</span><span class="transfer-change transfer-change--expense">-14,2%</span></div></li>
+                    </ul>
+                    <button class="transfer-more" type="button" aria-disabled="true">Ver tudo <i class="ui-arrow" aria-hidden="true"></i></button>
+                </div>
+            </section>
+            <div class="finance-composer" aria-label="Mensagem sobre o gráfico">
+<form class="home__composer" aria-label="Escrever uma mensagem">
+                    <p class="home__dictation-status" role="status" aria-live="polite" id="dictation-status"></p>
+                    <textarea class="home__input" aria-label="Mensagem" placeholder="Digite sua pergunta..." rows="1"></textarea>
+                    <div class="home__toolbar">
+                        <div class="home__modes" role="group" aria-label="Modo da mensagem">
+                            <button class="home__mode" type="button" data-composer-mode="default" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg><span>Padrão</span></button>
+                            <button class="home__mode" type="button" data-composer-mode="computer" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M2 20h20M9 8v4m6-4v4"/></svg><span>Computer</span></button>
+                        </div>
+                        <div class="home__actions">
+                            <button class="home__microphone" type="button" aria-label="Ditar mensagem" aria-pressed="false" aria-describedby="dictation-status"><svg width="13" height="20" aria-hidden="true" focusable="false" viewBox="0 0 13 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M2.75 18.5H5.75V16.4482C2.51357 16.019 0 12.8493 0 9C0 8.7193 0.234954 8.50016 0.515625 8.5H0.818359C1.0888 8.5 1.2998 8.72956 1.2998 9C1.2998 12.3137 3.62812 15 6.5 15C9.37188 15 11.7002 12.3137 11.7002 9C11.7002 8.72956 11.9112 8.5 12.1816 8.5H12.4844C12.765 8.50016 13 8.7193 13 9C13 12.8493 10.4864 16.019 7.25 16.4482V18.5H10.25C10.6642 18.5 11 18.8358 11 19.25C11 19.6642 10.6642 20 10.25 20H2.75C2.33579 20 2 19.6642 2 19.25C2 18.8358 2.33579 18.5 2.75 18.5Z" fill="currentColor"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 0C8.433 0 10 1.567 10 3.5V10C10 11.933 8.433 13.5 6.5 13.5C4.567 13.5 3 11.933 3 10V3.5C3 1.567 4.567 0 6.5 0ZM6.5 1.5C5.39543 1.5 4.5 2.39543 4.5 3.5V10C4.5 11.1046 5.39543 12 6.5 12C7.60457 12 8.5 11.1046 8.5 10V3.5C8.5 2.39543 7.60457 1.5 6.5 1.5Z" fill="currentColor"/>
+</svg></button>
+                            <button class="home__send" type="submit" aria-label="Enviar mensagem"><i class="ui-arrow" aria-hidden="true"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            </div>
         </section>
     </main>
     <dialog class="mobile-discovery-panel" id="mobile-discovery-panel" aria-label="Descobrir">

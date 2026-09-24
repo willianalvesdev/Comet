@@ -9,7 +9,7 @@
     const storageKey = 'ascenda-news-likes-' + page.dataset.userId;
     let likes = new Set();
     try {
-        const stored = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        const stored = JSON.parse(window.AscendaStorage.getItem(storageKey) || '[]');
         if (Array.isArray(stored)) likes = new Set(stored.filter(id => typeof id === 'string').slice(-500));
     } catch {}
     const seen = new Set();
@@ -102,7 +102,7 @@
         like.addEventListener('click', () => {
             if (likes.has(article.id)) likes.delete(article.id); else likes.add(article.id);
             updateLike();
-            try { localStorage.setItem(storageKey, JSON.stringify([...likes].slice(-500))); } catch {}
+            try { window.AscendaStorage.setItem(storageKey, JSON.stringify([...likes].slice(-500))); } catch {}
         });
         const details = element('details', 'news-options');
         const summary = element('summary', 'news-icon-button');

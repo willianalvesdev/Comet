@@ -10,7 +10,7 @@ O frontend continua usando HTML, CSS e JavaScript. O banco `ascenda_db` e a cont
 2. Na primeira execução, abra `configurar_banco.bat`. Ele prepara `venv`, instala
    as bibliotecas e gera `.env` com chaves aleatórias. Informe o administrador do
    MySQL e sua senha na janela. A senha administrativa não é salva.
-3. Abra `iniciar.bat` e acesse **http://127.0.0.1:5001**. Mantenha a janela aberta;
+3. Abra `iniciar.bat`: o site abre automaticamente no navegador quando o servidor está pronto. O endereço padrão é **http://127.0.0.1:5001**. Reiniciar com R não abre outra aba. Mantenha a janela aberta;
    Digite R + Enter para reiniciar o servidor ou S + Enter para encerrar. Ctrl+C também encerra. A porta 5001 evita conflito com o Rota Financeira.
 
 Os iniciadores também reconhecem o Python disponibilizado pelo Codex nesta máquina.
@@ -21,7 +21,7 @@ Não abra os arquivos HTML diretamente nem use Live Server: o login depende do F
 
 O cadastro valida nome, e-mail, senha (8 a 128 caracteres) e confirmação. Ao concluir,
 o usuário entra na tela principal. O perfil mostra seu nome e e-mail e permite sair.
-As páginas principal e de gráficos exigem autenticação. As sessões duram 8 horas,
+As páginas principal e de gráficos exigem autenticação. As sessões duram 30 dias,
 são verificadas no MySQL e invalidadas ao sair. As senhas são armazenadas com hash
 scrypt, e os formulários têm proteção CSRF e limite de tentativas por IP.
 

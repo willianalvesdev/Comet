@@ -18,16 +18,19 @@ def stop_server(process):
         process.wait()
 
 
-def start_server():
+def start_server(open_browser=False):
     options = {'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == 'nt' else {}
-    return subprocess.Popen([sys.executable, '-u', str(ROOT / 'run.py')],
+    command = [sys.executable, '-u', str(ROOT / 'run.py')]
+    if open_browser:
+        command.append('--open-browser')
+    return subprocess.Popen(command,
                             cwd=ROOT, stdin=subprocess.DEVNULL, **options)
 
 
 def main():
     process = None
     try:
-        process = start_server()
+        process = start_server(open_browser=True)
         print('\nComandos: R + Enter reinicia | S + Enter encerra.\n', flush=True)
         while True:
             command = input().strip().casefold()
