@@ -6,7 +6,7 @@
     let selected = new URL(location.href).searchParams.get('conversation'), busy = false, nextOffset = null, target = null, opener = null;
     const section = document.createElement('details');
     section.className = 'sessions'; section.open = true;
-    section.innerHTML = `<summary>Sessões<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></summary><div class="sessions__list"></div><p class="sessions__status" role="status"></p><div class="sessions__tools"><button type="button" data-action="new">Nova conversa</button><button type="button" data-action="more" hidden>Mais sessões</button><button type="button" data-action="refresh">Atualizar histórico</button></div>`;
+    section.innerHTML = `<summary>Recentes<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></summary><div class="sessions__list"></div><p class="sessions__status" role="status"></p><div class="sessions__tools"><button type="button" data-action="new">Nova conversa</button><button type="button" data-action="more" hidden>Mais sessões</button><button type="button" data-action="refresh" hidden>Tentar novamente</button></div>`;
     nav.append(section);
     const list = section.querySelector('.sessions__list'), status = section.querySelector('.sessions__status');
     const more = section.querySelector('[data-action="more"]');
@@ -65,8 +65,15 @@
     menu.addEventListener('click', event => {
         const button = event.target.closest('button'); if (!button || !target) return;
         action = button.dataset.action; menu.hidePopover();
-        dialog.querySelector('h2').textContent = action === 'rename' ? 'Renomear conversa' : 'Excluir conversa?';
-        dialog.querySelector('.sessions-dialog__description').textContent = action === 'delete' ? `A conversa “${target.title}” e suas mensagens serão excluídas.` : '';
+        dialog.querySelector('h2').textContent = action === 'rename' ? 'Renomear conversa' : 'Excluir sessão?';
+        dialog.classList.toggle('sessions-dialog--delete', action === 'delete');
+        const description = dialog.querySelector('.sessions-dialog__description');
+        description.replaceChildren();
+        if (action === 'delete') {
+            description.append(document.createTextNode('Isso excluirá permanentemente a sessão:'));
+            const title = document.createElement('strong'); title.textContent = target.title;
+            description.append(title);
+        }
         field.closest('label').hidden = action !== 'rename'; field.disabled = action !== 'rename'; field.value = target.title;
         dialog.querySelector('[data-confirm]').textContent = action === 'rename' ? 'Salvar' : 'Excluir';
         dialog.querySelector('[data-confirm]').classList.toggle('sessions-menu__delete', action === 'delete');
@@ -97,6 +104,7 @@
     });
     function render(data, append=false, hasMore=false) {
         if (!append) items.clear(); data.forEach(item=>items.set(item.id,item));
+        section.querySelector('[data-action="refresh"]').hidden=true;
         more.hidden=!hasMore; draw();
     }
     function select(id,title) {
@@ -108,9 +116,13 @@
     async function load(append=false) {
         setBusy(true);
         try { const result=await request(`/api/ai/conversations?offset=${append ? nextOffset : 0}`); nextOffset=result.next_offset; render(result.conversations,append,nextOffset!==null); }
-        catch(failure) { status.textContent='Não foi possível carregar as sessões. Use Atualizar histórico.'; }
+        catch(failure) { status.textContent='Não foi possível carregar as sessões.'; section.querySelector('[data-action="refresh"]').hidden=false; }
         finally { setBusy(false); }
     }
     window.ComputerSessions={render,select,setBusy};
-    if (!inComputer) load();
+    if (!inComputer) {
+        load();
+        window.addEventListener('online',()=>{if(!busy)load();});
+        document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!busy)load();});
+    }
 })();

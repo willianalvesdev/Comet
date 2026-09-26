@@ -37,7 +37,7 @@ class PersonalizationTests(unittest.TestCase):
     def get(self,actor=0):return self.clients[actor].get('/api/ai/personalization')
 
     def save(self,**changes):
-        payload={k:v for k,v in self.get().json.items() if k!='account_name'}
+        payload={k:v for k,v in self.get().json.items() if k not in ('account_name','email')}
         payload.update(changes)
         return self.clients[0].put('/api/ai/personalization',json=payload,headers={'X-CSRFToken':self.tokens[0]})
 
@@ -64,7 +64,7 @@ class PersonalizationTests(unittest.TestCase):
 
     def test_disable_edit_clear_and_conflict(self):
         self.assertEqual(self.save(summary='Prefiro texto curto').status_code,200)
-        stale={k:v for k,v in self.get().json.items() if k!='account_name'}
+        stale={k:v for k,v in self.get().json.items() if k not in ('account_name','email')}
         self.store.remember(self.ids[0],'Sou professor')
         self.assertEqual(self.clients[0].put('/api/ai/personalization',json=stale,headers={'X-CSRFToken':self.tokens[0]}).status_code,409)
         self.assertEqual(self.save(memory_enabled=False,occupation='Arquiteto').status_code,200)
@@ -113,5 +113,16 @@ class PersonalizationTests(unittest.TestCase):
         self.assertEqual(self.clients[0].put('/api/ai/personalization',json=old,headers={'X-CSRFToken':self.tokens[0]}).json['company'],'Estúdio Aurora')
         for values in [{'birth_date':'2999-01-01'},{'birth_date':'not a date'},{'response_length':'invalid'},{'gender':3},{'company':'x'*201}]:
             self.assertEqual(self.save(**values).status_code,422)
+
+    def test_account_details_save_and_isolation(self):
+        result = self.save(full_name='Lia Silva',username='lia.silva')
+        self.assertEqual(result.status_code,200)
+        self.assertEqual(self.get().json['full_name'],'Lia Silva')
+        self.assertEqual(self.get().json['username'],'lia.silva')
+        self.assertEqual(self.get(1).json['full_name'],'Nome do Cadastro')
+        self.assertIn('Lia Silva',self.store.context(self.ids[0]))
+        self.assertEqual(self.save(full_name=' ').status_code,422)
+        self.assertEqual(self.save(username='nome inválido').status_code,422)
+        self.assertEqual(self.save(email='change@example.com').status_code,422)
 
 if __name__=='__main__':unittest.main()

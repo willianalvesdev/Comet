@@ -1,11 +1,177 @@
-.cookie-notice { position: fixed; z-index: 200; right: 10px; bottom: 10px; width: min(440px, calc(100vw - 20px)); padding: 20px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); color: var(--text); box-shadow: 0 8px 32px #0002; }
-.cookie-notice h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; font-family: var(--font-body); font-size: calc(var(--font-size-4) + 1px); font-weight: 400; }
-.cookie-notice__icon { display: inline-block; width: 18px; height: 18px; flex: 0 0 18px; background: currentColor; -webkit-mask: url("../img/icons/cookies.svg") center / contain no-repeat; mask: url("../img/icons/cookies.svg") center / contain no-repeat; }
-.cookie-notice p { margin: 0; color: var(--text-secondary); font-size: calc(var(--font-size-5) + 1px); line-height: 1.5; }
-.cookie-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
-.cookie-actions button { padding: 8px 12px; border: 0; border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; font-size: calc(var(--font-size-4) + 1px); cursor: pointer; }
-.cookie-actions [data-cookie-choice="accepted"] { background: var(--text); color: var(--bg); }
-.cookie-settings { position: fixed; z-index: 150; right: 16px; bottom: 6px; border: 0; background: var(--bg); color: var(--text-secondary); padding: 3px 7px; border-radius: 6px; font-size: var(--font-size-6); cursor: pointer; }
-.cookie-notice[hidden], .cookie-settings[hidden] { display: none; }
-.cookie-notice button:focus-visible, .cookie-settings:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-@media (width < 640px) { .cookie-notice { right: 10px; bottom: 10px; padding: 18px 14px; max-height: calc(100dvh - 20px); overflow-y: auto; } }
+/* GUIA DE EDIÇÃO — cookies.css
+ * Explicações em português antes de cada seletor e declaração.
+ * A ordem foi preservada: regras posteriores podem sobrescrever as anteriores.
+ * { abre um bloco; } encerra; : separa propriedade e valor; ; termina uma declaração.
+ * Edite os valores do código. Os comentários são documentação e não alteram o visual.
+ */
+/* Seleciona .cookie-notice. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.cookie-notice {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
+    position: fixed;
+    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 200. */
+    z-index: 200;
+    /* Define o afastamento direito em relação à referência de position. Valor atual: 10px. px mede pixels CSS. */
+    right: 10px;
+    /* Define o afastamento inferior em relação à referência de position. Valor atual: 10px. px mede pixels CSS. */
+    bottom: 10px;
+    /* Define a largura. Valor atual: min(440px, calc(100vw - 20px)). calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+    width: min(440px, calc(100vw - 20px));
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 20px 16px. px mede pixels CSS. */
+    padding: 20px 16px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border: 1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 12px. px mede pixels CSS. */
+    border-radius: 12px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background: var(--bg);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+    /* Desenha sombra com deslocamentos horizontal/vertical, desfoque, expansão opcional e cor; inset coloca a sombra por dentro. Valor atual: 0 8px 32px #0002. px mede pixels CSS. */
+    box-shadow: 0 8px 32px #0002;
+}
+
+/* Seleciona .cookie-notice h2. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.cookie-notice h2 {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items: center;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
+    gap: 10px;
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 0 8px. px mede pixels CSS. */
+    margin: 0 0 8px;
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-body). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-family: var(--font-body);
+    /* Define o tamanho das letras. Valor atual: calc(var(--font-size-4) + 1px). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. px mede pixels CSS. */
+    font-size: calc(var(--font-size-4) + 1px);
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
+    font-weight: 400;
+}
+
+/* Seleciona .cookie-notice__icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.cookie-notice__icon {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-block. */
+    display: inline-block;
+    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
+    width: 18px;
+    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
+    height: 18px;
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 18px. px mede pixels CSS. */
+    flex: 0 0 18px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
+    background: currentColor;
+    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Variante de compatibilidade WebKit/Blink. Valor atual: url("../img/icons/cookies.svg") center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    -webkit-mask: url("../img/icons/cookies.svg") center / contain no-repeat;
+    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: url("../img/icons/cookies.svg") center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    mask: url("../img/icons/cookies.svg") center / contain no-repeat;
+}
+
+/* Seleciona .cookie-notice p. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.cookie-notice p {
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    margin: 0;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Define o tamanho das letras. Valor atual: calc(var(--font-size-5) + 1px). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. px mede pixels CSS. */
+    font-size: calc(var(--font-size-5) + 1px);
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.5. */
+    line-height: 1.5;
+}
+
+/* Seleciona .cookie-actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.cookie-actions {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Controla se itens flex podem quebrar para outra linha. Valor atual: wrap. */
+    flex-wrap: wrap;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
+    gap: 8px;
+    /* Define espaço externo acima. Valor atual: 18px. px mede pixels CSS. */
+    margin-top: 18px;
+}
+
+/* Seleciona .cookie-actions button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.cookie-actions button {
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px 12px. px mede pixels CSS. */
+    padding: 8px 12px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border: 0;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
+    border-radius: 10px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background: var(--surface);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font: inherit;
+    /* Define o tamanho das letras. Valor atual: calc(var(--font-size-4) + 1px). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. px mede pixels CSS. */
+    font-size: calc(var(--font-size-4) + 1px);
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor: pointer;
+}
+
+/* Seleciona .cookie-actions [data-cookie-choice="accepted"]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.cookie-actions [data-cookie-choice="accepted"] {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background: var(--text);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--bg);
+}
+
+/* Seleciona .cookie-settings. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.cookie-settings {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
+    position: fixed;
+    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 150. */
+    z-index: 150;
+    /* Define o afastamento direito em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
+    right: 16px;
+    /* Define o afastamento inferior em relação à referência de position. Valor atual: 6px. px mede pixels CSS. */
+    bottom: 6px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border: 0;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background: var(--bg);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 3px 7px. px mede pixels CSS. */
+    padding: 3px 7px;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 6px. px mede pixels CSS. */
+    border-radius: 6px;
+    /* Define o tamanho das letras. Valor atual: var(--font-size-6). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-6);
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor: pointer;
+}
+
+/* Seleciona .cookie-notice[hidden], .cookie-settings[hidden]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
+.cookie-notice[hidden], .cookie-settings[hidden] {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display: none;
+}
+
+/* Seleciona .cookie-notice button:focus-visible, .cookie-settings:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
+.cookie-notice button:focus-visible, .cookie-settings:focus-visible {
+    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    outline: 2px solid var(--accent);
+    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: 3px. px mede pixels CSS. */
+    outline-offset: 3px;
+}
+
+/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media (width < 640px) {
+    /* Seleciona .cookie-notice. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .cookie-notice {
+        /* Define o afastamento direito em relação à referência de position. Valor atual: 10px. px mede pixels CSS. */
+        right: 10px;
+        /* Define o afastamento inferior em relação à referência de position. Valor atual: 10px. px mede pixels CSS. */
+        bottom: 10px;
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 18px 14px. px mede pixels CSS. */
+        padding: 18px 14px;
+        /* Limita a altura máxima. Valor atual: calc(100dvh - 20px). calc() calcula a medida combinando parcelas. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+        max-height: calc(100dvh - 20px);
+        /* Controla o transbordamento vertical. Valor atual: auto. */
+        overflow-y: auto;
+    }
+
+}

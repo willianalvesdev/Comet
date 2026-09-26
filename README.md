@@ -203,3 +203,20 @@ não remove informações já presentes no histórico da conversa aberta.
 `/api/ai/personalization` exige sessão e PUT exige CSRF; a versão impede sobrescrever
 memórias alteradas em outra aba ou por uma resposta simultânea. A tabela é removida
 em cascata com a conta. O nome de modelo/credenciais nunca são editáveis neste endpoint.
+
+
+### Gemini e anexos
+
+O seletor oferece Qwen (padrão, local) e Gemini (API externa).
+O botão + do chat envia até quatro anexos por mensagem (8 MB cada): PNG/JPG/WebP,
+PDF com texto selecionável (até 40 páginas), DOCX e texto UTF-8.
+Documentos têm limite de 20 mil caracteres cada e 30 mil em conjunto. Imagens são
+normalizadas para JPEG de até 1600 px, sem metadados. Arquivos ficam privados em
+`instance/attachments/<usuario>/`; a referência fica junto à mensagem no banco,
+sem migração. Faça backup dessa pasta junto com o banco.
+Ao anexar arquivos, o chat seleciona automaticamente o Gemini e envia as imagens
+e o texto extraído dos documentos à API, usando `GEMINI_API_KEY` e `GEMINI_MODEL`.
+Respostas que usam anexos do histórico também são processadas pelo Gemini.
+O histórico inclui o conteúdo dos anexos dentro dos limites
+de contexto e no máximo quatro imagens. A exclusão de uma conversa remove seus
+anexos que não estejam referenciados em outra conversa.

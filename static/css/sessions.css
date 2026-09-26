@@ -1,37 +1,661 @@
-.sessions { margin: 22px 0 12px; flex: 0 0 auto; min-width: 0; }
-.sessions > summary { display: flex; align-items: center; justify-content: space-between; padding: 8px; color: var(--text-secondary); list-style: none; cursor: pointer; }
-.sessions > summary::-webkit-details-marker { display: none; }
-.sessions > summary svg { width: 16px; height: 16px; transition: transform .2s; }
-.sessions[open] > summary svg { transform: rotate(90deg); }
-.sessions__row { display: flex; align-items: center; min-width: 0; border-radius: 10px; }
-.sessions__row:hover, .sessions__row:focus-within, .sessions__row:has([aria-current]) { background: color-mix(in srgb, var(--text) 5%, transparent); }
-.sessions__link { display: block; flex: 1; min-width: 0; padding: 10px 8px; color: var(--text); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sessions__more { display: flex; align-items: center; justify-content: center; flex: 0 0 30px; width: 30px; height: 30px; margin-right: 4px; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--text-secondary); opacity: 0; cursor: pointer; }
-.sessions__row:hover .sessions__more, .sessions__row:focus-within .sessions__more, .sessions__more[aria-expanded="true"] { opacity: 1; }
-.sessions__more:hover { background: color-mix(in srgb, var(--text) 7%, transparent); color: var(--text); }
-.sessions-icon { display: inline-block; width: 18px; height: 18px; flex: 0 0 18px; background: currentColor; mask: var(--session-icon) center / contain no-repeat; -webkit-mask: var(--session-icon) center / contain no-repeat; }
-.sessions-icon--more { --session-icon: url('../img/icons/news-more.svg'); }
-.sessions-icon--rename { --session-icon: url('../img/icons/conversation-rename.svg'); }
-.sessions-icon--delete { --session-icon: url('../img/icons/conversation-delete.svg'); }
-.sessions__tools { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
-.sessions__tools button { border: 0; background: transparent; color: var(--text-secondary); padding: 6px 8px; text-align: left; cursor: pointer; font: inherit; font-size: var(--font-size-5); }
-.sessions__status { padding-inline: 8px; color: var(--text-secondary); font-size: var(--font-size-5); }
-.sessions__status:empty { display: none; }
-.sessions button:disabled { opacity: .4; cursor: default; }
-.is-sidebar-collapsed .sessions { display: none; }
-.sessions-menu { position: fixed; inset: auto; margin: 0; width: 216px; padding: 8px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); color: var(--text); box-shadow: 0 8px 28px rgb(0 0 0 / .15); }
-.sessions-menu button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 10px; border: 0; border-radius: 8px; background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer; }
-.sessions-menu button:hover { background: color-mix(in srgb, var(--text) 5%, transparent); }
-.sessions-menu .sessions-menu__delete, .sessions-dialog .sessions-menu__delete { color: #dc6973; }
-.sessions-dialog { width: min(420px, calc(100vw - 32px)); padding: 24px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); color: var(--text); }
-.sessions-dialog::backdrop { background: rgb(0 0 0 / .4); }
-.sessions-dialog h2 { margin: 0 0 16px; font: inherit; font-size: 20px; }
-.sessions-dialog p { color: var(--text-secondary); overflow-wrap: anywhere; }
-.sessions-dialog p:empty { display: none; }
-.sessions-dialog label { font-size: var(--font-size-5); }
-.sessions-dialog input { display: block; width: 100%; margin-top: 8px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; }
-.sessions-dialog form > div { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
-.sessions-dialog button { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; color: var(--text); background: var(--bg); font: inherit; cursor: pointer; }
-.sessions a:focus-visible, .sessions button:focus-visible, .sessions summary:focus-visible, .sessions-menu button:focus-visible, .sessions-dialog input:focus-visible, .sessions-dialog button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-@media (hover: none) { .sessions__more { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .sessions > summary svg { transition: none; } }
+/* GUIA DE EDIÇÃO — sessions.css
+ * Explicações em português antes de cada seletor e declaração.
+ * A ordem foi preservada: regras posteriores podem sobrescrever as anteriores.
+ * { abre um bloco; } encerra; : separa propriedade e valor; ; termina uma declaração.
+ * Edite os valores do código. Os comentários são documentação e não alteram o visual.
+ */
+/* Seleciona .sessions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions {
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 22px 0 12px. px mede pixels CSS. */
+    margin: 22px 0 12px;
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 auto. */
+    flex: 0 0 auto;
+    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
+    min-width: 0;
+}
+
+/* Seleciona .sessions > summary. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions > summary {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items: center;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: space-between. */
+    justify-content: space-between;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px. px mede pixels CSS. */
+    padding: 8px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Configura os marcadores de lista; none os remove. Valor atual: none. */
+    list-style: none;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor: pointer;
+}
+
+/* Seleciona .sessions > summary::-webkit-details-marker. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions > summary::-webkit-details-marker {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display: none;
+}
+
+/* Seleciona .sessions > summary svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions > summary svg {
+    /* Define a largura. Valor atual: 16px. px mede pixels CSS. */
+    width: 16px;
+    /* Define a altura. Valor atual: 16px. px mede pixels CSS. */
+    height: 16px;
+    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: transform .2s. */
+    transition: transform .2s;
+}
+
+/* Seleciona .sessions[open] > summary svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions[open] > summary svg {
+    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: rotate(90deg). */
+    transform: rotate(90deg);
+}
+
+/* Seleciona .sessions__row. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions__row {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items: center;
+    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
+    min-width: 0;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
+    border-radius: 10px;
+}
+
+/* Seleciona .sessions__row:hover, .sessions__row:focus-within, .sessions__row:has([aria-current]). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. focus-within: foco no elemento ou descendentes. [aria-: estado acessível informado por atributo. */
+.sessions__row:hover, .sessions__row:focus-within, .sessions__row:has([aria-current]) {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text) 5%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    background: color-mix(in srgb, var(--text) 5%, transparent);
+}
+
+/* Seleciona .sessions__link. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions__link {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
+    display: block;
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 1. */
+    flex: 1;
+    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
+    min-width: 0;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px 8px. px mede pixels CSS. */
+    padding: 10px 8px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+    /* Configura sublinhado e outras decorações; none remove as decorações. Valor atual: none. */
+    text-decoration: none;
+    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
+    white-space: nowrap;
+    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
+    overflow: hidden;
+    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
+    text-overflow: ellipsis;
+}
+
+/* Seleciona .sessions__more. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions__more {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items: center;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
+    justify-content: center;
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 30px. px mede pixels CSS. */
+    flex: 0 0 30px;
+    /* Define a largura. Valor atual: 30px. px mede pixels CSS. */
+    width: 30px;
+    /* Define a altura. Valor atual: 30px. px mede pixels CSS. */
+    height: 30px;
+    /* Define espaço externo à direita. Valor atual: 4px. px mede pixels CSS. */
+    margin-right: 4px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    padding: 0;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border: 0;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 8px. px mede pixels CSS. */
+    border-radius: 8px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background: transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 0. */
+    opacity: 0;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor: pointer;
+}
+
+/* Seleciona .sessions__row:hover .sessions__more, .sessions__row:focus-within .sessions__more, .sessions__more[aria-expanded="true"]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. focus-within: foco no elemento ou descendentes. [aria-: estado acessível informado por atributo. */
+.sessions__row:hover .sessions__more, .sessions__row:focus-within .sessions__more, .sessions__more[aria-expanded="true"] {
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
+    opacity: 1;
+}
+
+/* Seleciona .sessions__more:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
+.sessions__more:hover {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text) 7%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    background: color-mix(in srgb, var(--text) 7%, transparent);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+}
+
+/* Seleciona .sessions-icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-icon {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-block. */
+    display: inline-block;
+    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
+    width: 18px;
+    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
+    height: 18px;
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 18px. px mede pixels CSS. */
+    flex: 0 0 18px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
+    background: currentColor;
+    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: var(--session-icon) center / contain no-repeat. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    mask: var(--session-icon) center / contain no-repeat;
+    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Variante de compatibilidade WebKit/Blink. Valor atual: var(--session-icon) center / contain no-repeat. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    -webkit-mask: var(--session-icon) center / contain no-repeat;
+}
+
+/* Seleciona .sessions-icon--more. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-icon--more {
+    /* Variável --session-icon: recurso do ícone. Alterá-la afeta as regras que usam var(--session-icon) neste escopo. Valor atual: url('../img/icons/news-more.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    --session-icon: url('../img/icons/news-more.svg');
+}
+
+/* Seleciona .sessions-icon--rename. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-icon--rename {
+    /* Variável --session-icon: recurso do ícone. Alterá-la afeta as regras que usam var(--session-icon) neste escopo. Valor atual: url('../img/icons/conversation-rename.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    --session-icon: url('../img/icons/conversation-rename.svg');
+}
+
+/* Seleciona .sessions-icon--delete. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-icon--delete {
+    /* Variável --session-icon: recurso do ícone. Alterá-la afeta as regras que usam var(--session-icon) neste escopo. Valor atual: url('../img/icons/conversation-delete.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    --session-icon: url('../img/icons/conversation-delete.svg');
+}
+
+/* Seleciona .sessions__tools. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions__tools {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Controla se itens flex podem quebrar para outra linha. Valor atual: wrap. */
+    flex-wrap: wrap;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 4px. px mede pixels CSS. */
+    gap: 4px;
+    /* Define espaço externo acima. Valor atual: 8px. px mede pixels CSS. */
+    margin-top: 8px;
+}
+
+/* Seleciona .sessions__tools button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions__tools button {
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border: 0;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background: transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 6px 8px. px mede pixels CSS. */
+    padding: 6px 8px;
+    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
+    text-align: left;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor: pointer;
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font: inherit;
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-5);
+}
+
+/* Seleciona .sessions__status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions__status {
+    /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 8px. px mede pixels CSS. */
+    padding-inline: 8px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-5);
+}
+
+/* Seleciona .sessions__status:empty. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions__status:empty {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display: none;
+}
+
+/* Seleciona .sessions button:disabled. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :disabled: controle desativado. */
+.sessions button:disabled {
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: .4. */
+    opacity: .4;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: default. */
+    cursor: default;
+}
+
+/* Seleciona .is-sidebar-collapsed .sessions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.is-sidebar-collapsed .sessions {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display: none;
+}
+
+/* Seleciona .sessions-menu. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-menu {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
+    position: fixed;
+    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: auto. */
+    inset: auto;
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    margin: 0;
+    /* Define a largura. Valor atual: 216px. px mede pixels CSS. */
+    width: 216px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px. px mede pixels CSS. */
+    padding: 8px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border: 1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
+    border-radius: 16px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background: var(--surface);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+    /* Desenha sombra com deslocamentos horizontal/vertical, desfoque, expansão opcional e cor; inset coloca a sombra por dentro. Valor atual: 0 8px 28px rgb(0 0 0 / .15). px mede pixels CSS. */
+    box-shadow: 0 8px 28px rgb(0 0 0 / .15);
+}
+
+/* Seleciona .sessions-menu button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-menu button {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items: center;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 12px. px mede pixels CSS. */
+    gap: 12px;
+    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    width: 100%;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px 10px. px mede pixels CSS. */
+    padding: 12px 10px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border: 0;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 8px. px mede pixels CSS. */
+    border-radius: 8px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background: transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: inherit. */
+    color: inherit;
+    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
+    text-align: left;
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font: inherit;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor: pointer;
+}
+
+/* Seleciona .sessions-menu button:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
+.sessions-menu button:hover {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text) 5%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    background: color-mix(in srgb, var(--text) 5%, transparent);
+}
+
+/* Seleciona .sessions-menu .sessions-menu__delete, .sessions-dialog .sessions-menu__delete. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-menu .sessions-menu__delete, .sessions-dialog .sessions-menu__delete {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: #dc6973. */
+    color: #dc6973;
+}
+
+/* Seleciona .sessions-dialog. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog {
+    /* Define a largura. Valor atual: min(420px, calc(100vw - 32px)). calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+    width: min(420px, calc(100vw - 32px));
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 24px. px mede pixels CSS. */
+    padding: 24px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border: 1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 18px. px mede pixels CSS. */
+    border-radius: 18px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background: var(--surface);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+}
+
+/* Seleciona .sessions-dialog::backdrop. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog::backdrop {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: rgb(0 0 0 / .4). */
+    background: rgb(0 0 0 / .4);
+}
+
+/* Seleciona .sessions-dialog h2. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog h2 {
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 0 16px. px mede pixels CSS. */
+    margin: 0 0 16px;
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font: inherit;
+    /* Define o tamanho das letras. Valor atual: 20px. px mede pixels CSS. */
+    font-size: 20px;
+}
+
+/* Seleciona .sessions-dialog p. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog p {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Controla a quebra de palavras longas para evitar transbordamento. Valor atual: anywhere. */
+    overflow-wrap: anywhere;
+}
+
+/* Seleciona .sessions-dialog p:empty. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog p:empty {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display: none;
+}
+
+/* Seleciona .sessions-dialog label. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog label {
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-5);
+}
+
+/* Seleciona .sessions-dialog input. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog input {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
+    display: block;
+    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    width: 100%;
+    /* Define espaço externo acima. Valor atual: 8px. px mede pixels CSS. */
+    margin-top: 8px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
+    padding: 10px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border: 1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 8px. px mede pixels CSS. */
+    border-radius: 8px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background: var(--bg);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font: inherit;
+}
+
+/* Seleciona .sessions-dialog form > div. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog form > div {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: flex-end. */
+    justify-content: flex-end;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
+    gap: 8px;
+    /* Define espaço externo acima. Valor atual: 20px. px mede pixels CSS. */
+    margin-top: 20px;
+}
+
+/* Seleciona .sessions-dialog button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog button {
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px 12px. px mede pixels CSS. */
+    padding: 8px 12px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border: 1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 8px. px mede pixels CSS. */
+    border-radius: 8px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background: var(--bg);
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font: inherit;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor: pointer;
+}
+
+/* Seleciona .sessions a:focus-visible, .sessions button:focus-visible, .sessions summary:focus-visible, .sessions-menu button:focus-visible, .sessions-dialog input:focus-visible, .sessions-dialog button:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
+.sessions a:focus-visible, .sessions button:focus-visible, .sessions summary:focus-visible, .sessions-menu button:focus-visible, .sessions-dialog input:focus-visible, .sessions-dialog button:focus-visible {
+    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    outline: 2px solid var(--accent);
+    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: -2px. px mede pixels CSS. */
+    outline-offset: -2px;
+}
+
+/* Condição (hover: none): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media (hover: none) {
+    /* Seleciona .sessions__more. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .sessions__more {
+        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
+        opacity: 1;
+    }
+
+}
+
+/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media (prefers-reduced-motion: reduce) {
+    /* Seleciona .sessions > summary svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .sessions > summary svg {
+        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
+        transition: none;
+    }
+
+}
+
+/* Seleciona .chat-preview. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.chat-preview {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
+    position:fixed;
+    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 150. */
+    z-index:150;
+    /* border-box inclui padding e bordas na largura/altura declarada; content-box mede apenas o conteúdo. Valor atual: border-box. */
+    box-sizing:border-box;
+    /* Define a largura. Valor atual: 420px. px mede pixels CSS. */
+    width:420px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px. px mede pixels CSS. */
+    padding:12px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border:1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
+    border-radius:16px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background:var(--surface);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text);
+    /* Desenha sombra com deslocamentos horizontal/vertical, desfoque, expansão opcional e cor; inset coloca a sombra por dentro. Valor atual: 0 8px 24px rgb(0 0 0 / .12). px mede pixels CSS. */
+    box-shadow:0 8px 24px rgb(0 0 0 / .12);
+    /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: auto. */
+    pointer-events:auto;
+}
+
+/* Seleciona .chat-preview[hidden]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
+.chat-preview[hidden] {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display:none;
+}
+
+/* Seleciona .chat-preview__time. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.chat-preview__time {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
+    display:block;
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 0 8px. px mede pixels CSS. */
+    margin:0 0 8px;
+    /* Alinha o conteúdo textual na caixa. Valor atual: right. */
+    text-align:right;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size:var(--font-size-5);
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.3. */
+    line-height:1.3;
+}
+
+/* Seleciona .chat-preview__time[hidden]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
+.chat-preview__time[hidden] {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display:none;
+}
+
+/* Seleciona .chat-preview p. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.chat-preview p {
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    margin:0;
+    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
+    overflow:hidden;
+    /* Controla a quebra de palavras longas para evitar transbordamento. Valor atual: anywhere. */
+    overflow-wrap:anywhere;
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: -webkit-box. */
+    display:-webkit-box;
+    /* Define a orientação da caixa WebKit usada para limitar linhas de texto. Valor atual: vertical. */
+    -webkit-box-orient:vertical;
+}
+
+/* Seleciona .chat-preview__question. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.chat-preview__question {
+    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size:var(--font-size-3);
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.4. */
+    line-height:1.4;
+    /* Limita a quantidade de linhas junto de display -webkit-box e overflow hidden. Valor atual: 2. */
+    -webkit-line-clamp:2;
+}
+
+/* Seleciona .chat-preview .chat-preview__answer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.chat-preview .chat-preview__answer {
+    /* Define espaço externo acima. Valor atual: 5px. px mede pixels CSS. */
+    margin-top:5px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size:var(--font-size-5);
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.5. */
+    line-height:1.5;
+    /* Limita a quantidade de linhas junto de display -webkit-box e overflow hidden. Valor atual: 3. */
+    -webkit-line-clamp:3;
+}
+
+/* Seleciona .sessions-dialog--delete. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog--delete {
+    /* border-box inclui padding e bordas na largura/altura declarada; content-box mede apenas o conteúdo. Valor atual: border-box. */
+    box-sizing: border-box;
+    /* Define a largura. Valor atual: min(502px, calc(100vw - 32px)). calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+    width: min(502px, calc(100vw - 32px));
+    /* Define a altura mínima. Valor atual: 227px. px mede pixels CSS. */
+    min-height: 227px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 22px 20px 20px. px mede pixels CSS. */
+    padding: 22px 20px 20px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid color-mix(in srgb, var(--text) 3%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    border: 1px solid color-mix(in srgb, var(--text) 3%, transparent);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 18px. px mede pixels CSS. */
+    border-radius: 18px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background: var(--bg);
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: auto. */
+    margin: auto;
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-body). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-family: var(--font-body);
+}
+
+/* Seleciona .sessions-dialog--delete::backdrop. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog--delete::backdrop {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: rgb(0 0 0 / .6). */
+    background: rgb(0 0 0 / .6);
+    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Valor atual: blur(5px). px mede pixels CSS. */
+    backdrop-filter: blur(5px);
+}
+
+/* Seleciona .sessions-dialog--delete form. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog--delete form {
+    /* Define a altura mínima. Valor atual: 183px. px mede pixels CSS. */
+    min-height: 183px;
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
+    flex-direction: column;
+}
+
+/* Seleciona .sessions-dialog--delete h2. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog--delete h2 {
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 0 8px. px mede pixels CSS. */
+    margin: 0 0 8px;
+    /* Define o tamanho das letras. Valor atual: 23px. px mede pixels CSS. */
+    font-size: 23px;
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 30px. px mede pixels CSS. */
+    line-height: 30px;
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
+    font-weight: 400;
+}
+
+/* Seleciona .sessions-dialog--delete .sessions-dialog__description. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog--delete .sessions-dialog__description {
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    margin: 0;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+    /* Define o tamanho das letras. Valor atual: 20px. px mede pixels CSS. */
+    font-size: 20px;
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 28px. px mede pixels CSS. */
+    line-height: 28px;
+}
+
+/* Seleciona .sessions-dialog--delete .sessions-dialog__description strong. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog--delete .sessions-dialog__description strong {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
+    display: block;
+    /* Define espaço externo acima. Valor atual: 6px. px mede pixels CSS. */
+    margin-top: 6px;
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 600. */
+    font-weight: 600;
+}
+
+/* Seleciona .sessions-dialog--delete form > div. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog--delete form > div {
+    /* Define espaço externo acima. Valor atual: auto. */
+    margin-top: auto;
+    /* Define espaço interno entre conteúdo e borda acima. Valor atual: 24px. px mede pixels CSS. */
+    padding-top: 24px;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 12px. px mede pixels CSS. */
+    gap: 12px;
+}
+
+/* Seleciona .sessions-dialog--delete button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog--delete button {
+    /* Define a altura. Valor atual: 41px. px mede pixels CSS. */
+    height: 41px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 16px. px mede pixels CSS. */
+    padding: 0 16px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border: 0;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 11px. px mede pixels CSS. */
+    border-radius: 11px;
+    /* Define o tamanho das letras. Valor atual: 18px. px mede pixels CSS. */
+    font-size: 18px;
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 24px. px mede pixels CSS. */
+    line-height: 24px;
+}
+
+/* Seleciona .sessions-dialog--delete [data-cancel]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog--delete [data-cancel] {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background: transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+}
+
+/* Seleciona .sessions-dialog--delete [data-confirm]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog--delete [data-confirm] {
+    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 88px. px mede pixels CSS. */
+    min-width: 88px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: #dc6973. */
+    background: #dc6973;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: #171615. */
+    color: #171615;
+}
+
+/* Seleciona .sessions-dialog--delete button:disabled. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :disabled: controle desativado. */
+.sessions-dialog--delete button:disabled {
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: .5. */
+    opacity: .5;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: default. */
+    cursor: default;
+}
+
+/* Seleciona .sessions-dialog--delete .sessions-dialog__error:not(:empty). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.sessions-dialog--delete .sessions-dialog__error:not(:empty) {
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px 0 0. px mede pixels CSS. */
+    margin: 10px 0 0;
+    /* Define o tamanho das letras. Valor atual: 14px. px mede pixels CSS. */
+    font-size: 14px;
+}

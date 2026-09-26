@@ -56,6 +56,9 @@ def create_app(test_config=None):
     # Only chat accepts a larger body; authentication forms retain their limits.
     @app.before_request
     def chat_request_limit():
+        if request.path == '/api/ai/attachments':
+            request.max_content_length = 9 * 1024 * 1024
+            request.max_form_memory_size = 256 * 1024
         if request.path == '/api/ai/chat':
             request.max_content_length = 256 * 1024
 
@@ -77,6 +80,9 @@ def create_app(test_config=None):
     app.extensions['ascenda_computer'] = computer_service
     conversation_store = ConversationStore(app.config)
     app.extensions['ascenda_conversations'] = conversation_store
+    from .ai.attachments import AttachmentStore
+    attachments = AttachmentStore(ROOT / 'instance' / 'attachments')
+    conversation_store.attachments = attachments
     from .ai.personalization import PersonalizationStore
     personalization = PersonalizationStore(conversation_store)
     computer_service.personalization = personalization
@@ -132,7 +138,7 @@ def create_app(test_config=None):
     @app.get('/principal.html')
     @protected
     def principal():
-        return render_template('principal.html', user=g.user)
+        return redirect('/computer.html?new=1' + ('&settings=personalization' if request.args.get('settings') == 'personalization' else ''))
 
     @app.get('/api/ai/models')
     def computer_models():
@@ -142,6 +148,21 @@ def create_app(test_config=None):
                                    for name, provider in providers.items()])
         response.headers['Cache-Control'] = 'no-store'
         return response
+
+    @app.post('/api/ai/attachments')
+    @limiter.limit('20 per minute')
+    def computer_attachment():
+        user = current_user()
+        if not user:
+            return jsonify(error='Entre novamente para anexar arquivos.'), 401
+        if set(request.files) != {'file'}:
+            return jsonify(error='Selecione um arquivo.'), 422
+        try:
+            response = jsonify(attachments.upload(user['id'], request.files['file']))
+            response.headers['Cache-Control'] = 'no-store'
+            return response
+        except AIError as exc:
+            return jsonify(error=exc.message), exc.status
 
     @app.post('/api/ai/chat')
     @limiter.limit('10 per minute')
@@ -191,9 +212,23 @@ def create_app(test_config=None):
             offset = int(request.args.get('offset', '0'))
             if not 0 <= offset <= 1000000:
                 raise ValueError
-            return jsonify(conversation_store.list(user['id'], offset))
+            return jsonify(conversation_store.list(user['id'], offset, request.args.get('q', '')))
         except ValueError:
             return jsonify(error='Página inválida.'), 422
+        except AIError as exc:
+            return jsonify(error=exc.message, code=exc.code), exc.status
+
+    @app.get('/api/ai/conversations/<cid>/preview')
+    def computer_conversation_preview(cid):
+        user = current_user()
+        if not user:
+            return jsonify(error='Entre novamente para acessar suas conversas.'), 401
+        try:
+            response = jsonify(conversation_store.preview(user['id'], cid))
+            response.headers['Cache-Control'] = 'no-store'
+            return response
+        except AIError as exc:
+            return jsonify(error=exc.message, code=exc.code), exc.status
 
     @app.get('/api/ai/conversations/<cid>')
     def computer_conversation(cid):
@@ -219,6 +254,17 @@ def create_app(test_config=None):
                     raise AIError('invalid_title', 422)
                 title = payload['title']
             return jsonify(conversation_store.change(user['id'], cid, title, request.method == 'DELETE'))
+        except AIError as exc:
+            return jsonify(error=exc.message, code=exc.code), exc.status
+
+    @app.post('/api/ai/conversations/<cid>/messages/<tid>/edit')
+    @limiter.limit('10 per minute')
+    def edit_computer_message(cid, tid):
+        user = current_user()
+        if not user:
+            return jsonify(error='Entre novamente para editar suas mensagens.'), 401
+        try:
+            return jsonify(conversation_store.truncate_from(user['id'], cid, tid))
         except AIError as exc:
             return jsonify(error=exc.message, code=exc.code), exc.status
 

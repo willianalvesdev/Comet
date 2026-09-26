@@ -45,6 +45,29 @@ class RemoteTests(unittest.TestCase):
         self.assertNotIn('private-test-key', str(payload))
         connection.close.assert_called_once()
 
+    def test_images_and_documents_reach_gemini_with_history(self):
+        import base64
+        import copy
+        import io
+        from PIL import Image
+        image = io.BytesIO()
+        Image.new('RGB', (16, 16), 'red').save(image, format='JPEG')
+        encoded = base64.b64encode(image.getvalue()).decode('ascii')
+        messages = [MESSAGES[0], {'role': 'user', 'content': 'Analise a imagem', 'images': [encoded]},
+                    {'role': 'assistant', 'content': 'Vermelho'},
+                    {'role': 'user', 'content': '<arquivo nome="contas.txt">Receita: 3500</arquivo>'}]
+        original = copy.deepcopy(messages)
+        connection = self.connection(frame({'candidates': [{'content': {'parts': [{'text': 'Analisado'}]}, 'finishReason': 'STOP'}]}))
+        with patch('ascenda.ai.remote.http.client.HTTPSConnection', return_value=connection):
+            self.assertEqual(list(self.provider().stream(messages)), [{'type': 'delta', 'text': 'Analisado'}])
+        payload = json.loads(connection.request.call_args.kwargs['body'])
+        self.assertEqual(payload['contents'][0]['parts'][1],
+                         {'inlineData': {'mimeType': 'image/jpeg', 'data': encoded}})
+        self.assertEqual(payload['contents'][2]['parts'], [{'text': messages[3]['content']}])
+        self.assertEqual([item['role'] for item in payload['contents']], ['user', 'model', 'user'])
+        self.assertEqual(messages, original)
+        self.assertNotIn('private-test-key', str(payload))
+
     def test_safe_http_errors_and_no_retries(self):
         for status, code in [(401,'provider_auth'),(403,'provider_auth'),(402,'provider_quota'),(429,'provider_quota'),(404,'provider_model'),(500,'provider_unavailable'),(302,'provider_unavailable')]:
             with self.subTest(status=status):
@@ -95,7 +118,7 @@ class RemoteTests(unittest.TestCase):
         self.assertEqual(ConversationStore.validate(payload)['provider'],'qwen')
         for name in ['qwen','gemini']:
             self.assertEqual(ConversationStore.validate({**payload,'provider':name})['provider'],name)
-        for bad in ['ollama','https://attacker.invalid',None,{},1]:
+        for bad in ['gemma','ollama','https://attacker.invalid',None,{},1]:
             with self.assertRaises(AIError):
                 ConversationStore.validate({**payload,'provider':bad})
         with self.assertRaises(ValueError):

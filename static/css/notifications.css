@@ -1,0 +1,195 @@
+/* GUIA DE EDIÇÃO — notifications.css
+ * Explicações em português antes de cada seletor e declaração.
+ * A ordem foi preservada: regras posteriores podem sobrescrever as anteriores.
+ * { abre um bloco; } encerra; : separa propriedade e valor; ; termina uma declaração.
+ * Edite os valores do código. Os comentários são documentação e não alteram o visual.
+ */
+/* Seleciona #notifications-panel. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+#notifications-panel {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
+    position:fixed;
+    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: auto. */
+    inset:auto;
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    margin:0;
+    /* Define a largura. Valor atual: min(320px,calc(100vw - 24px)). calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+    width:min(320px,calc(100vw - 24px));
+    /* Define a altura. Valor atual: min(240px,calc(100dvh - 96px)). calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+    height:min(240px,calc(100dvh - 96px));
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    padding:0;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border:1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
+    border-radius:16px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background:var(--surface);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text);
+    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: visible. */
+    overflow:visible;
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-body). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-family:var(--font-body);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size:var(--font-size-5);
+    /* border-box inclui padding e bordas na largura/altura declarada; content-box mede apenas o conteúdo. Valor atual: border-box. */
+    box-sizing:border-box
+}
+
+/* Seleciona #notifications-panel header. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+#notifications-panel header {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display:flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items:center;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: space-between. */
+    justify-content:space-between;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px 12px. px mede pixels CSS. */
+    padding:8px 12px;
+    /* Configura a borda inferior. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border-bottom:1px solid var(--border)
+}
+
+/* Seleciona #notifications-panel button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+#notifications-panel button {
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font:inherit;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: inherit. */
+    color:inherit;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: none. */
+    background:none;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border:0;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor:pointer
+}
+
+/* Seleciona .notifications-more. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.notifications-more {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
+    display:grid;
+    /* Atalho de align-items e justify-items; center centraliza nos dois eixos. Valor atual: center. */
+    place-items:center;
+    /* Define a largura. Valor atual: 30px. px mede pixels CSS. */
+    width:30px;
+    /* Define a altura. Valor atual: 30px. px mede pixels CSS. */
+    height:30px;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 50%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    border-radius:50%
+}
+
+/* Seleciona .notifications-more:hover,.notifications-more[aria-expanded=true]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. [aria-: estado acessível informado por atributo. */
+.notifications-more:hover,.notifications-more[aria-expanded=true] {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb,var(--text) 6%,transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    background:color-mix(in srgb,var(--text) 6%,transparent)
+}
+
+/* Seleciona .notifications-empty. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.notifications-empty {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display:flex;
+    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
+    flex-direction:column;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items:center;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
+    justify-content:center;
+    /* Define a altura. Valor atual: calc(100% - 47px). calc() calcula a medida combinando parcelas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    height:calc(100% - 47px);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
+    gap:10px;
+    /* Alinha o conteúdo textual na caixa. Valor atual: center. */
+    text-align:center;
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.5. */
+    line-height:1.5
+}
+
+/* Seleciona .notifications-empty p. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.notifications-empty p {
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    margin:0
+}
+
+/* Seleciona .notifications-options. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.notifications-options {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
+    position:absolute;
+    /* Define o afastamento direito em relação à referência de position. Valor atual: 8px. px mede pixels CSS. */
+    right:8px;
+    /* Define o afastamento superior em relação à referência de position. Valor atual: 40px. px mede pixels CSS. */
+    top:40px;
+    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 1. */
+    z-index:1;
+    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 176px. px mede pixels CSS. */
+    min-width:176px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 6px. px mede pixels CSS. */
+    padding:6px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border:1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
+    border-radius:16px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background:var(--surface);
+    /* Desenha sombra com deslocamentos horizontal/vertical, desfoque, expansão opcional e cor; inset coloca a sombra por dentro. Valor atual: 0 6px 24px rgb(0 0 0 / .12). px mede pixels CSS. */
+    box-shadow:0 6px 24px rgb(0 0 0 / .12)
+}
+
+/* Seleciona .notifications-options button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.notifications-options button {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display:flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items:center;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
+    gap:10px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 9px. px mede pixels CSS. */
+    padding:9px;
+    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    width:100%;
+    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
+    text-align:left;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 8px. px mede pixels CSS. */
+    border-radius:8px
+}
+
+/* Seleciona .notifications-options button:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
+.notifications-options button:hover {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb,var(--text) 6%,transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    background:color-mix(in srgb,var(--text) 6%,transparent)
+}
+
+/* Seleciona .notifications-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.notifications-status {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
+    position:absolute;
+    /* Define o afastamento inferior em relação à referência de position. Valor atual: 10px. px mede pixels CSS. */
+    bottom:10px;
+    /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
+    left:16px;
+    /* Define o afastamento direito em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
+    right:16px;
+    /* Alinha o conteúdo textual na caixa. Valor atual: center. */
+    text-align:center;
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size:var(--font-size-5);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary)
+}
+
+/* Seleciona #notifications-panel :focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
+#notifications-panel :focus-visible {
+    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    outline:2px solid var(--accent);
+    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: 2px. px mede pixels CSS. */
+    outline-offset:2px
+}
+
+/* Seleciona .notifications-empty svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.notifications-empty svg {
+    /* Define a largura. Valor atual: 26px. px mede pixels CSS. */
+    width:26px;
+    /* Define a altura. Valor atual: 26px. px mede pixels CSS. */
+    height:26px;
+}

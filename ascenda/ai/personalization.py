@@ -3,7 +3,7 @@ import json
 import re
 from datetime import date
 
-EXTRAS = {"company": "", "birth_date": "", "gender": "", "response_length": "Padrão", "formatting": "Padrão", "location": ""}
+EXTRAS = {"username": "","company": "", "birth_date": "", "gender": "", "response_length": "Padrão", "formatting": "Padrão", "location": ""}
 
 def unpack_about(value):
     # Versioned storage keeps existing profiles compatible without a schema migration.
@@ -46,26 +46,30 @@ class PersonalizationStore:
     def get(self, uid):
         with self.conversations.cursor() as cur:
             self.ensure(cur, uid)
-            cur.execute('SELECT p.*,u.nome AS nome_cadastro FROM computer_personalizacao p JOIN usuarios u ON u.id=p.usuario_id WHERE p.usuario_id=%s', (uid,))
+            cur.execute('SELECT p.*,u.nome AS nome_cadastro,u.email AS email_cadastro FROM computer_personalizacao p JOIN usuarios u ON u.id=p.usuario_id WHERE p.usuario_id=%s', (uid,))
             row = cur.fetchone()
         return self.serialize(row)
 
     @staticmethod
     def serialize(row):
         about, extras = unpack_about(row['sobre'])
-        return {**extras, 'name': row['nome_preferido'], 'account_name': row['nome_cadastro'],
+        return {**extras, 'full_name': row['nome_cadastro'], 'email': row['email_cadastro'], 'name': row['nome_preferido'], 'account_name': row['nome_cadastro'],
                 'occupation': row['ocupacao'], 'about': about,
                 'memory_enabled': bool(row['memoria_ativa']), 'summary': row['resumo'], 'version': row['versao']}
 
     def update(self, uid, payload):
         fields = {'name':100, 'occupation':200, 'about':2000, 'summary':LIMIT}
-        if not isinstance(payload, dict) or not {*fields, 'memory_enabled', 'version'} <= set(payload) or set(payload) - {*fields, 'memory_enabled', 'version', *EXTRAS}:
+        if not isinstance(payload, dict) or not {*fields, 'memory_enabled', 'version'} <= set(payload) or set(payload) - {*fields, 'memory_enabled', 'version', 'full_name', *EXTRAS}:
             raise AIError('invalid_personalization', 422)
         if type(payload['memory_enabled']) is not bool or type(payload['version']) is not int or payload['version'] < 0:
             raise AIError('invalid_personalization', 422)
         for field, limit in fields.items():
             if not isinstance(payload[field], str) or len(payload[field]) > limit or '\x00' in payload[field]:
                 raise AIError('invalid_personalization', 422)
+        if 'full_name' in payload and (not isinstance(payload['full_name'], str) or not 1 <= len(payload['full_name'].strip()) <= 100 or any(ord(c) < 32 for c in payload['full_name'])):
+            raise AIError('invalid_personalization', 422)
+        if payload.get('username') and (not isinstance(payload['username'], str) or not re.fullmatch(r'[a-zA-Z0-9_.-]{1,30}', payload['username'])):
+            raise AIError('invalid_personalization', 422)
         for key in EXTRAS:
             if key in payload and (not isinstance(payload[key], str) or len(payload[key]) > 200 or '\x00' in payload[key]):
                 raise AIError('invalid_personalization', 422)
@@ -85,6 +89,8 @@ class PersonalizationStore:
             current = cur.fetchone()
             if current['versao'] != payload['version']:
                 raise AIError('personalization_changed', 409)
+            if 'full_name' in payload:
+                cur.execute('UPDATE usuarios SET nome=%s WHERE id=%s', (payload['full_name'].strip(), uid))
             _, extras = unpack_about(current['sobre'])
             extras.update({key: payload[key].strip() for key in EXTRAS if key in payload})
             about = json.dumps({'ascenda_profile_version': 1, 'about': payload['about'].strip(), **extras}, ensure_ascii=False)

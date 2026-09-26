@@ -19,7 +19,10 @@
     <script src="/static/js/weather.js" defer></script>
     <script src="/static/js/discovery-panel.js" defer></script>
     <link rel="stylesheet" href="/static/css/sessions.css">
+    <link rel="stylesheet" href="/static/css/chat-search.css">
+    <script src="/static/js/chat-search.js" defer></script>
     <script src="/static/js/sessions.js" defer></script>
+    <script src="/static/js/chat-preview.js" defer></script>
 </head>
 <body class="workspace">
     <aside class="sidebar" id="sidebar" aria-label="Menu lateral">
@@ -31,20 +34,11 @@
         </div>
 
         <nav class="sidebar__nav" id="sidebar-nav" aria-label="Navegação principal">
-            <a class="sidebar__link" href="./principal.html" aria-label="Novo" title="Novo"><span class="sidebar__new-icon" aria-hidden="true"></span><span class="sidebar__label">Novo</span></a>
-            <a class="sidebar__link" href="./computer.html" aria-label="Computer" title="Computer">
-                <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <rect x="4" y="4" width="16" height="12" rx="2"/>
-                    <path d="M2 20h20M9 8v4m6-4v4"/>
-                </svg>
-                <span class="sidebar__label">Computer</span>
-            </a>
+            <a class="sidebar__link" href="./computer.html?new=1" aria-label="Novo chat" title="Novo chat"><span class="sidebar__new-icon" aria-hidden="true"></span><span class="sidebar__label">Novo chat</span></a>
 
-            <a class="sidebar__link" href="./graficos.html" aria-label="Gráficos" title="Gráficos">
-                <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M3 3v18h18M6 15l4-5 4 3 6-8"/>
-                </svg>
-                <span class="sidebar__label">Gráficos</span>
+
+            <a class="sidebar__link" href="./graficos.html" aria-label="Finanças" title="Finanças"><span class="sidebar__icon sidebar__finance-icon" aria-hidden="true"></span>
+                <span class="sidebar__label">Finanças</span>
             </a>
             <a class="sidebar__link" href="./descobrir.html" aria-current="page" aria-label="Descobrir" title="Descobrir"><span class="sidebar__icon sidebar__discover-icon" aria-hidden="true"></span><span class="sidebar__label">Descobrir</span></a>
 

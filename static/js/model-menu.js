@@ -49,6 +49,7 @@
     window.addEventListener('scroll', () => { if (menu.matches(':popover-open')) position(); }, true);
     window.ComputerModels = {
         selected: () => selected,
+        select: value => { if(options.some(option=>option.dataset.provider===value)){selected=value;update();} },
         error: () => selected === 'gemini' && availability && !availability.gemini ? 'Configure a chave do Gemini no servidor para começar.' : '',
         setBusy: value => { trigger.disabled = value; if (value && menu.matches(':popover-open')) menu.hidePopover(); }
     };

@@ -4,42 +4,26 @@
     const status = document.getElementById("dictation-status");
     if (!button || !input || !status) return;
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const indicator = document.createElement("span");
-    indicator.className = "dictation-equalizer";
-    indicator.hidden = true;
-    indicator.setAttribute("aria-hidden", "true");
-    for (let i = 0; i < 27; i++) {
-        const dot = document.createElement("i");
-        indicator.append(dot);
-    }
-    button.before(indicator);
+    const composer = button.closest('.home__composer');
+    let originalPlaceholder = input.placeholder;
     const send = button.closest("form").querySelector(".home__send");
     const sendLabel = send?.getAttribute("aria-label") || "Enviar mensagem";
     const toolbar = button.closest(".home__toolbar");
-    let animationTimer = null;
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    function speech(active) {
-        clearTimeout(animationTimer);
-        indicator.classList.toggle("is-speaking", active);
-        function update() {
-            for (const dot of indicator.children) {
-                dot.style.opacity = active ? (Math.random() < .45 ? '1' : '.22') : '.22';
-            }
-            if (active && !reducedMotion.matches) animationTimer = setTimeout(update, 350 + Math.random() * 300);
-        }
-        update();
-    }
     let session = null;
     let stopping = false;
     function indicate(active, message) {
         button.setAttribute("aria-pressed", String(active));
         button.setAttribute("aria-label", active ? "Parar ditado" : "Ditar mensagem");
         button.title = active ? "Parar ditado" : "Ditar mensagem";
-        indicator.hidden = !active;
+        if (active && !composer.classList.contains('is-dictating')) originalPlaceholder = input.placeholder;
+        composer.classList.toggle('is-dictating', active);
+        input.placeholder = active ? 'Ouvindo...' : originalPlaceholder;
         send?.setAttribute("aria-label", active ? "Concluir ditado" : sendLabel);
         toolbar?.classList.toggle("is-dictating", active);
-        if (!active) speech(false);
-        status.textContent = message;
+
+        const routine = /^(Ativando|Ouvindo|Finalizando|Ditado|Nenhuma fala)/.test(message);
+        status.textContent = routine ? '' : message;
+        if (!active && !routine) button.title = message;
     }
     function cancel() {
         if (!session) return;
@@ -53,7 +37,7 @@
         if (!session || stopping) return;
         stopping = true;
         indicate(true, "Finalizando ditado…");
-        speech(false);
+
         session.stop();
     }
     send?.addEventListener("click", event => {
@@ -91,8 +75,6 @@
         recognition.onstart = () => {
             if (session === recognition && !stopping) indicate(true, "Ouvindo… Toque no quadrado para parar.");
         };
-        recognition.onspeechstart = () => { if (session === recognition && !stopping) speech(true); };
-        recognition.onspeechend = () => { if (session === recognition) speech(false); };
         recognition.onresult = event => {
             if (session !== recognition) return;
             const transcript = Array.from(event.results, result => result[0].transcript.trim()).filter(Boolean).join(" ");

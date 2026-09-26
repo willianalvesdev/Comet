@@ -1,149 +1,2042 @@
-.computer-page { width: min(100%, 960px); margin: 0 auto; padding: 38px 32px 32px; }
-.computer-intro { position: relative; }
-.computer-back { display: inline-flex; color: var(--text-secondary); margin-bottom: 24px; }
-.computer-status { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); font-size: var(--font-size-4); margin: 0 0 22px; }
-.computer-intro h1, .computer-intro > p:not(.computer-status) { font-family: var(--font-heading); font-size: var(--font-size-3); line-height: 1.6; font-weight: 400; margin: 0 0 22px; }
-.computer-intro h1 { margin-bottom: 4px; }
-.computer-templates { margin-top: 90px; margin-bottom: 24px; }
-.computer-templates__heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.computer-templates h2 { font-size: var(--font-size-4); font-weight: 400; color: var(--text-secondary); margin: 0; }
-.computer-shuffle { border: 0; background: transparent; color: var(--text); font-size: 22px; cursor: pointer; }
-.computer-templates__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.computer-template { padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--font-size-4); cursor: pointer; }
-.computer-template:hover { border-color: var(--accent); color: var(--accent); }
-.computer-mode, .computer-note { color: var(--text-secondary); font-size: var(--font-size-5); }
-.computer-note { margin-top: 12px; }
-.workspace .computer-page .home__composer { position: relative; inset: auto; width: 100%; margin: 0; translate: none; }
-@media (width < 640px) { .computer-page { padding: 24px 16px; } .computer-templates { margin-top: 42px; } .computer-templates__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* GUIA DE EDIÇÃO — computer.css
+ * Explicações em português antes de cada seletor e declaração.
+ * A ordem foi preservada: regras posteriores podem sobrescrever as anteriores.
+ * { abre um bloco; } encerra; : separa propriedade e valor; ; termina uma declaração.
+ * Edite os valores do código. Os comentários são documentação e não alteram o visual.
+ */
+/* Seleciona .computer-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-page {
+    /* Define a largura. Valor atual: min(100%, 960px). min() escolhe o menor valor. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    width: min(100%, 960px);
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 auto. */
+    margin: 0 auto;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 38px 32px 32px. px mede pixels CSS. */
+    padding: 38px 32px 32px;
+}
 
-.computer-intro { margin-bottom: 56px; }
-@media (width < 640px) { .computer-intro { margin-bottom: 32px; } }
+/* Seleciona .computer-intro. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-intro {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
+    position: relative;
+}
 
-.computer-header { display: grid; grid-template-columns: 32px minmax(0, 1fr) 32px; color: var(--text); }
-.computer-header__back { border: 0; }
-.computer-header__title { display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0; font-size: var(--font-size-4); }
-.computer-header__title svg { width: 18px; height: 18px; flex-shrink: 0; }
-.computer-header__title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Seleciona .computer-back. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-back {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-flex. */
+    display: inline-flex;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Define espaço externo abaixo. Valor atual: 24px. px mede pixels CSS. */
+    margin-bottom: 24px;
+}
 
-.computer-page { width: min(100%, 800px); }
-.computer-header { display: flex; }
-.computer-header__back { position: absolute; left: 16px; }
-.computer-header__title { width: min(100%, 800px); margin-inline: auto; padding-inline: 32px; justify-content: flex-start; }
-.workspace .computer-page .home__composer { padding: 14px 16px 12px; }
-.computer-page .home__input { min-height: 38px; height: 38px; }
-.computer-page .home__toolbar { margin-top: 8px; }
-@media (width < 900px) { .computer-header__title { padding-left: 48px; } }
-@media (width < 640px) { .computer-header__title { padding-right: 0; } }
+/* Seleciona .computer-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-status {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items: center;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
+    gap: 10px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-4);
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 0 22px. px mede pixels CSS. */
+    margin: 0 0 22px;
+}
 
-.computer-page { min-height: calc(100svh - var(--header-height)); display: flex; flex-direction: column; justify-content: center; padding-block: 48px 16svh; }
-.computer-intro { margin-bottom: 40px; }
-.computer-intro h1 { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 0; font-family: var(--font-heading); font-size: clamp(28px, 3.2vw, 44px); line-height: 1.2; font-weight: 400; text-align: center; text-wrap: balance; }
-.computer-intro__logo { width: 42px; height: 42px; flex: 0 0 42px; background: var(--text); mask: url('../img/icons/computer-composer.svg') center / contain no-repeat; -webkit-mask: url('../img/icons/computer-composer.svg') center / contain no-repeat; }
-.computer-note:empty { display: none; }
-@media (width < 640px) { .computer-page { padding-block: 36px 12svh; } .computer-intro { margin-bottom: 28px; } .computer-intro h1 { gap: 10px; } .computer-intro__logo { width: 32px; height: 32px; flex-basis: 32px; } }
+/* Seleciona .computer-intro h1, .computer-intro > p:not(.computer-status). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-intro h1, .computer-intro > p:not(.computer-status) {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-heading). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-family: var(--font-heading);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-3);
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.6. */
+    line-height: 1.6;
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
+    font-weight: 400;
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 0 22px. px mede pixels CSS. */
+    margin: 0 0 22px;
+}
+
+/* Seleciona .computer-intro h1. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-intro h1 {
+    /* Define espaço externo abaixo. Valor atual: 4px. px mede pixels CSS. */
+    margin-bottom: 4px;
+}
+
+/* Seleciona .computer-templates. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-templates {
+    /* Define espaço externo acima. Valor atual: 90px. px mede pixels CSS. */
+    margin-top: 90px;
+    /* Define espaço externo abaixo. Valor atual: 24px. px mede pixels CSS. */
+    margin-bottom: 24px;
+}
+
+/* Seleciona .computer-templates__heading. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-templates__heading {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items: center;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: space-between. */
+    justify-content: space-between;
+    /* Define espaço externo abaixo. Valor atual: 16px. px mede pixels CSS. */
+    margin-bottom: 16px;
+}
+
+/* Seleciona .computer-templates h2. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-templates h2 {
+    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-4);
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
+    font-weight: 400;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    margin: 0;
+}
+
+/* Seleciona .computer-shuffle. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-shuffle {
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border: 0;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background: transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+    /* Define o tamanho das letras. Valor atual: 22px. px mede pixels CSS. */
+    font-size: 22px;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor: pointer;
+}
+
+/* Seleciona .computer-templates__grid. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-templates__grid {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
+    display: grid;
+    /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: repeat(3, minmax(0, 1fr)). minmax() define mínimo e máximo de uma faixa do grid. */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
+    gap: 10px;
+}
+
+/* Seleciona .computer-template. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-template {
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px. px mede pixels CSS. */
+    padding: 12px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border: 1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
+    border-radius: 10px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background: var(--surface);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
+    text-align: left;
+    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
+    overflow: hidden;
+    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
+    text-overflow: ellipsis;
+    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
+    white-space: nowrap;
+    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-4);
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor: pointer;
+}
+
+/* Seleciona .computer-template:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
+.computer-template:hover {
+    /* Define a cor das bordas. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-color: var(--accent);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--accent);
+}
+
+/* Seleciona .computer-mode, .computer-note. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-mode, .computer-note {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-5);
+}
+
+/* Seleciona .computer-note. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-note {
+    /* Define espaço externo acima. Valor atual: 12px. px mede pixels CSS. */
+    margin-top: 12px;
+}
+
+/* Seleciona .workspace .computer-page .home__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.workspace .computer-page .home__composer {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
+    position: relative;
+    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: auto. */
+    inset: auto;
+    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    width: 100%;
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    margin: 0;
+    /* Desloca o elemento visualmente nos eixos horizontal e vertical. Valor atual: none. */
+    translate: none;
+}
+
+/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media (width < 640px) {
+    /* Seleciona .computer-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-page {
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 24px 16px. px mede pixels CSS. */
+        padding: 24px 16px;
+    }
+
+    /* Seleciona .computer-templates. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-templates {
+        /* Define espaço externo acima. Valor atual: 42px. px mede pixels CSS. */
+        margin-top: 42px;
+    }
+
+    /* Seleciona .computer-templates__grid. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-templates__grid {
+        /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: repeat(2, minmax(0, 1fr)). minmax() define mínimo e máximo de uma faixa do grid. */
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+/* Seleciona .computer-intro. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-intro {
+    /* Define espaço externo abaixo. Valor atual: 56px. px mede pixels CSS. */
+    margin-bottom: 56px;
+}
+
+/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media (width < 640px) {
+    /* Seleciona .computer-intro. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-intro {
+        /* Define espaço externo abaixo. Valor atual: 32px. px mede pixels CSS. */
+        margin-bottom: 32px;
+    }
+
+}
+
+/* Seleciona .computer-header. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-header {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
+    display: grid;
+    /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: 32px minmax(0, 1fr) 32px. minmax() define mínimo e máximo de uma faixa do grid. px mede pixels CSS. */
+    grid-template-columns: 32px minmax(0, 1fr) 32px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+}
+
+/* Seleciona .computer-header__back. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-header__back {
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border: 0;
+}
+
+/* Seleciona .computer-header__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-header__title {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items: center;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
+    justify-content: center;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
+    gap: 10px;
+    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
+    min-width: 0;
+    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-4);
+}
+
+/* Seleciona .computer-header__title svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-header__title svg {
+    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
+    width: 18px;
+    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
+    height: 18px;
+    /* Define quanto o item encolhe se faltar espaço; 0 impede o encolhimento. Valor atual: 0. */
+    flex-shrink: 0;
+}
+
+/* Seleciona .computer-header__title span. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-header__title span {
+    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
+    overflow: hidden;
+    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
+    text-overflow: ellipsis;
+    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
+    white-space: nowrap;
+}
+
+/* Seleciona .computer-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-page {
+    /* Define a largura. Valor atual: min(100%, 800px). min() escolhe o menor valor. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    width: min(100%, 800px);
+}
+
+/* Seleciona .computer-header. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-header {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+}
+
+/* Seleciona .computer-header__back. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-header__back {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
+    position: absolute;
+    /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
+    left: 16px;
+}
+
+/* Seleciona .computer-header__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-header__title {
+    /* Define a largura. Valor atual: min(100%, 800px). min() escolhe o menor valor. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    width: min(100%, 800px);
+    /* Define espaço externo no eixo horizontal da escrita. Valor atual: auto. */
+    margin-inline: auto;
+    /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 32px. px mede pixels CSS. */
+    padding-inline: 32px;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: flex-start. */
+    justify-content: flex-start;
+}
+
+/* Seleciona .workspace .computer-page .home__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.workspace .computer-page .home__composer {
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 14px 16px 12px. px mede pixels CSS. */
+    padding: 14px 16px 12px;
+}
+
+/* Seleciona .computer-page .home__input. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-page .home__input {
+    /* Define a altura mínima. Valor atual: 38px. px mede pixels CSS. */
+    min-height: 38px;
+    /* Define a altura. Valor atual: 38px. px mede pixels CSS. */
+    height: 38px;
+}
+
+/* Seleciona .computer-page .home__toolbar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-page .home__toolbar {
+    /* Define espaço externo acima. Valor atual: 8px. px mede pixels CSS. */
+    margin-top: 8px;
+}
+
+/* Condição (width < 900px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media (width < 900px) {
+    /* Seleciona .computer-header__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-header__title {
+        /* Define espaço interno entre conteúdo e borda à esquerda. Valor atual: 48px. px mede pixels CSS. */
+        padding-left: 48px;
+    }
+
+}
+
+/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media (width < 640px) {
+    /* Seleciona .computer-header__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-header__title {
+        /* Define espaço interno entre conteúdo e borda à direita. Valor atual: 0. */
+        padding-right: 0;
+    }
+
+}
+
+/* Seleciona .computer-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-page {
+    /* Define a altura mínima. Valor atual: calc(100svh - var(--header-height)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+    min-height: calc(100svh - var(--header-height));
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
+    flex-direction: column;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
+    justify-content: center;
+    /* Define espaço interno entre conteúdo e borda no eixo vertical da escrita. Valor atual: 48px 16svh. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+    padding-block: 48px 16svh;
+}
+
+/* Seleciona .computer-intro. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-intro {
+    /* Define espaço externo abaixo. Valor atual: 40px. px mede pixels CSS. */
+    margin-bottom: 40px;
+}
+
+/* Seleciona .computer-intro h1. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-intro h1 {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items: center;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
+    justify-content: center;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 14px. px mede pixels CSS. */
+    gap: 14px;
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    margin: 0;
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-heading). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-family: var(--font-heading);
+    /* Define o tamanho das letras. Valor atual: clamp(28px, 3.2vw, 44px). clamp() recebe mínimo, valor preferido e máximo. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+    font-size: clamp(28px, 3.2vw, 44px);
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.2. */
+    line-height: 1.2;
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
+    font-weight: 400;
+    /* Alinha o conteúdo textual na caixa. Valor atual: center. */
+    text-align: center;
+    /* Controla as quebras; balance equilibra linhas e nowrap impede quebra. Valor atual: balance. */
+    text-wrap: balance;
+}
+
+/* Seleciona .computer-intro__logo. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-intro__logo {
+    /* Define a largura. Valor atual: 42px. px mede pixels CSS. */
+    width: 42px;
+    /* Define a altura. Valor atual: 42px. px mede pixels CSS. */
+    height: 42px;
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 42px. px mede pixels CSS. */
+    flex: 0 0 42px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background: var(--text);
+    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: url('../img/icons/computer-static.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    mask: url('../img/icons/computer-static.svg') center / contain no-repeat;
+    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Variante de compatibilidade WebKit/Blink. Valor atual: url('../img/icons/computer-static.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    -webkit-mask: url('../img/icons/computer-static.svg') center / contain no-repeat;
+}
+
+/* Seleciona .computer-note:empty. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-note:empty {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display: none;
+}
+
+/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media (width < 640px) {
+    /* Seleciona .computer-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-page {
+        /* Define espaço interno entre conteúdo e borda no eixo vertical da escrita. Valor atual: 36px 12svh. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+        padding-block: 36px 12svh;
+    }
+
+    /* Seleciona .computer-intro. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-intro {
+        /* Define espaço externo abaixo. Valor atual: 28px. px mede pixels CSS. */
+        margin-bottom: 28px;
+    }
+
+    /* Seleciona .computer-intro h1. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-intro h1 {
+        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
+        gap: 10px;
+    }
+
+    /* Seleciona .computer-intro__logo. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-intro__logo {
+        /* Define a largura. Valor atual: 32px. px mede pixels CSS. */
+        width: 32px;
+        /* Define a altura. Valor atual: 32px. px mede pixels CSS. */
+        height: 32px;
+        /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 32px. px mede pixels CSS. */
+        flex-basis: 32px;
+    }
+
+}
 
 /* Conversation states extend the existing page only after the first message. */
-.computer-page.has-conversation { justify-content: flex-start; padding-bottom: 32px; }
-.computer-messages[hidden] { display: none; }
-.computer-messages { display: grid; gap: 28px; margin-bottom: 28px; }
-.computer-message { min-width: 0; }
-.computer-message h2 { margin: 0 0 8px; color: var(--text-secondary); font: inherit; font-size: var(--font-size-5); }
-.computer-message__text { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text); line-height: 1.65; }
-.computer-message--user { justify-self: end; width: fit-content; max-width: 85%; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; }
-.computer-message__warning { margin-top: 8px; color: var(--text-secondary); font-size: var(--font-size-5); }
-.computer-page .home__composer.is-responding .home__send .ui-arrow { mask-image: url('../img/icons/pause.svg'); -webkit-mask-image: url('../img/icons/pause.svg'); }
-.computer-page .home__microphone:disabled { opacity: .4; cursor: default; }
+/* Seleciona .computer-page.has-conversation. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-page.has-conversation {
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: flex-start. */
+    justify-content: flex-start;
+    /* Define espaço interno entre conteúdo e borda abaixo. Valor atual: 32px. px mede pixels CSS. */
+    padding-bottom: 32px;
+}
 
-.computer-thinking { color: var(--text-secondary); }
-.computer-thinking__toggle { display: flex; align-items: center; gap: 6px; width: fit-content; min-height: 32px; list-style: none; cursor: pointer; font-size: var(--font-size-5); }
-.computer-thinking__toggle::-webkit-details-marker { display: none; }
-.computer-thinking__toggle::marker { content: ''; }
-.computer-thinking__toggle:hover { color: var(--text); }
-.computer-thinking__toggle:focus-visible, .computer-thinking__content:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
-.computer-thinking__arrow { width: 12px; height: 12px; flex: 0 0 12px; transition: transform .2s ease; }
-.computer-thinking[open] .computer-thinking__arrow { transform: rotate(90deg); }
-.computer-thinking__content { max-height: 260px; overflow-y: auto; overscroll-behavior: contain; margin-top: 8px; padding: 4px 0 4px 14px; border-left: 1px solid var(--border); white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--font-size-5); line-height: 1.65; }
-.computer-thinking__content:empty::before { content: 'Aguardando o pensamento…'; }
-.computer-thinking:not([hidden]) + .computer-message__text:not([hidden]) { margin-top: 14px; }
+/* Seleciona .computer-messages[hidden]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
+.computer-messages[hidden] {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display: none;
+}
+
+/* Seleciona .computer-messages. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-messages {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
+    display: grid;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 28px. px mede pixels CSS. */
+    gap: 28px;
+    /* Define espaço externo abaixo. Valor atual: 28px. px mede pixels CSS. */
+    margin-bottom: 28px;
+}
+
+/* Seleciona .computer-message. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-message {
+    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
+    min-width: 0;
+}
+
+/* Seleciona .computer-message h2. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-message h2 {
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 0 8px. px mede pixels CSS. */
+    margin: 0 0 8px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font: inherit;
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-5);
+}
+
+/* Seleciona .computer-message__text. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-message__text {
+    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: pre-wrap. */
+    white-space: pre-wrap;
+    /* Controla a quebra de palavras longas para evitar transbordamento. Valor atual: anywhere. */
+    overflow-wrap: anywhere;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.65. */
+    line-height: 1.65;
+}
+
+/* Seleciona .computer-message--user. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-message--user {
+    /* Alinha este item na sua área do grid. Valor atual: end. */
+    justify-self: end;
+    /* Define a largura. Valor atual: fit-content. */
+    width: fit-content;
+    /* Limita a largura máxima. Valor atual: 85%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    max-width: 85%;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 14px 18px. px mede pixels CSS. */
+    padding: 14px 18px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background: var(--surface);
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border: 1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
+    border-radius: 16px;
+}
+
+/* Seleciona .computer-message__warning. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-message__warning {
+    /* Define espaço externo acima. Valor atual: 8px. px mede pixels CSS. */
+    margin-top: 8px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-5);
+}
+
+/* Seleciona .computer-page .home__composer.is-responding .home__send .ui-arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-page .home__composer.is-responding .home__send .ui-arrow {
+    /* Escolhe a imagem que recorta a pintura do elemento. Valor atual: url('../img/icons/pause.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    mask-image: url('../img/icons/pause.svg');
+    /* Escolhe a imagem que recorta a pintura do elemento. Variante de compatibilidade WebKit/Blink. Valor atual: url('../img/icons/pause.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    -webkit-mask-image: url('../img/icons/pause.svg');
+}
+
+/* Seleciona .computer-page .home__microphone:disabled. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :disabled: controle desativado. */
+.computer-page .home__microphone:disabled {
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: .4. */
+    opacity: .4;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: default. */
+    cursor: default;
+}
+
+/* Seleciona .computer-thinking. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-thinking {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+}
+
+/* Seleciona .computer-thinking__toggle. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-thinking__toggle {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items: center;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 6px. px mede pixels CSS. */
+    gap: 6px;
+    /* Define a largura. Valor atual: fit-content. */
+    width: fit-content;
+    /* Define a altura mínima. Valor atual: 32px. px mede pixels CSS. */
+    min-height: 32px;
+    /* Configura os marcadores de lista; none os remove. Valor atual: none. */
+    list-style: none;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor: pointer;
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-5);
+}
+
+/* Seleciona .computer-thinking__toggle::-webkit-details-marker. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-thinking__toggle::-webkit-details-marker {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display: none;
+}
+
+/* Seleciona .computer-thinking__toggle::marker. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-thinking__toggle::marker {
+    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: ''. */
+    content: '';
+}
+
+/* Seleciona .computer-thinking__toggle:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
+.computer-thinking__toggle:hover {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+}
+
+/* Seleciona .computer-thinking__toggle:focus-visible, .computer-thinking__content:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
+.computer-thinking__toggle:focus-visible, .computer-thinking__content:focus-visible {
+    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    outline: 2px solid var(--accent);
+    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: 4px. px mede pixels CSS. */
+    outline-offset: 4px;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 4px. px mede pixels CSS. */
+    border-radius: 4px;
+}
+
+/* Seleciona .computer-thinking__arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-thinking__arrow {
+    /* Define a largura. Valor atual: 12px. px mede pixels CSS. */
+    width: 12px;
+    /* Define a altura. Valor atual: 12px. px mede pixels CSS. */
+    height: 12px;
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 12px. px mede pixels CSS. */
+    flex: 0 0 12px;
+    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: transform .2s ease. */
+    transition: transform .2s ease;
+}
+
+/* Seleciona .computer-thinking[open] .computer-thinking__arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-thinking[open] .computer-thinking__arrow {
+    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: rotate(90deg). */
+    transform: rotate(90deg);
+}
+
+/* Seleciona .computer-thinking__content. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-thinking__content {
+    /* Limita a altura máxima. Valor atual: 260px. px mede pixels CSS. */
+    max-height: 260px;
+    /* Controla o transbordamento vertical. Valor atual: auto. */
+    overflow-y: auto;
+    /* Controla o que acontece no fim da rolagem; contain evita transferi-la ao elemento ancestral. Valor atual: contain. */
+    overscroll-behavior: contain;
+    /* Define espaço externo acima. Valor atual: 8px. px mede pixels CSS. */
+    margin-top: 8px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 4px 0 4px 14px. px mede pixels CSS. */
+    padding: 4px 0 4px 14px;
+    /* Configura a borda esquerda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border-left: 1px solid var(--border);
+    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: pre-wrap. */
+    white-space: pre-wrap;
+    /* Controla a quebra de palavras longas para evitar transbordamento. Valor atual: anywhere. */
+    overflow-wrap: anywhere;
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-5);
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.65. */
+    line-height: 1.65;
+}
+
+/* Seleciona .computer-thinking__content:empty::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. */
+.computer-thinking__content:empty::before {
+    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: 'Aguardando o pensamento…'. */
+    content: 'Aguardando o pensamento…';
+}
+
+/* Seleciona .computer-thinking:not([hidden]) + .computer-message__text:not([hidden]). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
+.computer-thinking:not([hidden]) + .computer-message__text:not([hidden]) {
+    /* Define espaço externo acima. Valor atual: 14px. px mede pixels CSS. */
+    margin-top: 14px;
+}
+
+/* Seleciona .computer-thinking.is-thinking .computer-thinking__toggle > span. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-thinking.is-thinking .computer-thinking__toggle > span {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: linear-gradient(110deg, var(--text-secondary) 35%, var(--text) 50%, var(--text-secondary) 65%). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background: linear-gradient(110deg, var(--text-secondary) 35%, var(--text) 50%, var(--text-secondary) 65%);
+    /* Define as dimensões da imagem ou gradiente de fundo. Valor atual: 250% 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background-size: 250% 100%;
+    /* Limita a área pintada pelo fundo; text recorta a pintura nas letras. Valor atual: text. */
     background-clip: text;
+    /* Limita a área pintada pelo fundo; text recorta a pintura nas letras. Variante de compatibilidade WebKit/Blink. Valor atual: text. */
     -webkit-background-clip: text;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: transparent. */
     color: transparent;
+    /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: computer-thinking-shimmer 2.4s linear infinite. */
     animation: computer-thinking-shimmer 2.4s linear infinite;
 }
-@keyframes computer-thinking-shimmer {
-    from { background-position: 150% 0; }
-    to { background-position: -150% 0; }
-}
-@media (prefers-reduced-motion: reduce) { .computer-thinking.is-thinking .computer-thinking__toggle > span { animation: none; background: none; color: var(--text-secondary); } .computer-thinking__arrow { transition: none; } }
 
-.computer-history__older { align-self: center; margin-bottom: 20px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: transparent; color: var(--text-secondary); cursor: pointer; }
-.computer-header > .workspace__menu-toggle { display: none; }
-@media (width < 640px) { .computer-header > .workspace__menu-toggle { display: flex; align-items: center; justify-content: center; position: absolute; left: 12px; width: 32px; height: 32px; border: 0; background: transparent; color: var(--text); } .computer-header__back { display: none; } .computer-header > .workspace__menu-toggle .sidebar__toggle-icon { position: static; } }
+/* Animação computer-thinking-shimmer: os blocos internos definem estados no tempo; a propriedade animation define duração e repetição. */
+@keyframes computer-thinking-shimmer {
+    /* Etapa from da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    from {
+        /* Posiciona a imagem ou gradiente no fundo. Valor atual: 150% 0. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+        background-position: 150% 0;
+    }
+
+    /* Etapa to da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    to {
+        /* Posiciona a imagem ou gradiente no fundo. Valor atual: -150% 0. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+        background-position: -150% 0;
+    }
+
+}
+
+/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media (prefers-reduced-motion: reduce) {
+    /* Seleciona .computer-thinking.is-thinking .computer-thinking__toggle > span. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-thinking.is-thinking .computer-thinking__toggle > span {
+        /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: none. */
+        animation: none;
+        /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: none. */
+        background: none;
+        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+        color: var(--text-secondary);
+    }
+
+    /* Seleciona .computer-thinking__arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-thinking__arrow {
+        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
+        transition: none;
+    }
+
+}
+
+/* Seleciona .computer-history__older. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-history__older {
+    /* Sobrescreve o alinhamento do eixo transversal para este item. Valor atual: center. */
+    align-self: center;
+    /* Define espaço externo abaixo. Valor atual: 20px. px mede pixels CSS. */
+    margin-bottom: 20px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px 10px. px mede pixels CSS. */
+    padding: 8px 10px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border: 1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
+    border-radius: 10px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background: transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor: pointer;
+}
+
+/* Seleciona .computer-header > .workspace__menu-toggle. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-header > .workspace__menu-toggle {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display: none;
+}
+
+/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media (width < 640px) {
+    /* Seleciona .computer-header > .workspace__menu-toggle. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-header > .workspace__menu-toggle {
+        /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+        display: flex;
+        /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+        align-items: center;
+        /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
+        justify-content: center;
+        /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
+        position: absolute;
+        /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 12px. px mede pixels CSS. */
+        left: 12px;
+        /* Define a largura. Valor atual: 32px. px mede pixels CSS. */
+        width: 32px;
+        /* Define a altura. Valor atual: 32px. px mede pixels CSS. */
+        height: 32px;
+        /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+        border: 0;
+        /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+        background: transparent;
+        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+        color: var(--text);
+    }
+
+    /* Seleciona .computer-header__back. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-header__back {
+        /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+        display: none;
+    }
+
+    /* Seleciona .computer-header > .workspace__menu-toggle .sidebar__toggle-icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-header > .workspace__menu-toggle .sidebar__toggle-icon {
+        /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: static. */
+        position: static;
+    }
+
+}
 
 /* The model menu opens in the top layer, above the composer and mobile panels. */
-.model-picker { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; padding: 6px 10px; border: 0; border-radius: 18px; background: transparent; color: var(--text-secondary); font: inherit; font-size: var(--font-size-5); cursor: pointer; white-space: nowrap; }
-.model-picker > svg { width: 14px; height: 14px; transition: transform .18s ease; }
-.model-picker[aria-expanded="true"] > svg { transform: rotate(180deg); }
-.model-picker:hover, .model-picker[aria-expanded="true"] { color: var(--text); background: var(--surface-hover, color-mix(in srgb, var(--text) 6%, transparent)); }
-.model-picker:disabled { opacity: .45; cursor: default; }
-.model-menu { position: fixed; inset: auto; margin: 0; box-sizing: border-box; padding: 6px; width: 260px; max-width: calc(100vw - 24px); border: 1px solid var(--border); border-radius: 16px; background: var(--surface); color: var(--text); box-shadow: 0 8px 28px color-mix(in srgb, var(--bg) 70%, transparent); }
-.model-menu > button { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 46px; padding: 10px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--text-secondary); font: inherit; font-size: var(--font-size-5); text-align: left; cursor: pointer; }
-.model-menu > button:hover, .model-menu > button:focus-visible { color: var(--text); background: color-mix(in srgb, var(--text) 6%, transparent); }
-.model-menu > button[aria-checked="true"] { color: var(--text); }
-.model-menu small { margin-left: auto; font-size: 11px; color: var(--text-secondary); }
-.model-icon, .model-check { width: 18px; height: 18px; flex: 0 0 18px; background: currentColor; mask: center / contain no-repeat; }
-.model-icon--qwen { mask-image: url('../img/icons/computer-composer.svg'); }
-.model-icon--gemini { mask-image: url('../img/icons/model-gemini.svg'); }
-.model-check { width: 14px; height: 14px; flex-basis: 14px; mask-image: url('../img/icons/check.svg'); opacity: 0; }
-.model-menu [aria-checked="true"] .model-check { opacity: 1; }
-.model-picker:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-@media (width < 480px) { .computer-page .home__toolbar { flex-wrap: wrap; gap: 8px; } .computer-page .home__actions { margin-left: auto; gap: 6px; } .model-picker { padding-inline: 6px; } }
+/* Seleciona .model-picker. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.model-picker {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-flex. */
+    display: inline-flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items: center;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
+    justify-content: center;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 7px. px mede pixels CSS. */
+    gap: 7px;
+    /* Define a altura mínima. Valor atual: 36px. px mede pixels CSS. */
+    min-height: 36px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 6px 10px. px mede pixels CSS. */
+    padding: 6px 10px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border: 0;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 18px. px mede pixels CSS. */
+    border-radius: 18px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background: transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font: inherit;
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-5);
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor: pointer;
+    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
+    white-space: nowrap;
+}
+
+/* Seleciona .model-picker > svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.model-picker > svg {
+    /* Define a largura. Valor atual: 14px. px mede pixels CSS. */
+    width: 14px;
+    /* Define a altura. Valor atual: 14px. px mede pixels CSS. */
+    height: 14px;
+    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: transform .18s ease. */
+    transition: transform .18s ease;
+}
+
+/* Seleciona .model-picker[aria-expanded="true"] > svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
+.model-picker[aria-expanded="true"] > svg {
+    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: rotate(180deg). */
+    transform: rotate(180deg);
+}
+
+/* Seleciona .model-picker:hover, .model-picker[aria-expanded="true"]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. [aria-: estado acessível informado por atributo. */
+.model-picker:hover, .model-picker[aria-expanded="true"] {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface-hover, color-mix(in srgb, var(--text) 6%, transparent)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    background: var(--surface-hover, color-mix(in srgb, var(--text) 6%, transparent));
+}
+
+/* Seleciona .model-picker:disabled. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :disabled: controle desativado. */
+.model-picker:disabled {
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: .45. */
+    opacity: .45;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: default. */
+    cursor: default;
+}
+
+/* Seleciona .model-menu. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.model-menu {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
+    position: fixed;
+    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: auto. */
+    inset: auto;
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    margin: 0;
+    /* border-box inclui padding e bordas na largura/altura declarada; content-box mede apenas o conteúdo. Valor atual: border-box. */
+    box-sizing: border-box;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 6px. px mede pixels CSS. */
+    padding: 6px;
+    /* Define a largura. Valor atual: 260px. px mede pixels CSS. */
+    width: 260px;
+    /* Limita a largura máxima. Valor atual: calc(100vw - 24px). calc() calcula a medida combinando parcelas. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+    max-width: calc(100vw - 24px);
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border: 1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
+    border-radius: 16px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background: var(--surface);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+    /* Desenha sombra com deslocamentos horizontal/vertical, desfoque, expansão opcional e cor; inset coloca a sombra por dentro. Valor atual: 0 8px 28px color-mix(in srgb, var(--bg) 70%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    box-shadow: 0 8px 28px color-mix(in srgb, var(--bg) 70%, transparent);
+}
+
+/* Seleciona .model-menu > button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.model-menu > button {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display: flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items: center;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 12px. px mede pixels CSS. */
+    gap: 12px;
+    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    width: 100%;
+    /* Define a altura mínima. Valor atual: 46px. px mede pixels CSS. */
+    min-height: 46px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px 12px. px mede pixels CSS. */
+    padding: 10px 12px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border: 0;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
+    border-radius: 10px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background: transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font: inherit;
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-5);
+    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
+    text-align: left;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor: pointer;
+}
+
+/* Seleciona .model-menu > button:hover, .model-menu > button:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. focus-visible: foco visível de teclado. */
+.model-menu > button:hover, .model-menu > button:focus-visible {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text) 6%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    background: color-mix(in srgb, var(--text) 6%, transparent);
+}
+
+/* Seleciona .model-menu > button[aria-checked="true"]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
+.model-menu > button[aria-checked="true"] {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text);
+}
+
+/* Seleciona .model-menu small. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.model-menu small {
+    /* Define espaço externo à esquerda. Valor atual: auto. */
+    margin-left: auto;
+    /* Define o tamanho das letras. Valor atual: 11px. px mede pixels CSS. */
+    font-size: 11px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--text-secondary);
+}
+
+/* Seleciona .model-icon, .model-check. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.model-icon, .model-check {
+    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
+    width: 18px;
+    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
+    height: 18px;
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 18px. px mede pixels CSS. */
+    flex: 0 0 18px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
+    background: currentColor;
+    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: center / contain no-repeat. */
+    mask: center / contain no-repeat;
+}
+
+/* Seleciona .model-icon--qwen. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.model-icon--qwen {
+    /* Escolhe a imagem que recorta a pintura do elemento. Valor atual: url('../img/icons/computer-static.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    mask-image: url('../img/icons/computer-static.svg');
+}
+
+/* Seleciona .model-icon--gemini. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.model-icon--gemini {
+    /* Escolhe a imagem que recorta a pintura do elemento. Valor atual: url('../img/icons/model-gemini.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    mask-image: url('../img/icons/model-gemini.svg');
+}
+
+/* Seleciona .model-check. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.model-check {
+    /* Define a largura. Valor atual: 14px. px mede pixels CSS. */
+    width: 14px;
+    /* Define a altura. Valor atual: 14px. px mede pixels CSS. */
+    height: 14px;
+    /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 14px. px mede pixels CSS. */
+    flex-basis: 14px;
+    /* Escolhe a imagem que recorta a pintura do elemento. Valor atual: url('../img/icons/check.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    mask-image: url('../img/icons/check.svg');
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 0. */
+    opacity: 0;
+}
+
+/* Seleciona .model-menu [aria-checked="true"] .model-check. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
+.model-menu [aria-checked="true"] .model-check {
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
+    opacity: 1;
+}
+
+/* Seleciona .model-picker:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
+.model-picker:focus-visible {
+    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    outline: 2px solid var(--accent);
+    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: 2px. px mede pixels CSS. */
+    outline-offset: 2px;
+}
+
+/* Condição (width < 480px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media (width < 480px) {
+    /* Seleciona .computer-page .home__toolbar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-page .home__toolbar {
+        /* Controla se itens flex podem quebrar para outra linha. Valor atual: wrap. */
+        flex-wrap: wrap;
+        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
+        gap: 8px;
+    }
+
+    /* Seleciona .computer-page .home__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-page .home__actions {
+        /* Define espaço externo à esquerda. Valor atual: auto. */
+        margin-left: auto;
+        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 6px. px mede pixels CSS. */
+        gap: 6px;
+    }
+
+    /* Seleciona .model-picker. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .model-picker {
+        /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 6px. px mede pixels CSS. */
+        padding-inline: 6px;
+    }
+
+}
 
 /* Keep the conversation readable above the composer dock. */
-.computer-page.has-conversation .computer-intro { display: none; }
-.computer-composer { min-width: 0; }
-.computer-page.has-conversation { padding-bottom: calc(var(--computer-composer-height, 150px) + 48px); }
+/* Seleciona .computer-page.has-conversation .computer-intro. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-page.has-conversation .computer-intro {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display: none;
+}
+
+/* Seleciona .computer-composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-composer {
+    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
+    min-width: 0;
+}
+
+/* Seleciona .computer-page.has-conversation. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-page.has-conversation {
+    /* Define espaço interno entre conteúdo e borda abaixo. Valor atual: calc(var(--computer-composer-height, 150px) + 48px). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. px mede pixels CSS. */
+    padding-bottom: calc(var(--computer-composer-height, 150px) + 48px);
+}
+
+/* Seleciona .computer-page.has-conversation .computer-composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-page.has-conversation .computer-composer {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
     position: fixed;
+    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 80. */
     z-index: 80;
+    /* Define o afastamento esquerdo em relação à referência de position. Valor atual: calc(var(--sidebar-width) + (100% - var(--sidebar-width)) / 2). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     left: calc(var(--sidebar-width) + (100% - var(--sidebar-width)) / 2);
+    /* Define o afastamento inferior em relação à referência de position. Valor atual: calc(16px + env(safe-area-inset-bottom) + var(--computer-keyboard-offset, 0px)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. env() consulta medidas do dispositivo, como a área segura da tela. px mede pixels CSS. */
     bottom: calc(16px + env(safe-area-inset-bottom) + var(--computer-keyboard-offset, 0px));
+    /* Define a largura. Valor atual: min(736px, calc(100% - var(--sidebar-width) - 64px)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: min(736px, calc(100% - var(--sidebar-width) - 64px));
+    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateX(-50%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     transform: translateX(-50%);
+    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: left var(--sidebar-duration) var(--sidebar-easing), width var(--sidebar-duration) var(--sidebar-easing). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     transition: left var(--sidebar-duration) var(--sidebar-easing), width var(--sidebar-duration) var(--sidebar-easing);
 }
+
+/* Seleciona .computer-page.has-conversation .computer-composer::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. */
 .computer-page.has-conversation .computer-composer::before {
+    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: "". */
     content: "";
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
+    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: -1. */
     z-index: -1;
+    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: -40px -16px calc(-16px - env(safe-area-inset-bottom)). calc() calcula a medida combinando parcelas. env() consulta medidas do dispositivo, como a área segura da tela. px mede pixels CSS. */
     inset: -40px -16px calc(-16px - env(safe-area-inset-bottom));
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: linear-gradient(to bottom, transparent, var(--bg) 42%). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background: linear-gradient(to bottom, transparent, var(--bg) 42%);
+    /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: none. */
     pointer-events: none;
 }
-.computer-composer .computer-note { margin: 8px 8px 0; line-height: 1.4; }
-.computer-page.has-conversation .computer-messages { margin-bottom: 0; }
+
+/* Seleciona .computer-composer .computer-note. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-composer .computer-note {
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px 8px 0. px mede pixels CSS. */
+    margin: 8px 8px 0;
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.4. */
+    line-height: 1.4;
+}
+
+/* Seleciona .computer-page.has-conversation .computer-messages. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-page.has-conversation .computer-messages {
+    /* Define espaço externo abaixo. Valor atual: 0. */
+    margin-bottom: 0;
+}
+
+/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    .computer-page { padding-bottom: calc(var(--computer-composer-height, 150px) + 48px); }
+    /* Seleciona .computer-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-page {
+        /* Define espaço interno entre conteúdo e borda abaixo. Valor atual: calc(var(--computer-composer-height, 150px) + 48px). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. px mede pixels CSS. */
+        padding-bottom: calc(var(--computer-composer-height, 150px) + 48px);
+    }
+
+    /* Seleciona .computer-page .computer-composer, .computer-page.has-conversation .computer-composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-page .computer-composer, .computer-page.has-conversation .computer-composer {
+        /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
         position: fixed;
+        /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 80. */
         z-index: 80;
+        /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
         left: 16px;
+        /* Define o afastamento inferior em relação à referência de position. Valor atual: calc(16px + env(safe-area-inset-bottom) + var(--computer-keyboard-offset, 0px)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. env() consulta medidas do dispositivo, como a área segura da tela. px mede pixels CSS. */
         bottom: calc(16px + env(safe-area-inset-bottom) + var(--computer-keyboard-offset, 0px));
+        /* Define a largura. Valor atual: calc(100vw - 32px). calc() calcula a medida combinando parcelas. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
         width: calc(100vw - 32px);
+        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: none. */
         transform: none;
+        /* Desloca o elemento visualmente nos eixos horizontal e vertical. Valor atual: var(--mobile-menu-offset) 0. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         translate: var(--mobile-menu-offset) 0;
+        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: translate var(--sidebar-duration) var(--sidebar-easing). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         transition: translate var(--sidebar-duration) var(--sidebar-easing);
     }
+
+    /* Seleciona .computer-page .computer-composer::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. */
     .computer-page .computer-composer::before {
+        /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: "". */
         content: "";
+        /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
         position: absolute;
+        /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: -1. */
         z-index: -1;
+        /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: -40px -16px calc(-16px - env(safe-area-inset-bottom)). calc() calcula a medida combinando parcelas. env() consulta medidas do dispositivo, como a área segura da tela. px mede pixels CSS. */
         inset: -40px -16px calc(-16px - env(safe-area-inset-bottom));
+        /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: linear-gradient(to bottom, transparent, var(--bg) 42%). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
         background: linear-gradient(to bottom, transparent, var(--bg) 42%);
+        /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: none. */
         pointer-events: none;
     }
+
 }
-@media (prefers-reduced-motion: reduce) { .computer-page .computer-composer { transition: none; } }
+
+/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media (prefers-reduced-motion: reduce) {
+    /* Seleciona .computer-page .computer-composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-page .computer-composer {
+        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
+        transition: none;
+    }
+
+}
+
+/* Seleciona .computer-message--assistant > .computer-message__text. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-message--assistant > .computer-message__text {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-heading). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-family:var(--font-heading);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size:var(--font-size-3);
+}
+
+/* Seleciona .computer-page .home__send .ui-arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-page .home__send .ui-arrow {
+    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
+    width:18px;
+    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
+    height:18px;
+    /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 18px. px mede pixels CSS. */
+    flex-basis:18px;
+    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: rotate(-90deg). */
+    transform:rotate(-90deg);
+}
+
+/* Seleciona .computer-page .is-responding .home__send .ui-arrow, .computer-page .is-dictating .home__send .ui-arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-page .is-responding .home__send .ui-arrow, .computer-page .is-dictating .home__send .ui-arrow {
+    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: none. */
+    transform:none;
+}
+
+/* Seleciona .computer-message__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-message__actions {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display:flex;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
+    gap:10px;
+    /* Define espaço externo acima. Valor atual: 14px. px mede pixels CSS. */
+    margin-top:14px;
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 0. */
+    opacity:0;
+    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: opacity .15s. */
+    transition:opacity .15s;
+}
+
+/* Seleciona .computer-message--assistant:last-child .computer-message__actions, .computer-message--assistant:hover .computer-message__actions, .computer-message--assistant:focus-within .computer-message__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. focus-within: foco no elemento ou descendentes. */
+.computer-message--assistant:last-child .computer-message__actions, .computer-message--assistant:hover .computer-message__actions, .computer-message--assistant:focus-within .computer-message__actions {
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
+    opacity:1;
+}
+
+/* Seleciona .computer-message__text:empty ~ .computer-message__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-message__text:empty ~ .computer-message__actions {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display:none;
+}
+
+/* Seleciona .computer-message__actions button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-message__actions button {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
+    display:grid;
+    /* Atalho de align-items e justify-items; center centraliza nos dois eixos. Valor atual: center. */
+    place-items:center;
+    /* Define a largura. Valor atual: 28px. px mede pixels CSS. */
+    width:28px;
+    /* Define a altura. Valor atual: 28px. px mede pixels CSS. */
+    height:28px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 5px. px mede pixels CSS. */
+    padding:5px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border:0;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 6px. px mede pixels CSS. */
+    border-radius:6px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background:transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor:pointer;
+}
+
+/* Seleciona .computer-message__actions button:hover, .computer-message__actions button[aria-pressed=true]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. [aria-: estado acessível informado por atributo. */
+.computer-message__actions button:hover, .computer-message__actions button[aria-pressed=true] {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--accent);
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background:var(--surface);
+}
+
+/* Seleciona .computer-message__actions i. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-message__actions i {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
+    display:block;
+    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
+    width:18px;
+    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
+    height:18px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
+    background:currentColor;
+    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: var(--action-icon) center/contain no-repeat. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    mask:var(--action-icon) center/contain no-repeat;
+}
+
+/* Seleciona .computer-action-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-action-status {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-body). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-family:var(--font-body);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size:var(--font-size-5);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Sobrescreve o alinhamento do eixo transversal para este item. Valor atual: center. */
+    align-self:center;
+}
+
+/* Condição (hover:none): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media(hover:none) {
+    /* Seleciona .computer-message__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-message__actions {
+        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
+        opacity:1;
+    }
+
+}
+
+/* Condição (prefers-reduced-motion:reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media(prefers-reduced-motion:reduce) {
+    /* Seleciona .computer-message__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-message__actions {
+        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
+        transition:none;
+    }
+
+}
+
+/* Seleciona .message-navigator. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.message-navigator {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
+    position:fixed;
+    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 85. */
+    z-index:85;
+    /* Define o afastamento esquerdo em relação à referência de position. Valor atual: calc(var(--sidebar-width) + 6px). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. px mede pixels CSS. */
+    left:calc(var(--sidebar-width) + 6px);
+    /* Define o afastamento superior em relação à referência de position. Valor atual: 50%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    top:50%;
+    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: left var(--sidebar-duration) var(--sidebar-easing). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    transition:left var(--sidebar-duration) var(--sidebar-easing);
+    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateY(-50%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    transform:translateY(-50%);
+}
+
+/* Seleciona .message-navigator[hidden], .message-navigator__panel[hidden]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
+.message-navigator[hidden], .message-navigator__panel[hidden] {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display:none;
+}
+
+/* Seleciona .message-navigator__rail. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.message-navigator__rail {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display:flex;
+    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
+    flex-direction:column;
+    /* Limita a altura máxima. Valor atual: 45dvh. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+    max-height:45dvh;
+    /* Controla o transbordamento vertical. Valor atual: auto. */
+    overflow-y:auto;
+    /* Controla a espessura da barra de rolagem; thin afina e none oculta. Valor atual: none. */
+    scrollbar-width:none;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px. px mede pixels CSS. */
+    padding:8px;
+}
+
+/* Seleciona .message-navigator__mark. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.message-navigator__mark {
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 10px. px mede pixels CSS. */
+    flex:0 0 10px;
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
+    display:grid;
+    /* Atalho de align-items e justify-items; center centraliza nos dois eixos. Valor atual: center. */
+    place-items:center;
+    /* Define a largura. Valor atual: 20px. px mede pixels CSS. */
+    width:20px;
+    /* Define a altura. Valor atual: 10px. px mede pixels CSS. */
+    height:10px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    padding:0;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border:0;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background:transparent;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor:pointer;
+}
+
+/* Seleciona .message-navigator__mark::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. */
+.message-navigator__mark::before {
+    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: ''. */
+    content:'';
+    /* Define a largura. Valor atual: 9px. px mede pixels CSS. */
+    width:9px;
+    /* Define a altura. Valor atual: 2px. px mede pixels CSS. */
+    height:2px;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 2px. px mede pixels CSS. */
+    border-radius:2px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background:var(--text-secondary);
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: .35. */
+    opacity:.35;
+    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: width .15s,opacity .15s. */
+    transition:width .15s,opacity .15s;
+}
+
+/* Seleciona .message-navigator__mark[aria-current=true]::before, .message-navigator__mark:hover::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. ::before: pseudoelemento antes do conteúdo. [aria-: estado acessível informado por atributo. */
+.message-navigator__mark[aria-current=true]::before, .message-navigator__mark:hover::before {
+    /* Define a largura. Valor atual: 13px. px mede pixels CSS. */
+    width:13px;
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
+    opacity:1;
+}
+
+/* Seleciona .message-navigator__panel. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.message-navigator__panel {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
+    position:absolute;
+    /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    left:100%;
+    /* Define o afastamento superior em relação à referência de position. Valor atual: 50%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    top:50%;
+    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateY(-50%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    transform:translateY(-50%);
+    /* Define a largura. Valor atual: min(320px,calc(100vw - 64px)). calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+    width:min(320px,calc(100vw - 64px));
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 9px. px mede pixels CSS. */
+    padding:9px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border:1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
+    border-radius:16px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background:var(--surface);
+    /* Desenha sombra com deslocamentos horizontal/vertical, desfoque, expansão opcional e cor; inset coloca a sombra por dentro. Valor atual: 0 6px 24px rgb(0 0 0 / .12). px mede pixels CSS. */
+    box-shadow:0 6px 24px rgb(0 0 0 / .12);
+}
+
+/* Seleciona .message-navigator__list. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.message-navigator__list {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
+    display:grid;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 3px. px mede pixels CSS. */
+    gap:3px;
+    /* Limita a altura máxima. Valor atual: min(420px,60dvh). min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+    max-height: min(420px,60dvh);
+    /* Controla o transbordamento vertical. Valor atual: auto. */
+    overflow-y:auto;
+    /* Controla a espessura da barra de rolagem; thin afina e none oculta. Valor atual: thin. */
+    scrollbar-width:thin;
+}
+
+/* Seleciona .message-navigator__list button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.message-navigator__list button {
+    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    width:100%;
+    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
+    min-width:0;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
+    padding:10px;
+    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
+    overflow:hidden;
+    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
+    text-overflow:ellipsis;
+    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
+    white-space:nowrap;
+    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
+    text-align:left;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font:inherit;
+    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size:var(--font-size-3);
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border:0;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 8px. px mede pixels CSS. */
+    border-radius:8px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background:transparent;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor:pointer;
+}
+
+/* Seleciona .message-navigator__list button:hover, .message-navigator__list button[aria-current=true]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. [aria-: estado acessível informado por atributo. */
+.message-navigator__list button:hover, .message-navigator__list button[aria-current=true] {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb,var(--text) 6%,transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    background:color-mix(in srgb,var(--text) 6%,transparent);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text);
+}
+
+/* Seleciona .message-navigator button:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
+.message-navigator button:focus-visible {
+    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    outline:2px solid var(--accent);
+    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: 1px. px mede pixels CSS. */
+    outline-offset:1px;
+}
+
+/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media(width < 640px) {
+    /* Seleciona .message-navigator. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .message-navigator {
+        /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 0. */
+        left:0;
+    }
+
+    /* Seleciona .message-navigator__mark. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .message-navigator__mark {
+        /* Define a largura. Valor atual: 14px. px mede pixels CSS. */
+        width:14px;
+        /* Define a altura. Valor atual: 14px. px mede pixels CSS. */
+        height:14px;
+        /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 14px. px mede pixels CSS. */
+        flex-basis:14px;
+    }
+
+    /* Seleciona .workspace:not(.is-sidebar-collapsed) .message-navigator, html.discovery-panel-shift .message-navigator. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .workspace:not(.is-sidebar-collapsed) .message-navigator, html.discovery-panel-shift .message-navigator {
+        /* Controla a visibilidade; hidden oculta preservando espaço no layout. Valor atual: hidden. */
+        visibility:hidden;
+    }
+
+}
+
+/* Condição (prefers-reduced-motion:reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media(prefers-reduced-motion:reduce) {
+    /* Seleciona .message-navigator, .message-navigator__mark::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. */
+    .message-navigator, .message-navigator__mark::before {
+        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
+        transition:none;
+    }
+
+}
+
+/* Seleciona .computer-message--user. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-message--user {
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border:0;
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
+    position:relative;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background:var(--accent);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text);
+}
+
+/* Seleciona .computer-message--user > .computer-message__text. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-message--user > .computer-message__text {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: inherit. */
+    color:inherit;
+}
+
+/* Seleciona .computer-user-actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-user-actions {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
+    position:absolute;
+    /* Define o afastamento direito em relação à referência de position. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    right:100%;
+    /* Define o afastamento superior em relação à referência de position. Valor atual: 50%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    top:50%;
+    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateY(-50%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    transform:translateY(-50%);
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display:flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items:center;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 7px. px mede pixels CSS. */
+    gap:7px;
+    /* Define espaço interno entre conteúdo e borda à direita. Valor atual: 12px. px mede pixels CSS. */
+    padding-right:12px;
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 0. */
+    opacity:0;
+    /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: none. */
+    pointer-events:none;
+}
+
+/* Seleciona .computer-message--user:hover .computer-user-actions, .computer-message--user:focus-within .computer-user-actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. focus-within: foco no elemento ou descendentes. */
+.computer-message--user:hover .computer-user-actions, .computer-message--user:focus-within .computer-user-actions {
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
+    opacity:1;
+    /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: auto. */
+    pointer-events:auto;
+}
+
+/* Seleciona .computer-user-actions button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-user-actions button {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
+    display:grid;
+    /* Atalho de align-items e justify-items; center centraliza nos dois eixos. Valor atual: center. */
+    place-items:center;
+    /* Define a largura. Valor atual: 25px. px mede pixels CSS. */
+    width:25px;
+    /* Define a altura. Valor atual: 28px. px mede pixels CSS. */
+    height:28px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 4px. px mede pixels CSS. */
+    padding:4px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border:0;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background:transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor:pointer;
+}
+
+/* Seleciona .computer-user-actions button:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
+.computer-user-actions button:hover {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text);
+}
+
+/* Seleciona .computer-user-actions i. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-user-actions i {
+    /* Define a largura. Valor atual: 17px. px mede pixels CSS. */
+    width:17px;
+    /* Define a altura. Valor atual: 17px. px mede pixels CSS. */
+    height:17px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
+    background:currentColor;
+    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: var(--action-icon) center/contain no-repeat. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    mask:var(--action-icon) center/contain no-repeat;
+}
+
+/* Seleciona .computer-user-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-user-status {
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size:var(--font-size-5);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
+    white-space:nowrap;
+}
+
+/* Seleciona .computer-message--user.is-editing. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-message--user.is-editing {
+    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    width:100%;
+    /* Limita a largura máxima. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    max-width:100%;
+    /* Alinha este item na sua área do grid. Valor atual: stretch. */
+    justify-self:stretch;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 20px. px mede pixels CSS. */
+    padding:20px;
+}
+
+/* Seleciona .computer-message--user.is-editing .computer-user-actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-message--user.is-editing .computer-user-actions {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display:none;
+}
+
+/* Seleciona .computer-user-editor textarea. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-user-editor textarea {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
+    display:block;
+    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    width:100%;
+    /* Define a altura mínima. Valor atual: 60px. px mede pixels CSS. */
+    min-height:60px;
+    /* Controla o redimensionamento manual; none remove a alça de ajuste. Valor atual: none. */
+    resize:none;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border:0;
+    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: none. */
+    outline:none;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background:transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text);
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font:inherit;
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.5. */
+    line-height:1.5;
+}
+
+/* Seleciona .computer-user-editor>div. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-user-editor>div {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display:flex;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: flex-end. */
+    justify-content:flex-end;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
+    gap:10px;
+    /* Define espaço externo acima. Valor atual: 14px. px mede pixels CSS. */
+    margin-top:14px;
+}
+
+/* Seleciona .computer-user-editor button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-user-editor button {
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px 14px. px mede pixels CSS. */
+    padding:8px 14px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border:1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
+    border-radius:10px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background:transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text);
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font:inherit;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor:pointer;
+}
+
+/* Seleciona .computer-user-editor .computer-user-editor__save. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-user-editor .computer-user-editor__save {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background:var(--text);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--bg);
+}
+
+/* Seleciona .computer-user-editor p. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-user-editor p {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size:var(--font-size-5);
+}
+
+/* Seleciona .computer-user-editor button:disabled. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :disabled: controle desativado. */
+.computer-user-editor button:disabled {
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: .5. */
+    opacity:.5;
+}
+
+/* Condição (width<640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media(width<640px) {
+    /* Seleciona .computer-message--user:not(.is-editing). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-message--user:not(.is-editing) {
+        /* Limita a largura máxima. Valor atual: calc(100% - 78px). calc() calcula a medida combinando parcelas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+        max-width:calc(100% - 78px)
+    }
+
+    /* Seleciona .computer-user-actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-user-actions {
+        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 3px. px mede pixels CSS. */
+        gap:3px;
+        /* Define espaço interno entre conteúdo e borda à direita. Valor atual: 6px. px mede pixels CSS. */
+        padding-right:6px
+    }
+
+    /* Seleciona .computer-user-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-user-status {
+        /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
+        position:absolute;
+        /* Define o afastamento direito em relação à referência de position. Valor atual: 12px. px mede pixels CSS. */
+        right:12px;
+        /* Define o afastamento superior em relação à referência de position. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+        top:100%
+    }
+
+}
+
+/* Seleciona .computer-user-time. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-user-time {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size:var(--font-size-5);
+    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
+    white-space:nowrap;
+    /* Define espaço externo à direita. Valor atual: 3px. px mede pixels CSS. */
+    margin-right:3px;
+}
+
+/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media(width < 640px) {
+    /* Seleciona .computer-message--user:not(.is-editing). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-message--user:not(.is-editing) {
+        /* Limita a largura máxima. Valor atual: calc(100% - 125px). calc() calcula a medida combinando parcelas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+        max-width:calc(100% - 125px)
+    }
+
+}
+
+/* Seleciona .computer-intro__animated-logo. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-intro__animated-logo {
+    /* Define a largura. Valor atual: 42px. px mede pixels CSS. */
+    width:42px;
+    /* Define a altura. Valor atual: 42px. px mede pixels CSS. */
+    height:42px;
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 42px. px mede pixels CSS. */
+    flex:0 0 42px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text);
+}
+
+/* Condição (width<640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media(width<640px) {
+    /* Seleciona .computer-intro__animated-logo. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-intro__animated-logo {
+        /* Define a largura. Valor atual: 32px. px mede pixels CSS. */
+        width:32px;
+        /* Define a altura. Valor atual: 32px. px mede pixels CSS. */
+        height:32px;
+        /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 32px. px mede pixels CSS. */
+        flex-basis:32px
+    }
+
+}
+
+/* Seleciona .computer-intro h1. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-intro h1 {
+    /* Controla as quebras; balance equilibra linhas e nowrap impede quebra. Valor atual: nowrap. */
+    text-wrap:nowrap;
+}
+
+/* Seleciona [data-chat-greeting]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+[data-chat-greeting] {
+    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
+    white-space:nowrap;
+    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
+    min-width:0;
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 1 auto. */
+    flex:0 1 auto;
+}
+
+/* Seleciona .attachment-toggle. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.attachment-toggle {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
+    display:grid;
+    /* Atalho de align-items e justify-items; center centraliza nos dois eixos. Valor atual: center. */
+    place-items:center;
+    /* Define a largura. Valor atual: 30px. px mede pixels CSS. */
+    width:30px;
+    /* Define a altura. Valor atual: 30px. px mede pixels CSS. */
+    height:30px;
+    /* Define quanto o item encolhe se faltar espaço; 0 impede o encolhimento. Valor atual: 0. */
+    flex-shrink:0;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    padding:0;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border:0;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background:transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Define o tamanho das letras. Valor atual: 0. */
+    font-size:0;
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1. */
+    line-height:1;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor:pointer;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 50%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    border-radius:50%;
+}
+
+/* Seleciona .attachment-toggle::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. */
+.attachment-toggle::before {
+    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: ''. */
+    content:'';
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
+    display:block;
+    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
+    width:18px;
+    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
+    height:18px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: linear-gradient(currentColor,currentColor) center/16px 1.5px no-repeat,linear-gradient(currentColor,currentColor) center/1.5px 16px no-repeat. px mede pixels CSS. currentColor reaproveita color do elemento. */
+    background:linear-gradient(currentColor,currentColor) center/16px 1.5px no-repeat,linear-gradient(currentColor,currentColor) center/1.5px 16px no-repeat;
+}
+
+/* Seleciona .attachment-toggle:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
+.attachment-toggle:hover {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb,var(--text) 7%,transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    background:color-mix(in srgb,var(--text) 7%,transparent);
+}
+
+/* Seleciona .attachment-menu. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.attachment-menu {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
+    position:fixed;
+    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: auto. */
+    inset:auto;
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    margin:0;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
+    padding:10px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border:1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
+    border-radius:16px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background:var(--surface);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text);
+    /* Define a largura. Valor atual: min(340px,calc(100vw - 24px)). calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+    width:min(340px,calc(100vw - 24px));
+}
+
+/* Seleciona .attachment-menu button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.attachment-menu button {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display:flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items:center;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
+    gap:10px;
+    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    width:100%;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
+    padding:10px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border:0;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background:transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: inherit. */
+    color:inherit;
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font:inherit;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor:pointer;
+    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
+    text-align:left;
+}
+
+/* Seleciona .attachment-menu i. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.attachment-menu i {
+    /* Define a largura. Valor atual: 20px. px mede pixels CSS. */
+    width:20px;
+    /* Define a altura. Valor atual: 20px. px mede pixels CSS. */
+    height:20px;
+    /* Define quanto o item encolhe se faltar espaço; 0 impede o encolhimento. Valor atual: 0. */
+    flex-shrink:0;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
+    background:currentColor;
+    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: url('../img/icons/attachments.svg') center/contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    mask:url('../img/icons/attachments.svg') center/contain no-repeat;
+}
+
+/* Seleciona .attachment-menu p. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.attachment-menu p {
+    /* Define o tamanho das letras. Valor atual: 12px. px mede pixels CSS. */
+    font-size:12px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 4px 10px. px mede pixels CSS. */
+    margin:4px 10px;
+}
+
+/* Seleciona .attachment-list. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.attachment-list {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display:flex;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
+    gap:8px;
+    /* Controla se itens flex podem quebrar para outra linha. Valor atual: wrap. */
+    flex-wrap:wrap;
+    /* Define espaço externo abaixo. Valor atual: 12px. px mede pixels CSS. */
+    margin-bottom:12px;
+}
+
+/* Seleciona .attachment-list[hidden]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
+.attachment-list[hidden] {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display:none;
+}
+
+/* Seleciona .attachment-chip. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.attachment-chip {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display:flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items:center;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
+    gap:8px;
+    /* Limita a largura máxima. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    max-width:100%;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 7px 10px. px mede pixels CSS. */
+    padding:7px 10px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border:1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
+    border-radius:10px;
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-body). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-family:var(--font-body);
+    /* Define o tamanho das letras. Valor atual: 13px. px mede pixels CSS. */
+    font-size:13px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+}
+
+/* Seleciona .attachment-chip span. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.attachment-chip span {
+    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
+    overflow:hidden;
+    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
+    text-overflow:ellipsis;
+    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
+    white-space:nowrap;
+}
+
+/* Seleciona .attachment-chip button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.attachment-chip button {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: none. */
+    background:none;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border:0;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Define o tamanho das letras. Valor atual: 20px. px mede pixels CSS. */
+    font-size:20px;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor:pointer;
+}
+
+/* Seleciona .attachment-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.attachment-status {
+    /* Define o tamanho das letras. Valor atual: 13px. px mede pixels CSS. */
+    font-size:13px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+}
+
+/* Seleciona .attachment-status:empty. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.attachment-status:empty {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display:none;
+}
+
+/* Seleciona .computer-message--user .attachment-list. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-message--user .attachment-list {
+    /* Define espaço externo abaixo. Valor atual: 8px. px mede pixels CSS. */
+    margin-bottom:8px;
+}
+
+/* Seleciona .computer-response-reveal. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-response-reveal {
+    /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: computer-response-reveal .2s ease-out both. */
+    animation:computer-response-reveal .2s ease-out both;
+}
+
+/* Animação computer-response-reveal: os blocos internos definem estados no tempo; a propriedade animation define duração e repetição. */
+@keyframes computer-response-reveal {
+    /* Etapa from da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    from {
+        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 0. */
+        opacity:0;
+        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+        color:var(--accent);
+    }
+
+    /* Etapa 20% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    20% {
+        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
+        opacity:1;
+        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+        color:var(--accent);
+    }
+
+    /* Etapa 45% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    45% {
+        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
+        opacity:1;
+        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+        color:var(--accent);
+    }
+
+    /* Etapa to da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    to {
+        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
+        opacity:1;
+        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+        color:var(--text);
+    }
+
+}
+
+/* Condição (prefers-reduced-motion:reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media(prefers-reduced-motion:reduce) {
+    /* Seleciona .computer-response-reveal. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-response-reveal {
+        /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: none. */
+        animation:none;
+        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+        color:var(--text);
+    }
+
+}
+
+/* Seleciona [data-chat-greeting]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+[data-chat-greeting] {
+    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
+    overflow:hidden;
+    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
+    text-overflow:ellipsis;
+}
+
+/* Condição (width<640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media(width<640px) {
+    /* Seleciona .computer-page .home__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-page .home__actions {
+        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
+        gap:8px
+    }
+
+    /* Seleciona .computer-page .home__toolbar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-page .home__toolbar {
+        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
+        gap:8px
+    }
+
+    /* Seleciona .computer-page .home__mode. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-page .home__mode {
+        /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 8px. px mede pixels CSS. */
+        padding-inline:8px;
+        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 5px. px mede pixels CSS. */
+        gap:5px
+    }
+
+}

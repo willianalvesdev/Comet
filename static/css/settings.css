@@ -1,36 +1,886 @@
+/* GUIA DE EDIÇÃO — settings.css
+ * Explicações em português antes de cada seletor e declaração.
+ * A ordem foi preservada: regras posteriores podem sobrescrever as anteriores.
+ * { abre um bloco; } encerra; : separa propriedade e valor; ; termina uma declaração.
+ * Edite os valores do código. Os comentários são documentação e não alteram o visual.
+ */
+/* Seleciona .settings-icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-icon {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-block. */
+    display:inline-block;
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: none. */
+    flex:none;
+    /* Define a largura. Valor atual: 20px. px mede pixels CSS. */
+    width:20px;
+    /* Define a altura. Valor atual: 20px. px mede pixels CSS. */
+    height:20px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
+    background:currentColor;
+    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: var(--icon) center/contain no-repeat. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    mask:var(--icon) center/contain no-repeat
+}
 
-.settings-icon{display:inline-block;flex:none;width:20px;height:20px;background:currentColor;mask:var(--icon) center/contain no-repeat}
-#settings-dialog{padding:0;border:1px solid var(--border);border-radius:30px;background:var(--bg);color:var(--text);width:min(1000px,calc(100vw - 48px));max-width:none;height:min(628px,calc(100dvh - 48px));max-height:none;overflow:hidden;margin:auto;font:inherit;font-size:17px}
-#settings-dialog::backdrop{background:rgb(0 0 0 / .45);backdrop-filter:blur(6px)}
-.settings-layout{display:grid;grid-template-columns:325px minmax(0,1fr);height:100%}.settings-sidebar{padding:20px 12px;border-right:1px solid var(--border);overflow:auto}.settings-search{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--border);border-radius:11px;background:var(--surface)}.settings-search input{min-width:0;width:100%;border:0;background:none;color:inherit;font:inherit;outline:none}.settings-sidebar>p{color:var(--text-secondary);font-size:14px;margin:44px 14px 16px}.settings-sidebar nav{display:grid;gap:4px}.settings-sidebar nav button{display:flex;gap:10px;align-items:center;text-align:left;background:none;border:0;border-radius:11px;padding:11px 14px;color:inherit;font:inherit;cursor:pointer}.settings-sidebar nav button[aria-current=true]{background:color-mix(in srgb,var(--text) 7%,transparent)}.settings-sidebar nav button[hidden]{display:none}
-.settings-content{padding:42px 40px;overflow:auto;scrollbar-width:thin}.settings-content h1{font-size:24px;font-weight:400;margin:0 45px 34px 20px}.settings-content h2{font-size:17px;font-weight:400;color:var(--text-secondary);margin:30px 20px 14px}.settings-close{position:absolute;right:20px;top:20px;border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:50%;width:40px;height:40px;font-size:27px;cursor:pointer}.settings-content fieldset{padding:0;border:0;min-width:0}.settings-card{border:1px solid var(--border);border-radius:17px;padding:0 20px;background:var(--surface)}.settings-row{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:76px;padding:16px 0;border-bottom:1px solid var(--border)}.settings-row:last-child{border-bottom:0}.settings-card.settings-row{padding:18px 20px}.settings-row :is(input,select,textarea){width:280px;max-width:50%;box-sizing:border-box;border:1px solid var(--border);border-radius:11px;background:transparent;color:var(--text);font:inherit;padding:10px 12px;color-scheme:inherit}.settings-row textarea{width:360px;min-height:76px;resize:vertical}.settings-row option{background:var(--bg);color:var(--text)}.settings-hint{font-size:14px;color:var(--text-secondary);line-height:1.5;margin:4px 0}.settings-content>form h2+.settings-hint{margin:-6px 20px 16px}.settings-content button:not(.memory-switch){font:inherit;border:1px solid var(--border);border-radius:11px;padding:10px 16px;background:transparent;color:var(--text);cursor:pointer}.settings-actions{display:flex;justify-content:flex-end;margin-top:24px}.settings-actions button{background:var(--text)!important;color:var(--bg)!important}.settings-content :focus-visible,.settings-sidebar button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}#settings-status{color:var(--text-secondary);font-size:14px}.settings-content [hidden]{display:none!important}.settings-content button:disabled{opacity:.5;cursor:default}.memory-switch{flex:none;width:36px;height:20px;border:0;border-radius:20px;padding:3px;background:#777;cursor:pointer}.memory-switch span{display:block;width:14px;height:14px;border-radius:50%;background:white;transition:transform .18s}.memory-switch[aria-checked=true]{background:var(--accent)}.memory-switch[aria-checked=true] span{transform:translateX(16px)}[data-settings-panel=memory] .settings-card+.settings-card{padding:20px;margin-top:24px}#settings-summary{display:block;width:100%;box-sizing:border-box;margin-top:16px;min-height:220px;border:1px solid var(--border);border-radius:10px;background:transparent;color:inherit;font:inherit;padding:12px;resize:vertical}
-@media(max-width:760px){#settings-dialog{width:calc(100vw - 16px);height:calc(100dvh - 16px);border-radius:20px}.settings-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}.settings-sidebar{padding:12px;border-right:0;border-bottom:1px solid var(--border);overflow:hidden}.settings-search{margin-right:48px}.settings-sidebar>p{display:none}.settings-sidebar nav{display:flex;overflow:auto;margin-top:12px}.settings-sidebar nav button{white-space:nowrap;padding:10px;font-size:14px}.settings-close{top:16px;right:14px}.settings-content{padding:24px 16px}.settings-content h1{margin:0 0 24px;font-size:22px}.settings-row{align-items:stretch;flex-direction:column;gap:12px}.settings-row :is(input,select,textarea){max-width:100%;width:100%}.settings-card.settings-row{flex-direction:row;align-items:center}.settings-card.settings-row>div{min-width:0}.settings-content h2{margin-left:0}.settings-card{padding:0 16px}}
+/* Seleciona #settings-dialog. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+#settings-dialog {
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    padding:0;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border:1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 30px. px mede pixels CSS. */
+    border-radius:30px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background:var(--bg);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text);
+    /* Define a largura. Valor atual: min(1000px,calc(100vw - 48px)). calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+    width:min(1000px,calc(100vw - 48px));
+    /* Limita a largura máxima. Valor atual: none. */
+    max-width:none;
+    /* Define a altura. Valor atual: min(628px,calc(100dvh - 48px)). calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+    height:min(628px,calc(100dvh - 48px));
+    /* Limita a altura máxima. Valor atual: none. */
+    max-height:none;
+    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
+    overflow:hidden;
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: auto. */
+    margin:auto;
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font:inherit;
+    /* Define o tamanho das letras. Valor atual: 17px. px mede pixels CSS. */
+    font-size:17px
+}
 
-[data-theme="dark"] #settings-dialog{color-scheme:dark}[data-theme="light"] #settings-dialog{color-scheme:light}@media(max-width:760px){#settings-dialog{font-size:16px}}
+/* Seleciona #settings-dialog::backdrop. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+#settings-dialog::backdrop {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: rgb(0 0 0 / .45). */
+    background:rgb(0 0 0 / .45);
+    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Valor atual: blur(6px). px mede pixels CSS. */
+    backdrop-filter:blur(6px)
+}
+
+/* Seleciona .settings-layout. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-layout {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
+    display:grid;
+    /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: 325px minmax(0,1fr). minmax() define mínimo e máximo de uma faixa do grid. px mede pixels CSS. */
+    grid-template-columns:325px minmax(0,1fr);
+    /* Define a altura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    height:100%
+}
+
+/* Seleciona .settings-sidebar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-sidebar {
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 20px 12px. px mede pixels CSS. */
+    padding:20px 12px;
+    /* Configura a borda direita. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border-right:1px solid var(--border);
+    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: auto. */
+    overflow:auto
+}
+
+/* Seleciona .settings-search. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-search {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display:flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items:center;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
+    gap:10px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px. px mede pixels CSS. */
+    padding:12px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border:1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 11px. px mede pixels CSS. */
+    border-radius:11px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background:var(--surface)
+}
+
+/* Seleciona .settings-search input. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-search input {
+    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
+    min-width:0;
+    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    width:100%;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border:0;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: none. */
+    background:none;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: inherit. */
+    color:inherit;
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font:inherit;
+    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: none. */
+    outline:none
+}
+
+/* Seleciona .settings-sidebar>p. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-sidebar>p {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Define o tamanho das letras. Valor atual: 14px. px mede pixels CSS. */
+    font-size:14px;
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 44px 14px 16px. px mede pixels CSS. */
+    margin:44px 14px 16px
+}
+
+/* Seleciona .settings-sidebar nav. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-sidebar nav {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
+    display:grid;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 4px. px mede pixels CSS. */
+    gap:4px
+}
+
+/* Seleciona .settings-sidebar nav button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-sidebar nav button {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display:flex;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
+    gap:10px;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items:center;
+    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
+    text-align:left;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: none. */
+    background:none;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border:0;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 11px. px mede pixels CSS. */
+    border-radius:11px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 11px 14px. px mede pixels CSS. */
+    padding:11px 14px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: inherit. */
+    color:inherit;
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font:inherit;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor:pointer
+}
+
+/* Seleciona .settings-sidebar nav button[aria-current=true]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
+.settings-sidebar nav button[aria-current=true] {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb,var(--text) 7%,transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    background:color-mix(in srgb,var(--text) 7%,transparent)
+}
+
+/* Seleciona .settings-sidebar nav button[hidden]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
+.settings-sidebar nav button[hidden] {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display:none
+}
+
+/* Seleciona .settings-content. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-content {
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 42px 40px. px mede pixels CSS. */
+    padding:42px 40px;
+    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: auto. */
+    overflow:auto;
+    /* Controla a espessura da barra de rolagem; thin afina e none oculta. Valor atual: thin. */
+    scrollbar-width:thin
+}
+
+/* Seleciona .settings-content h1. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-content h1 {
+    /* Define o tamanho das letras. Valor atual: 24px. px mede pixels CSS. */
+    font-size:24px;
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
+    font-weight:400;
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 45px 34px 20px. px mede pixels CSS. */
+    margin:0 45px 34px 20px
+}
+
+/* Seleciona .settings-content h2. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-content h2 {
+    /* Define o tamanho das letras. Valor atual: 17px. px mede pixels CSS. */
+    font-size:17px;
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
+    font-weight:400;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 30px 20px 14px. px mede pixels CSS. */
+    margin:30px 20px 14px
+}
+
+/* Seleciona .settings-close. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-close {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
+    position:absolute;
+    /* Define o afastamento direito em relação à referência de position. Valor atual: 20px. px mede pixels CSS. */
+    right:20px;
+    /* Define o afastamento superior em relação à referência de position. Valor atual: 20px. px mede pixels CSS. */
+    top:20px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border:1px solid var(--border);
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background:var(--bg);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 50%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    border-radius:50%;
+    /* Define a largura. Valor atual: 40px. px mede pixels CSS. */
+    width:40px;
+    /* Define a altura. Valor atual: 40px. px mede pixels CSS. */
+    height:40px;
+    /* Define o tamanho das letras. Valor atual: 27px. px mede pixels CSS. */
+    font-size:27px;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor:pointer
+}
+
+/* Seleciona .settings-content fieldset. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-content fieldset {
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
+    padding:0;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border:0;
+    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
+    min-width:0
+}
+
+/* Seleciona .settings-card. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-card {
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border:1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 17px. px mede pixels CSS. */
+    border-radius:17px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 20px. px mede pixels CSS. */
+    padding:0 20px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background:var(--surface)
+}
+
+/* Seleciona .settings-row. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-row {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display:flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    align-items:center;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: space-between. */
+    justify-content:space-between;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 24px. px mede pixels CSS. */
+    gap:24px;
+    /* Define a altura mínima. Valor atual: 76px. px mede pixels CSS. */
+    min-height:76px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 16px 0. px mede pixels CSS. */
+    padding:16px 0;
+    /* Configura a borda inferior. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border-bottom:1px solid var(--border)
+}
+
+/* Seleciona .settings-row:last-child. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-row:last-child {
+    /* Configura a borda inferior. Valor atual: 0. */
+    border-bottom:0
+}
+
+/* Seleciona .settings-card.settings-row. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-card.settings-row {
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 18px 20px. px mede pixels CSS. */
+    padding:18px 20px
+}
+
+/* Seleciona .settings-row :is(input,select,textarea). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-row :is(input,select,textarea) {
+    /* Define a largura. Valor atual: 280px. px mede pixels CSS. */
+    width:280px;
+    /* Limita a largura máxima. Valor atual: 50%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    max-width:50%;
+    /* border-box inclui padding e bordas na largura/altura declarada; content-box mede apenas o conteúdo. Valor atual: border-box. */
+    box-sizing:border-box;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border:1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 11px. px mede pixels CSS. */
+    border-radius:11px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background:transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text);
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font:inherit;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px 12px. px mede pixels CSS. */
+    padding:10px 12px;
+    /* Informa o tema de controles nativos e barras de rolagem ao navegador. Valor atual: inherit. */
+    color-scheme:inherit
+}
+
+/* Seleciona .settings-row textarea. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-row textarea {
+    /* Define a largura. Valor atual: 360px. px mede pixels CSS. */
+    width:360px;
+    /* Define a altura mínima. Valor atual: 76px. px mede pixels CSS. */
+    min-height:76px;
+    /* Controla o redimensionamento manual; none remove a alça de ajuste. Valor atual: none. */
+    resize:none
+}
+
+/* Seleciona .settings-row option. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-row option {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background:var(--bg);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text)
+}
+
+/* Seleciona .settings-hint. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-hint {
+    /* Define o tamanho das letras. Valor atual: 14px. px mede pixels CSS. */
+    font-size:14px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.5. */
+    line-height:1.5;
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 4px 0. px mede pixels CSS. */
+    margin:4px 0
+}
+
+/* Seleciona .settings-content>form h2+.settings-hint. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-content>form h2+.settings-hint {
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: -6px 20px 16px. px mede pixels CSS. */
+    margin:-6px 20px 16px
+}
+
+/* Seleciona .settings-content button:not(.memory-switch). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-content button:not(.memory-switch) {
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font:inherit;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border:1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 11px. px mede pixels CSS. */
+    border-radius:11px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px 16px. px mede pixels CSS. */
+    padding:10px 16px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background:transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text);
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor:pointer
+}
+
+/* Seleciona .settings-actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-actions {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+    display:flex;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: flex-end. */
+    justify-content:flex-end;
+    /* Define espaço externo acima. Valor atual: 24px. px mede pixels CSS. */
+    margin-top:24px
+}
+
+/* Seleciona .settings-actions button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-actions button {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--text)!important. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. !important aumenta a prioridade na cascata. */
+    background:var(--text)!important;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--bg)!important. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. !important aumenta a prioridade na cascata. */
+    color:var(--bg)!important
+}
+
+/* Seleciona .settings-content :focus-visible,.settings-sidebar button:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
+.settings-content :focus-visible,.settings-sidebar button:focus-visible {
+    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    outline:2px solid var(--accent);
+    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: 2px. px mede pixels CSS. */
+    outline-offset:2px
+}
+
+/* Seleciona #settings-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+#settings-status {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Define o tamanho das letras. Valor atual: 14px. px mede pixels CSS. */
+    font-size:14px
+}
+
+/* Seleciona .settings-content [hidden]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
+.settings-content [hidden] {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none!important. !important aumenta a prioridade na cascata. */
+    display:none!important
+}
+
+/* Seleciona .settings-content button:disabled. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :disabled: controle desativado. */
+.settings-content button:disabled {
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: .5. */
+    opacity:.5;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: default. */
+    cursor:default
+}
+
+/* Seleciona .memory-switch. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.memory-switch {
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: none. */
+    flex:none;
+    /* Define a largura. Valor atual: 36px. px mede pixels CSS. */
+    width:36px;
+    /* Define a altura. Valor atual: 20px. px mede pixels CSS. */
+    height:20px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    border:0;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 20px. px mede pixels CSS. */
+    border-radius:20px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 3px. px mede pixels CSS. */
+    padding:3px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: #777. */
+    background:#777;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
+    cursor:pointer
+}
+
+/* Seleciona .memory-switch span. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.memory-switch span {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
+    display:block;
+    /* Define a largura. Valor atual: 14px. px mede pixels CSS. */
+    width:14px;
+    /* Define a altura. Valor atual: 14px. px mede pixels CSS. */
+    height:14px;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 50%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    border-radius:50%;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: white. */
+    background:white;
+    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: transform .18s. */
+    transition:transform .18s
+}
+
+/* Seleciona .memory-switch[aria-checked=true]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
+.memory-switch[aria-checked=true] {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    background:var(--accent)
+}
+
+/* Seleciona .memory-switch[aria-checked=true] span. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
+.memory-switch[aria-checked=true] span {
+    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateX(16px). px mede pixels CSS. */
+    transform:translateX(16px)
+}
+
+/* Seleciona [data-settings-panel=memory] .settings-card+.settings-card. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+[data-settings-panel=memory] .settings-card+.settings-card {
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 20px. px mede pixels CSS. */
+    padding:20px;
+    /* Define espaço externo acima. Valor atual: 24px. px mede pixels CSS. */
+    margin-top:24px
+}
+
+/* Seleciona #settings-summary. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+#settings-summary {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
+    display:block;
+    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    width:100%;
+    /* border-box inclui padding e bordas na largura/altura declarada; content-box mede apenas o conteúdo. Valor atual: border-box. */
+    box-sizing:border-box;
+    /* Define espaço externo acima. Valor atual: 16px. px mede pixels CSS. */
+    margin-top:16px;
+    /* Define a altura mínima. Valor atual: 220px. px mede pixels CSS. */
+    min-height:220px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    border:1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
+    border-radius:10px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    background:transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: inherit. */
+    color:inherit;
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
+    font:inherit;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px. px mede pixels CSS. */
+    padding:12px;
+    /* Controla o redimensionamento manual; none remove a alça de ajuste. Valor atual: none. */
+    resize:none
+}
+
+/* Condição (max-width:760px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media(max-width:760px) {
+    /* Seleciona #settings-dialog. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    #settings-dialog {
+        /* Define a largura. Valor atual: calc(100vw - 16px). calc() calcula a medida combinando parcelas. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+        width:calc(100vw - 16px);
+        /* Define a altura. Valor atual: calc(100dvh - 16px). calc() calcula a medida combinando parcelas. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
+        height:calc(100dvh - 16px);
+        /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 20px. px mede pixels CSS. */
+        border-radius:20px
+    }
+
+    /* Seleciona .settings-layout. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-layout {
+        /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: minmax(0,1fr). minmax() define mínimo e máximo de uma faixa do grid. */
+        grid-template-columns:minmax(0,1fr);
+        /* Define as linhas do grid. Valor atual: auto minmax(0,1fr). minmax() define mínimo e máximo de uma faixa do grid. */
+        grid-template-rows:auto minmax(0,1fr)
+    }
+
+    /* Seleciona .settings-sidebar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-sidebar {
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px. px mede pixels CSS. */
+        padding:12px;
+        /* Configura a borda direita. Valor atual: 0. */
+        border-right:0;
+        /* Configura a borda inferior. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+        border-bottom:1px solid var(--border);
+        /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
+        overflow:hidden
+    }
+
+    /* Seleciona .settings-search. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-search {
+        /* Define espaço externo à direita. Valor atual: 48px. px mede pixels CSS. */
+        margin-right:48px
+    }
+
+    /* Seleciona .settings-sidebar>p. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-sidebar>p {
+        /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+        display:none
+    }
+
+    /* Seleciona .settings-sidebar nav. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-sidebar nav {
+        /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
+        display:flex;
+        /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: auto. */
+        overflow:auto;
+        /* Define espaço externo acima. Valor atual: 12px. px mede pixels CSS. */
+        margin-top:12px
+    }
+
+    /* Seleciona .settings-sidebar nav button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-sidebar nav button {
+        /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
+        white-space:nowrap;
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
+        padding:10px;
+        /* Define o tamanho das letras. Valor atual: 14px. px mede pixels CSS. */
+        font-size:14px
+    }
+
+    /* Seleciona .settings-close. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-close {
+        /* Define o afastamento superior em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
+        top:16px;
+        /* Define o afastamento direito em relação à referência de position. Valor atual: 14px. px mede pixels CSS. */
+        right:14px
+    }
+
+    /* Seleciona .settings-content. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-content {
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 24px 16px. px mede pixels CSS. */
+        padding:24px 16px
+    }
+
+    /* Seleciona .settings-content h1. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-content h1 {
+        /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 0 24px. px mede pixels CSS. */
+        margin:0 0 24px;
+        /* Define o tamanho das letras. Valor atual: 22px. px mede pixels CSS. */
+        font-size:22px
+    }
+
+    /* Seleciona .settings-row. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-row {
+        /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: stretch. */
+        align-items:stretch;
+        /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
+        flex-direction:column;
+        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 12px. px mede pixels CSS. */
+        gap:12px
+    }
+
+    /* Seleciona .settings-row :is(input,select,textarea). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-row :is(input,select,textarea) {
+        /* Limita a largura máxima. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+        max-width:100%;
+        /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+        width:100%
+    }
+
+    /* Seleciona .settings-card.settings-row. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-card.settings-row {
+        /* Define o eixo principal: row em linha, column em coluna. Valor atual: row. */
+        flex-direction:row;
+        /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+        align-items:center
+    }
+
+    /* Seleciona .settings-card.settings-row>div. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-card.settings-row>div {
+        /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
+        min-width:0
+    }
+
+    /* Seleciona .settings-content h2. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-content h2 {
+        /* Define espaço externo à esquerda. Valor atual: 0. */
+        margin-left:0
+    }
+
+    /* Seleciona .settings-card. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-card {
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 16px. px mede pixels CSS. */
+        padding:0 16px
+    }
+
+}
+
+/* Seleciona [data-theme="dark"] #settings-dialog. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+[data-theme="dark"] #settings-dialog {
+    /* Informa o tema de controles nativos e barras de rolagem ao navegador. Valor atual: dark. */
+    color-scheme:dark
+}
+
+/* Seleciona [data-theme="light"] #settings-dialog. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+[data-theme="light"] #settings-dialog {
+    /* Informa o tema de controles nativos e barras de rolagem ao navegador. Valor atual: light. */
+    color-scheme:light
+}
+
+/* Condição (max-width:760px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media(max-width:760px) {
+    /* Seleciona #settings-dialog. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    #settings-dialog {
+        /* Define o tamanho das letras. Valor atual: 16px. px mede pixels CSS. */
+        font-size:16px
+    }
+
+}
 
 /* Desktop proportions follow the 1250 × 785 reference at 80% scale. */
+/* Condição (min-width: 761px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (min-width: 761px) {
-    #settings-dialog { box-sizing: border-box; border-radius: 24px; font-size: 14px; }
-    .settings-layout { grid-template-columns: 26% minmax(0, 1fr); }
-    #settings-dialog .settings-icon { width: 16px; height: 16px; }
-    .settings-sidebar { padding: 16px 9px; }
-    .settings-search { gap: 8px; padding: 10px; border-radius: 9px; }
-    .settings-sidebar > p { font-size: 12px; margin: 35px 11px 13px; }
-    .settings-sidebar nav { gap: 3px; }
-    .settings-sidebar nav button { gap: 8px; padding: 9px 11px; border-radius: 9px; }
-    .settings-content { padding: 34px 32px; }
-    .settings-content h1 { font-size: 20px; margin: 0 36px 27px 16px; }
-    .settings-content h2 { font-size: 14px; margin: 24px 16px 11px; }
-    .settings-close { width: 32px; height: 32px; top: 16px; right: 16px; font-size: 22px; }
-    .settings-card { border-radius: 14px; padding: 0 16px; }
-    .settings-row { gap: 19px; min-height: 61px; padding: 13px 0; }
-    .settings-card.settings-row { padding: 14px 16px; }
-    .settings-row :is(input, select, textarea) { width: 224px; border-radius: 9px; padding: 8px 10px; }
-    .settings-row textarea { width: 288px; min-height: 61px; }
-    .settings-hint, #settings-status { font-size: 12px; }
-    .settings-content > form h2 + .settings-hint { margin: -5px 16px 13px; }
-    .settings-content button:not(.memory-switch) { border-radius: 9px; padding: 8px 13px; }
-    .settings-actions { margin-top: 19px; }
-    [data-settings-panel=memory] .settings-card + .settings-card { padding: 16px; margin-top: 19px; }
-    #settings-summary { margin-top: 13px; min-height: 176px; padding: 10px; }
+    /* Seleciona #settings-dialog. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    #settings-dialog {
+        /* border-box inclui padding e bordas na largura/altura declarada; content-box mede apenas o conteúdo. Valor atual: border-box. */
+        box-sizing: border-box;
+        /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 24px. px mede pixels CSS. */
+        border-radius: 24px;
+        /* Define o tamanho das letras. Valor atual: 14px. px mede pixels CSS. */
+        font-size: 14px;
+    }
+
+    /* Seleciona .settings-layout. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-layout {
+        /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: 26% minmax(0, 1fr). minmax() define mínimo e máximo de uma faixa do grid. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+        grid-template-columns: 26% minmax(0, 1fr);
+    }
+
+    /* Seleciona #settings-dialog .settings-icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    #settings-dialog .settings-icon {
+        /* Define a largura. Valor atual: 16px. px mede pixels CSS. */
+        width: 16px;
+        /* Define a altura. Valor atual: 16px. px mede pixels CSS. */
+        height: 16px;
+    }
+
+    /* Seleciona .settings-sidebar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-sidebar {
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 16px 9px. px mede pixels CSS. */
+        padding: 16px 9px;
+    }
+
+    /* Seleciona .settings-search. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-search {
+        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
+        gap: 8px;
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
+        padding: 10px;
+        /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 9px. px mede pixels CSS. */
+        border-radius: 9px;
+    }
+
+    /* Seleciona .settings-sidebar > p. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-sidebar > p {
+        /* Define o tamanho das letras. Valor atual: 12px. px mede pixels CSS. */
+        font-size: 12px;
+        /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 35px 11px 13px. px mede pixels CSS. */
+        margin: 35px 11px 13px;
+    }
+
+    /* Seleciona .settings-sidebar nav. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-sidebar nav {
+        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 3px. px mede pixels CSS. */
+        gap: 3px;
+    }
+
+    /* Seleciona .settings-sidebar nav button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-sidebar nav button {
+        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
+        gap: 8px;
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 9px 11px. px mede pixels CSS. */
+        padding: 9px 11px;
+        /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 9px. px mede pixels CSS. */
+        border-radius: 9px;
+    }
+
+    /* Seleciona .settings-content. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-content {
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 34px 32px. px mede pixels CSS. */
+        padding: 34px 32px;
+    }
+
+    /* Seleciona .settings-content h1. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-content h1 {
+        /* Define o tamanho das letras. Valor atual: 20px. px mede pixels CSS. */
+        font-size: 20px;
+        /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 36px 27px 16px. px mede pixels CSS. */
+        margin: 0 36px 27px 16px;
+    }
+
+    /* Seleciona .settings-content h2. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-content h2 {
+        /* Define o tamanho das letras. Valor atual: 14px. px mede pixels CSS. */
+        font-size: 14px;
+        /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 24px 16px 11px. px mede pixels CSS. */
+        margin: 24px 16px 11px;
+    }
+
+    /* Seleciona .settings-close. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-close {
+        /* Define a largura. Valor atual: 32px. px mede pixels CSS. */
+        width: 32px;
+        /* Define a altura. Valor atual: 32px. px mede pixels CSS. */
+        height: 32px;
+        /* Define o afastamento superior em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
+        top: 16px;
+        /* Define o afastamento direito em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
+        right: 16px;
+        /* Define o tamanho das letras. Valor atual: 22px. px mede pixels CSS. */
+        font-size: 22px;
+    }
+
+    /* Seleciona .settings-card. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-card {
+        /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 14px. px mede pixels CSS. */
+        border-radius: 14px;
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 16px. px mede pixels CSS. */
+        padding: 0 16px;
+    }
+
+    /* Seleciona .settings-row. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-row {
+        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 19px. px mede pixels CSS. */
+        gap: 19px;
+        /* Define a altura mínima. Valor atual: 61px. px mede pixels CSS. */
+        min-height: 61px;
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 13px 0. px mede pixels CSS. */
+        padding: 13px 0;
+    }
+
+    /* Seleciona .settings-card.settings-row. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-card.settings-row {
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 14px 16px. px mede pixels CSS. */
+        padding: 14px 16px;
+    }
+
+    /* Seleciona .settings-row :is(input, select, textarea). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-row :is(input, select, textarea) {
+        /* Define a largura. Valor atual: 224px. px mede pixels CSS. */
+        width: 224px;
+        /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 9px. px mede pixels CSS. */
+        border-radius: 9px;
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px 10px. px mede pixels CSS. */
+        padding: 8px 10px;
+    }
+
+    /* Seleciona .settings-row textarea. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-row textarea {
+        /* Define a largura. Valor atual: 288px. px mede pixels CSS. */
+        width: 288px;
+        /* Define a altura mínima. Valor atual: 61px. px mede pixels CSS. */
+        min-height: 61px;
+    }
+
+    /* Seleciona .settings-hint, #settings-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-hint, #settings-status {
+        /* Define o tamanho das letras. Valor atual: 12px. px mede pixels CSS. */
+        font-size: 12px;
+    }
+
+    /* Seleciona .settings-content > form h2 + .settings-hint. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-content > form h2 + .settings-hint {
+        /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: -5px 16px 13px. px mede pixels CSS. */
+        margin: -5px 16px 13px;
+    }
+
+    /* Seleciona .settings-content button:not(.memory-switch). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-content button:not(.memory-switch) {
+        /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 9px. px mede pixels CSS. */
+        border-radius: 9px;
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px 13px. px mede pixels CSS. */
+        padding: 8px 13px;
+    }
+
+    /* Seleciona .settings-actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-actions {
+        /* Define espaço externo acima. Valor atual: 19px. px mede pixels CSS. */
+        margin-top: 19px;
+    }
+
+    /* Seleciona [data-settings-panel=memory] .settings-card + .settings-card. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    [data-settings-panel=memory] .settings-card + .settings-card {
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 16px. px mede pixels CSS. */
+        padding: 16px;
+        /* Define espaço externo acima. Valor atual: 19px. px mede pixels CSS. */
+        margin-top: 19px;
+    }
+
+    /* Seleciona #settings-summary. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    #settings-summary {
+        /* Define espaço externo acima. Valor atual: 13px. px mede pixels CSS. */
+        margin-top: 13px;
+        /* Define a altura mínima. Valor atual: 176px. px mede pixels CSS. */
+        min-height: 176px;
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
+        padding: 10px;
+    }
+
+}
+
+/* Seleciona .settings-account-avatar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-account-avatar {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
+    display:grid;
+    /* Atalho de align-items e justify-items; center centraliza nos dois eixos. Valor atual: center. */
+    place-items:center;
+    /* Define a largura. Valor atual: 32px. px mede pixels CSS. */
+    width:32px;
+    /* Define a altura. Valor atual: 32px. px mede pixels CSS. */
+    height:32px;
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 32px. px mede pixels CSS. */
+    flex:0 0 32px;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 50%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    border-radius:50%;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb,var(--accent) 24%,var(--surface)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    background:color-mix(in srgb,var(--accent) 24%,var(--surface));
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text);
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-body). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-family:var(--font-body);
+}
+
+/* Seleciona .settings-account-email. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-account-email {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color:var(--text-secondary);
+    /* Controla a quebra de palavras longas para evitar transbordamento. Valor atual: anywhere. */
+    overflow-wrap:anywhere;
+    /* Alinha o conteúdo textual na caixa. Valor atual: right. */
+    text-align:right;
+    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
+    min-width:0;
+}
+
+/* Seleciona .settings-content .settings-account-heading. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.settings-content .settings-account-heading {
+    /* Define espaço externo acima. Valor atual: 0. */
+    margin-top:0;
+}
+
+/* Condição (width < 761px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media(width < 761px) {
+    /* Seleciona .settings-account-email. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .settings-account-email {
+        /* Alinha o conteúdo textual na caixa. Valor atual: left. */
+        text-align:left;
+    }
+
 }

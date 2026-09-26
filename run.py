@@ -3,6 +3,7 @@ import os
 import sys
 import threading
 import webbrowser
+from datetime import datetime, timezone
 
 import mysql.connector
 from waitress import create_server
@@ -12,6 +13,7 @@ from ascenda import create_app, db
 app = create_app()
 
 if __name__ == '__main__':
+    started_at = datetime.now(timezone.utc).replace(tzinfo=None)
     try:
         with app.app_context(), db.cursor() as cur:
             cur.execute('SELECT id FROM usuarios LIMIT 0')
@@ -23,6 +25,12 @@ if __name__ == '__main__':
     host = os.getenv('APP_HOST', '127.0.0.1')
     port = int(os.getenv('APP_PORT', '5001'))
     server = create_server(app, host=host, port=port, threads=4)
+    # Bind first: a second launch on the same port must not clear a live response.
+    try:
+        app.extensions['ascenda_conversations'].recover_interrupted(started_at)
+    except Exception:
+        server.close()
+        raise
     print(f'Ascenda disponível em http://{host}:{port}', flush=True)
     print('Mantenha esta janela aberta. Para encerrar, pressione Ctrl+C.', flush=True)
     if '--open-browser' in sys.argv:

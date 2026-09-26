@@ -70,20 +70,64 @@
 <path d="M23.9307 10.2129V13.7946C23.9307 14.8996 24.8264 15.7953 25.9313 15.7953C27.0363 15.7953 27.9319 14.8996 27.9319 13.7946V10.2129C27.9319 9.10797 27.0363 8.21228 25.9313 8.21228C24.8264 8.21228 23.9307 9.10797 23.9307 10.2129Z" fill="currentColor"/>
 </g>
 <style>
+/* GUIA DE EDIÇÃO — index.html — estilos internos
+ * Explicações em português antes de cada seletor e declaração.
+ * A ordem foi preservada: regras posteriores podem sobrescrever as anteriores.
+ * { abre um bloco; } encerra; : separa propriedade e valor; ; termina uma declaração.
+ * Edite os valores do código. Os comentários são documentação e não alteram o visual.
+ */
+/* Seleciona .computer-eyes. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-eyes {
+    /* Define a caixa de referência da transformação; fill-box usa a área desenhada do SVG. Valor atual: fill-box. */
     transform-box: fill-box;
+    /* Define o ponto usado como origem de escala e rotação. Valor atual: center. */
     transform-origin: center;
+    /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: computer-look 10s ease-in-out infinite. */
     animation: computer-look 10s ease-in-out infinite;
 }
+
+/* Animação computer-look: os blocos internos definem estados no tempo; a propriedade animation define duração e repetição. */
 @keyframes computer-look {
-    0%, 100% { transform: translateX(0) scaleY(1); }
-    15%, 28%, 34%, 42% { transform: translateX(-3px) scaleY(1); }
-    31% { transform: translateX(-3px) scaleY(.12); }
-    65%, 78%, 84%, 92% { transform: translateX(3px) scaleY(1); }
-    81% { transform: translateX(3px) scaleY(.12); }
+    /* Etapa 0%, 100% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    0%, 100% {
+        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateX(0) scaleY(1). */
+        transform: translateX(0) scaleY(1);
+    }
+
+    /* Etapa 15%, 28%, 34%, 42% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    15%, 28%, 34%, 42% {
+        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateX(-3px) scaleY(1). px mede pixels CSS. */
+        transform: translateX(-3px) scaleY(1);
+    }
+
+    /* Etapa 31% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    31% {
+        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateX(-3px) scaleY(.12). px mede pixels CSS. */
+        transform: translateX(-3px) scaleY(.12);
+    }
+
+    /* Etapa 65%, 78%, 84%, 92% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    65%, 78%, 84%, 92% {
+        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateX(3px) scaleY(1). px mede pixels CSS. */
+        transform: translateX(3px) scaleY(1);
+    }
+
+    /* Etapa 81% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    81% {
+        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateX(3px) scaleY(.12). px mede pixels CSS. */
+        transform: translateX(3px) scaleY(.12);
+    }
+
 }
+
+/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (prefers-reduced-motion: reduce) {
-    .computer-eyes { animation: none; }
+    /* Seleciona .computer-eyes. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-eyes {
+        /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: none. */
+        animation: none;
+    }
+
 }
 </style>
 </svg>

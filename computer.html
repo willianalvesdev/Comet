@@ -16,7 +16,10 @@
     <link rel="stylesheet" href="./static/css/home.css">
     <link rel="stylesheet" href="./static/css/computer.css">
     <link rel="stylesheet" href="/static/css/sessions.css">
+    <link rel="stylesheet" href="/static/css/chat-search.css">
+    <script src="/static/js/chat-search.js" defer></script>
     <script src="/static/js/sessions.js" defer></script>
+    <script src="/static/js/chat-preview.js" defer></script>
     <script src="./static/js/computer-service.js" defer></script>
     <script src="./static/js/model-menu.js" defer></script>
     <script src="./static/js/computer.js" defer></script>
@@ -35,20 +38,11 @@
         </div>
 
         <nav class="sidebar__nav" id="sidebar-nav" aria-label="Navegação principal">
-            <a class="sidebar__link" href="./principal.html" aria-label="Novo" title="Novo"><span class="sidebar__new-icon" aria-hidden="true"></span><span class="sidebar__label">Novo</span></a>
-            <a class="sidebar__link" href="./computer.html" aria-label="Computer" title="Computer" aria-current="page">
-                <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <rect x="4" y="4" width="16" height="12" rx="2"/>
-                    <path d="M2 20h20M9 8v4m6-4v4"/>
-                </svg>
-                <span class="sidebar__label">Computer</span>
-            </a>
+            <a class="sidebar__link" href="./computer.html?new=1" aria-label="Novo chat" title="Novo chat"><span class="sidebar__new-icon" aria-hidden="true"></span><span class="sidebar__label">Novo chat</span></a>
 
-            <a class="sidebar__link" href="./graficos.html" aria-label="Gráficos" title="Gráficos">
-                <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M3 3v18h18M6 15l4-5 4 3 6-8"/>
-                </svg>
-                <span class="sidebar__label">Gráficos</span>
+
+            <a class="sidebar__link" href="./graficos.html" aria-label="Finanças" title="Finanças"><span class="sidebar__icon sidebar__finance-icon" aria-hidden="true"></span>
+                <span class="sidebar__label">Finanças</span>
             </a>
             <a class="sidebar__link" href="./descobrir.html" aria-label="Descobrir" title="Descobrir"><span class="sidebar__icon sidebar__discover-icon" aria-hidden="true"></span><span class="sidebar__label">Descobrir</span></a>
 
@@ -94,23 +88,95 @@
     <main class="workspace__content" aria-label="Área de trabalho">
         <header class="workspace__header computer-header">
             <button class="workspace__menu-toggle" type="button" aria-label="Abrir menu" aria-controls="sidebar" aria-expanded="false"><span class="sidebar__toggle-icon" aria-hidden="true"></span></button>
-            <a class="workspace__header-button computer-header__back" href="./principal.html" aria-label="Voltar para Novo"><i class="ui-arrow ui-arrow--left" aria-hidden="true"></i></a>
-            <span class="computer-header__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M2 20h20M9 8v4m6-4v4"/></svg><span>Welcome to Computer</span></span>
         </header>
 
         <section class="computer-page" aria-labelledby="computer-title">
             <div class="computer-intro">
-                <h1 id="computer-title"><span class="computer-intro__logo" aria-hidden="true"></span><span>O que vamos criar hoje?</span></h1>
+                <h1 id="computer-title"><svg class="computer-intro__animated-logo" aria-hidden="true" width="44" height="36" viewBox="0 0 44 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M35.9999 6.00192C35.9999 4.89618 35.1026 4.00128 33.9992 4.00128H9.9986C8.8952 4.00128 7.99796 4.89618 7.99796 6.00192V22.0047C7.99796 23.1104 8.8952 24.0053 9.9986 24.0053H33.9992C35.1026 24.0053 35.9999 23.1104 35.9999 22.0047V6.00192ZM39.9988 22.0047C39.9988 25.3196 37.3118 28.0066 33.9992 28.0066H9.9986C6.68606 28.0066 3.99902 25.3196 3.99902 22.0047V6.00192C3.99902 2.68704 6.68606 0 9.9986 0H33.9992C37.3118 0 39.9988 2.68704 39.9988 6.00192V22.0047Z" fill="currentColor"/>
+<path d="M41.9994 32.0079C43.1028 32.0079 44 32.9052 44 34.0086C44 35.1143 43.1028 36.0092 41.9994 36.0092H1.9983C0.894899 36.0092 0 35.1143 0 34.0086C0 32.9028 0.894899 32.0079 1.9983 32.0079H41.9994Z" fill="currentColor"/>
+<g class="computer-eyes">
+<path d="M15.9307 10.2129V13.7946C15.9307 14.8996 16.8264 15.7953 17.9313 15.7953C19.0363 15.7953 19.9319 14.8996 19.9319 13.7946V10.2129C19.9319 9.10797 19.0363 8.21228 17.9313 8.21228C16.8264 8.21228 15.9307 9.10797 15.9307 10.2129Z" fill="currentColor"/>
+<path d="M23.9307 10.2129V13.7946C23.9307 14.8996 24.8264 15.7953 25.9313 15.7953C27.0363 15.7953 27.9319 14.8996 27.9319 13.7946V10.2129C27.9319 9.10797 27.0363 8.21228 25.9313 8.21228C24.8264 8.21228 23.9307 9.10797 23.9307 10.2129Z" fill="currentColor"/>
+</g>
+<style>
+/* GUIA DE EDIÇÃO — computer.html — estilos internos
+ * Explicações em português antes de cada seletor e declaração.
+ * A ordem foi preservada: regras posteriores podem sobrescrever as anteriores.
+ * { abre um bloco; } encerra; : separa propriedade e valor; ; termina uma declaração.
+ * Edite os valores do código. Os comentários são documentação e não alteram o visual.
+ */
+/* Seleciona .computer-eyes. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.computer-eyes {
+    /* Define a caixa de referência da transformação; fill-box usa a área desenhada do SVG. Valor atual: fill-box. */
+    transform-box: fill-box;
+    /* Define o ponto usado como origem de escala e rotação. Valor atual: center. */
+    transform-origin: center;
+    /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: computer-look 10s ease-in-out infinite. */
+    animation: computer-look 10s ease-in-out infinite;
+}
+
+/* Animação computer-look: os blocos internos definem estados no tempo; a propriedade animation define duração e repetição. */
+@keyframes computer-look {
+    /* Etapa 0%, 100% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    0%, 100% {
+        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateX(0) scaleY(1). */
+        transform: translateX(0) scaleY(1);
+    }
+
+    /* Etapa 15%, 28%, 34%, 42% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    15%, 28%, 34%, 42% {
+        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateX(-3px) scaleY(1). px mede pixels CSS. */
+        transform: translateX(-3px) scaleY(1);
+    }
+
+    /* Etapa 31% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    31% {
+        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateX(-3px) scaleY(.12). px mede pixels CSS. */
+        transform: translateX(-3px) scaleY(.12);
+    }
+
+    /* Etapa 65%, 78%, 84%, 92% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    65%, 78%, 84%, 92% {
+        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateX(3px) scaleY(1). px mede pixels CSS. */
+        transform: translateX(3px) scaleY(1);
+    }
+
+    /* Etapa 81% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
+    81% {
+        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateX(3px) scaleY(.12). px mede pixels CSS. */
+        transform: translateX(3px) scaleY(.12);
+    }
+
+}
+
+/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
+@media (prefers-reduced-motion: reduce) {
+    /* Seleciona .computer-eyes. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+    .computer-eyes {
+        /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: none. */
+        animation: none;
+    }
+
+}
+</style>
+</svg>
+<span data-chat-greeting data-account-name="{{ user.nome }}" data-account-id="{{ user.id }}">Olá</span></h1>
             </div>
             <button class="computer-history__older" type="button" hidden>Carregar mensagens anteriores</button>
             <section class="computer-messages" aria-label="Conversa com Computer" aria-live="polite" aria-relevant="additions text" hidden></section>
             <div class="computer-composer">
                 <form class="home__composer" aria-label="Escrever uma mensagem">
                     <p class="home__dictation-status" role="status" aria-live="polite" id="dictation-status"></p>
+                    <div class="attachment-list" aria-label="Arquivos anexados" hidden></div>
+                    <p class="attachment-status" role="status"></p>
                     <textarea class="home__input" aria-label="Mensagem" placeholder="Faça qualquer coisa..." rows="2" maxlength="8000" readonly></textarea>
                     <div class="home__toolbar">
                         <div class="home__modes" role="group" aria-label="Modo da mensagem">
-                            <button class="home__mode" type="button" data-composer-mode="computer" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M2 20h20M9 8v4m6-4v4"/></svg><span>Computer</span></button>
+                            <button class="attachment-toggle" type="button" popovertarget="attachment-menu" aria-label="Adicionar arquivos ou imagens">+</button>
+                            <div id="attachment-menu" class="attachment-menu" popover><button type="button" data-upload-files><i aria-hidden="true"></i>Enviar arquivos ou imagens</button><p>PNG, JPG, WebP, PDF, DOCX ou texto · até 8 MB</p></div>
+                            <input id="attachment-input" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.docx,.txt,.md,.csv,.json,.py,.js,.html,.css,.log" hidden>
+                            <button class="home__mode" type="button" data-composer-mode="computer" aria-pressed="true"><i class="computer-icon" aria-hidden="true"></i><span>Computer</span></button>
                         </div>
                         <div class="home__actions">
                             <button class="model-picker" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="computer-model-menu" title="Escolher modelo (Qwen selecionado)"><span>Qwen</span><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -132,5 +198,8 @@
         <iframe title="Notícias do Descobrir" data-src="/descobrir.html?panel=1"></iframe>
     </dialog>
 {% include 'settings.html' %}
+<script src="/static/js/message-navigator.js" defer></script>
+<script src="/static/js/chat-greeting.js" defer></script>
+<script src="/static/js/attachments.js" defer></script>
 </body>
 </html>

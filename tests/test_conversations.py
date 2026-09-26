@@ -117,6 +117,31 @@ class ConversationPersistenceTests(unittest.TestCase):
         self.store.save(self.ids[0], newer, 'OK', '', 'completed')
         self.assertEqual(len(self.store.list(self.ids[0])['conversations']), 1)
 
+    def test_restart_recovers_partial_response_and_allows_delete_and_send(self):
+        from datetime import datetime
+        interrupted = self.store.begin(self.ids[0], self.payload('Interrompida'), self.service.config)
+        cid = interrupted['conversation_id']
+        self.store.save(self.ids[0], interrupted, 'Resposta parcial', 'Resumo parcial', 'running')
+        untouched = self.store.begin(self.ids[1], self.payload('Ainda ativa'), self.service.config)
+        # Only the test conversation predates this historical startup cutoff.
+        with self.store.cursor() as cur:
+            cur.execute("UPDATE computer_conversas SET atualizado_em='2000-01-01' WHERE id=%s", (cid,))
+        self.assertEqual(self.store.recover_interrupted(datetime(2001, 1, 1)), 1)
+        self.assertEqual(self.store.recover_interrupted(datetime(2001, 1, 1)), 0)
+        restored = self.store.get(self.ids[0], cid)
+        self.assertFalse(restored['active'])
+        self.assertEqual(restored['turns'][0]['status'], 'interrupted')
+        self.assertEqual(restored['turns'][0]['answer'], 'Resposta parcial')
+        self.assertEqual(restored['turns'][0]['thinking'], 'Resumo parcial')
+        self.assertTrue(self.store.get(self.ids[1], untouched['conversation_id'])['active'])
+        with self.assertRaises(AIError):
+            self.store.save(self.ids[0], interrupted, 'Resposta atrasada', '', 'completed')
+        next_turn = self.store.begin(self.ids[0], self.payload('Continuar', cid), self.service.config)
+        self.assertEqual(next_turn['messages'], [{'role': 'user', 'content': 'Continuar'}])
+        self.store.save(self.ids[0], next_turn, 'Nova resposta', '', 'completed')
+        self.store.change(self.ids[0], cid, delete=True)
+        self.store.save(self.ids[1], untouched, 'OK', '', 'completed')
+
     def test_rename_delete_ownership_csrf_and_active_conversation(self):
         turn = self.store.begin(self.ids[0], self.payload(), self.service.config)
         cid = turn['conversation_id']
@@ -167,7 +192,123 @@ class ConversationPersistenceTests(unittest.TestCase):
         self.assertIsNone(second['next_offset'])
         self.assertFalse(set(c['id'] for c in first['conversations']) & set(c['id'] for c in second['conversations']))
 
+    def test_preview_returns_first_turn_and_checks_ownership(self):
+        first = self.store.begin(self.ids[0], self.payload('Primeira pergunta'), self.service.config)
+        cid = first['conversation_id']
+        self.store.save(self.ids[0], first, 'Primeira resposta', '', 'completed')
+        with self.store.cursor() as cur:
+            cur.executemany("INSERT INTO computer_mensagens (conversa_id,requisicao_id,pergunta,resposta,pensamento,estado) VALUES (%s,%s,%s,'Outra resposta','','completed')",
+                            [(cid, str(uuid4()), 'Outra pergunta') for _ in range(35)])
+        path = '/api/ai/conversations/' + cid + '/preview'
+        response = self.clients[0].get(path)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json['message'], 'Primeira pergunta')
+        self.assertEqual(response.json['answer'], 'Primeira resposta')
+        self.assertTrue(response.json['created_at'].endswith('Z'))
+        self.assertEqual(response.headers['Cache-Control'], 'no-store')
+        self.assertEqual(self.clients[1].get(path).status_code, 404)
+        self.assertEqual(self.app.test_client().get(path).status_code, 401)
 
+    def test_chat_search_is_owned_literal_and_paginated(self):
+        with self.store.cursor() as cur:
+            cur.executemany('INSERT INTO computer_conversas (usuario_id,titulo) VALUES (%s,%s)',
+                            [(self.ids[0], 'Viagem ' + str(i)) for i in range(55)] +
+                            [(self.ids[0], 'Meta 10%_!'), (self.ids[1], 'Viagem privada')])
+        first = self.clients[0].get('/api/ai/conversations', query_string={'q': 'viagem'}).json
+        self.assertEqual(len(first['conversations']), 50)
+        second = self.clients[0].get('/api/ai/conversations', query_string={'q': 'viagem', 'offset': first['next_offset']}).json
+        self.assertEqual(len(second['conversations']), 5)
+        self.assertIsNone(second['next_offset'])
+        self.assertNotIn('Viagem privada', [c['title'] for c in first['conversations'] + second['conversations']])
+        literal = self.clients[0].get('/api/ai/conversations', query_string={'q': '%_!'}).json
+        self.assertEqual([c['title'] for c in literal['conversations']], ['Meta 10%_!'])
+        self.assertEqual(self.clients[0].get('/api/ai/conversations', query_string={'q': 'inexistente'}).json['conversations'], [])
+        self.assertEqual(self.clients[0].get('/api/ai/conversations', query_string={'q': 'x' * 101}).status_code, 422)
+        self.assertEqual(self.app.test_client().get('/api/ai/conversations?q=viagem').status_code, 401)
+
+
+
+
+    def test_edit_keeps_session_and_removes_following_messages(self):
+        first=self.store.begin(self.ids[0],self.payload('Primeira'),self.service.config)
+        self.store.save(self.ids[0],first,'Resposta um','','completed')
+        cid=first['conversation_id']
+        second=self.store.begin(self.ids[0],self.payload('Segunda',cid),self.service.config)
+        self.store.save(self.ids[0],second,'Resposta dois','','completed')
+        third=self.store.begin(self.ids[0],self.payload('Terceira',cid),self.service.config)
+        self.store.save(self.ids[0],third,'Resposta três','','completed')
+        path=f"/api/ai/conversations/{cid}/messages/{second['turn_id']}/edit"
+        self.assertEqual(self.clients[1].post(path,headers={'X-CSRFToken':self.tokens[1]}).status_code,404)
+        self.assertEqual(self.clients[0].post(path).status_code,400)
+        response=self.clients[0].post(path,headers={'X-CSRFToken':self.tokens[0]})
+        self.assertEqual(response.status_code,200)
+        branch=self.store.get(self.ids[0],response.json['conversation_id'])
+        self.assertEqual([t['message'] for t in branch['turns']],['Primeira'])
+        self.assertEqual(response.json['conversation_id'],cid)
+        self.assertEqual(len(self.store.list(self.ids[0])['conversations']),1)
+        self.assertIn('created_at',branch['turns'][0])
+        replacement=self.store.begin(self.ids[0],self.payload('Pergunta corrigida',cid),self.service.config)
+        self.assertEqual([m['content'] for m in replacement['messages']],['Primeira','Resposta um','Pergunta corrigida'])
+        self.store.save(self.ids[0],replacement,'Nova resposta','','completed')
+
+
+    def test_attachment_upload_owner_context_and_gemini_routing(self):
+        import io
+        import tempfile
+        from pathlib import Path
+        from ascenda.ai.attachments import AttachmentStore
+        with tempfile.TemporaryDirectory() as directory:
+            # The route and store share this object.
+            original_root=self.store.attachments.root
+            self.store.attachments.root=Path(directory)
+            try:
+                headers={'X-CSRFToken':self.tokens[0]}
+                upload=self.clients[0].post('/api/ai/attachments',data={'file':(io.BytesIO(b'Receita: 3500. Despesas: 2100.'),'contas.txt')},headers=headers)
+                self.assertEqual(upload.status_code,200)
+                attachment=upload.json
+                self.assertNotIn('text',attachment)
+                payload={**self.payload('Analise minhas contas'),'provider':'qwen','attachments':[attachment['id']]}
+                self.assertEqual(self.post(payload,actor=1).status_code,404)
+                def answer(messages):
+                    self.assertIn('Receita: 3500',messages[-1]['content'])
+                    yield {'type':'delta','text':'Seu saldo é 1400.'}
+                with patch.object(self.service.providers['gemini'],'stream',side_effect=answer) as gemini,patch.object(self.service.providers['qwen'],'stream') as local:
+                    events=[json.loads(line) for line in self.post(payload).data.splitlines()]
+                    self.assertEqual(events[-1]['type'],'done')
+                    self.assertEqual(events[0]['provider'],'gemini')
+                    local.assert_not_called()
+                cid=events[0]['conversation_id']
+                stored=self.store.get(self.ids[0],cid)
+                self.assertEqual(stored['turns'][0]['message'],'Analise minhas contas')
+                self.assertEqual(stored['turns'][0]['attachments'][0]['name'],'contas.txt')
+                def followup(messages):
+                    yield {'type':'delta','text':'Sim.'}
+                with patch.object(self.service.providers['gemini'],'stream',side_effect=followup) as gemini:
+                    self.post(self.payload('Qual era a receita?',cid)).get_data()
+                    self.assertIn('3500',str(gemini.call_args.args[0]))
+            finally:
+                self.store.attachments.root=original_root
+
+    def test_image_upload_normalization_and_invalid_files(self):
+        import io
+        import tempfile
+        from pathlib import Path
+        from PIL import Image
+        with tempfile.TemporaryDirectory() as directory:
+            original_root=self.store.attachments.root;self.store.attachments.root=Path(directory)
+            try:
+                headers={'X-CSRFToken':self.tokens[0]}
+                image=io.BytesIO();Image.new('RGB',(24,24),'red').save(image,format='PNG');image.seek(0)
+                result=self.clients[0].post('/api/ai/attachments',data={'file':(image,'imagem.png')},headers=headers)
+                self.assertEqual(result.status_code,200)
+                data=self.store.attachments.message(self.ids[0],'Descreva',[result.json['id']])
+                self.assertEqual(len(data['images']),1)
+                self.assertTrue(data['images'][0].startswith('/9j/'))
+                self.assertEqual(self.clients[0].post('/api/ai/attachments',data={'file':(io.BytesIO(b'fake'),'fake.png')},headers=headers).status_code,422)
+                self.assertEqual(self.clients[0].post('/api/ai/attachments',data={'file':(io.BytesIO(b'fake'),'fake.exe')},headers=headers).status_code,422)
+                self.assertEqual(self.clients[0].post('/api/ai/attachments',data={'file':(io.BytesIO(b'x'*200000),'big.txt')},headers=headers).status_code,422)
+                self.assertEqual(self.clients[0].post('/api/ai/attachments',data={'file':(io.BytesIO(b'hello'),'test.txt')}).status_code,400)
+            finally:self.store.attachments.root=original_root
 
 if __name__ == '__main__':
     unittest.main()

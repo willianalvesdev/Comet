@@ -1,5 +1,11 @@
 """Safe messages for the UI; technical exceptions stay in server logs."""
 MESSAGES = {
+    'attachment_size': 'Cada arquivo pode ter até 8 MB.',
+    'attachment_type': 'Envie PNG, JPG, WebP, PDF, DOCX ou arquivos de texto.',
+    'attachment_content': 'Não foi possível ler o arquivo. Use um documento com texto selecionável, até 40 páginas e 20 mil caracteres, ou envie uma imagem.',
+    'attachment_missing': 'Este anexo não está disponível na sua conta. Envie o arquivo novamente.',
+    'attachment_total': 'Os arquivos juntos devem ter até 30 mil caracteres de texto. Envie menos arquivos.',
+
     'invalid_personalization': 'Confira os campos e os limites de tamanho da personalização.',
     'personalization_changed': 'A memória mudou desde que você abriu esta página. Recarregue para ver a versão atual antes de salvar.',
 

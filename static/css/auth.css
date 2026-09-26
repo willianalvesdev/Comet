@@ -1,238 +1,429 @@
+/* GUIA DE EDIÇÃO — auth.css
+ * Explicações em português antes de cada seletor e declaração.
+ * A ordem foi preservada: regras posteriores podem sobrescrever as anteriores.
+ * { abre um bloco; } encerra; : separa propriedade e valor; ; termina uma declaração.
+ * Edite os valores do código. Os comentários são documentação e não alteram o visual.
+ */
+/* Seleciona .auth. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth {
+    /* Define a largura. Valor atual: min(760px, calc(100% - 32px)). calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: min(760px, calc(100% - 32px));
+    /* Limita a altura máxima. Valor atual: calc(100svh - 32px). calc() calcula a medida combinando parcelas. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
     max-height: calc(100svh - 32px);
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: auto. */
     margin: auto;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 76px 48px 64px. px mede pixels CSS. */
     padding: 76px 48px 64px;
+    /* Controla o transbordamento vertical. Valor atual: auto. */
     overflow-y: auto;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
     border-radius: 10px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     background: var(--bg);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
+    /* Alinha o conteúdo textual na caixa. Valor atual: center. */
     text-align: center;
 }
 
+/* Seleciona .auth::backdrop. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth::backdrop {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: rgb(0 0 0 / 60%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background: rgb(0 0 0 / 60%);
+    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Variante de compatibilidade WebKit/Blink. Valor atual: blur(8px). px mede pixels CSS. */
     -webkit-backdrop-filter: blur(8px);
+    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Valor atual: blur(8px). px mede pixels CSS. */
     backdrop-filter: blur(8px);
 }
 
+/* Seleciona .auth[open]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth[open] {
+    /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: auth-appear 320ms cubic-bezier(0.22, 1, 0.36, 1) both. */
     animation: auth-appear 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Seleciona .auth[open]::backdrop. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth[open]::backdrop {
+    /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: auth-backdrop-appear 320ms ease-out both. */
     animation: auth-backdrop-appear 320ms ease-out both;
 }
 
+/* Animação auth-appear: os blocos internos definem estados no tempo; a propriedade animation define duração e repetição. */
 @keyframes auth-appear {
+    /* Etapa from da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
     from {
+        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 0. */
         opacity: 0;
+        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: scale(0.96). */
         transform: scale(0.96);
     }
+
+    /* Etapa to da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
     to {
+        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
         opacity: 1;
+        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: scale(1). */
         transform: scale(1);
     }
+
 }
 
+/* Animação auth-backdrop-appear: os blocos internos definem estados no tempo; a propriedade animation define duração e repetição. */
 @keyframes auth-backdrop-appear {
+    /* Etapa from da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
     from {
+        /* Define somente a cor de fundo. Valor atual: rgb(0 0 0 / 0%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
         background-color: rgb(0 0 0 / 0%);
+        /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Variante de compatibilidade WebKit/Blink. Valor atual: blur(0). */
         -webkit-backdrop-filter: blur(0);
+        /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Valor atual: blur(0). */
         backdrop-filter: blur(0);
     }
+
+    /* Etapa to da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
     to {
+        /* Define somente a cor de fundo. Valor atual: rgb(0 0 0 / 60%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
         background-color: rgb(0 0 0 / 60%);
+        /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Variante de compatibilidade WebKit/Blink. Valor atual: blur(8px). px mede pixels CSS. */
         -webkit-backdrop-filter: blur(8px);
+        /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Valor atual: blur(8px). px mede pixels CSS. */
         backdrop-filter: blur(8px);
     }
+
 }
 
+/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (prefers-reduced-motion: reduce) {
+    /* Seleciona .auth[open],
+    .auth[open]::backdrop. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .auth[open],
     .auth[open]::backdrop {
+        /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: none. */
         animation: none;
     }
+
 }
 
+/* Seleciona html:has(.auth[open]). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 html:has(.auth[open]) {
+    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
 }
 
+/* Seleciona .auth__panel. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth__panel {
+    /* Define a altura mínima. Valor atual: 558px. px mede pixels CSS. */
     min-height: 558px;
 }
 
+/* Seleciona .auth__close. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth__close {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
+    /* Define o afastamento superior em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
     top: 16px;
+    /* Define o afastamento direito em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
     right: 16px;
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
+    /* Atalho de align-items e justify-items; center centraliza nos dois eixos. Valor atual: center. */
     place-items: center;
+    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
     width: 18px;
+    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
     height: 18px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 8px. px mede pixels CSS. */
     border-radius: 8px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
     background: transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
 }
 
+/* Seleciona .auth__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth__title {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-heading). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-family: var(--font-heading);
+    /* Define o tamanho das letras. Valor atual: 1.875rem. rem usa o tamanho da fonte raiz. */
     font-size: 1.875rem;
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.12. */
     line-height: 1.12;
+    /* Controla as quebras; balance equilibra linhas e nowrap impede quebra. Valor atual: balance. */
     text-wrap: balance;
 }
 
+/* Seleciona .auth__policy. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth__policy {
+    /* Define espaço externo acima. Valor atual: 20px. px mede pixels CSS. */
     margin-top: 20px;
+    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-3);
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.5. */
     line-height: 1.5;
 }
 
+/* Seleciona .auth__title:focus. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth__title:focus {
+    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: none. */
     outline: none;
 }
 
+/* Seleciona .auth__link. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth__link {
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
     background: transparent;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
+    /* Configura sublinhado e outras decorações; none remove as decorações. Valor atual: underline. */
     text-decoration: underline;
+    /* Define a distância entre texto e sublinhado. Valor atual: 4px. px mede pixels CSS. */
     text-underline-offset: 4px;
 }
 
+/* Seleciona .auth__form. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth__form {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
+    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
     flex-direction: column;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 20px. px mede pixels CSS. */
     gap: 20px;
+    /* Define a largura. Valor atual: min(100%, 400px). min() escolhe o menor valor. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: min(100%, 400px);
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 36px auto 0. px mede pixels CSS. */
     margin: 36px auto 0;
 }
 
+/* Seleciona .auth__form--login. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth__form--login {
+    /* Define espaço externo acima. Valor atual: 58px. px mede pixels CSS. */
     margin-top: 58px;
 }
 
+/* Seleciona .auth__form input. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth__form input {
+    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: 100%;
+    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
+    /* Define a altura. Valor atual: 45px. px mede pixels CSS. */
     height: 45px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px 28px. px mede pixels CSS. */
     padding: 12px 28px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
     border-radius: 10px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     background: var(--surface);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-3);
 }
 
+/* Seleciona .auth__form input::placeholder. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth__form input::placeholder {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
     opacity: 1;
 }
 
-.auth__message { color: var(--red); font-size: var(--font-size-4); text-align: left; }
-.auth__message:empty { display: none; }
-.auth__submit:disabled { opacity: 0.65; cursor: wait; }
+/* Seleciona .auth__message. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.auth__message {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--red). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    color: var(--red);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-size: var(--font-size-4);
+    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
+    text-align: left;
+}
 
+/* Seleciona .auth__message:empty. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.auth__message:empty {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
+    display: none;
+}
+
+/* Seleciona .auth__submit:disabled. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :disabled: controle desativado. */
+.auth__submit:disabled {
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 0.65. */
+    opacity: 0.65;
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: wait. */
+    cursor: wait;
+}
+
+/* Seleciona .auth__submit. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth__submit {
+    /* Define a altura mínima. Valor atual: 50px. px mede pixels CSS. */
     min-height: 50px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px 20px. px mede pixels CSS. */
     padding: 12px 20px;
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
     border-radius: 10px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     background: var(--text);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--bg);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-3);
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 600. */
     font-weight: 600;
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.3. */
     line-height: 1.3;
 }
 
+/* Seleciona .auth__form--login .auth__submit. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth__form--login .auth__submit {
+    /* Define espaço externo acima. Valor atual: 10px. px mede pixels CSS. */
     margin-top: 10px;
 }
 
+/* Seleciona .auth__switch. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth__switch {
+    /* Define espaço externo acima. Valor atual: 42px. px mede pixels CSS. */
     margin-top: 42px;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-3);
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.5. */
     line-height: 1.5;
 }
 
+/* Seleciona .auth__form input:focus. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .auth__form input:focus {
+    /* Define a espessura das bordas. Valor atual: 2px. px mede pixels CSS. */
     border-width: 2px;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 11px 27px. px mede pixels CSS. */
     padding: 11px 27px;
+    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: none. */
     outline: none;
 }
 
+/* Seleciona .auth button:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
 .auth button:focus-visible {
+    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     outline: 2px solid var(--text);
+    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: 4px. px mede pixels CSS. */
     outline-offset: 4px;
 }
 
+/* Condição (width >= 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width >= 640px) {
+    /* Seleciona .auth__close. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .auth__close {
+        /* Define o afastamento superior em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
         top: 16px;
+        /* Define o afastamento direito em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
         right: 16px;
     }
 
+    /* Seleciona .auth__submit. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .auth__submit {
+        /* Define a altura. Valor atual: 45px. px mede pixels CSS. */
         height: 45px;
+        /* Define a altura mínima. Valor atual: 45px. px mede pixels CSS. */
         min-height: 45px;
+        /* Define espaço interno entre conteúdo e borda no eixo vertical da escrita. Valor atual: 0. */
         padding-block: 0;
     }
+
+    /* Seleciona .auth. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .auth {
+        /* Define a largura. Valor atual: min(600px, calc(100% - 32px)). calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
         width: min(600px, calc(100% - 32px));
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 48px 40px 40px. px mede pixels CSS. */
         padding: 48px 40px 40px;
     }
 
+    /* Seleciona .auth__panel. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .auth__panel {
+        /* Define a altura mínima. Valor atual: 460px. px mede pixels CSS. */
         min-height: 460px;
     }
 
+    /* Seleciona .auth__form. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .auth__form {
+        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 12px. px mede pixels CSS. */
         gap: 12px;
+        /* Define espaço externo acima. Valor atual: 28px. px mede pixels CSS. */
         margin-top: 28px;
     }
 
+    /* Seleciona .auth__form--login. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .auth__form--login {
+        /* Define espaço externo acima. Valor atual: 36px. px mede pixels CSS. */
         margin-top: 36px;
     }
 
+    /* Seleciona .auth__switch. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .auth__switch {
+        /* Define espaço externo acima. Valor atual: 32px. px mede pixels CSS. */
         margin-top: 32px;
     }
+
 }
+
+/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
+    /* Seleciona .auth. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .auth {
+        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 64px 24px 40px. px mede pixels CSS. */
         padding: 64px 24px 40px;
     }
 
+    /* Seleciona .auth__panel. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .auth__panel {
+        /* Define a altura mínima. Valor atual: 0. */
         min-height: 0;
     }
 
+    /* Seleciona .auth__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .auth__title {
+        /* Define o tamanho das letras. Valor atual: calc(var(--font-size-2) * 1.5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. */
         font-size: calc(var(--font-size-2) * 1.5);
     }
 
+    /* Seleciona .auth__policy,
+    .auth__form input,
+    .auth__submit,
+    .auth__switch. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .auth__policy,
     .auth__form input,
     .auth__submit,
     .auth__switch {
+        /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         font-size: var(--font-size-4);
     }
 
+    /* Seleciona .auth__form. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .auth__form {
+        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 12px. px mede pixels CSS. */
         gap: 12px;
+        /* Define espaço externo acima. Valor atual: 32px. px mede pixels CSS. */
         margin-top: 32px;
     }
 
+    /* Seleciona .auth__form input. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .auth__form input {
+        /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 16px. px mede pixels CSS. */
         padding-inline: 16px;
     }
 
+    /* Seleciona .auth__form input:focus. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .auth__form input:focus {
+        /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 15px. px mede pixels CSS. */
         padding-inline: 15px;
     }
+
 }

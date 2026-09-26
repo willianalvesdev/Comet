@@ -246,7 +246,7 @@ class ComputerRouteTests(unittest.TestCase):
         with self.db:
             self.assertEqual(self.client.post('/api/ai/chat', json={}).status_code, 400)
             page = self.client.get('/computer.html').get_data(as_text=True)
-            self.assertIn('O que vamos criar hoje?', page)
+            self.assertIn('data-chat-greeting', page)
             self.assertIn('computer-messages', page)
             self.assertNotIn('Ollama', page)
 
@@ -262,7 +262,7 @@ class ComputerRouteTests(unittest.TestCase):
             self.assertEqual(response.mimetype, 'application/x-ndjson')
             self.assertEqual(response.headers['Cache-Control'], 'no-store')
             events = [json.loads(line) for line in response.data.splitlines()]
-            self.assertEqual(events, [{'type': 'conversation', 'conversation_id': '1', 'turn_id': '1'}, {'type': 'thinking', 'text': 'Analisando a pergunta.'}, {'type': 'delta', 'text': 'Olá'}, {'type': 'delta', 'text': ', mundo'}, {'type': 'done'}])
+            self.assertEqual(events, [{'type': 'conversation', 'conversation_id': '1', 'turn_id': '1', 'created_at': None, 'attachments': [], 'provider': 'qwen'}, {'type': 'thinking', 'text': 'Analisando a pergunta.'}, {'type': 'delta', 'text': 'Olá'}, {'type': 'delta', 'text': ', mundo'}, {'type': 'done'}])
         self.assertFalse(self.service._active)
 
     def test_provider_failure_before_and_after_first_chunk(self):
@@ -331,7 +331,7 @@ class ComputerRouteTests(unittest.TestCase):
             response = self.client.post('/api/ai/chat', json={'messages': [{'role': 'user', 'content': 'Forged'}]},
                                         headers={'X-CSRFToken': self.csrf})
             self.assertEqual(response.status_code, 422)
-        self.assertEqual(self.app.config['MAX_CONTENT_LENGTH'], 16384)
+        self.assertEqual(self.app.config['MAX_CONTENT_LENGTH'], 65536)
 
 
 if __name__ == '__main__':

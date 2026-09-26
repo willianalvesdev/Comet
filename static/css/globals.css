@@ -1,293 +1,515 @@
+/* GUIA DE EDIÇÃO — globals.css
+ * Explicações em português antes de cada seletor e declaração.
+ * A ordem foi preservada: regras posteriores podem sobrescrever as anteriores.
+ * { abre um bloco; } encerra; : separa propriedade e valor; ; termina uma declaração.
+ * Edite os valores do código. Os comentários são documentação e não alteram o visual.
+ */
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Kalice". */
     font-family: "Kalice";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/kalice/kalicetrial-regular.otf") format("opentype"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/kalice/kalicetrial-regular.otf") format("opentype");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
+    /* Define a variante normal ou itálica. Valor atual: normal. */
     font-style: normal;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Kalice". */
     font-family: "Kalice";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/kalice/kalicetrial-italic.otf") format("opentype"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/kalice/kalicetrial-italic.otf") format("opentype");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
+    /* Define a variante normal ou itálica. Valor atual: italic. */
     font-style: italic;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Kalice". */
     font-family: "Kalice";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/kalice/kalicetrial-medium.otf") format("opentype"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/kalice/kalicetrial-medium.otf") format("opentype");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 500. */
     font-weight: 500;
+    /* Define a variante normal ou itálica. Valor atual: normal. */
     font-style: normal;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Kalice". */
     font-family: "Kalice";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/kalice/kalicetrial-mediumitalic.otf") format("opentype"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/kalice/kalicetrial-mediumitalic.otf") format("opentype");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 500. */
     font-weight: 500;
+    /* Define a variante normal ou itálica. Valor atual: italic. */
     font-style: italic;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Kalice". */
     font-family: "Kalice";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/kalice/kalicetrial-bold.otf") format("opentype"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/kalice/kalicetrial-bold.otf") format("opentype");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 700. */
     font-weight: 700;
+    /* Define a variante normal ou itálica. Valor atual: normal. */
     font-style: normal;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Kalice". */
     font-family: "Kalice";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/kalice/kalicetrial-bolditalic.otf") format("opentype"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/kalice/kalicetrial-bolditalic.otf") format("opentype");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 700. */
     font-weight: 700;
+    /* Define a variante normal ou itálica. Valor atual: italic. */
     font-style: italic;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Kalice". */
     font-family: "Kalice";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/kalice/kalicetrial-extrabold.otf") format("opentype"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/kalice/kalicetrial-extrabold.otf") format("opentype");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 800. */
     font-weight: 800;
+    /* Define a variante normal ou itálica. Valor atual: normal. */
     font-style: normal;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Kalice". */
     font-family: "Kalice";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/kalice/kalicetrial-extrabolditalic.otf") format("opentype"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/kalice/kalicetrial-extrabolditalic.otf") format("opentype");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 800. */
     font-weight: 800;
+    /* Define a variante normal ou itálica. Valor atual: italic. */
     font-style: italic;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Kalice". */
     font-family: "Kalice";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/kalice/kalicetrial-black.otf") format("opentype"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/kalice/kalicetrial-black.otf") format("opentype");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 900. */
     font-weight: 900;
+    /* Define a variante normal ou itálica. Valor atual: normal. */
     font-style: normal;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Kalice". */
     font-family: "Kalice";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/kalice/kalicetrial-blackitalic.otf") format("opentype"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/kalice/kalicetrial-blackitalic.otf") format("opentype");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 900. */
     font-weight: 900;
+    /* Define a variante normal ou itálica. Valor atual: italic. */
     font-style: italic;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Saans". */
     font-family: "Saans";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/saans/saans-trial-light.woff2") format("woff2"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/saans/saans-trial-light.woff2") format("woff2");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 300. */
     font-weight: 300;
+    /* Define a variante normal ou itálica. Valor atual: normal. */
     font-style: normal;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Saans". */
     font-family: "Saans";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/saans/saans-trial-lightitalic.woff2") format("woff2"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/saans/saans-trial-lightitalic.woff2") format("woff2");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 300. */
     font-weight: 300;
+    /* Define a variante normal ou itálica. Valor atual: italic. */
     font-style: italic;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Saans". */
     font-family: "Saans";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/saans/saans-trial-regular.woff2") format("woff2"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/saans/saans-trial-regular.woff2") format("woff2");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
+    /* Define a variante normal ou itálica. Valor atual: normal. */
     font-style: normal;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Saans". */
     font-family: "Saans";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/saans/saans-trial-regularitalic.woff2") format("woff2"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/saans/saans-trial-regularitalic.woff2") format("woff2");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
+    /* Define a variante normal ou itálica. Valor atual: italic. */
     font-style: italic;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Saans". */
     font-family: "Saans";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/saans/saans-trial-medium.woff2") format("woff2"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/saans/saans-trial-medium.woff2") format("woff2");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 500. */
     font-weight: 500;
+    /* Define a variante normal ou itálica. Valor atual: normal. */
     font-style: normal;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Saans". */
     font-family: "Saans";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/saans/saans-trial-mediumitalic.woff2") format("woff2"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/saans/saans-trial-mediumitalic.woff2") format("woff2");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 500. */
     font-weight: 500;
+    /* Define a variante normal ou itálica. Valor atual: italic. */
     font-style: italic;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Saans". */
     font-family: "Saans";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/saans/saans-trial-semibold.woff2") format("woff2"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/saans/saans-trial-semibold.woff2") format("woff2");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 600. */
     font-weight: 600;
+    /* Define a variante normal ou itálica. Valor atual: normal. */
     font-style: normal;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Saans". */
     font-family: "Saans";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/saans/saans-trial-semibolditalic.woff2") format("woff2"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/saans/saans-trial-semibolditalic.woff2") format("woff2");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 600. */
     font-weight: 600;
+    /* Define a variante normal ou itálica. Valor atual: italic. */
     font-style: italic;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Saans". */
     font-family: "Saans";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/saans/saans-trial-bold.woff2") format("woff2"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/saans/saans-trial-bold.woff2") format("woff2");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 700. */
     font-weight: 700;
+    /* Define a variante normal ou itálica. Valor atual: normal. */
     font-style: normal;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Saans". */
     font-family: "Saans";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/saans/saans-trial-bolditalic.woff2") format("woff2"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/saans/saans-trial-bolditalic.woff2") format("woff2");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 700. */
     font-weight: 700;
+    /* Define a variante normal ou itálica. Valor atual: italic. */
     font-style: italic;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Saans". */
     font-family: "Saans";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/saans/saans-trial-heavy.woff2") format("woff2"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/saans/saans-trial-heavy.woff2") format("woff2");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 900. */
     font-weight: 900;
+    /* Define a variante normal ou itálica. Valor atual: normal. */
     font-style: normal;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Saans". */
     font-family: "Saans";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/saans/saans-trial-heavyitalic.woff2") format("woff2"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/saans/saans-trial-heavyitalic.woff2") format("woff2");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 900. */
     font-weight: 900;
+    /* Define a variante normal ou itálica. Valor atual: italic. */
     font-style: italic;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Serrif". */
     font-family: "Serrif";
+    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url("../fonts/Serrif/SerrifCollectionVF-TRIAL.ttf") format("truetype"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url("../fonts/Serrif/SerrifCollectionVF-TRIAL.ttf") format("truetype");
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 100 900. */
     font-weight: 100 900;
+    /* Define a variante normal ou itálica. Valor atual: normal. */
     font-style: normal;
+    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
+/* Seleciona :root. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :root: elemento raiz, onde são definidos valores globais. */
 :root {
+    /* Variável --font-body: fonte de corpo e controles. Alterá-la afeta as regras que usam var(--font-body) neste escopo. Valor atual: "Saans", sans-serif. */
     --font-body: "Saans", sans-serif;
+    /* Variável --font-heading: fonte de títulos e textos serifados. Alterá-la afeta as regras que usam var(--font-heading) neste escopo. Valor atual: "Kalice", "Serrif", Georgia, serif. */
     --font-heading: "Kalice", "Serrif", Georgia, serif;
-
+    /* Variável --bg: fundo principal. Alterá-la afeta as regras que usam var(--bg) neste escopo. Valor atual: #171615. */
     --bg: #171615;
+    /* Variável --surface: fundo de caixas e menus. Alterá-la afeta as regras que usam var(--surface) neste escopo. Valor atual: #1E1D1B. */
     --surface: #1E1D1B;
+    /* Variável --accent: cor de destaque. Alterá-la afeta as regras que usam var(--accent) neste escopo. Valor atual: #616947. */
     --accent: #616947;
+    /* Variável --border: cor padrão da borda. Alterá-la afeta as regras que usam var(--border) neste escopo. Valor atual: #d6d5d41A. */
     --border: #d6d5d41A;
+    /* Variável --text: cor principal do texto. Alterá-la afeta as regras que usam var(--text) neste escopo. Valor atual: #D6D5D4. */
     --text: #D6D5D4;
+    /* Variável --text-secondary: cor de texto secundário. Alterá-la afeta as regras que usam var(--text-secondary) neste escopo. Valor atual: #959593. */
     --text-secondary: #959593;
+    /* Variável --text-white: cor clara de texto. Alterá-la afeta as regras que usam var(--text-white) neste escopo. Valor atual: #ffffff. */
     --text-white: #ffffff;
+    /* Variável --green: cor dos valores positivos. Alterá-la afeta as regras que usam var(--green) neste escopo. Valor atual: #539E55. */
     --green: #539E55;
+    /* Variável --red: cor dos valores negativos. Alterá-la afeta as regras que usam var(--red) neste escopo. Valor atual: #DC6973. */
     --red: #DC6973;
-
+    /* Variável --font-size-1: tamanho da escala tipográfica. Alterá-la afeta as regras que usam var(--font-size-1) neste escopo. Valor atual: 72px. px mede pixels CSS. */
     --font-size-1: 72px;
+    /* Variável --font-size-2: tamanho da escala tipográfica. Alterá-la afeta as regras que usam var(--font-size-2) neste escopo. Valor atual: 24px. px mede pixels CSS. */
     --font-size-2: 24px;
+    /* Variável --font-size-3: tamanho da escala tipográfica. Alterá-la afeta as regras que usam var(--font-size-3) neste escopo. Valor atual: 16px. px mede pixels CSS. */
     --font-size-3: 16px;
+    /* Variável --font-size-4: tamanho da escala tipográfica. Alterá-la afeta as regras que usam var(--font-size-4) neste escopo. Valor atual: 14px. px mede pixels CSS. */
     --font-size-4: 14px;
+    /* Variável --font-size-5: tamanho da escala tipográfica. Alterá-la afeta as regras que usam var(--font-size-5) neste escopo. Valor atual: 12px. px mede pixels CSS. */
     --font-size-5: 12px;
+    /* Variável --font-size-6: tamanho da escala tipográfica. Alterá-la afeta as regras que usam var(--font-size-6) neste escopo. Valor atual: 10px. px mede pixels CSS. */
     --font-size-6: 10px;
-
+    /* Variável --margin-inline-1: margem horizontal reutilizável. Alterá-la afeta as regras que usam var(--margin-inline-1) neste escopo. Valor atual: 6rem. rem usa o tamanho da fonte raiz. */
     --margin-inline-1: 6rem;
+    /* Variável --margin-inline-2: margem horizontal reutilizável. Alterá-la afeta as regras que usam var(--margin-inline-2) neste escopo. Valor atual: 2.5rem. rem usa o tamanho da fonte raiz. */
     --margin-inline-2: 2.5rem;
+    /* Variável --gap: espaçamento padrão. Alterá-la afeta as regras que usam var(--gap) neste escopo. Valor atual: 3rem. rem usa o tamanho da fonte raiz. */
     --gap: 3rem;
+    /* Variável --gap-half: metade do espaçamento padrão. Alterá-la afeta as regras que usam var(--gap-half) neste escopo. Valor atual: 1.5rem. rem usa o tamanho da fonte raiz. */
     --gap-half: 1.5rem;
+    /* Variável --header-height: altura do cabeçalho. Alterá-la afeta as regras que usam var(--header-height) neste escopo. Valor atual: 68px. px mede pixels CSS. */
     --header-height: 68px;
-
 }
 
+/* Seleciona *,
+*::before,
+*::after. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. ::after: pseudoelemento depois do conteúdo. */
 *,
 *::before,
 *::after {
+    /* border-box inclui padding e bordas na largura/altura declarada; content-box mede apenas o conteúdo. Valor atual: border-box. */
     box-sizing: border-box;
+    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     margin: 0;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     padding: 0;
 }
 
+/* Seleciona html. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 html {
+    /* Controla o transbordamento horizontal. Valor atual: clip. */
     overflow-x: clip;
 }
 
+/* Seleciona *. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 * {
+    /* Controla a espessura da barra de rolagem; thin afina e none oculta. Valor atual: thin. */
     scrollbar-width: thin;
+    /* Define as cores do indicador móvel e do trilho da barra de rolagem. Valor atual: color-mix(in srgb, var(--text-secondary) 35%, transparent) transparent. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     scrollbar-color: color-mix(in srgb, var(--text-secondary) 35%, transparent) transparent;
 }
 
+/* Seleciona ::-webkit-scrollbar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 ::-webkit-scrollbar {
+    /* Define a largura. Valor atual: 6px. px mede pixels CSS. */
     width: 6px;
+    /* Define a altura. Valor atual: 6px. px mede pixels CSS. */
     height: 6px;
 }
 
+/* Seleciona ::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 ::-webkit-scrollbar-track,
 ::-webkit-scrollbar-corner {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
     background: transparent;
 }
 
+/* Seleciona ::-webkit-scrollbar-thumb. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 ::-webkit-scrollbar-thumb {
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 999px. px mede pixels CSS. */
     border-radius: 999px;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text-secondary) 35%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background: color-mix(in srgb, var(--text-secondary) 35%, transparent);
 }
 
+/* Seleciona ::-webkit-scrollbar-thumb:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
 ::-webkit-scrollbar-thumb:hover {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text-secondary) 55%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background: color-mix(in srgb, var(--text-secondary) 55%, transparent);
 }
 
+/* Seleciona ::selection. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 ::selection {
+    /* Define somente a cor de fundo. Valor atual: color-mix(in srgb, var(--accent) 60%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background-color: color-mix(in srgb, var(--accent) 60%, transparent);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-white). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-white);
 }
 
+/* Seleciona body. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 body {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
     position: relative;
+    /* isolate cria um contexto próprio de empilhamento. Valor atual: isolate. */
     isolation: isolate;
+    /* Define a altura mínima. Valor atual: 100vh. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
     min-height: 100vh;
+    /* Define somente a cor de fundo. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     background-color: var(--bg);
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-body). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-family: var(--font-body);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.5. */
     line-height: 1.5;
+    /* Solicita suavização tipográfica em plataformas compatíveis. Valor atual: antialiased. */
     -webkit-font-smoothing: antialiased;
+    /* Solicita suavização tipográfica no Firefox para macOS. Valor atual: grayscale. */
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Seleciona .page-background. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .page-background {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
+    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: 0. */
     inset: 0;
+    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: -1. */
     z-index: -1;
+    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
+    /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: none. */
     pointer-events: none;
 }
 
+/* Seleciona .page-background::before,
+.page-background::after. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. ::after: pseudoelemento depois do conteúdo. */
 .page-background::before,
 .page-background::after {
+    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: "". */
     content: "";
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
+    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: 0. */
     inset: 0;
 }
 
+/* Seleciona .page-background::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. */
 .page-background::before {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: url("../img/background.png") center top / cover no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     background: url("../img/background.png") center top / cover no-repeat;
+    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: scale(1.06). */
     transform: scale(1.06);
+    /* Define o ponto usado como origem de escala e rotação. Valor atual: center top. */
     transform-origin: center top;
 }
 
+/* Seleciona .page-background::after. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::after: pseudoelemento depois do conteúdo. */
 .page-background::after {
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--bg) 30%, transparent) 0%,
+        color-mix(in srgb, var(--bg) 40%, transparent) 70%,
+        color-mix(in srgb, var(--bg) 70%, transparent) 100%
+    ). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background: linear-gradient(
         to bottom,
         color-mix(in srgb, var(--bg) 30%, transparent) 0%,
@@ -296,198 +518,370 @@ body {
     );
 }
 
+/* Seleciona a. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 a {
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: inherit. */
     color: inherit;
+    /* Configura sublinhado e outras decorações; none remove as decorações. Valor atual: none. */
     text-decoration: none;
 }
 
+/* Seleciona img,
+picture,
+svg,
+video. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 img,
 picture,
 svg,
 video {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
+    /* Limita a largura máxima. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     max-width: 100%;
 }
 
+/* Seleciona img,
+video. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 img,
 video {
+    /* Define a altura. Valor atual: auto. */
     height: auto;
 }
 
+/* Seleciona button,
+input,
+select,
+textarea. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 button,
 input,
 select,
 textarea {
+    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
     font: inherit;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: inherit. */
     color: inherit;
 }
 
+/* Seleciona textarea. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 textarea {
+    /* Controla o redimensionamento manual; none remove a alça de ajuste. Valor atual: none. */
     resize: none;
 }
 
+/* Seleciona input,
+textarea,
+[contenteditable]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 input,
 textarea,
 [contenteditable] {
+    /* Define a cor do cursor de inserção nos campos de texto. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     caret-color: var(--accent);
 }
 
+/* Seleciona input:is(:autofill, :-webkit-autofill),
+textarea:is(:autofill, :-webkit-autofill),
+select:is(:autofill, :-webkit-autofill). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 input:is(:autofill, :-webkit-autofill),
 textarea:is(:autofill, :-webkit-autofill),
 select:is(:autofill, :-webkit-autofill) {
+    /* Desenha sombra com deslocamentos horizontal/vertical, desfoque, expansão opcional e cor; inset coloca a sombra por dentro. Variante de compatibilidade WebKit/Blink. Valor atual: 0 0 0 1000px color-mix(in srgb, var(--accent) 50%, var(--surface)) inset. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     -webkit-box-shadow: 0 0 0 1000px color-mix(in srgb, var(--accent) 50%, var(--surface)) inset;
+    /* Desenha sombra com deslocamentos horizontal/vertical, desfoque, expansão opcional e cor; inset coloca a sombra por dentro. Valor atual: 0 0 0 1000px color-mix(in srgb, var(--accent) 50%, var(--surface)) inset. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     box-shadow: 0 0 0 1000px color-mix(in srgb, var(--accent) 50%, var(--surface)) inset;
+    /* Define a cor de preenchimento das letras em navegadores WebKit/Blink. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     -webkit-text-fill-color: var(--text);
+    /* Define a cor do cursor de inserção nos campos de texto. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     caret-color: var(--accent);
 }
 
+/* Seleciona button:not(:disabled). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :disabled: controle desativado. */
 button:not(:disabled) {
+    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
 }
 
+/* Seleciona .site-header. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .site-header {
+    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
     position: fixed;
+    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: 0 0 auto. */
     inset: 0 0 auto;
+    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 100. */
     z-index: 100;
+    /* Define a altura. Valor atual: var(--header-height). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     height: var(--header-height);
+    /* Define somente a cor de fundo. Valor atual: transparent. */
     background-color: transparent;
+    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Variante de compatibilidade WebKit/Blink. Valor atual: none. */
     -webkit-backdrop-filter: none;
+    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Valor atual: none. */
     backdrop-filter: none;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
+    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-body). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-family: var(--font-body);
+    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-3);
+    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
+    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.2. */
     line-height: 1.2;
+    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: background-color 200ms ease. */
     transition: background-color 200ms ease;
 }
 
+/* Seleciona .site-header.is-scrolled. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .site-header.is-scrolled {
+    /* Define somente a cor de fundo. Valor atual: color-mix(in srgb, var(--bg) 80%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background-color: color-mix(in srgb, var(--bg) 80%, transparent);
+    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Variante de compatibilidade WebKit/Blink. Valor atual: blur(100px). px mede pixels CSS. */
     -webkit-backdrop-filter: blur(100px);
+    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Valor atual: blur(100px). px mede pixels CSS. */
     backdrop-filter: blur(100px);
 }
 
+/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (prefers-reduced-motion: reduce) {
+    /* Seleciona .site-header. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .site-header {
+        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
         transition: none;
     }
+
 }
 
+/* Seleciona .site-header__inner. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .site-header__inner {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
+    /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: minmax(0, 1fr) auto minmax(0, 1fr). minmax() define mínimo e máximo de uma faixa do grid. */
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: var(--gap). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     gap: var(--gap);
+    /* Define a altura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     height: 100%;
+    /* Define espaço externo no eixo horizontal da escrita. Valor atual: var(--margin-inline-1). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     margin-inline: var(--margin-inline-1);
 }
 
+/* Seleciona .site-header__brand. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .site-header__brand {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-flex. */
     display: inline-flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
+    /* Alinha este item na sua área do grid. Valor atual: start. */
     justify-self: start;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
 }
 
+/* Seleciona .site-header__logo. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .site-header__logo {
+    /* Define a largura. Valor atual: auto. */
     width: auto;
+    /* Define a altura. Valor atual: 28px. px mede pixels CSS. */
     height: 28px;
 }
 
+/* Seleciona .site-header__symbol. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .site-header__symbol {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
+    /* Define a largura. Valor atual: 28px. px mede pixels CSS. */
     width: 28px;
+    /* Define a altura. Valor atual: 28px. px mede pixels CSS. */
     height: 28px;
 }
 
+/* Seleciona .site-header__nav. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .site-header__nav {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
     justify-content: center;
+    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: var(--gap). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     gap: var(--gap);
+    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
 }
 
+/* Seleciona .site-header__login. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .site-header__login {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-flex. */
     display: inline-flex;
+    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
+    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
     justify-content: center;
+    /* Alinha este item na sua área do grid. Valor atual: end. */
     justify-self: end;
+    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px calc(var(--gap) / 2). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. px mede pixels CSS. */
     padding: 8px calc(var(--gap) / 2);
+    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
+    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 8px. px mede pixels CSS. */
     border-radius: 8px;
+    /* Define somente a cor de fundo. Valor atual: color-mix(in srgb, var(--surface) 80%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background-color: color-mix(in srgb, var(--surface) 80%, transparent);
+    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Variante de compatibilidade WebKit/Blink. Valor atual: blur(8px). px mede pixels CSS. */
     -webkit-backdrop-filter: blur(8px);
+    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Valor atual: blur(8px). px mede pixels CSS. */
     backdrop-filter: blur(8px);
+    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: background-color 200ms ease. */
     transition: background-color 200ms ease;
+    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
+    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
 }
 
+/* Seleciona .site-header__nav a. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .site-header__nav a {
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 0.8. */
     opacity: 0.8;
+    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: opacity 200ms ease. */
     transition: opacity 200ms ease;
 }
 
+/* Seleciona .site-header__nav a:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
 .site-header__nav a:focus-visible {
+    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
     opacity: 1;
 }
 
+/* Seleciona .site-header__login:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
 .site-header__login:focus-visible {
+    /* Define somente a cor de fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     background-color: var(--surface);
 }
 
+/* Condição (hover: hover): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (hover: hover) {
+    /* Seleciona .site-header__nav a:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
     .site-header__nav a:hover {
+        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
         opacity: 1;
     }
 
+    /* Seleciona .site-header__login:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
     .site-header__login:hover {
+        /* Define somente a cor de fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         background-color: var(--surface);
     }
+
 }
 
+/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (prefers-reduced-motion: reduce) {
+    /* Seleciona .site-header__nav a,
+    .site-header__login. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .site-header__nav a,
     .site-header__login {
+        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
         transition: none;
     }
+
 }
 
+/* Condição (max-width: 1100px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (max-width: 1100px) {
+    /* Seleciona .site-header__inner. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .site-header__inner {
+        /* Define espaço externo no eixo horizontal da escrita. Valor atual: var(--margin-inline-2). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         margin-inline: var(--margin-inline-2);
     }
+
 }
 
+/* Condição (max-width: 760px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (max-width: 760px) {
+    /* Seleciona .site-header__inner. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .site-header__inner {
+        /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: 1fr auto. */
         grid-template-columns: 1fr auto;
+        /* Define o espaço entre colunas. Valor atual: calc(var(--gap) / 3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. */
         column-gap: calc(var(--gap) / 3);
     }
 
+    /* Seleciona .site-header__nav. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .site-header__nav {
+        /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
         display: none;
     }
 
+    /* Seleciona .site-header__login. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .site-header__login {
+        /* Define as colunas ocupadas pelo item; span permite ocupar várias. Valor atual: 2. */
         grid-column: 2;
+        /* Define as linhas ocupadas pelo item. Valor atual: 1. */
         grid-row: 1;
     }
+
 }
 
+/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
+    /* Seleciona :root. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :root: elemento raiz, onde são definidos valores globais. */
     :root {
+        /* Variável --margin-inline-2: margem horizontal reutilizável. Alterá-la afeta as regras que usam var(--margin-inline-2) neste escopo. Valor atual: 1rem. rem usa o tamanho da fonte raiz. */
         --margin-inline-2: 1rem;
+        /* Variável --header-height: altura do cabeçalho. Alterá-la afeta as regras que usam var(--header-height) neste escopo. Valor atual: 64px. px mede pixels CSS. */
         --header-height: 64px;
     }
 
+    /* Seleciona .site-header. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .site-header {
+        /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         font-size: var(--font-size-4);
     }
+
 }
 
-.ui-arrow { display: inline-block; width: 16px; height: 16px; flex: 0 0 16px; vertical-align: middle; background: currentColor; -webkit-mask: url('../img/icons/arrow.svg') center / contain no-repeat; mask: url('../img/icons/arrow.svg') center / contain no-repeat; }
-.ui-arrow--left { rotate: 180deg; }
-.ui-arrow--up { rotate: -45deg; }
-.ui-arrow--down { rotate: 45deg; }
+/* Seleciona .ui-arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.ui-arrow {
+    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-block. */
+    display: inline-block;
+    /* Define a largura. Valor atual: 16px. px mede pixels CSS. */
+    width: 16px;
+    /* Define a altura. Valor atual: 16px. px mede pixels CSS. */
+    height: 16px;
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 16px. px mede pixels CSS. */
+    flex: 0 0 16px;
+    /* Alinha elementos inline ou células verticalmente. Valor atual: middle. */
+    vertical-align: middle;
+    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
+    background: currentColor;
+    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Variante de compatibilidade WebKit/Blink. Valor atual: url('../img/icons/arrow.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    -webkit-mask: url('../img/icons/arrow.svg') center / contain no-repeat;
+    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: url('../img/icons/arrow.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    mask: url('../img/icons/arrow.svg') center / contain no-repeat;
+}
+
+/* Seleciona .ui-arrow--left. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.ui-arrow--left {
+    /* Gira o elemento ao redor da origem. Valor atual: 180deg. */
+    rotate: 180deg;
+}
+
+/* Seleciona .ui-arrow--up. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.ui-arrow--up {
+    /* Gira o elemento ao redor da origem. Valor atual: -45deg. */
+    rotate: -45deg;
+}
+
+/* Seleciona .ui-arrow--down. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+.ui-arrow--down {
+    /* Gira o elemento ao redor da origem. Valor atual: 45deg. */
+    rotate: 45deg;
+}
+
+/* Seleciona textarea. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
+textarea {
+    /* Controla o redimensionamento manual; none remove a alça de ajuste. Valor atual: none !important. !important aumenta a prioridade na cascata. */
+    resize: none !important;
+}

@@ -53,9 +53,17 @@ class RemoteProvider:
         system = messages[0]['content'] + identity
         headers = {'Content-Type': 'application/json', 'Accept': 'text/event-stream'}
         headers['x-goog-api-key'] = self.key
+        contents = []
+        for message in messages[1:]:
+            parts = [{'text': message['content']}]
+            if message['role'] == 'user':
+                # AttachmentStore validates and normalizes every image to JPEG.
+                parts.extend({'inlineData': {'mimeType': 'image/jpeg', 'data': data}}
+                             for data in message.get('images', []))
+            contents.append({'role': 'model' if message['role'] == 'assistant' else 'user',
+                             'parts': parts})
         payload = {'systemInstruction': {'parts': [{'text': system}]},
-                   'contents': [{'role': 'model' if m['role'] == 'assistant' else 'user',
-                                 'parts': [{'text': m['content']}]} for m in messages[1:]],
+                   'contents': contents,
                    'generationConfig': {'maxOutputTokens': 8192,
                                         'thinkingConfig': {'includeThoughts': True}}}
         return ('generativelanguage.googleapis.com',

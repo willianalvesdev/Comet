@@ -75,7 +75,7 @@ class MySQLAuthTests(unittest.TestCase):
             stored = cur.fetchone()['senha']
             self.assertNotEqual(stored, self.password)
             self.assertTrue(check_password_hash(stored, self.password))
-        page = self.client.get('/principal.html')
+        page = self.client.get('/principal.html', follow_redirects=True)
         self.assertEqual(page.status_code, 200)
         self.assertIn(self.email, page.get_data(as_text=True))
         self.assertIn('&lt;script&gt;', page.get_data(as_text=True))
@@ -87,7 +87,7 @@ class MySQLAuthTests(unittest.TestCase):
         response = self.client.post('/api/auth/login', data={
             'csrf_token': csrf(self.client), 'email': self.email.upper(), 'password': self.password})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.client.get('/principal.html').status_code, 200)
+        self.assertEqual(self.client.get('/principal.html', follow_redirects=True).status_code, 200)
 
     def test_bad_password_duplicate_and_expired_session(self):
         self.assertEqual(self.signup(confirmation='different').status_code, 422)
