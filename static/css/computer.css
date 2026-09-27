@@ -20,15 +20,7 @@
     position: relative;
 }
 
-/* Seleciona .computer-back. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-back {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-flex. */
-    display: inline-flex;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color: var(--text-secondary);
-    /* Define espaço externo abaixo. Valor atual: 24px. px mede pixels CSS. */
-    margin-bottom: 24px;
-}
+
 
 /* Seleciona .computer-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-status {
@@ -206,6 +198,8 @@
 
 }
 
+
+
 /* Seleciona .computer-intro. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-intro {
     /* Define espaço externo abaixo. Valor atual: 56px. px mede pixels CSS. */
@@ -232,47 +226,13 @@
     color: var(--text);
 }
 
-/* Seleciona .computer-header__back. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-header__back {
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
-    border: 0;
-}
 
-/* Seleciona .computer-header__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-header__title {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
-    display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
-    align-items: center;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
-    justify-content: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
-    gap: 10px;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
-    min-width: 0;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-size: var(--font-size-4);
-}
 
-/* Seleciona .computer-header__title svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-header__title svg {
-    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
-    width: 18px;
-    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
-    height: 18px;
-    /* Define quanto o item encolhe se faltar espaço; 0 impede o encolhimento. Valor atual: 0. */
-    flex-shrink: 0;
-}
 
-/* Seleciona .computer-header__title span. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-header__title span {
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
-    overflow: hidden;
-    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
-    text-overflow: ellipsis;
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
-    white-space: nowrap;
-}
+
+
+
+
 
 /* Seleciona .computer-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-page {
@@ -286,25 +246,9 @@
     display: flex;
 }
 
-/* Seleciona .computer-header__back. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-header__back {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
-    position: absolute;
-    /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
-    left: 16px;
-}
 
-/* Seleciona .computer-header__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-header__title {
-    /* Define a largura. Valor atual: min(100%, 800px). min() escolhe o menor valor. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    width: min(100%, 800px);
-    /* Define espaço externo no eixo horizontal da escrita. Valor atual: auto. */
-    margin-inline: auto;
-    /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 32px. px mede pixels CSS. */
-    padding-inline: 32px;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: flex-start. */
-    justify-content: flex-start;
-}
+
+
 
 /* Seleciona .workspace .computer-page .home__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .workspace .computer-page .home__composer {
@@ -328,21 +272,13 @@
 
 /* Condição (width < 900px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 900px) {
-    /* Seleciona .computer-header__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .computer-header__title {
-        /* Define espaço interno entre conteúdo e borda à esquerda. Valor atual: 48px. px mede pixels CSS. */
-        padding-left: 48px;
-    }
+
 
 }
 
 /* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .computer-header__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .computer-header__title {
-        /* Define espaço interno entre conteúdo e borda à direita. Valor atual: 0. */
-        padding-right: 0;
-    }
+
 
 }
 
@@ -510,7 +446,7 @@
     /* Limita a largura máxima. Valor atual: 85%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     max-width: 85%;
     /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 14px 18px. px mede pixels CSS. */
-    padding: 14px 18px;
+    padding: 12px 16px;
     /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     background: var(--surface);
     /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
@@ -568,7 +504,7 @@
     /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
     /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-size: var(--font-size-5);
+    font-size: var(--font-size-4);
 }
 
 /* Seleciona .computer-thinking__toggle::-webkit-details-marker. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
@@ -636,7 +572,7 @@
     /* Controla a quebra de palavras longas para evitar transbordamento. Valor atual: anywhere. */
     overflow-wrap: anywhere;
     /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-size: var(--font-size-5);
+    font-size: var(--font-size-4);
     /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.65. */
     line-height: 1.65;
 }
@@ -757,11 +693,7 @@
         color: var(--text);
     }
 
-    /* Seleciona .computer-header__back. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .computer-header__back {
-        /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
-        display: none;
-    }
+
 
     /* Seleciona .computer-header > .workspace__menu-toggle .sidebar__toggle-icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-header > .workspace__menu-toggle .sidebar__toggle-icon {
@@ -797,7 +729,7 @@
     /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
     font: inherit;
     /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-size: var(--font-size-5);
+    font-size: var(--font-size-4);
     /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
     /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
@@ -889,7 +821,7 @@
     /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
     font: inherit;
     /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-size: var(--font-size-5);
+    font-size: var(--font-size-4);
     /* Alinha o conteúdo textual na caixa. Valor atual: left. */
     text-align: left;
     /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
@@ -922,12 +854,12 @@
 
 /* Seleciona .model-icon, .model-check. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .model-icon, .model-check {
-    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
-    width: 18px;
-    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
-    height: 18px;
+    /* Define a largura. Valor atual: 16px. px mede pixels CSS. */
+    width: 16px;
+    /* Define a altura. Valor atual: 16px. px mede pixels CSS. */
+    height: 16px;
     /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 18px. px mede pixels CSS. */
-    flex: 0 0 18px;
+    flex: 0 0 16px;
     /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
     background: currentColor;
     /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: center / contain no-repeat. */
@@ -936,8 +868,8 @@
 
 /* Seleciona .model-icon--qwen. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .model-icon--qwen {
-    /* Escolhe a imagem que recorta a pintura do elemento. Valor atual: url('../img/icons/computer-static.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
-    mask-image: url('../img/icons/computer-static.svg');
+    /* Escolhe a imagem que recorta a pintura do elemento. Valor atual: url('../img/icons/model-qwen.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
+    mask-image: url('../img/icons/model-qwen.svg');
 }
 
 /* Seleciona .model-icon--gemini. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
@@ -1318,23 +1250,23 @@
     /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: ''. */
     content:'';
     /* Define a largura. Valor atual: 9px. px mede pixels CSS. */
-    width:9px;
+    width:8px;
     /* Define a altura. Valor atual: 2px. px mede pixels CSS. */
-    height:2px;
+    height:1.5px;
     /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 2px. px mede pixels CSS. */
     border-radius:2px;
     /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    background:var(--text-secondary);
+    background:var(--text);
     /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: .35. */
-    opacity:.35;
+    opacity:.25;
     /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: width .15s,opacity .15s. */
-    transition:width .15s,opacity .15s;
+    transition:width .25s,opacity .25s;
 }
 
 /* Seleciona .message-navigator__mark[aria-current=true]::before, .message-navigator__mark:hover::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. ::before: pseudoelemento antes do conteúdo. [aria-: estado acessível informado por atributo. */
 .message-navigator__mark[aria-current=true]::before, .message-navigator__mark:hover::before {
     /* Define a largura. Valor atual: 13px. px mede pixels CSS. */
-    width:13px;
+    width:10px;
     /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
     opacity:1;
 }
@@ -1777,19 +1709,6 @@
     border-radius:50%;
 }
 
-/* Seleciona .attachment-toggle::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. */
-.attachment-toggle::before {
-    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: ''. */
-    content:'';
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
-    display:block;
-    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
-    width:18px;
-    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
-    height:18px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: linear-gradient(currentColor,currentColor) center/16px 1.5px no-repeat,linear-gradient(currentColor,currentColor) center/1.5px 16px no-repeat. px mede pixels CSS. currentColor reaproveita color do elemento. */
-    background:linear-gradient(currentColor,currentColor) center/16px 1.5px no-repeat,linear-gradient(currentColor,currentColor) center/1.5px 16px no-repeat;
-}
 
 /* Seleciona .attachment-toggle:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
 .attachment-toggle:hover {
@@ -1830,7 +1749,7 @@
     /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width:100%;
     /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
-    padding:10px;
+    padding:8px;
     /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border:0;
     /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
@@ -1847,10 +1766,10 @@
 
 /* Seleciona .attachment-menu i. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .attachment-menu i {
-    /* Define a largura. Valor atual: 20px. px mede pixels CSS. */
-    width:20px;
-    /* Define a altura. Valor atual: 20px. px mede pixels CSS. */
-    height:20px;
+    /* Define a largura. Valor atual: 16px. px mede pixels CSS. */
+    width:16px;
+    /* Define a altura. Valor atual: 16px. px mede pixels CSS. */
+    height:16px;
     /* Define quanto o item encolhe se faltar espaço; 0 impede o encolhimento. Valor atual: 0. */
     flex-shrink:0;
     /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
@@ -2039,4 +1958,431 @@
         gap:5px
     }
 
+}
+
+/* Nome da conversa no cabeçalho superior. */
+.computer-chat-title {
+    /* Permite truncar nomes longos dentro do cabeçalho. */
+    min-width: 0;
+    /* Esconde o trecho que ultrapassa o espaço disponível. */
+    overflow: hidden;
+    /* Indica o corte do nome com reticências. */
+    text-overflow: ellipsis;
+    /* Mantém o nome em uma única linha. */
+    white-space: nowrap;
+}
+/* Em celulares, elimina o indicador lateral de mensagens. */
+@media (max-width: 639px) {
+    .message-navigator {
+        /* Remove o indicador e sua área de interação. */
+        display: none;
+    }
+}
+
+
+/* Atalho flutuante para retornar ao fim da conversa. */
+.computer-jump {
+    /* Mantém o botão acima do compositor durante a rolagem. */
+    position: fixed;
+    /* Define as dimensões exatas solicitadas. */
+    width: 32px;
+    /* Define a altura do círculo. */
+    height: 32px;
+    /* Desenha um botão redondo. */
+    border-radius: 50%;
+    /* Delimita o botão discretamente. */
+    border: 1px solid var(--border);
+    /* Usa o fundo do tema. */
+    background: var(--surface);
+    /* Centraliza o desenho. */
+    display: grid;
+    /* Centraliza nos dois eixos. */
+    place-items: center;
+    /* Exibe acima das mensagens. */
+    z-index: 20;
+    /* Indica uma ação clicável. */
+    cursor: pointer;
+}
+/* Esconde o atalho quando o fim do chat já está visível. */
+.computer-jump[hidden] {
+    /* Remove também a área clicável. */
+    display: none;
+}
+/* Dimensões exatas do SVG fornecido. */
+.computer-jump img {
+    /* Largura do ícone. */
+    width: 16px;
+    /* Altura do ícone. */
+    height: 16px;
+}
+/* Repete o cabeçalho móvel de Finanças no chat. */
+@media (max-width: 639px) {
+    .computer-header .computer-chat-title {
+        /* O nome da conversa não aparece no celular. */
+        display: none;
+    }
+}
+
+
+/* Agrupa Gemini e Computer sem incluir o botão de anexos. */
+.composer-provider-group {
+    /* Posiciona as opções lado a lado. */
+    display: flex;
+    /* Alinha os ícones e rótulos. */
+    align-items: center;
+    /* Cria o contorno arredondado da referência. */
+    border-radius: 24px;
+    /* Distingue o grupo do compositor. */
+    background: var(--bg);
+    /* Mantém um pequeno respiro interno. */
+    padding: 3px;
+}
+.composer-provider-group button {
+    /* Mantém altura uniforme das opções. */
+    height: 34px;
+    /* Arredonda cada opção. */
+    border-radius: 20px;
+    /* Reserva a borda sem deslocar o texto ao selecionar. */
+    border: 1px solid transparent;
+    /* Opções inativas não têm preenchimento próprio. */
+    background: transparent;
+}
+.composer-provider-group button[aria-pressed="true"] {
+    /* Destaca a opção em uso. */
+    border-color: var(--border);
+    /* Usa o fundo das superfícies do site. */
+    background: var(--surface);
+    /* Mantém o texto ativo legível. */
+    color: var(--text);
+}
+.home__modes .attachment-toggle {
+    /* Separa visualmente o botão de anexos. */
+    margin-right: 10px;
+    /* Define um botão circular. */
+    border-radius: 50%;
+    /* Fundo independente do seletor de modelo. */
+    background: var(--surface);
+}
+
+/* Controles independentes, sem faixa de fundo unindo os botões. */
+.home__modes, .composer-provider-group {
+    /* Elimina o preenchimento preto do agrupamento. */
+    background: transparent;
+    /* Remove o espaço interno ao redor das opções. */
+    padding: 0;
+}
+/* Altura uniforme dos botões de modo e anexos. */
+.composer-provider-group button, .home__modes .attachment-toggle, .local-model-picker {
+    /* Usa os 32 pixels solicitados. */
+    height: 32px;
+    /* Impede mínimos antigos de aumentar os controles. */
+    min-height: 0;
+}
+/* Centraliza o símbolo de anexos com precisão. */
+.home__modes .attachment-toggle {
+    /* Forma uma área circular de 30 pixels. */
+    width: 30px;
+    /* Fixa o espaço no flex para evitar deformação. */
+    flex: 0 0 30px;
+    /* Centraliza o ícone nos dois eixos. */
+    display: grid;
+    /* Alinha o pseudo-elemento no centro. */
+    place-items: center;
+    /* Remove deslocamentos internos anteriores. */
+    padding: 0;
+}
+.home__modes .attachment-toggle::before {
+    /* Mantém o símbolo dentro do fluxo centralizado. */
+    position: static;
+    /* Define a largura do desenho. */
+    width: 16px;
+    /* Define a altura do desenho. */
+    height: 16px;
+    /* Cancela deslocamentos anteriores. */
+    transform: none;
+}
+.composer-provider-group .computer-icon, .composer-provider-group .model-icon {
+    /* Padroniza a largura dos ícones. */
+    width: 14px;
+    /* Padroniza a altura dos ícones. */
+    height: 14px;
+}
+.local-model-picker {
+    /* Remove o fundo e a borda do seletor discreto à direita. */
+    background: transparent;
+    /* Evita contorno permanente. */
+    border: 0;
+    /* Usa a cor secundária do tema. */
+    color: var(--text-secondary);
+    /* Mantém a fonte do site. */
+    font: inherit;
+    /* Dimensiona o rótulo conforme a referência. */
+    font-size: 13px;
+    /* Indica ação de abrir menu. */
+    cursor: pointer;
+}
+.model-icon--gemma {
+    /* Usa o SVG enviado para identificar o Gemma. */
+    mask: url('../img/icons/model-gemma.svg') center / contain no-repeat;
+}
+
+/* Cápsula única: somente Gemini e Computer compartilham o fundo. */
+.composer-provider-group {
+    /* Fundo escuro aparece atrás da opção inativa. */
+    background: var(--bg);
+    /* Une as duas opções sem espaço entre elas. */
+    gap: 0;
+    /* Mantém o contorno externo arredondado. */
+    border-radius: 999px;
+}
+.composer-provider-group button {
+    /* Remove margens que afastariam as opções. */
+    margin: 0;
+    /* Mantém o texto compacto e centralizado. */
+    padding-inline: 10px;
+}
+.composer-provider-group button[aria-pressed="true"] {
+    /* Destaca a opção ativa com o cinza da referência. */
+    background: color-mix(in srgb, var(--text) 6%, var(--surface));
+    /* Delimita a opção selecionada. */
+    border-color: var(--border);
+}
+/* O círculo de anexos aparece ao passar o mouse. */
+.home__modes .attachment-toggle {
+    /* Fora do hover, o botão não tem preenchimento. */
+    background: transparent;
+}
+.home__modes .attachment-toggle:hover {
+    /* Destaca a área circular sem alterar as dimensões. */
+    background: color-mix(in srgb, var(--text) 8%, var(--surface));
+    /* Realça o desenho do sinal de mais. */
+    color: var(--text);
+}
+/* Alinha o rótulo Modelo ao SVG de seta. */
+.local-model-picker:not([hidden]) {
+    /* Organiza texto e desenho na mesma linha. */
+    display: inline-flex;
+    /* Centraliza verticalmente. */
+    align-items: center;
+    /* Separa o texto da seta discretamente. */
+    gap: 6px;
+}
+/* Menu compacto de modelos locais. */
+.model-menu {
+    /* Usa a largura solicitada, limitada pela tela. */
+    width: min(275px, calc(100vw - 24px));
+}
+.model-menu > button {
+    /* Define a altura exata de cada opção. */
+    height: 36px;
+    /* Remove o mínimo antigo de 46 pixels. */
+    min-height: 36px;
+    /* Mantém o conteúdo dentro da altura definida. */
+    padding: 0 12px;
+}
+.model-menu .model-check {
+    /* Empurra a marca de seleção até a extremidade direita. */
+    margin-left: auto;
+}
+
+/* O botão tem somente um SVG: nenhum texto ou pseudo-elemento cria outra linha. */
+.home__modes .attachment-toggle {
+    /* Usa um único eixo flex para centralização previsível. */
+    display: flex;
+    /* Centraliza horizontalmente o desenho no círculo. */
+    justify-content: center;
+    /* Centraliza verticalmente o desenho no círculo. */
+    align-items: center;
+}
+/* Caixa exata de 16 pixels, sem alinhamento pela linha de base de texto. */
+.attachment-toggle > .attachment-plus {
+    /* Remove o comportamento inline de imagens e SVGs. */
+    display: block;
+    /* Impede crescimento ou redução do desenho. */
+    flex: 0 0 16px;
+    /* Define a largura do ícone. */
+    width: 16px;
+    /* Define a altura do ícone. */
+    height: 16px;
+    /* Evita espaço externo deslocando o centro. */
+    margin: 0;
+}
+
+/* Prévia compacta sobre os próprios riscos do navegador de mensagens. */
+.message-navigator__panel {
+    /* Sobrepõe a área dos riscos em vez de abrir ao lado dela. */
+    left: 0;
+    /* Define a largura total da referência. */
+    width: 256px;
+    /* Deixa 8px por lado contando a borda de 1px. */
+    padding: 7px;
+    /* Mantém o cartão acima dos indicadores. */
+    z-index: 1;
+    /* Usa o arredondamento proporcional ao cartão menor. */
+    border-radius: 12px;
+}
+.message-navigator__list {
+    /* Encosta as áreas clicáveis, mantendo o respiro pelo padding das linhas. */
+    gap: 0;
+}
+.message-navigator__list button {
+    /* Duas linhas de 32px mais as bordas e padding resultam em 80px. */
+    height: 32px;
+    /* Impede que mínimos herdados aumentem a linha. */
+    min-height: 0;
+    /* Texto ocupa 224px de largura e 17,5px de altura. */
+    padding: 7.25px 8px;
+    /* Define a altura exata da linha de texto. */
+    line-height: 17.5px;
+    /* Mantém a tipografia proporcional à referência. */
+    font-size: 14px;
+    /* Suaviza o fundo da mensagem selecionada. */
+    border-radius: 8px;
+}
+
+/* O seletor exibe o modelo inteiro quando há espaço, e corta nomes longos no celular. */
+.local-model-picker {
+    /* Não deixa o nome técnico empurrar os botões de envio. */
+    max-width: min(290px, 40vw);
+    /* Permite encolhimento dentro da barra de ações. */
+    min-width: 0;
+}
+.local-model-name, .model-menu > button > span {
+    /* Permite que os rótulos se ajustem à largura do menu. */
+    min-width: 0;
+    /* Recorta apenas texto excedente. */
+    overflow: hidden;
+    /* Indica que o nome continua. */
+    text-overflow: ellipsis;
+    /* Mantém cada nome em uma linha. */
+    white-space: nowrap;
+}
+.local-model-picker > svg {
+    /* Preserva a seta quando o rótulo é longo. */
+    flex-shrink: 0;
+}
+/* Status real da consulta, antes do texto da resposta. */
+.computer-research, .computer-instant {
+    /* Usa a tipografia da interface. */
+    font-family: inherit;
+    /* Mantém o status discreto. */
+    font-size: 13px;
+    /* Usa a cor secundária do tema. */
+    color: var(--text-secondary);
+    /* Separa o status da resposta. */
+    margin-bottom: 10px;
+}
+.computer-research, .computer-research-sites {
+    /* Alinha o aviso e as fontes. */
+    display: flex;
+    /* Centraliza os favicons na altura do texto. */
+    align-items: center;
+    /* Separa texto e ícones. */
+    gap: 8px;
+    /* Permite quebrar em telas estreitas. */
+    flex-wrap: wrap;
+}
+.computer-research.is-searching > span:first-child {
+    /* Mostra movimento apenas enquanto a consulta está em andamento. */
+    animation: research-pulse 1s ease-in-out infinite alternate;
+}
+@keyframes research-pulse {
+    from {
+        /* Inicia com menor opacidade. */
+        opacity: .55;
+    }
+    to {
+        /* Realça o status durante a pesquisa. */
+        opacity: 1;
+    }
+}
+.computer-message__actions .computer-sources {
+    /* A contagem precisa de espaço além de um botão de ícone. */
+    width: auto;
+    /* Alinha ícones e contagem no mesmo botão. */
+    display: inline-flex;
+    /* Mantém os elementos centralizados. */
+    align-items: center;
+    /* Separa o grupo de ícones do número. */
+    gap: 7px;
+    /* Mantém o contador legível. */
+    padding: 4px 8px;
+    /* Reutiliza a fonte da interface. */
+    font: inherit;
+    /* Deixa a contagem compacta. */
+    font-size: 13px;
+}
+.computer-source-icons {
+    /* Coloca os favicons em uma sequência. */
+    display: inline-flex;
+    /* Evita comprimir os ícones. */
+    flex-shrink: 0;
+}
+.computer-source-icons img + img {
+    /* Sobrepõe discretamente os favicons como na referência. */
+    margin-left: -4px;
+}
+.computer-source-icons img {
+    /* Arredonda a moldura do ícone. */
+    border-radius: 50%;
+    /* Separa os ícones sobrepostos. */
+    border: 1px solid var(--bg);
+}
+.computer-source-list {
+    /* Ancora o popover à posição do botão. */
+    position: fixed;
+    /* Remove a centralização padrão do navegador. */
+    inset: auto;
+    /* Permite coordenadas calculadas pelo script. */
+    margin: 0;
+    /* Limita a largura na tela pequena. */
+    width: min(360px, calc(100vw - 24px));
+    /* Oferece rolagem em listas longas. */
+    max-height: min(360px, 60dvh);
+    /* Habilita a rolagem quando necessária. */
+    overflow-y: auto;
+    /* Define o espaço interno. */
+    padding: 12px;
+    /* Mantém a superfície do tema. */
+    background: var(--surface);
+    /* Cor dos títulos e links. */
+    color: var(--text);
+    /* Contorno discreto do menu. */
+    border: 1px solid var(--border);
+    /* Canto arredondado. */
+    border-radius: 14px;
+    /* Evita que a lista herde a fonte serifada da resposta. */
+    font-family: inherit;
+}
+.computer-source-list a {
+    /* Alinha favicon e título. */
+    display: flex;
+    /* Afasta o ícone do título. */
+    gap: 8px;
+    /* Espaça cada fonte para o clique. */
+    padding: 9px 0;
+    /* Mantém os links no tema. */
+    color: var(--text);
+    /* Evita URLs longas fora do menu. */
+    overflow-wrap: anywhere;
+}
+.computer-source-list img, .computer-research-sites img {
+    /* Preserva as dimensões dos favicons. */
+    flex: 0 0 16px;
+}
+.computer-search-suggestions {
+    /* Exibe o widget de atribuição retornado pelo provedor. */
+    width: 100%;
+    /* Reserva espaço ao widget sem expandir a resposta em excesso. */
+    height: 120px;
+    /* Remove a borda padrão de iframe. */
+    border: 0;
+    /* Separa as sugestões dos botões da resposta. */
+    margin-top: 8px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .computer-research.is-searching > span:first-child {
+        /* Respeita a preferência por reduzir movimentos. */
+        animation: none;
+    }
 }

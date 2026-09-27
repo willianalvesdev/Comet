@@ -6,14 +6,26 @@
     let selected = new URL(location.href).searchParams.get('conversation'), busy = false, nextOffset = null, target = null, opener = null;
     const section = document.createElement('details');
     section.className = 'sessions'; section.open = true;
-    section.innerHTML = `<summary>Recentes<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></summary><div class="sessions__list"></div><p class="sessions__status" role="status"></p><div class="sessions__tools"><button type="button" data-action="new">Nova conversa</button><button type="button" data-action="more" hidden>Mais sessões</button><button type="button" data-action="refresh" hidden>Tentar novamente</button></div>`;
-    nav.append(section);
+    section.innerHTML = `<summary>Recentes<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></summary><div class="sessions__list"></div><p class="sessions__status" role="status"></p><div class="sessions__tools"><button type="button" data-action="more" hidden>Mais sessões</button><button type="button" data-action="refresh" hidden>Tentar novamente</button></div>`;
+    const pinKey = 'ascenda-pinned-' + document.querySelector('[data-user-id]')?.dataset.userId;
+    let pins = {};
+    try { pins = JSON.parse(localStorage.getItem(pinKey) || '{}'); } catch {}
+    const pinned = document.createElement('details');
+    pinned.className = 'sessions'; pinned.open = true;
+    pinned.innerHTML = section.innerHTML;
+    pinned.querySelector('summary').firstChild.textContent = 'Fixados';
+    pinned.querySelector('.sessions__tools').remove();
+    pinned.querySelector('.sessions__status').remove();
+    const pinList = pinned.querySelector('.sessions__list');
+    nav.append(pinned, section);
+    function savePins() { try { localStorage.setItem(pinKey, JSON.stringify(pins)); } catch {} }
+
     const list = section.querySelector('.sessions__list'), status = section.querySelector('.sessions__status');
     const more = section.querySelector('[data-action="more"]');
     const menu = document.createElement('div');
     menu.className = 'sessions-menu'; menu.id = 'sessions-menu'; menu.setAttribute('popover','auto');
     menu.setAttribute('aria-label','Opções da conversa');
-    menu.innerHTML = '<button type="button" data-action="rename"><i class="sessions-icon sessions-icon--rename" aria-hidden="true"></i>Renomear</button><button type="button" class="sessions-menu__delete" data-action="delete"><i class="sessions-icon sessions-icon--delete" aria-hidden="true"></i>Excluir</button>';
+    menu.innerHTML = '<button type="button" data-action="pin"><i class="sessions-icon sessions-icon--pin" aria-hidden="true"></i><span>Fixar</span></button><button type="button" data-action="rename"><i class="sessions-icon sessions-icon--rename" aria-hidden="true"></i>Renomear</button><button type="button" class="sessions-menu__delete" data-action="delete"><i class="sessions-icon sessions-icon--delete" aria-hidden="true"></i>Excluir</button>';
     document.querySelector('.sidebar').append(menu);
     const dialog = document.createElement('dialog');
     dialog.className = 'sessions-dialog';
@@ -32,8 +44,9 @@
         return result;
     }
     function draw() {
-        list.replaceChildren();
-        for (const item of items.values()) {
+        list.replaceChildren(); pinList.replaceChildren();
+        const combined = new Map([...Object.values(pins).map(item => [item.id, item]), ...items]);
+        for (const item of combined.values()) {
             const row = document.createElement('div'); row.className = 'sessions__row'; row.dataset.id = item.id;
             const link = document.createElement('a'); link.className = 'sessions__link'; link.href = `/computer.html?conversation=${encodeURIComponent(item.id)}`;
             link.textContent = item.title; link.title = item.title;
@@ -50,14 +63,17 @@
                 if (menu.matches(':popover-open') && opener === options) { menu.hidePopover(); return; }
                 if (menu.matches(':popover-open')) menu.hidePopover();
                 target = item; opener = options;
+                menu.querySelector('[data-action="pin"] span').textContent = pins[item.id] ? 'Desafixar' : 'Fixar';
                 const rect = options.getBoundingClientRect();
                 menu.style.left = Math.max(8, Math.min(rect.left, innerWidth - 224)) + 'px';
-                menu.style.top = Math.max(8, Math.min(rect.bottom + 6, innerHeight - 112)) + 'px';
+                menu.style.top = Math.max(8, Math.min(rect.bottom + 6, innerHeight - 156)) + 'px';
                 menu.showPopover(); options.setAttribute('aria-expanded','true'); menu.querySelector('button').focus({preventScroll:true});
             });
-            row.append(link,options); list.append(row);
+            row.append(link,options); (pins[item.id] ? pinList : list).append(row);
+            if (pins[item.id]) pins[item.id] = item;
         }
-        status.textContent = items.size ? '' : 'Nenhuma conversa ainda.';
+        pinned.hidden = !pinList.children.length; savePins();
+        status.textContent = list.children.length ? '' : 'Nenhuma conversa recente.';
     }
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && menu.matches(':popover-open')) { event.preventDefault(); event.stopPropagation(); menu.hidePopover(); opener?.focus({preventScroll:true}); } }, true);
     menu.addEventListener('toggle', event => { if (event.newState === 'closed') opener?.setAttribute('aria-expanded','false'); });
@@ -65,6 +81,10 @@
     menu.addEventListener('click', event => {
         const button = event.target.closest('button'); if (!button || !target) return;
         action = button.dataset.action; menu.hidePopover();
+        if (action === 'pin') {
+            if (pins[target.id]) delete pins[target.id]; else pins[target.id] = target;
+            savePins(); draw(); return;
+        }
         dialog.querySelector('h2').textContent = action === 'rename' ? 'Renomear conversa' : 'Excluir sessão?';
         dialog.classList.toggle('sessions-dialog--delete', action === 'delete');
         const description = dialog.querySelector('.sessions-dialog__description');
@@ -89,7 +109,9 @@
         try {
             const id = target.id, deleted = action === 'delete';
             const result = await request(`/api/ai/conversations/${id}`, deleted ? 'DELETE' : 'PATCH', deleted ? undefined : {title:field.value.trim()});
-            if (deleted) items.delete(id); else items.set(id, {...target, title:result.title});
+            if (deleted) { items.delete(id); delete pins[id]; }
+            else { items.set(id, {...target, title:result.title}); if (pins[id]) pins[id] = items.get(id); }
+            savePins();
             dialog.close(); draw(); emit('changed',{id,deleted,title:result.title});
             if (!inComputer) await load();
         } catch (failure) { error.textContent = failure.message; }
@@ -112,7 +134,7 @@
         if(id&&!items.has(id)) items.set(id,{id,title:title||'Conversa atual'});
         draw();
     }
-    function setBusy(value) { busy=value; section.querySelectorAll('button').forEach(button=>button.disabled=value); }
+    function setBusy(value) { busy=value; nav.querySelectorAll('.sessions button').forEach(button=>button.disabled=value); }
     async function load(append=false) {
         setBusy(true);
         try { const result=await request(`/api/ai/conversations?offset=${append ? nextOffset : 0}`); nextOffset=result.next_offset; render(result.conversations,append,nextOffset!==null); }

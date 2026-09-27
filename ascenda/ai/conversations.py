@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 from uuid import UUID
 import re
 from .attachments import pack, unpack
+from .config import PROVIDERS
+from .response_metadata import pack_response, unpack_response
 
 import mysql.connector
 from mysql.connector import IntegrityError
@@ -41,7 +43,7 @@ class ConversationStore:
         if not isinstance(payload, dict) or not {'conversation_id', 'message', 'request_id'} <= set(payload) or set(payload) - {'conversation_id', 'message', 'request_id', 'provider', 'attachments'}:
             raise AIError('invalid_request', 422)
         provider = payload.get('provider', 'qwen')
-        if not isinstance(provider, str) or provider not in ('qwen', 'gemini'):
+        if not isinstance(provider, str) or provider not in PROVIDERS:
             raise AIError('invalid_request', 422)
         tokens = payload.get('attachments', [])
         if not isinstance(tokens, list) or len(tokens) > 4 or any(not isinstance(t, str) or not re.fullmatch(r'[a-f0-9]{32}', t) for t in tokens) or len(set(tokens)) != len(tokens):
@@ -134,14 +136,15 @@ class ConversationStore:
                 status = 'interrupted'
             text, tokens = unpack(row['pergunta'])
             files = [self.attachments.public(self.attachments.read(user_id, token)) for token in tokens]
+            thinking, metadata = unpack_response(row['pensamento'])
             turns.append({'id': str(row['id']), 'message': text, 'attachments': files, 'answer': row['resposta'],
-                          'thinking': row['pensamento'], 'status': status, 'created_at': row['criado_em'].isoformat() + 'Z'})
+                          'thinking': thinking, 'metadata': metadata, 'status': status, 'created_at': row['criado_em'].isoformat() + 'Z'})
         return {'conversation': self.serialize_conversation(convo), 'turns': turns, 'active': active,
                 'before': str(rows[29]['id']) if len(rows) > 30 else None}
 
     def begin(self, user_id, payload, config):
         provider = payload.get('provider', 'qwen')
-        if not isinstance(provider, str) or provider not in ('qwen', 'gemini'):
+        if not isinstance(provider, str) or provider not in PROVIDERS:
             raise AIError('invalid_request', 422)
         cid, text, rid = payload['conversation_id'], payload['message'], payload['request_id']
         try:
@@ -198,7 +201,7 @@ class ConversationStore:
                 raise AIError('stale_conversation', 409)
             cur.execute('UPDATE computer_mensagens SET resposta=%s,pensamento=%s,estado=%s,atualizado_em=UTC_TIMESTAMP(6) '
                         "WHERE id=%s AND conversa_id=%s AND requisicao_id=%s AND estado='running'",
-                        (answer, thinking, status, turn['turn_id'], turn['conversation_id'], turn['request_id']))
+                        (answer, pack_response(thinking, turn.get('response_meta')), status, turn['turn_id'], turn['conversation_id'], turn['request_id']))
             cur.execute('UPDATE computer_conversas SET atualizado_em=UTC_TIMESTAMP(6)' +
                         (',requisicao_ativa=NULL,ativa_ate=NULL' if status != 'running' else '') +
                         ' WHERE id=%s', (turn['conversation_id'],))

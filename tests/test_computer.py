@@ -52,7 +52,7 @@ class LocalProviderTests(unittest.TestCase):
         self.assertTrue(payload['think'])
         self.assertTrue(payload['stream'])
         self.assertEqual(payload['model'], CONFIG.model)
-        self.assertEqual(set(payload), {'model', 'messages', 'stream', 'think'})
+        self.assertEqual(set(payload), {'model', 'messages', 'stream', 'think', 'options'})
         connection.close.assert_called_once()
 
     def test_transport_and_model_errors(self):
@@ -184,7 +184,7 @@ class SavedComputerServiceTests(unittest.TestCase):
             self.assertEqual(next(stream)['type'], 'thinking')
             self.assertEqual(self.store.save.call_args.args[-1], 'running')
             self.assertEqual(next(stream)['type'], 'delta')
-            self.assertEqual(next(stream), {'type': 'done'})
+            self.assertEqual(next(stream)['type'], 'done')
             self.assertEqual(self.store.save.call_args.args[-3:], ('Resposta', 'Pensamento', 'completed'))
             stream.close()
         self.assertFalse(self.service._active)
@@ -262,6 +262,9 @@ class ComputerRouteTests(unittest.TestCase):
             self.assertEqual(response.mimetype, 'application/x-ndjson')
             self.assertEqual(response.headers['Cache-Control'], 'no-store')
             events = [json.loads(line) for line in response.data.splitlines()]
+            metadata = events[-1].pop('metadata')
+            self.assertFalse(metadata['instant'])
+            self.assertIsNotNone(metadata['thinking_seconds'])
             self.assertEqual(events, [{'type': 'conversation', 'conversation_id': '1', 'turn_id': '1', 'created_at': None, 'attachments': [], 'provider': 'qwen'}, {'type': 'thinking', 'text': 'Analisando a pergunta.'}, {'type': 'delta', 'text': 'Olá'}, {'type': 'delta', 'text': ', mundo'}, {'type': 'done'}])
         self.assertFalse(self.service._active)
 
@@ -303,7 +306,7 @@ class ComputerRouteTests(unittest.TestCase):
         with self.db:
             response = self.client.get('/api/ai/models')
             self.assertEqual(response.status_code, 200)
-            self.assertEqual([m['id'] for m in response.json['models']], ['qwen', 'gemini'])
+            self.assertEqual([m['id'] for m in response.json['models']], ['qwen', 'gemini', 'qwen3:4b-instruct-2507-q4_K_M', 'qwen3:1.7b', 'qwen3:4b', 'qwen3:8b', 'gemma3:12b'])
             self.assertTrue(response.json['models'][0]['configured'])
             self.assertTrue(all(set(m) == {'id','name','configured'} for m in response.json['models']))
             def local(messages):

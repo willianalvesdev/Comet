@@ -4,6 +4,9 @@ from dataclasses import dataclass
 from urllib.parse import urlsplit
 
 
+LOCAL_MODELS = ('qwen3:4b-instruct-2507-q4_K_M', 'qwen3:1.7b', 'qwen3:4b', 'qwen3:8b', 'gemma3:12b')
+PROVIDERS = ('qwen', 'gemini', *LOCAL_MODELS)
+
 @dataclass(frozen=True)
 class AIConfig:
     base_url: str

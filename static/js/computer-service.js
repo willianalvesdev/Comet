@@ -11,7 +11,7 @@
         load(id, before = null) {
             return this.get(`/api/ai/conversations/${encodeURIComponent(id)}${before ? `?before=${encodeURIComponent(before)}` : ''}`);
         }
-        async chat(payload, onDelta, signal, onThinking, onConversation) {
+        async chat(payload, onDelta, signal, onThinking, onConversation, onResearch, onDone) {
             const response = await fetch('/api/ai/chat', {
                 method: 'POST', credentials: 'same-origin', signal,
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/x-ndjson',
@@ -38,7 +38,8 @@
                 try { event = JSON.parse(line); }
                 catch { throw new Error('A resposta foi interrompida. Tente novamente.'); }
                 if (event.type === 'error') throw new Error(event.error || connectionError);
-                if (event.type === 'done') { finished = true; return; }
+                if (event.type === 'done') { finished = true; onDone?.(event.metadata || {}); return; }
+                if (event.type === 'search') { onResearch?.(event); return; }
                 if (event.type === 'conversation') { onConversation(event); return; }
                 if (event.type === 'thinking') {
                     if (typeof event.text !== 'string') throw new Error('Não consegui ler o pensamento. Tente novamente.');

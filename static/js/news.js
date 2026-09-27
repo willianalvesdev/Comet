@@ -14,8 +14,20 @@
     } catch {}
     const seen = new Set();
     let currentPage = 0, busy = false, generation = 0;
-    let mode = 'for-you';
+    let mode = 'for-you', topic = null;
+    document.querySelectorAll('[data-discovery-topic]').forEach(button => button.addEventListener('click', () => {
+        topic = button.dataset.discoveryTopic; mode = 'topic';
+        button.closest('details').open = false; refreshFeed();
+    }));
     function refreshFeed() {
+        const topicsMenu = document.querySelector('.discovery-topics');
+        topicsMenu.classList.toggle('is-active', mode === 'topic');
+        document.querySelectorAll('[data-discovery-topic]').forEach(button => {
+            const selected = mode === 'topic' && button.dataset.discoveryTopic === topic;
+            button.setAttribute('aria-pressed', String(selected));
+            if (selected) document.getElementById('topic-label').textContent = button.querySelector('span').textContent;
+        });
+        if (mode !== 'topic') document.getElementById('topic-label').textContent = 'Tópicos';
         generation++;
         busy = false;
         seen.clear();
@@ -31,9 +43,16 @@
     }
     window.addEventListener('news-preferences-change', refreshFeed);
     document.querySelectorAll('[data-news-mode]').forEach(button => button.addEventListener('click', () => {
-        mode = button.dataset.newsMode;
+        topic = null; mode = button.dataset.newsMode;
         refreshFeed();
     }));
+    document.addEventListener('click', event => {
+        const details = document.querySelector('.discovery-topics');
+        if (!details.contains(event.target)) details.open = false;
+    });
+    document.querySelector('.discovery-topics').addEventListener('keydown', event => {
+        if (event.key === 'Escape') { event.currentTarget.open = false; event.currentTarget.querySelector('summary').focus(); }
+    });
     const relative = new Intl.RelativeTimeFormat('pt-BR', { numeric: 'auto' });
     function element(tag, className, text) {
         const node = document.createElement(tag);
@@ -129,6 +148,19 @@
         node.append(media, body);
         return node;
     }
+    function clearSkeletons() { feed.querySelectorAll('.news-skeleton').forEach(node=>node.remove()); }
+    function showSkeletons() {
+        clearSkeletons();
+        for (let index=0; index<6; index++) {
+            const card=document.createElement('div');
+            card.className='news-card news-skeleton' + (index===0?' news-card--featured':'');
+            card.setAttribute('aria-hidden','true');
+            card.innerHTML='<div class="news-card__media skeleton-block"></div><div class="news-card__body"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line skeleton-line--short"></div></div>';
+            feed.append(card);
+        }
+        status.hidden=true;
+        feed.setAttribute('aria-label','Carregando notícias');
+    }
     async function load() {
         if (busy) return;
         busy = true;
@@ -137,7 +169,7 @@
         more.disabled = true;
         more.textContent = 'Carregando…';
         retry.hidden = true;
-        if (!seen.size) { status.hidden = false; statusText.textContent = 'Buscando as últimas notícias…'; }
+        if (!seen.size) showSkeletons();
         const targetCount = seen.size + 12;
         let stale = false;
         try {
@@ -147,8 +179,8 @@
             let response, data;
             try {
                 const preferences = window.AscendaNewsPreferences || { topics: ['business'], languages: 'pt-en' };
-                const topics = preferences.topics.join(',');
-                const query = new URLSearchParams({ page: currentPage + 1, topics, mode, languages: preferences.languages });
+                const topics = topic || preferences.topics.join(',');
+                const query = new URLSearchParams({ page: currentPage + 1, topics, mode: mode === 'topic' ? 'for-you' : mode, languages: preferences.languages });
                 response = await fetch('/api/news?' + query, { signal: controller.signal });
                 data = await response.json();
             } finally {
@@ -164,13 +196,14 @@
             const candidates = data.articles.filter(article => !seen.has(article.id) && article.image);
             const covers = await Promise.all(candidates.map(article => loadCover(article.image)));
             if (version !== generation) return;
+            if (covers.some(Boolean)) clearSkeletons();
             candidates.forEach((article, index) => {
                 if (!covers[index] || seen.has(article.id)) return;
                 feed.append(card(article, seen.size % 4 === 0, covers[index]));
                 seen.add(article.id);
             });
             currentPage = data.page;
-            status.hidden = seen.size > 0;
+            status.hidden = true;
             if (!seen.size) statusText.textContent = 'Nenhuma notícia com foto disponível no momento.';
             more.hidden = !data.has_more;
             stale = stale || data.stale;
@@ -185,6 +218,9 @@
             else { status.hidden = false; statusText.textContent = message; retry.hidden = error.code === 'configuration'; }
         } finally {
             if (version !== generation) return;
+            clearSkeletons();
+            status.hidden = seen.size > 0;
+            feed.removeAttribute('aria-label');
             busy = false;
             feed.setAttribute('aria-busy', 'false');
             more.disabled = false;

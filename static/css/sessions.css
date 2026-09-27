@@ -225,7 +225,7 @@
 }
 
 /* Seleciona .sessions button:disabled. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :disabled: controle desativado. */
-.sessions button:disabled {
+.sessions button:disabled:not(.sessions__more) {
     /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: .4. */
     opacity: .4;
     /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: default. */
@@ -658,4 +658,45 @@
     margin: 10px 0 0;
     /* Define o tamanho das letras. Valor atual: 14px. px mede pixels CSS. */
     font-size: 14px;
+}
+
+/* Usa o SVG fornecido para a ação de fixar chats. */
+.sessions-icon--pin {
+    /* Recorta o ícone conforme o desenho do alfinete. */
+    mask: url('../img/icons/pinned.svg') center / contain no-repeat;
+}
+
+
+/* Coloca horário e primeira mensagem na mesma linha, sem faixa vazia. */
+.chat-preview {
+    /* Divide a prévia em texto e horário. */
+    display: grid;
+    /* Reserva apenas o espaço necessário para a data. */
+    grid-template-columns: minmax(0, 1fr) auto;
+    /* Separa texto e horário discretamente. */
+    gap: 5px 10px;
+}
+.chat-preview[hidden] {
+    /* Mantém a prévia escondida fora do hover. */
+    display: none;
+}
+.chat-preview__time {
+    /* Alinha o horário à direita da primeira mensagem. */
+    grid-column: 2;
+    /* Compartilha a primeira linha com a pergunta. */
+    grid-row: 1;
+    /* Remove a margem que criava espaço vazio no topo. */
+    margin: 0;
+}
+.chat-preview__question {
+    /* Usa a coluna principal para a pergunta. */
+    grid-column: 1;
+    /* Alinha pergunta e horário no topo. */
+    grid-row: 1;
+}
+.chat-preview .chat-preview__answer {
+    /* Resposta ocupa toda a largura disponível. */
+    grid-column: 1 / -1;
+    /* O espaçamento já é controlado pelo grid. */
+    margin-top: 0;
 }

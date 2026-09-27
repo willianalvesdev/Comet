@@ -885,3 +885,31 @@ textarea {
     /* Controla o redimensionamento manual; none remove a alça de ajuste. Valor atual: none !important. !important aumenta a prioridade na cascata. */
     resize: none !important;
 }
+
+/* Avisos de hover usam o tema e a tipografia do próprio site. */
+.site-tooltip {
+    /* Posiciona o aviso junto do controle apontado. */
+    position: fixed;
+    /* Remove a centralização padrão do popover. */
+    inset: auto;
+    /* Permite coordenadas definidas pelo JavaScript. */
+    margin: 0;
+    /* Define o fundo solicitado. */
+    background: var(--bg);
+    /* Define a cor do texto solicitada. */
+    color: var(--text);
+    /* Define o contorno solicitado. */
+    border: 1px solid var(--border);
+    /* Herda a fonte do site. */
+    font: inherit;
+    /* Mantém os avisos compactos. */
+    font-size: 13px;
+    /* Limita avisos longos em telas pequenas. */
+    max-width: min(280px, calc(100vw - 16px));
+    /* Espaça o texto das bordas. */
+    padding: 7px 10px;
+    /* Suaviza os cantos. */
+    border-radius: 8px;
+    /* Evita interceptar cliques no controle. */
+    pointer-events: none;
+}

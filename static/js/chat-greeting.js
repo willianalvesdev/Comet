@@ -6,7 +6,7 @@
  const choices=['Olá','Olá, {name}','Oi, {name}, como você está?','Oi, como você está?','Como vão as coisas, {name}?','Como vão as coisas?','Boas-vindas','Boas-vindas, {name}','O que há de novo, {name}?','O que há de novo?','No que você está pensando, {name}?','No que você está pensando?'];
  const period=hour>=5&&hour<12?'Bom dia':hour>=12&&hour<18?'Boa tarde':'Boa noite';choices.push(period,period+', {name}');
  const days=[['Bom domingo','Bom domingo, {name}','Sessão de domingo?','Sessão de domingo, {name}?'],['Boa segunda-feira','Boa segunda-feira, {name}'],['Boa terça-feira','Boa terça-feira, {name}'],['Boa quarta-feira','Boa quarta-feira, {name}'],['Boa quinta-feira','Boa quinta-feira, {name}'],['Boa sexta-feira','Boa sexta-feira, {name}','Aquele clima de sexta-feira'],['Bom sábado!','Bom sábado, {name}']];choices.push(...days[day]);
- if(day===0||day===6)choices.push('Bem-vindo ao fim de semana','Bem-vindo ao fim de semana, {name}');
+ if(day===0||day===6)choices.push('Bem-vindo ao fim de semana','Como vai o fim de semana, {name}?');
  if(hour>=18||hour<5)choices.push('Pensamentos da noite?','Pensamentos da noite, {name}?');
  if(hour>=22||hour<5)choices.push('Olá, coruja da noite');
  if(hour>=17)choices.push('Como foi seu dia?','Como foi seu dia, {name}?');

@@ -53,6 +53,18 @@ class ConversationPersistenceTests(unittest.TestCase):
     def post(self, payload, actor=0):
         return self.clients[actor].post('/api/ai/chat', json=payload, headers={'X-CSRFToken': self.tokens[actor]})
 
+    def test_response_sources_and_timing_survive_reload(self):
+        payload = self.payload("Consulta de teste")
+        turn = self.store.begin(self.ids[0], payload, self.service.config)
+        turn["response_meta"] = {"instant": True, "elapsed_seconds": 0.8,
+            "research": {"state": "complete", "sources": [
+                {"url": "https://example.com", "title": "Fonte de teste", "domain": "example.com"}]}}
+        self.store.save(self.ids[0], turn, "Resposta", "", "completed")
+        restored = self.clients[0].get("/api/ai/conversations/" + turn["conversation_id"]).json["turns"][0]
+        self.assertEqual(restored["metadata"], turn["response_meta"])
+        self.assertEqual(restored["thinking"], "")
+        self.assertEqual(self.clients[1].get("/api/ai/conversations/" + turn["conversation_id"]).status_code, 404)
+
     def test_real_save_restore_context_and_user_isolation(self):
         def stream(messages):
             yield {'type': 'thinking', 'text': 'Pensamento <script>literal</script> 🧠'}

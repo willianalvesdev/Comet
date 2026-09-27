@@ -3,7 +3,10 @@
     const status = document.getElementById('weather-status');
     const content = document.getElementById('weather-content');
     let version = 0, busy = false;
-    try { localStorage.removeItem('ascenda-weather-city'); } catch {}
+    if (!locate || !content) return;
+    const cacheKey = 'ascenda-weather-' + document.querySelector('[data-user-id]')?.dataset.userId;
+    let cached;
+    try { cached = JSON.parse(localStorage.getItem(cacheKey)); } catch {}
     const el = (tag, cls, text) => {
         const node = document.createElement(tag);
         if (cls) node.className = cls;
@@ -36,17 +39,17 @@
             return await response.json();
         } finally { clearTimeout(timer); }
     }
-    async function forecast(city) {
+    async function forecast(city, restored) {
         if (!Number.isFinite(city.latitude) || !Number.isFinite(city.longitude)) return;
         const requestVersion = ++version;
         status.hidden = false;
         status.textContent = 'Buscando previsão…';
-        content.hidden = true;
+        content.hidden = !content.children.length;
         try {
             const params = new URLSearchParams({ latitude: city.latitude, longitude: city.longitude,
                 current: 'temperature_2m,weather_code', daily: 'weather_code,temperature_2m_max,temperature_2m_min',
                 forecast_days: 5, timezone: 'auto' });
-            const data = await json('https://api.open-meteo.com/v1/forecast?' + params);
+            const data = restored || await json('https://api.open-meteo.com/v1/forecast?' + params);
             if (requestVersion !== version) return;
             if (!Number.isFinite(data.current?.temperature_2m) || data.daily?.time?.length !== 5) throw new Error();
             const now = el('div', 'weather-now');
@@ -66,6 +69,10 @@
             content.hidden = false;
             status.hidden = true;
             locate.textContent = 'Atualizar localização';
+            if (!restored) {
+                cached = {city, data, saved: Date.now()};
+                try { localStorage.setItem(cacheKey, JSON.stringify(cached)); } catch {}
+            }
         } catch {
             if (requestVersion !== version) return;
             status.textContent = 'Não foi possível carregar o clima. Tente usar sua localização novamente.';
@@ -74,7 +81,7 @@
     async function locateWeather() {
         if (busy) return;
         status.hidden = false;
-        content.hidden = true;
+        content.hidden = !content.children.length;
         if (!window.isSecureContext || !navigator.geolocation) {
             status.textContent = 'A localização requer um navegador compatível e HTTPS ou localhost.';
             return;
@@ -88,7 +95,12 @@
                     enableHighAccuracy: false, timeout: 15000, maximumAge: 300000
                 });
             });
-            await forecast({ name: 'Sua região',
+            let name = 'Localização atual';
+            try {
+                const place = await json('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&lat=' + position.coords.latitude.toFixed(2) + '&lon=' + position.coords.longitude.toFixed(2));
+                name = place.address?.city || place.address?.town || place.address?.village || place.address?.municipality || name;
+            } catch {}
+            await forecast({ name,
                 latitude: Number(position.coords.latitude.toFixed(2)),
                 longitude: Number(position.coords.longitude.toFixed(2)) });
         } catch (error) {
@@ -102,4 +114,26 @@
         }
     }
     locate.addEventListener('click', locateWeather);
+    if (cached?.city && cached?.data) {
+        forecast(cached.city, cached.data).then(() => {
+            if (Date.now() - cached.saved > 1800000) forecast(cached.city);
+        });
+    }
+    const toggle = document.querySelector('.weather-toggle');
+    const layout = document.querySelector('.discovery-layout');
+    const widgets = document.querySelector('.discovery-widgets');
+    function anchorWeather() {
+        if (!layout || !widgets || !matchMedia('(min-width: 901px)').matches) return;
+        const rect = layout.getBoundingClientRect();
+        const width = Math.max(260, rect.width * .30);
+        layout.style.setProperty('--stories-width', (rect.width - width - 72) + 'px');
+    }
+    anchorWeather();
+    window.addEventListener('resize', anchorWeather);
+    toggle?.addEventListener('click', () => {
+        const collapsed = document.querySelector('.discovery-layout').classList.toggle('is-weather-collapsed');
+        toggle.setAttribute('aria-expanded', String(!collapsed));
+        toggle.setAttribute('aria-label', collapsed ? 'Expandir painel' : 'Recolher painel');
+        document.querySelector('.discovery-widgets').hidden = collapsed;
+    });
 })();

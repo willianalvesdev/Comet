@@ -1,0 +1,14 @@
+# O script de início substitui a chave e salva config/settings.yml apenas localmente.
+use_default_settings: true
+server:
+  secret_key: "REPLACE_WITH_RANDOM_SECRET"
+  limiter: false
+  image_proxy: false
+search:
+  default_lang: "pt-BR"
+  formats:
+    - html
+    - json
+outgoing:
+  request_timeout: 5.0
+  max_request_timeout: 10.0

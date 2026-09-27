@@ -57,6 +57,31 @@
         requestAnimationFrame(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
     }
 
+    const jump = document.createElement('button');
+    jump.type = 'button'; jump.className = 'computer-jump'; jump.hidden = true;
+    jump.setAttribute('aria-label', 'Descer para a última mensagem');
+    jump.innerHTML = '<img src="/static/img/icons/scroll-down.svg" alt="">';
+    page.append(jump);
+    function updateJump() {
+        jump.hidden = conversation.hidden || nearLatest();
+        const rect = composer.getBoundingClientRect();
+        jump.style.left = (rect.left + rect.width / 2 - 16) + 'px';
+        jump.style.bottom = Math.max(16, innerHeight - rect.top + 12) + 'px';
+    }
+    jump.addEventListener('click', () => window.scrollTo({top:document.documentElement.scrollHeight, behavior:'smooth'}));
+    window.addEventListener('scroll', updateJump, {passive:true});
+    window.addEventListener('resize', updateJump);
+    new ResizeObserver(updateJump).observe(composer);
+    new ResizeObserver(updateJump).observe(conversation);
+    const durationKey = 'ascenda-thinking-' + document.querySelector('[data-user-id]')?.dataset.userId;
+    let durations = {};
+    try { durations = JSON.parse(localStorage.getItem(durationKey) || '{}'); } catch {}
+    function thoughtLabel(seconds) {
+        if (!Number.isFinite(seconds)) return 'Pensamento concluído';
+        const total = Math.max(1, Math.round(seconds)), minutes = Math.floor(total / 60), rest = total % 60;
+        return minutes ? 'Pensou por ' + minutes + (minutes === 1 ? ' minuto e ' : ' minutos e ') + rest + (rest === 1 ? ' segundo' : ' segundos')
+            : 'Pensou por ' + total + (total === 1 ? ' segundo' : ' segundos');
+    }
     const feedback = new Map();
     function addActions(article, body) {
         const actions = document.createElement('div'); actions.className = 'computer-message__actions';
@@ -133,11 +158,7 @@
     function addMessage(role, text) {
         const article = document.createElement('article');
         article.className = `computer-message computer-message--${role}`;
-        if (role === 'assistant') {
-            const label = document.createElement('h2');
-            label.textContent = 'Computer';
-            article.append(label);
-        } else article.setAttribute('aria-label', 'Mensagem enviada');
+        article.setAttribute('aria-label', role === 'assistant' ? 'Resposta da IA' : 'Mensagem enviada');
         const body = document.createElement('div');
         body.className = 'computer-message__text';
         body.textContent = text;
@@ -197,6 +218,8 @@
     }
     function remember(id, title) {
         currentId = id;
+        document.querySelector(".computer-chat-title").textContent = id ? (title || "") : "";
+        document.title = (id ? (title || 'Conversa') : 'Novo chat') + ' — Ascenda';
         const url = new URL(location.href);
         url.searchParams.delete('new');
         if (id) url.searchParams.set('conversation', id); else url.searchParams.delete('conversation');
@@ -218,8 +241,10 @@
                 thinking.details.open = opened.has(turn.id);
                 const running = turn.status === 'running' && !turn.answer;
                 thinking.details.classList.toggle('is-thinking', running);
-                thinking.label.textContent = running ? 'Pensando…' : ['completed', 'running'].includes(turn.status) ? 'Resumo do raciocínio' : 'Pensamento interrompido';
+                thinking.label.textContent = running ? 'Pensando…' : ['completed', 'running'].includes(turn.status) ? thoughtLabel(turn.metadata?.thinking_seconds ?? durations[turn.id]) : 'Pensamento interrompido';
             }
+            window.ComputerResponseDetails.research(assistant.article, turn.metadata?.research, turn.status !== 'running');
+            window.ComputerResponseDetails.timing(assistant.article, turn.metadata);
             assistant.body.hidden = !turn.answer;
             if (turn.status === 'interrupted' || turn.status === 'failed') {
                 warning(assistant, 'Resposta interrompida. O conteúdo salvo não foi incluído no contexto das próximas mensagens.');
@@ -303,9 +328,9 @@
         loading = true; ready = false; controls();
         note.textContent = '';
         try {
-            const items = await listConversations();
+            await listConversations();
             const requested = new URL(location.href).searchParams.get('conversation');
-            const id = new URL(location.href).searchParams.has('new') ? null : requested || items[0]?.id;
+            const id = new URL(location.href).searchParams.has('new') ? null : requested;
             if (id) await loadConversation(id);
             else { loading = false; newConversation(); }
             if (draft && previousId === currentId) { input.value = draft; input.dispatchEvent(new Event('input', { bubbles: true })); }
@@ -319,6 +344,7 @@
     window.addEventListener('sessions:refresh', () => { if (!loading && !active) initialize(); });
     window.addEventListener('sessions:changed', async event => {
         if (event.detail.deleted && event.detail.id === currentId) newConversation();
+        else if (event.detail.id === currentId && event.detail.title) remember(currentId, event.detail.title);
         try { await listConversations(); } catch (error) { recovery(error); }
     });
     window.addEventListener('sessions:more', async () => {
@@ -359,14 +385,19 @@
         input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true }));
         const controller = new AbortController(); active = controller;
         let timedOut = false, answer = '', persisted = false, savedTurnId = null;
+        let thoughtStart = null, thoughtSeconds = null, responseMeta = {};
         const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, 310000);
         controls(); scrollToLatest();
         try {
             await service.chat(payload, delta => {
                 const nearBottom = nearLatest();
                 answer += delta;
-                thinking.details.classList.remove('is-thinking'); thinking.label.textContent = 'Resumo do raciocínio';
-                if (!thinking.text.length) thinking.details.hidden = true;
+                if (thoughtSeconds === null && thoughtStart !== null) {
+                    thoughtSeconds = (performance.now() - thoughtStart) / 1000;
+                    if (savedTurnId) { durations[savedTurnId] = thoughtSeconds; try { localStorage.setItem(durationKey, JSON.stringify(durations)); } catch {} }
+                }
+                thinking.details.classList.remove('is-thinking'); thinking.label.textContent = thoughtLabel(thoughtSeconds);
+                thinking.details.hidden = !thinking.text.length;
                 assistant.body.hidden = false;
                 const reveal = document.createElement('span');
                 reveal.className = 'computer-response-reveal';
@@ -375,6 +406,7 @@
                 note.textContent = '';
                 if (nearBottom) scrollToLatest();
             }, controller.signal, delta => {
+                if (thoughtStart === null) thoughtStart = performance.now();
                 thinking.details.hidden = false;
                 if (thinking.text.length + delta.length > 48000) throw new Error('O pensamento excedeu o limite. Tente novamente.');
                 const follow = thinking.panel.scrollHeight - thinking.panel.scrollTop - thinking.panel.clientHeight < 40;
@@ -386,12 +418,25 @@
                 if(metadata.provider)models.select(metadata.provider);
                 savedTurnId = metadata.turn_id; user.article.dataset.turn=metadata.turn_id; sentAt=metadata.created_at||sentAt; messageTime(user.article,sentAt);
                 assistant.article.dataset.turn = metadata.turn_id;
-                remember(metadata.conversation_id, text.slice(0, 100));
+                const chatTitle = currentId === metadata.conversation_id
+                    ? document.querySelector('.computer-chat-title').textContent
+                    : text.slice(0, 100);
+                remember(metadata.conversation_id, chatTitle);
+            }, research => {
+                responseMeta.research = research;
+                thinking.details.hidden = true;
+                window.ComputerResponseDetails.research(assistant.article, research);
+            }, metadata => {
+                responseMeta = metadata;
+                window.ComputerResponseDetails.research(assistant.article, metadata.research, true);
+                window.ComputerResponseDetails.timing(assistant.article, metadata);
+                if (thinking.text.length) thinking.label.textContent = thoughtLabel(metadata.thinking_seconds ?? thoughtSeconds);
             });
             if (!answer.trim()) throw new Error('A resposta veio vazia. Tente novamente.');
-            turns.push({ id: savedTurnId, message: text, answer, thinking: thinking.text.data, status: 'completed', created_at:sentAt, attachments:attached });
+            turns.push({ id: savedTurnId, message: text, answer, thinking: thinking.text.data, status: 'completed', metadata:responseMeta, created_at:sentAt, attachments:attached });
             note.textContent = '';
         } catch (error) {
+            if (responseMeta.research) window.ComputerResponseDetails.research(assistant.article, responseMeta.research, true);
             thinking.details.classList.remove('is-thinking'); thinking.label.textContent = 'Pensamento interrompido';
             if (!answer && !thinking.text.length) thinking.details.hidden = true;
             if (!persisted) { user.article.remove(); assistant.article.remove(); showConversation(); }

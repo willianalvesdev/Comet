@@ -48,7 +48,7 @@ class RemoteProvider:
         return cls(name, os.getenv('GEMINI_API_KEY', ''),
                    os.getenv('GEMINI_MODEL', 'gemini-3.8-flash'), config)
 
-    def request(self, messages):
+    def request(self, messages, search=False):
         identity = f'\nModelo desta resposta: {self.model}. Provedor: {self.label}. Processamento via API externa.'
         system = messages[0]['content'] + identity
         headers = {'Content-Type': 'application/json', 'Accept': 'text/event-stream'}
@@ -66,13 +66,15 @@ class RemoteProvider:
                    'contents': contents,
                    'generationConfig': {'maxOutputTokens': 8192,
                                         'thinkingConfig': {'includeThoughts': True}}}
+        if search:
+            payload['tools'] = [{'google_search': {}}]
         return ('generativelanguage.googleapis.com',
                 f'/v1beta/models/{self.model}:streamGenerateContent?alt=sse', headers, payload)
 
-    def stream(self, messages):
+    def stream(self, messages, search=False):
         if not self.key:
             raise AIError('provider_missing', 503)
-        host, path, headers, payload = self.request(messages)
+        host, path, headers, payload = self.request(messages, search=search)
         connection = http.client.HTTPSConnection(host, timeout=self.config.timeout)
         deadline = time.monotonic() + self.config.total_timeout
         answer = thinking = 0
@@ -103,6 +105,9 @@ class RemoteProvider:
                 if not candidates:
                     continue
                 candidate = candidates[0]
+                if search and candidate.get('groundingMetadata'):
+                    from .web_search import grounding_metadata
+                    yield {'type': 'grounding', 'data': grounding_metadata(candidate['groundingMetadata'])}
                 for part in candidate.get('content', {}).get('parts', []):
                     if 'text' in part:
                         chunks.append(('thinking' if part.get('thought') else 'delta', part['text']))

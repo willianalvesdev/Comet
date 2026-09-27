@@ -46,12 +46,12 @@
 .chat-search__icon {
     /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display:block;
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 20px. px mede pixels CSS. */
-    flex:0 0 20px;
-    /* Define a largura. Valor atual: 20px. px mede pixels CSS. */
-    width:20px;
-    /* Define a altura. Valor atual: 20px. px mede pixels CSS. */
-    height:20px;
+    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 18px. px mede pixels CSS. */
+    flex:0 0 18px;
+    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
+    width:18px;
+    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
+    height:18px;
     /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
     background:currentColor;
     /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: url('../img/icons/settings-settings-search.svg') center/contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */

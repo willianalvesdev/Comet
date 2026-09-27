@@ -132,10 +132,10 @@
 
 /* Seleciona .sidebar__toggle-icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .sidebar__toggle-icon {
-    /* Define a largura. Valor atual: 14px. px mede pixels CSS. */
-    width: 14px;
-    /* Define a altura. Valor atual: 14px. px mede pixels CSS. */
-    height: 14px;
+    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
+    width: 18px;
+    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
+    height: 18px;
     /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
     background: currentColor;
     /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Variante de compatibilidade WebKit/Blink. Valor atual: url("../img/icons/sidebar-toggle.svg") center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
@@ -1571,20 +1571,20 @@ html.discovery-embedded .workspace {
 
 /* Seleciona .sidebar__nav .sidebar__new-icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .sidebar__nav .sidebar__new-icon {
-    /* Define a largura. Valor atual: 28px. px mede pixels CSS. */
-    width:28px;
-    /* Define a altura. Valor atual: 28px. px mede pixels CSS. */
-    height:28px;
-    /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 28px. px mede pixels CSS. */
-    flex-basis:28px;
+    /* Define a largura. Valor atual: 24px. px mede pixels CSS. */
+    width:24px;
+    /* Define a altura. Valor atual: 24px. px mede pixels CSS. */
+    height:24px;
+    /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 24px. px mede pixels CSS. */
+    flex-basis:24px;
 }
 
 /* Seleciona .sidebar__nav .sidebar__new-icon::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. */
 .sidebar__nav .sidebar__new-icon::before {
-    /* Define a largura. Valor atual: 20px. px mede pixels CSS. */
-    width:20px;
-    /* Define a altura. Valor atual: 20px. px mede pixels CSS. */
-    height:20px;
+    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
+    width:18px;
+    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
+    height:18px;
 }
 
 /* Seleciona .sidebar__finance-icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */

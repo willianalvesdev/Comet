@@ -166,6 +166,8 @@
 
 }
 
+
+
 /* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (prefers-reduced-motion: reduce) {
     /* Seleciona .news-card__media img, .news-card__title a. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
@@ -613,8 +615,8 @@
 .news-page {
     /* Limita a largura máxima. Valor atual: 1480px. px mede pixels CSS. */
     max-width: 1480px;
-    /* Define espaço interno entre conteúdo e borda acima. Valor atual: 0. */
-    padding-top: 0;
+    /* Separa as notícias do cabeçalho em 32px, como o espaço abaixo da barra de Finanças. */
+    padding-top: 32px;
 }
 
 /* Seleciona .discovery-nav. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
@@ -1223,8 +1225,8 @@
 @media (width < 640px) {
     /* Seleciona .news-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .news-page {
-        /* Define espaço interno entre conteúdo e borda acima. Valor atual: 0. */
-        padding-top: 0;
+        /* Mantém 32px de distância entre o cabeçalho e as notícias. */
+        padding-top: 32px;
     }
 
     /* Seleciona .discovery-nav. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
@@ -1267,4 +1269,274 @@
         display: none;
     }
 
+}
+
+/* Área Descobrir: margens laterais constantes de 32 pixels. */
+.news-page {
+    /* Usa toda a largura disponível sem o limite central anterior. */
+    max-width: none;
+    /* Mantém 32 pixels de espaço em cada lateral. */
+    padding-inline: 32px;
+}
+/* Reserva uma coluna estreita para o botão entre notícias e clima. */
+.discovery-layout {
+    /* Distribui notícia, botão e painel de previsão. */
+    grid-template-columns: minmax(0, 1fr) 40px minmax(260px, 30%);
+    /* Espaça as três colunas sem afastar demais o botão. */
+    gap: 16px;
+}
+/* Botão circular que recolhe o painel meteorológico. */
+.weather-toggle {
+    /* Define o diâmetro horizontal. */
+    width: 40px;
+    /* Define o diâmetro vertical. */
+    height: 40px;
+    /* Transforma o botão em círculo. */
+    border-radius: 50%;
+    /* Remove a borda padrão do navegador. */
+    border: 0;
+    /* Usa o fundo secundário do tema. */
+    background: var(--surface);
+    /* Centraliza o ícone nos dois eixos. */
+    display: grid;
+    /* Alinha o desenho ao centro da célula. */
+    place-items: center;
+    /* Indica que o controle é clicável. */
+    cursor: pointer;
+}
+/* Tamanho do SVG do botão de recolher. */
+.weather-toggle img {
+    /* Mantém o desenho pequeno dentro do círculo. */
+    width: 16px;
+    /* Mantém proporção quadrada. */
+    height: 16px;
+}
+/* Mantém clima e atualização no mesmo ponto durante a rolagem. */
+.discovery-widgets {
+    /* Fixa o painel ao atingir o topo durante a rolagem. */
+    position: sticky;
+    /* Deixa uma margem superior para o cabeçalho. */
+    top: 16px;
+    /* Separa o botão externo do cartão do clima. */
+    gap: 12px;
+}
+/* Oculta de fato o painel recolhido, inclusive se houver display grid. */
+.discovery-widgets[hidden] {
+    /* Retira a coluna do clima da apresentação. */
+    display: none;
+}
+/* Sem clima, as notícias usam o espaço liberado. */
+.discovery-layout.is-weather-collapsed {
+    /* Preserva apenas notícias e botão de expansão. */
+    grid-template-columns: minmax(0, 1fr) 40px;
+}
+/* Inverte a seta para indicar que o painel pode ser reaberto. */
+.is-weather-collapsed .weather-toggle img {
+    /* Aponta as setas para a esquerda. */
+    transform: rotate(180deg);
+}
+/* Em telas estreitas, o painel fica abaixo das notícias. */
+@media (max-width: 900px) {
+    .discovery-layout {
+        /* Evita colunas estreitas ou transbordamento no celular. */
+        grid-template-columns: minmax(0, 1fr) 40px;
+    }
+    .discovery-widgets {
+        /* Ocupa a largura das duas colunas. */
+        grid-column: 1 / -1;
+        /* Mantém o painel no fluxo de leitura em telas pequenas. */
+        position: static;
+    }
+}
+
+
+/* No desktop, mantém o clima na posição original da tela. */
+@media (min-width: 901px) {
+    .discovery-widgets {
+        /* As coordenadas iniciais são calculadas pelo weather.js. */
+        position: fixed;
+    }
+    .discovery-layout.is-weather-collapsed {
+        /* Conserva a largura original das notícias ao recolher o clima. */
+        grid-template-columns: var(--stories-width) 40px;
+        /* Centraliza a coluna sem aumentar os cartões. */
+        justify-content: center;
+    }
+}
+/* Desfaz as coordenadas do desktop em dispositivos pequenos. */
+@media (max-width: 900px) {
+    .discovery-widgets {
+        /* Permite ocupar a largura natural da linha. */
+        width: auto !important;
+        /* Remove o deslocamento horizontal fixo. */
+        left: auto !important;
+        /* Remove o deslocamento vertical fixo. */
+        top: auto !important;
+    }
+}
+
+
+/* Devolve o clima ao fluxo normal da página. */
+.discovery-layout .discovery-widgets {
+    /* Acompanha as notícias ao rolar a página. */
+    position: static;
+    /* Usa a largura da coluna do grid. */
+    width: auto;
+}
+/* Filtros na barra fixa de navegação do Descobrir. */
+.workspace__header:has(.discovery-nav) {
+    /* Mantém os filtros visíveis durante a leitura. */
+    position: sticky;
+    /* Encosta o cabeçalho no topo da tela. */
+    top: 0;
+    /* Sobrepõe cartões e imagens. */
+    z-index: 35;
+    /* Evita transparência sobre as notícias. */
+    background: var(--bg);
+}
+.workspace__header .discovery-nav {
+    /* Remove o espaço usado quando a navegação ficava no conteúdo. */
+    margin: 0;
+    /* Distribui filtros e seletor de tópicos. */
+    display: flex;
+    /* Mantém os controles alinhados. */
+    align-items: center;
+}
+
+/* Restaura a barra fixa, usando os deslocamentos do menu lateral já existentes. */
+.workspace__header:has(.discovery-nav) {
+    /* Fica no topo da janela, sem ocupar uma segunda linha no conteúdo. */
+    position: fixed;
+    /* Mantém o cabeçalho acima das notícias e seus controles. */
+    z-index: 90;
+}
+.workspace__header .discovery-nav {
+    /* Centraliza independentemente da largura do título à esquerda. */
+    position: absolute;
+    /* Define o centro da barra como referência. */
+    left: 50%;
+    /* Compensa metade da largura dos filtros. */
+    transform: translateX(-50%);
+    /* Ocupa toda a altura da barra para alinhar o sublinhado. */
+    height: 100%;
+    /* Encosta no topo do cabeçalho. */
+    top: 0;
+    /* Evita que rótulos de tópicos quebrem em duas linhas. */
+    white-space: nowrap;
+    /* Permite ao menu suspenso sair da barra. */
+    overflow: visible;
+}
+.discovery-nav > button, .discovery-topics, .discovery-topics > summary {
+    /* Estende a opção até a base da barra fixa. */
+    height: 100%;
+}
+.discovery-topics > summary {
+    /* Centraliza rótulo e seta na vertical. */
+    display: flex;
+    /* Mantém o desenho no eixo do texto. */
+    align-items: center;
+    /* Separa texto e seta de forma compacta. */
+    gap: 6px;
+}
+.discovery-dropdown {
+    /* Largura total solicitada para o menu. */
+    width: 204px;
+    /* Espaçamento interno compacto sem intervalo entre linhas. */
+    padding: 4px;
+    /* Não adiciona espaço entre tópicos. */
+    gap: 0;
+}
+.discovery-dropdown button {
+    /* Altura exata de cada tópico. */
+    height: 36px;
+    /* Elimina mínimos herdados que aumentariam as linhas. */
+    min-height: 0;
+    /* Centraliza o conteúdo sem padding vertical. */
+    padding: 0 6px;
+    /* Não deixa margem entre os itens. */
+    margin: 0;
+    /* Separa ícone, texto e seleção dentro de cada linha. */
+    gap: 6px;
+    /* Ajusta os rótulos à largura de 204 pixels. */
+    font-size: 13px;
+}
+.discovery-dropdown .discovery-icon {
+    /* Mantém o ícone pequeno e proporcional. */
+    width: 16px;
+    /* Mantém o ícone quadrado. */
+    height: 16px;
+    /* Impede que o flex reduza o desenho. */
+    flex: 0 0 16px;
+}
+.topic-check {
+    /* Reserva o espaço da marca à direita. */
+    width: 14px;
+    /* Define a altura da marca. */
+    height: 14px;
+    /* Impede o encolhimento do SVG. */
+    flex: 0 0 14px;
+    /* Encosta a seleção na extremidade direita. */
+    margin-left: auto;
+    /* Usa a cor do texto para pintar o SVG. */
+    background: currentColor;
+    /* Reaproveita a marca de seleção já salva no site. */
+    mask: url('../img/icons/check.svg') center / contain no-repeat;
+    /* Esconde a marca das opções não selecionadas. */
+    opacity: 0;
+}
+[aria-pressed="true"] > .topic-check {
+    /* Exibe a marca somente no tópico ativo. */
+    opacity: 1;
+}
+/* Evita sobreposição com os controles móveis. */
+@media (max-width: 639px) {
+    .workspace__header:has(.discovery-nav) .workspace__mobile-brand,
+    .workspace__header:has(.discovery-nav) .mobile-discover-toggle {
+        /* Reserva o cabeçalho compacto para os filtros do Descobrir. */
+        display: none;
+    }
+    .workspace__header .discovery-nav {
+        /* Mantém os filtros dentro da largura disponível. */
+        max-width: calc(100% - 16px);
+        /* Reduz o intervalo em telas pequenas. */
+        gap: 8px;
+    }
+}
+
+/* Esqueleto de carregamento no mesmo grid e proporções das notícias. */
+.news-skeleton {
+    /* Ignora interações enquanto não existe uma notícia real. */
+    pointer-events: none;
+}
+.news-skeleton .skeleton-block, .news-skeleton .skeleton-line {
+    /* Usa tons do tema para o efeito de carregamento. */
+    background: linear-gradient(100deg, var(--surface) 25%, color-mix(in srgb, var(--text) 9%, var(--surface)) 45%, var(--surface) 65%);
+    /* Reserva espaço para o brilho atravessar a área. */
+    background-size: 200% 100%;
+    /* Move o brilho suavemente. */
+    animation: news-skeleton-shimmer 1.2s linear infinite;
+}
+.news-skeleton .skeleton-line {
+    /* Simula uma linha de título. */
+    height: 18px;
+    /* Separa as linhas do esqueleto. */
+    margin-bottom: 12px;
+    /* Evita pontas rígidas nas linhas. */
+    border-radius: 5px;
+}
+.news-skeleton .skeleton-line--short {
+    /* Simula o comprimento menor da data e da fonte. */
+    width: 55%;
+}
+@keyframes news-skeleton-shimmer {
+    to {
+        /* Desloca o brilho para a outra extremidade. */
+        background-position: -200% 0;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .news-skeleton .skeleton-block, .news-skeleton .skeleton-line {
+        /* Exibe placeholders estáticos quando o usuário reduz animações. */
+        animation: none;
+    }
 }

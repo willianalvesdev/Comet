@@ -68,7 +68,7 @@ def create_app(test_config=None):
     from .news import NewsService, NewsError, topic_selection
     news_service = NewsService(app.config['NEWS_API_KEY'])
     app.extensions['ascenda_news'] = news_service
-    from .ai.config import AIConfig
+    from .ai.config import AIConfig, LOCAL_MODELS
     from .ai.remote import RemoteProvider
     from .ai.ollama import OllamaProvider
     from .ai.service import ComputerService
@@ -76,7 +76,13 @@ def create_app(test_config=None):
     from .ai.conversations import ConversationStore
     ai_config = app.config.get('AI_CONFIG') or AIConfig.from_env()
     providers = {'qwen': OllamaProvider(ai_config), 'gemini': RemoteProvider.from_env('gemini', ai_config)}
+    from dataclasses import replace
+    for model in LOCAL_MODELS:
+        providers[model] = OllamaProvider(replace(ai_config, model=model))
+        providers[model].label = model
     computer_service = ComputerService(providers['qwen'], ai_config, providers)
+    from .ai.web_search import WebSearch
+    computer_service.web_search = WebSearch(providers['gemini'])
     app.extensions['ascenda_computer'] = computer_service
     conversation_store = ConversationStore(app.config)
     app.extensions['ascenda_conversations'] = conversation_store
@@ -144,7 +150,7 @@ def create_app(test_config=None):
     def computer_models():
         if not current_user():
             return jsonify(error='Entre novamente para escolher um modelo.'), 401
-        response = jsonify(models=[{'id': name, 'name': provider.label, 'configured': name == 'qwen' or bool(provider.key)}
+        response = jsonify(models=[{'id': name, 'name': provider.label, 'configured': isinstance(provider, OllamaProvider) or bool(provider.key)}
                                    for name, provider in providers.items()])
         response.headers['Cache-Control'] = 'no-store'
         return response

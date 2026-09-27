@@ -1,5 +1,5 @@
 (() => {
-    const list = document.querySelector('.sessions__list');
+    const list = document.querySelector('.sidebar__nav');
     if (!list) return;
     const preview = document.createElement('div');
     preview.className = 'chat-preview'; preview.id = 'chat-preview'; preview.hidden = true;
@@ -23,7 +23,7 @@
     }
     function position() {
         const rect = anchor.closest('.sessions__row').getBoundingClientRect();
-        const width = Math.min(420, innerWidth - 24);
+        const width = Math.min(340, innerWidth - 24);
         preview.style.width = width + 'px';
         preview.style.left = Math.max(12, Math.min(rect.right + 8, innerWidth - width - 12)) + 'px';
         preview.style.top = Math.max(12, Math.min(rect.top, innerHeight - preview.offsetHeight - 12)) + 'px';
@@ -60,8 +60,8 @@
     document.addEventListener('keydown', event => { if (event.key === 'Escape') hide(); });
     window.addEventListener('scroll', hide, true);
     window.addEventListener('resize', hide);
-    new MutationObserver(() => { if (anchor && !anchor.isConnected) hide(); }).observe(list, {childList:true});
+    new MutationObserver(() => { if (anchor && !anchor.isConnected) hide(); }).observe(list, {childList:true,subtree:true});
     // Replace the browser's native title popup with this richer preview.
     const clearTitles = () => list.querySelectorAll('.sessions__link[title]').forEach(link => link.removeAttribute('title'));
-    new MutationObserver(clearTitles).observe(list, {childList:true}); clearTitles();
+    new MutationObserver(clearTitles).observe(list, {childList:true,subtree:true}); clearTitles();
 })();

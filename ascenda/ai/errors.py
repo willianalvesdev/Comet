@@ -1,5 +1,6 @@
 """Safe messages for the UI; technical exceptions stay in server logs."""
 MESSAGES = {
+    'context_size': 'Esta conversa excedeu o contexto disponível do modelo. Abra um novo chat ou escolha um modelo com maior capacidade.',
     'attachment_size': 'Cada arquivo pode ter até 8 MB.',
     'attachment_type': 'Envie PNG, JPG, WebP, PDF, DOCX ou arquivos de texto.',
     'attachment_content': 'Não foi possível ler o arquivo. Use um documento com texto selecionável, até 40 páginas e 20 mil caracteres, ou envie uma imagem.',
