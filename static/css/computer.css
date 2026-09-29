@@ -1,2388 +1,1966 @@
-/* GUIA DE EDIÇÃO — computer.css
- * Explicações em português antes de cada seletor e declaração.
- * A ordem foi preservada: regras posteriores podem sobrescrever as anteriores.
- * { abre um bloco; } encerra; : separa propriedade e valor; ; termina uma declaração.
- * Edite os valores do código. Os comentários são documentação e não alteram o visual.
- */
-/* Seleciona .computer-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-page {
-    /* Define a largura. Valor atual: min(100%, 960px). min() escolhe o menor valor. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: min(100%, 960px);
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 auto. */
     margin: 0 auto;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 38px 32px 32px. px mede pixels CSS. */
-    padding: 38px 32px 32px;
+    padding: 38px var(--space-8) var(--space-8);
 }
 
-/* Seleciona .computer-intro. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-intro {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
     position: relative;
 }
 
-
-
-/* Seleciona .computer-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-status {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
     gap: 10px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 0 22px. px mede pixels CSS. */
     margin: 0 0 22px;
 }
 
-/* Seleciona .computer-intro h1, .computer-intro > p:not(.computer-status). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-intro h1, .computer-intro > p:not(.computer-status) {
-    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-heading). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-family: var(--font-heading);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-3);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.6. */
     line-height: 1.6;
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 0 22px. px mede pixels CSS. */
     margin: 0 0 22px;
 }
 
-/* Seleciona .computer-intro h1. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-intro h1 {
-    /* Define espaço externo abaixo. Valor atual: 4px. px mede pixels CSS. */
-    margin-bottom: 4px;
+    margin-bottom: var(--space-1);
 }
 
-/* Seleciona .computer-templates. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-templates {
-    /* Define espaço externo acima. Valor atual: 90px. px mede pixels CSS. */
     margin-top: 90px;
-    /* Define espaço externo abaixo. Valor atual: 24px. px mede pixels CSS. */
-    margin-bottom: 24px;
+    margin-bottom: var(--space-6);
 }
 
-/* Seleciona .computer-templates__heading. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-templates__heading {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: space-between. */
     justify-content: space-between;
-    /* Define espaço externo abaixo. Valor atual: 16px. px mede pixels CSS. */
-    margin-bottom: 16px;
+    margin-bottom: var(--space-4);
 }
 
-/* Seleciona .computer-templates h2. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-templates h2 {
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     margin: 0;
 }
 
-/* Seleciona .computer-shuffle. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-shuffle {
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
     background: transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Define o tamanho das letras. Valor atual: 22px. px mede pixels CSS. */
     font-size: 22px;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
 }
 
-/* Seleciona .computer-templates__grid. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-templates__grid {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: repeat(3, minmax(0, 1fr)). minmax() define mínimo e máximo de uma faixa do grid. */
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
     gap: 10px;
 }
 
-/* Seleciona .computer-template. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-template {
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px. px mede pixels CSS. */
-    padding: 12px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    padding: var(--space-3);
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
-    border-radius: 10px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-radius: var(--radius-medium);
     background: var(--surface);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
     text-align: left;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
-    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
     text-overflow: ellipsis;
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
 }
 
-/* Seleciona .computer-template:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
 .computer-template:hover {
-    /* Define a cor das bordas. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     border-color: var(--accent);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--accent);
 }
 
-/* Seleciona .computer-mode, .computer-note. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-mode, .computer-note {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-5);
 }
 
-/* Seleciona .computer-note. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-note {
-    /* Define espaço externo acima. Valor atual: 12px. px mede pixels CSS. */
-    margin-top: 12px;
+    margin-top: var(--space-3);
 }
 
-/* Seleciona .workspace .computer-page .home__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .workspace .computer-page .home__composer {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
     position: relative;
-    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: auto. */
     inset: auto;
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: 100%;
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     margin: 0;
-    /* Desloca o elemento visualmente nos eixos horizontal e vertical. Valor atual: none. */
     translate: none;
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .computer-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-page {
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 24px 16px. px mede pixels CSS. */
-        padding: 24px 16px;
+        padding: var(--space-6) var(--space-4);
     }
 
-    /* Seleciona .computer-templates. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-templates {
-        /* Define espaço externo acima. Valor atual: 42px. px mede pixels CSS. */
         margin-top: 42px;
     }
 
-    /* Seleciona .computer-templates__grid. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-templates__grid {
-        /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: repeat(2, minmax(0, 1fr)). minmax() define mínimo e máximo de uma faixa do grid. */
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
 }
 
-
-
-/* Seleciona .computer-intro. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-intro {
-    /* Define espaço externo abaixo. Valor atual: 56px. px mede pixels CSS. */
     margin-bottom: 56px;
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .computer-intro. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-intro {
-        /* Define espaço externo abaixo. Valor atual: 32px. px mede pixels CSS. */
-        margin-bottom: 32px;
+        margin-bottom: var(--space-8);
     }
-
 }
 
-/* Seleciona .computer-header. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-header {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: 32px minmax(0, 1fr) 32px. minmax() define mínimo e máximo de uma faixa do grid. px mede pixels CSS. */
     grid-template-columns: 32px minmax(0, 1fr) 32px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
 }
 
-
-
-
-
-
-
-
-
-/* Seleciona .computer-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-page {
-    /* Define a largura. Valor atual: min(100%, 800px). min() escolhe o menor valor. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: min(100%, 800px);
 }
 
-/* Seleciona .computer-header. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-header {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
 }
 
-
-
-
-
-/* Seleciona .workspace .computer-page .home__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .workspace .computer-page .home__composer {
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 14px 16px 12px. px mede pixels CSS. */
-    padding: 14px 16px 12px;
+    padding: 14px var(--space-4) var(--space-3);
 }
 
-/* Seleciona .computer-page .home__input. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-page .home__input {
-    /* Define a altura mínima. Valor atual: 38px. px mede pixels CSS. */
     min-height: 38px;
-    /* Define a altura. Valor atual: 38px. px mede pixels CSS. */
     height: 38px;
 }
 
-/* Seleciona .computer-page .home__toolbar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-page .home__toolbar {
-    /* Define espaço externo acima. Valor atual: 8px. px mede pixels CSS. */
-    margin-top: 8px;
+    margin-top: var(--space-2);
 }
 
-/* Condição (width < 900px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 900px) {
-
-
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-
-
 }
 
-/* Seleciona .computer-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-page {
-    /* Define a altura mínima. Valor atual: calc(100svh - var(--header-height)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
     min-height: calc(100svh - var(--header-height));
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
     flex-direction: column;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
     justify-content: center;
-    /* Define espaço interno entre conteúdo e borda no eixo vertical da escrita. Valor atual: 48px 16svh. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
     padding-block: 48px 16svh;
 }
 
-/* Seleciona .computer-intro. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-intro {
-    /* Define espaço externo abaixo. Valor atual: 40px. px mede pixels CSS. */
     margin-bottom: 40px;
 }
 
-/* Seleciona .computer-intro h1. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-intro h1 {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
     justify-content: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 14px. px mede pixels CSS. */
     gap: 14px;
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     margin: 0;
-    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-heading). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-family: var(--font-heading);
-    /* Define o tamanho das letras. Valor atual: clamp(28px, 3.2vw, 44px). clamp() recebe mínimo, valor preferido e máximo. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
     font-size: clamp(28px, 3.2vw, 44px);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.2. */
     line-height: 1.2;
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
-    /* Alinha o conteúdo textual na caixa. Valor atual: center. */
     text-align: center;
-    /* Controla as quebras; balance equilibra linhas e nowrap impede quebra. Valor atual: balance. */
     text-wrap: balance;
 }
 
-/* Seleciona .computer-intro__logo. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-intro__logo {
-    /* Define a largura. Valor atual: 42px. px mede pixels CSS. */
     width: 42px;
-    /* Define a altura. Valor atual: 42px. px mede pixels CSS. */
     height: 42px;
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 42px. px mede pixels CSS. */
     flex: 0 0 42px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     background: var(--text);
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: url('../img/icons/computer-static.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     mask: url('../img/icons/computer-static.svg') center / contain no-repeat;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Variante de compatibilidade WebKit/Blink. Valor atual: url('../img/icons/computer-static.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     -webkit-mask: url('../img/icons/computer-static.svg') center / contain no-repeat;
 }
 
-/* Seleciona .computer-note:empty. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-note:empty {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .computer-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-page {
-        /* Define espaço interno entre conteúdo e borda no eixo vertical da escrita. Valor atual: 36px 12svh. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
         padding-block: 36px 12svh;
     }
 
-    /* Seleciona .computer-intro. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-intro {
-        /* Define espaço externo abaixo. Valor atual: 28px. px mede pixels CSS. */
         margin-bottom: 28px;
     }
 
-    /* Seleciona .computer-intro h1. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-intro h1 {
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
         gap: 10px;
     }
 
-    /* Seleciona .computer-intro__logo. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-intro__logo {
-        /* Define a largura. Valor atual: 32px. px mede pixels CSS. */
         width: 32px;
-        /* Define a altura. Valor atual: 32px. px mede pixels CSS. */
         height: 32px;
-        /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 32px. px mede pixels CSS. */
         flex-basis: 32px;
     }
-
 }
 
-/* Conversation states extend the existing page only after the first message. */
-/* Seleciona .computer-page.has-conversation. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-page.has-conversation {
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: flex-start. */
     justify-content: flex-start;
-    /* Define espaço interno entre conteúdo e borda abaixo. Valor atual: 32px. px mede pixels CSS. */
-    padding-bottom: 32px;
+    padding-bottom: var(--space-8);
 }
 
-/* Seleciona .computer-messages[hidden]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
 .computer-messages[hidden] {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
 }
 
-/* Seleciona .computer-messages. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-messages {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 28px. px mede pixels CSS. */
     gap: 28px;
-    /* Define espaço externo abaixo. Valor atual: 28px. px mede pixels CSS. */
     margin-bottom: 28px;
 }
 
-/* Seleciona .computer-message. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-message {
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
 }
 
-/* Seleciona .computer-message h2. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-message h2 {
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 0 8px. px mede pixels CSS. */
-    margin: 0 0 8px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    margin: 0 0 var(--space-2);
     color: var(--text-secondary);
-    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
     font: inherit;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-5);
 }
 
-/* Seleciona .computer-message__text. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-message__text {
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: pre-wrap. */
     white-space: pre-wrap;
-    /* Controla a quebra de palavras longas para evitar transbordamento. Valor atual: anywhere. */
     overflow-wrap: anywhere;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.65. */
     line-height: 1.65;
 }
 
-/* Seleciona .computer-message--user. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-message--user {
-    /* Alinha este item na sua área do grid. Valor atual: end. */
     justify-self: end;
-    /* Define a largura. Valor atual: fit-content. */
     width: fit-content;
-    /* Limita a largura máxima. Valor atual: 85%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     max-width: 85%;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 14px 18px. px mede pixels CSS. */
-    padding: 12px 16px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    padding: var(--space-3) var(--space-4);
     background: var(--surface);
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
-    border-radius: 16px;
+    border-radius: var(--radius-panel);
 }
 
-/* Seleciona .computer-message__warning. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-message__warning {
-    /* Define espaço externo acima. Valor atual: 8px. px mede pixels CSS. */
-    margin-top: 8px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    margin-top: var(--space-2);
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-5);
 }
 
-/* Seleciona .computer-page .home__composer.is-responding .home__send .ui-arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-page .home__composer.is-responding .home__send .ui-arrow {
-    /* Escolhe a imagem que recorta a pintura do elemento. Valor atual: url('../img/icons/pause.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     mask-image: url('../img/icons/pause.svg');
-    /* Escolhe a imagem que recorta a pintura do elemento. Variante de compatibilidade WebKit/Blink. Valor atual: url('../img/icons/pause.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     -webkit-mask-image: url('../img/icons/pause.svg');
 }
 
-/* Seleciona .computer-page .home__microphone:disabled. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :disabled: controle desativado. */
 .computer-page .home__microphone:disabled {
-    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: .4. */
     opacity: .4;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: default. */
     cursor: default;
 }
 
-/* Seleciona .computer-thinking. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-thinking {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
 }
 
-/* Seleciona .computer-thinking__toggle. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-thinking__toggle {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 6px. px mede pixels CSS. */
     gap: 6px;
-    /* Define a largura. Valor atual: fit-content. */
     width: fit-content;
-    /* Define a altura mínima. Valor atual: 32px. px mede pixels CSS. */
     min-height: 32px;
-    /* Configura os marcadores de lista; none os remove. Valor atual: none. */
     list-style: none;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
 }
 
-/* Seleciona .computer-thinking__toggle::-webkit-details-marker. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-thinking__toggle::-webkit-details-marker {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
 }
 
-/* Seleciona .computer-thinking__toggle::marker. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-thinking__toggle::marker {
-    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: ''. */
     content: '';
 }
 
-/* Seleciona .computer-thinking__toggle:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
 .computer-thinking__toggle:hover {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
 }
 
-/* Seleciona .computer-thinking__toggle:focus-visible, .computer-thinking__content:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
 .computer-thinking__toggle:focus-visible, .computer-thinking__content:focus-visible {
-    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     outline: 2px solid var(--accent);
-    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: 4px. px mede pixels CSS. */
     outline-offset: 4px;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 4px. px mede pixels CSS. */
     border-radius: 4px;
 }
 
-/* Seleciona .computer-thinking__arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-thinking__arrow {
-    /* Define a largura. Valor atual: 12px. px mede pixels CSS. */
     width: 12px;
-    /* Define a altura. Valor atual: 12px. px mede pixels CSS. */
     height: 12px;
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 12px. px mede pixels CSS. */
     flex: 0 0 12px;
-    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: transform .2s ease. */
-    transition: transform .2s ease;
+    transition: transform var(--duration-normal) ease;
 }
 
-/* Seleciona .computer-thinking[open] .computer-thinking__arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-thinking[open] .computer-thinking__arrow {
-    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: rotate(90deg). */
     transform: rotate(90deg);
 }
 
-/* Seleciona .computer-thinking__content. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-thinking__content {
-    /* Limita a altura máxima. Valor atual: 260px. px mede pixels CSS. */
     max-height: 260px;
-    /* Controla o transbordamento vertical. Valor atual: auto. */
     overflow-y: auto;
-    /* Controla o que acontece no fim da rolagem; contain evita transferi-la ao elemento ancestral. Valor atual: contain. */
     overscroll-behavior: contain;
-    /* Define espaço externo acima. Valor atual: 8px. px mede pixels CSS. */
-    margin-top: 8px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 4px 0 4px 14px. px mede pixels CSS. */
-    padding: 4px 0 4px 14px;
-    /* Configura a borda esquerda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    margin-top: var(--space-2);
+    padding: var(--space-1) 0 var(--space-1) 14px;
     border-left: 1px solid var(--border);
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: pre-wrap. */
     white-space: pre-wrap;
-    /* Controla a quebra de palavras longas para evitar transbordamento. Valor atual: anywhere. */
     overflow-wrap: anywhere;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.65. */
     line-height: 1.65;
 }
 
-/* Seleciona .computer-thinking__content:empty::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. */
 .computer-thinking__content:empty::before {
-    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: 'Aguardando o pensamento…'. */
     content: 'Aguardando o pensamento…';
 }
 
-/* Seleciona .computer-thinking:not([hidden]) + .computer-message__text:not([hidden]). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
 .computer-thinking:not([hidden]) + .computer-message__text:not([hidden]) {
-    /* Define espaço externo acima. Valor atual: 14px. px mede pixels CSS. */
     margin-top: 14px;
 }
 
-/* Seleciona .computer-thinking.is-thinking .computer-thinking__toggle > span. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-thinking.is-thinking .computer-thinking__toggle > span {
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: linear-gradient(110deg, var(--text-secondary) 35%, var(--text) 50%, var(--text-secondary) 65%). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background: linear-gradient(110deg, var(--text-secondary) 35%, var(--text) 50%, var(--text-secondary) 65%);
-    /* Define as dimensões da imagem ou gradiente de fundo. Valor atual: 250% 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background-size: 250% 100%;
-    /* Limita a área pintada pelo fundo; text recorta a pintura nas letras. Valor atual: text. */
     background-clip: text;
-    /* Limita a área pintada pelo fundo; text recorta a pintura nas letras. Variante de compatibilidade WebKit/Blink. Valor atual: text. */
     -webkit-background-clip: text;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: transparent. */
     color: transparent;
-    /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: computer-thinking-shimmer 2.4s linear infinite. */
     animation: computer-thinking-shimmer 2.4s linear infinite;
 }
 
-/* Animação computer-thinking-shimmer: os blocos internos definem estados no tempo; a propriedade animation define duração e repetição. */
 @keyframes computer-thinking-shimmer {
-    /* Etapa from da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
     from {
-        /* Posiciona a imagem ou gradiente no fundo. Valor atual: 150% 0. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
         background-position: 150% 0;
     }
 
-    /* Etapa to da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
     to {
-        /* Posiciona a imagem ou gradiente no fundo. Valor atual: -150% 0. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
         background-position: -150% 0;
     }
-
 }
 
-/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (prefers-reduced-motion: reduce) {
-    /* Seleciona .computer-thinking.is-thinking .computer-thinking__toggle > span. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-thinking.is-thinking .computer-thinking__toggle > span {
-        /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: none. */
         animation: none;
-        /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: none. */
         background: none;
-        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         color: var(--text-secondary);
     }
 
-    /* Seleciona .computer-thinking__arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-thinking__arrow {
-        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
         transition: none;
     }
-
 }
 
-/* Seleciona .computer-history__older. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-history__older {
-    /* Sobrescreve o alinhamento do eixo transversal para este item. Valor atual: center. */
     align-self: center;
-    /* Define espaço externo abaixo. Valor atual: 20px. px mede pixels CSS. */
-    margin-bottom: 20px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px 10px. px mede pixels CSS. */
-    padding: 8px 10px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    margin-bottom: var(--space-5);
+    padding: var(--space-2) 10px;
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
-    border-radius: 10px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    border-radius: var(--radius-medium);
     background: transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
 }
 
-/* Seleciona .computer-header > .workspace__menu-toggle. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-header > .workspace__menu-toggle {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .computer-header > .workspace__menu-toggle. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-header > .workspace__menu-toggle {
-        /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
         display: flex;
-        /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
         align-items: center;
-        /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
         justify-content: center;
-        /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
         position: absolute;
-        /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 12px. px mede pixels CSS. */
         left: 12px;
-        /* Define a largura. Valor atual: 32px. px mede pixels CSS. */
         width: 32px;
-        /* Define a altura. Valor atual: 32px. px mede pixels CSS. */
         height: 32px;
-        /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
         border: 0;
-        /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
         background: transparent;
-        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         color: var(--text);
     }
 
-
-
-    /* Seleciona .computer-header > .workspace__menu-toggle .sidebar__toggle-icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-header > .workspace__menu-toggle .sidebar__toggle-icon {
-        /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: static. */
         position: static;
     }
-
 }
 
-/* The model menu opens in the top layer, above the composer and mobile panels. */
-/* Seleciona .model-picker. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .model-picker {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-flex. */
     display: inline-flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
     justify-content: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 7px. px mede pixels CSS. */
     gap: 7px;
-    /* Define a altura mínima. Valor atual: 36px. px mede pixels CSS. */
     min-height: 36px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 6px 10px. px mede pixels CSS. */
     padding: 6px 10px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 18px. px mede pixels CSS. */
     border-radius: 18px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
     background: transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
     font: inherit;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
 }
 
-/* Seleciona .model-picker > svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .model-picker > svg {
-    /* Define a largura. Valor atual: 14px. px mede pixels CSS. */
     width: 14px;
-    /* Define a altura. Valor atual: 14px. px mede pixels CSS. */
     height: 14px;
-    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: transform .18s ease. */
-    transition: transform .18s ease;
+    transition: transform var(--duration-press) ease;
 }
 
-/* Seleciona .model-picker[aria-expanded="true"] > svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
 .model-picker[aria-expanded="true"] > svg {
-    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: rotate(180deg). */
     transform: rotate(180deg);
 }
 
-/* Seleciona .model-picker:hover, .model-picker[aria-expanded="true"]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. [aria-: estado acessível informado por atributo. */
 .model-picker:hover, .model-picker[aria-expanded="true"] {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface-hover, color-mix(in srgb, var(--text) 6%, transparent)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    background: var(--surface-hover, color-mix(in srgb, var(--text) 6%, transparent));
+    background: var(--surface-hover, var(--surface-hover-strong));
 }
 
-/* Seleciona .model-picker:disabled. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :disabled: controle desativado. */
 .model-picker:disabled {
-    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: .45. */
     opacity: .45;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: default. */
     cursor: default;
 }
 
-/* Seleciona .model-menu. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .model-menu {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
     position: fixed;
-    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: auto. */
     inset: auto;
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     margin: 0;
-    /* border-box inclui padding e bordas na largura/altura declarada; content-box mede apenas o conteúdo. Valor atual: border-box. */
     box-sizing: border-box;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 6px. px mede pixels CSS. */
     padding: 6px;
-    /* Define a largura. Valor atual: 260px. px mede pixels CSS. */
     width: 260px;
-    /* Limita a largura máxima. Valor atual: calc(100vw - 24px). calc() calcula a medida combinando parcelas. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
     max-width: calc(100vw - 24px);
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
-    border-radius: 16px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-radius: var(--radius-panel);
     background: var(--surface);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Desenha sombra com deslocamentos horizontal/vertical, desfoque, expansão opcional e cor; inset coloca a sombra por dentro. Valor atual: 0 8px 28px color-mix(in srgb, var(--bg) 70%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     box-shadow: 0 8px 28px color-mix(in srgb, var(--bg) 70%, transparent);
 }
 
-/* Seleciona .model-menu > button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .model-menu > button {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 12px. px mede pixels CSS. */
-    gap: 12px;
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    gap: var(--space-3);
     width: 100%;
-    /* Define a altura mínima. Valor atual: 46px. px mede pixels CSS. */
     min-height: 46px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px 12px. px mede pixels CSS. */
-    padding: 10px 12px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    padding: 10px var(--space-3);
     border: 0;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
-    border-radius: 10px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    border-radius: var(--radius-medium);
     background: transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
     font: inherit;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
     text-align: left;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
 }
 
-/* Seleciona .model-menu > button:hover, .model-menu > button:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. focus-visible: foco visível de teclado. */
 .model-menu > button:hover, .model-menu > button:focus-visible {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text) 6%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    background: color-mix(in srgb, var(--text) 6%, transparent);
+    background: var(--surface-hover-strong);
 }
 
-/* Seleciona .model-menu > button[aria-checked="true"]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
 .model-menu > button[aria-checked="true"] {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
 }
 
-/* Seleciona .model-menu small. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .model-menu small {
-    /* Define espaço externo à esquerda. Valor atual: auto. */
     margin-left: auto;
-    /* Define o tamanho das letras. Valor atual: 11px. px mede pixels CSS. */
     font-size: 11px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
 }
 
-/* Seleciona .model-icon, .model-check. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .model-icon, .model-check {
-    /* Define a largura. Valor atual: 16px. px mede pixels CSS. */
-    width: 16px;
-    /* Define a altura. Valor atual: 16px. px mede pixels CSS. */
-    height: 16px;
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 18px. px mede pixels CSS. */
-    flex: 0 0 16px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
+    width: var(--icon-small);
+    height: var(--icon-small);
+    flex: 0 0 var(--icon-small);
     background: currentColor;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: center / contain no-repeat. */
     mask: center / contain no-repeat;
 }
 
-/* Seleciona .model-icon--qwen. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .model-icon--qwen {
-    /* Escolhe a imagem que recorta a pintura do elemento. Valor atual: url('../img/icons/model-qwen.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     mask-image: url('../img/icons/model-qwen.svg');
 }
 
-/* Seleciona .model-icon--gemini. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .model-icon--gemini {
-    /* Escolhe a imagem que recorta a pintura do elemento. Valor atual: url('../img/icons/model-gemini.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     mask-image: url('../img/icons/model-gemini.svg');
 }
 
-/* Seleciona .model-check. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .model-check {
-    /* Define a largura. Valor atual: 14px. px mede pixels CSS. */
     width: 14px;
-    /* Define a altura. Valor atual: 14px. px mede pixels CSS. */
     height: 14px;
-    /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 14px. px mede pixels CSS. */
     flex-basis: 14px;
-    /* Escolhe a imagem que recorta a pintura do elemento. Valor atual: url('../img/icons/check.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     mask-image: url('../img/icons/check.svg');
-    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 0. */
     opacity: 0;
 }
 
-/* Seleciona .model-menu [aria-checked="true"] .model-check. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
 .model-menu [aria-checked="true"] .model-check {
-    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
     opacity: 1;
 }
 
-/* Seleciona .model-picker:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
 .model-picker:focus-visible {
-    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     outline: 2px solid var(--accent);
-    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: 2px. px mede pixels CSS. */
     outline-offset: 2px;
 }
 
-/* Condição (width < 480px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 480px) {
-    /* Seleciona .computer-page .home__toolbar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-page .home__toolbar {
-        /* Controla se itens flex podem quebrar para outra linha. Valor atual: wrap. */
         flex-wrap: wrap;
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
-        gap: 8px;
+        gap: var(--space-2);
     }
 
-    /* Seleciona .computer-page .home__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-page .home__actions {
-        /* Define espaço externo à esquerda. Valor atual: auto. */
         margin-left: auto;
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 6px. px mede pixels CSS. */
         gap: 6px;
     }
 
-    /* Seleciona .model-picker. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .model-picker {
-        /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 6px. px mede pixels CSS. */
         padding-inline: 6px;
     }
-
 }
 
-/* Keep the conversation readable above the composer dock. */
-/* Seleciona .computer-page.has-conversation .computer-intro. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-page.has-conversation .computer-intro {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
 }
 
-/* Seleciona .computer-composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-composer {
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
 }
 
-/* Seleciona .computer-page.has-conversation. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-page.has-conversation {
-    /* Define espaço interno entre conteúdo e borda abaixo. Valor atual: calc(var(--computer-composer-height, 150px) + 48px). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. px mede pixels CSS. */
     padding-bottom: calc(var(--computer-composer-height, 150px) + 48px);
 }
 
-/* Seleciona .computer-page.has-conversation .computer-composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-page.has-conversation .computer-composer {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
     position: fixed;
-    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 80. */
     z-index: 80;
-    /* Define o afastamento esquerdo em relação à referência de position. Valor atual: calc(var(--sidebar-width) + (100% - var(--sidebar-width)) / 2). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     left: calc(var(--sidebar-width) + (100% - var(--sidebar-width)) / 2);
-    /* Define o afastamento inferior em relação à referência de position. Valor atual: calc(16px + env(safe-area-inset-bottom) + var(--computer-keyboard-offset, 0px)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. env() consulta medidas do dispositivo, como a área segura da tela. px mede pixels CSS. */
     bottom: calc(16px + env(safe-area-inset-bottom) + var(--computer-keyboard-offset, 0px));
-    /* Define a largura. Valor atual: min(736px, calc(100% - var(--sidebar-width) - 64px)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: min(736px, calc(100% - var(--sidebar-width) - 64px));
-    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateX(-50%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     transform: translateX(-50%);
-    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: left var(--sidebar-duration) var(--sidebar-easing), width var(--sidebar-duration) var(--sidebar-easing). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     transition: left var(--sidebar-duration) var(--sidebar-easing), width var(--sidebar-duration) var(--sidebar-easing);
 }
 
-/* Seleciona .computer-page.has-conversation .computer-composer::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. */
 .computer-page.has-conversation .computer-composer::before {
-    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: "". */
     content: "";
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
-    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: -1. */
     z-index: -1;
-    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: -40px -16px calc(-16px - env(safe-area-inset-bottom)). calc() calcula a medida combinando parcelas. env() consulta medidas do dispositivo, como a área segura da tela. px mede pixels CSS. */
     inset: -40px -16px calc(-16px - env(safe-area-inset-bottom));
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: linear-gradient(to bottom, transparent, var(--bg) 42%). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background: linear-gradient(to bottom, transparent, var(--bg) 42%);
-    /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: none. */
     pointer-events: none;
 }
 
-/* Seleciona .computer-composer .computer-note. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-composer .computer-note {
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px 8px 0. px mede pixels CSS. */
-    margin: 8px 8px 0;
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.4. */
+    margin: var(--space-2) var(--space-2) 0;
     line-height: 1.4;
 }
 
-/* Seleciona .computer-page.has-conversation .computer-messages. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-page.has-conversation .computer-messages {
-    /* Define espaço externo abaixo. Valor atual: 0. */
     margin-bottom: 0;
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .computer-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-page {
-        /* Define espaço interno entre conteúdo e borda abaixo. Valor atual: calc(var(--computer-composer-height, 150px) + 48px). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. px mede pixels CSS. */
         padding-bottom: calc(var(--computer-composer-height, 150px) + 48px);
     }
 
-    /* Seleciona .computer-page .computer-composer, .computer-page.has-conversation .computer-composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-page .computer-composer, .computer-page.has-conversation .computer-composer {
-        /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
         position: fixed;
-        /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 80. */
         z-index: 80;
-        /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
         left: 16px;
-        /* Define o afastamento inferior em relação à referência de position. Valor atual: calc(16px + env(safe-area-inset-bottom) + var(--computer-keyboard-offset, 0px)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. env() consulta medidas do dispositivo, como a área segura da tela. px mede pixels CSS. */
         bottom: calc(16px + env(safe-area-inset-bottom) + var(--computer-keyboard-offset, 0px));
-        /* Define a largura. Valor atual: calc(100vw - 32px). calc() calcula a medida combinando parcelas. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
         width: calc(100vw - 32px);
-        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: none. */
         transform: none;
-        /* Desloca o elemento visualmente nos eixos horizontal e vertical. Valor atual: var(--mobile-menu-offset) 0. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         translate: var(--mobile-menu-offset) 0;
-        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: translate var(--sidebar-duration) var(--sidebar-easing). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         transition: translate var(--sidebar-duration) var(--sidebar-easing);
     }
 
-    /* Seleciona .computer-page .computer-composer::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. */
     .computer-page .computer-composer::before {
-        /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: "". */
         content: "";
-        /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
         position: absolute;
-        /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: -1. */
         z-index: -1;
-        /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: -40px -16px calc(-16px - env(safe-area-inset-bottom)). calc() calcula a medida combinando parcelas. env() consulta medidas do dispositivo, como a área segura da tela. px mede pixels CSS. */
         inset: -40px -16px calc(-16px - env(safe-area-inset-bottom));
-        /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: linear-gradient(to bottom, transparent, var(--bg) 42%). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
         background: linear-gradient(to bottom, transparent, var(--bg) 42%);
-        /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: none. */
         pointer-events: none;
     }
-
 }
 
-/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (prefers-reduced-motion: reduce) {
-    /* Seleciona .computer-page .computer-composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .computer-page .computer-composer {
-        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
         transition: none;
     }
-
 }
 
-/* Seleciona .computer-message--assistant > .computer-message__text. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-message--assistant > .computer-message__text {
-    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-heading). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-family:var(--font-heading);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-size:var(--font-size-3);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-3);
 }
 
-/* Seleciona .computer-page .home__send .ui-arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-page .home__send .ui-arrow {
-    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
-    width:18px;
-    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
-    height:18px;
-    /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 18px. px mede pixels CSS. */
-    flex-basis:18px;
-    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: rotate(-90deg). */
-    transform:rotate(-90deg);
+    width: var(--icon-small);
+    height: var(--icon-small);
+    flex-basis: var(--icon-small);
+    transform: rotate(-90deg);
 }
 
-/* Seleciona .computer-page .is-responding .home__send .ui-arrow, .computer-page .is-dictating .home__send .ui-arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .computer-page .is-responding .home__send .ui-arrow, .computer-page .is-dictating .home__send .ui-arrow {
-    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: none. */
-    transform:none;
-}
-
-/* Seleciona .computer-message__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-message__actions {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
-    display:flex;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
-    gap:10px;
-    /* Define espaço externo acima. Valor atual: 14px. px mede pixels CSS. */
-    margin-top:14px;
-    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 0. */
-    opacity:0;
-    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: opacity .15s. */
-    transition:opacity .15s;
-}
-
-/* Seleciona .computer-message--assistant:last-child .computer-message__actions, .computer-message--assistant:hover .computer-message__actions, .computer-message--assistant:focus-within .computer-message__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. focus-within: foco no elemento ou descendentes. */
-.computer-message--assistant:last-child .computer-message__actions, .computer-message--assistant:hover .computer-message__actions, .computer-message--assistant:focus-within .computer-message__actions {
-    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
-    opacity:1;
-}
-
-/* Seleciona .computer-message__text:empty ~ .computer-message__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-message__text:empty ~ .computer-message__actions {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
-    display:none;
-}
-
-/* Seleciona .computer-message__actions button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-message__actions button {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
-    display:grid;
-    /* Atalho de align-items e justify-items; center centraliza nos dois eixos. Valor atual: center. */
-    place-items:center;
-    /* Define a largura. Valor atual: 28px. px mede pixels CSS. */
-    width:28px;
-    /* Define a altura. Valor atual: 28px. px mede pixels CSS. */
-    height:28px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 5px. px mede pixels CSS. */
-    padding:5px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
-    border:0;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 6px. px mede pixels CSS. */
-    border-radius:6px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
-    background:transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
-    cursor:pointer;
-}
-
-/* Seleciona .computer-message__actions button:hover, .computer-message__actions button[aria-pressed=true]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. [aria-: estado acessível informado por atributo. */
-.computer-message__actions button:hover, .computer-message__actions button[aria-pressed=true] {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--accent);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    background:var(--surface);
-}
-
-/* Seleciona .computer-message__actions i. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-message__actions i {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
-    display:block;
-    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
-    width:18px;
-    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
-    height:18px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
-    background:currentColor;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: var(--action-icon) center/contain no-repeat. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    mask:var(--action-icon) center/contain no-repeat;
-}
-
-/* Seleciona .computer-action-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-action-status {
-    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-body). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-family:var(--font-body);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-size:var(--font-size-5);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-    /* Sobrescreve o alinhamento do eixo transversal para este item. Valor atual: center. */
-    align-self:center;
-}
-
-/* Condição (hover:none): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
-@media(hover:none) {
-    /* Seleciona .computer-message__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .computer-message__actions {
-        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
-        opacity:1;
-    }
-
-}
-
-/* Condição (prefers-reduced-motion:reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
-@media(prefers-reduced-motion:reduce) {
-    /* Seleciona .computer-message__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .computer-message__actions {
-        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
-        transition:none;
-    }
-
-}
-
-/* Seleciona .message-navigator. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.message-navigator {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
-    position:fixed;
-    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 85. */
-    z-index:85;
-    /* Define o afastamento esquerdo em relação à referência de position. Valor atual: calc(var(--sidebar-width) + 6px). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. px mede pixels CSS. */
-    left:calc(var(--sidebar-width) + 6px);
-    /* Define o afastamento superior em relação à referência de position. Valor atual: 50%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    top:50%;
-    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: left var(--sidebar-duration) var(--sidebar-easing). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    transition:left var(--sidebar-duration) var(--sidebar-easing);
-    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateY(-50%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    transform:translateY(-50%);
-}
-
-/* Seleciona .message-navigator[hidden], .message-navigator__panel[hidden]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
-.message-navigator[hidden], .message-navigator__panel[hidden] {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
-    display:none;
-}
-
-/* Seleciona .message-navigator__rail. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.message-navigator__rail {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
-    display:flex;
-    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
-    flex-direction:column;
-    /* Limita a altura máxima. Valor atual: 45dvh. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
-    max-height:45dvh;
-    /* Controla o transbordamento vertical. Valor atual: auto. */
-    overflow-y:auto;
-    /* Controla a espessura da barra de rolagem; thin afina e none oculta. Valor atual: none. */
-    scrollbar-width:none;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px. px mede pixels CSS. */
-    padding:8px;
-}
-
-/* Seleciona .message-navigator__mark. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.message-navigator__mark {
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 10px. px mede pixels CSS. */
-    flex:0 0 10px;
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
-    display:grid;
-    /* Atalho de align-items e justify-items; center centraliza nos dois eixos. Valor atual: center. */
-    place-items:center;
-    /* Define a largura. Valor atual: 20px. px mede pixels CSS. */
-    width:20px;
-    /* Define a altura. Valor atual: 10px. px mede pixels CSS. */
-    height:10px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
-    padding:0;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
-    border:0;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
-    background:transparent;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
-    cursor:pointer;
-}
-
-/* Seleciona .message-navigator__mark::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. */
-.message-navigator__mark::before {
-    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: ''. */
-    content:'';
-    /* Define a largura. Valor atual: 9px. px mede pixels CSS. */
-    width:8px;
-    /* Define a altura. Valor atual: 2px. px mede pixels CSS. */
-    height:1.5px;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 2px. px mede pixels CSS. */
-    border-radius:2px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    background:var(--text);
-    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: .35. */
-    opacity:.25;
-    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: width .15s,opacity .15s. */
-    transition:width .25s,opacity .25s;
-}
-
-/* Seleciona .message-navigator__mark[aria-current=true]::before, .message-navigator__mark:hover::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. ::before: pseudoelemento antes do conteúdo. [aria-: estado acessível informado por atributo. */
-.message-navigator__mark[aria-current=true]::before, .message-navigator__mark:hover::before {
-    /* Define a largura. Valor atual: 13px. px mede pixels CSS. */
-    width:10px;
-    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
-    opacity:1;
-}
-
-/* Seleciona .message-navigator__panel. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.message-navigator__panel {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
-    position:absolute;
-    /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    left:100%;
-    /* Define o afastamento superior em relação à referência de position. Valor atual: 50%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    top:50%;
-    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateY(-50%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    transform:translateY(-50%);
-    /* Define a largura. Valor atual: min(320px,calc(100vw - 64px)). calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
-    width:min(320px,calc(100vw - 64px));
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 9px. px mede pixels CSS. */
-    padding:9px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
-    border:1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
-    border-radius:16px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    background:var(--surface);
-    /* Desenha sombra com deslocamentos horizontal/vertical, desfoque, expansão opcional e cor; inset coloca a sombra por dentro. Valor atual: 0 6px 24px rgb(0 0 0 / .12). px mede pixels CSS. */
-    box-shadow:0 6px 24px rgb(0 0 0 / .12);
-}
-
-/* Seleciona .message-navigator__list. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.message-navigator__list {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
-    display:grid;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 3px. px mede pixels CSS. */
-    gap:3px;
-    /* Limita a altura máxima. Valor atual: min(420px,60dvh). min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
-    max-height: min(420px,60dvh);
-    /* Controla o transbordamento vertical. Valor atual: auto. */
-    overflow-y:auto;
-    /* Controla a espessura da barra de rolagem; thin afina e none oculta. Valor atual: thin. */
-    scrollbar-width:thin;
-}
-
-/* Seleciona .message-navigator__list button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.message-navigator__list button {
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    width:100%;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
-    min-width:0;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
-    padding:10px;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
-    overflow:hidden;
-    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
-    text-overflow:ellipsis;
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
-    white-space:nowrap;
-    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
-    text-align:left;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
-    font:inherit;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-size:var(--font-size-3);
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
-    border:0;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 8px. px mede pixels CSS. */
-    border-radius:8px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
-    background:transparent;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
-    cursor:pointer;
-}
-
-/* Seleciona .message-navigator__list button:hover, .message-navigator__list button[aria-current=true]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. [aria-: estado acessível informado por atributo. */
-.message-navigator__list button:hover, .message-navigator__list button[aria-current=true] {
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb,var(--text) 6%,transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    background:color-mix(in srgb,var(--text) 6%,transparent);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text);
-}
-
-/* Seleciona .message-navigator button:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
-.message-navigator button:focus-visible {
-    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
-    outline:2px solid var(--accent);
-    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: 1px. px mede pixels CSS. */
-    outline-offset:1px;
-}
-
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
-@media(width < 640px) {
-    /* Seleciona .message-navigator. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .message-navigator {
-        /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 0. */
-        left:0;
-    }
-
-    /* Seleciona .message-navigator__mark. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .message-navigator__mark {
-        /* Define a largura. Valor atual: 14px. px mede pixels CSS. */
-        width:14px;
-        /* Define a altura. Valor atual: 14px. px mede pixels CSS. */
-        height:14px;
-        /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 14px. px mede pixels CSS. */
-        flex-basis:14px;
-    }
-
-    /* Seleciona .workspace:not(.is-sidebar-collapsed) .message-navigator, html.discovery-panel-shift .message-navigator. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .workspace:not(.is-sidebar-collapsed) .message-navigator, html.discovery-panel-shift .message-navigator {
-        /* Controla a visibilidade; hidden oculta preservando espaço no layout. Valor atual: hidden. */
-        visibility:hidden;
-    }
-
-}
-
-/* Condição (prefers-reduced-motion:reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
-@media(prefers-reduced-motion:reduce) {
-    /* Seleciona .message-navigator, .message-navigator__mark::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. */
-    .message-navigator, .message-navigator__mark::before {
-        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
-        transition:none;
-    }
-
-}
-
-/* Seleciona .computer-message--user. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-message--user {
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
-    border:0;
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
-    position:relative;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    background:var(--accent);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text);
-}
-
-/* Seleciona .computer-message--user > .computer-message__text. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-message--user > .computer-message__text {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: inherit. */
-    color:inherit;
-}
-
-/* Seleciona .computer-user-actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-user-actions {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
-    position:absolute;
-    /* Define o afastamento direito em relação à referência de position. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    right:100%;
-    /* Define o afastamento superior em relação à referência de position. Valor atual: 50%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    top:50%;
-    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateY(-50%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    transform:translateY(-50%);
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
-    display:flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
-    align-items:center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 7px. px mede pixels CSS. */
-    gap:7px;
-    /* Define espaço interno entre conteúdo e borda à direita. Valor atual: 12px. px mede pixels CSS. */
-    padding-right:12px;
-    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 0. */
-    opacity:0;
-    /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: none. */
-    pointer-events:none;
-}
-
-/* Seleciona .computer-message--user:hover .computer-user-actions, .computer-message--user:focus-within .computer-user-actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. focus-within: foco no elemento ou descendentes. */
-.computer-message--user:hover .computer-user-actions, .computer-message--user:focus-within .computer-user-actions {
-    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
-    opacity:1;
-    /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: auto. */
-    pointer-events:auto;
-}
-
-/* Seleciona .computer-user-actions button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-user-actions button {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
-    display:grid;
-    /* Atalho de align-items e justify-items; center centraliza nos dois eixos. Valor atual: center. */
-    place-items:center;
-    /* Define a largura. Valor atual: 25px. px mede pixels CSS. */
-    width:25px;
-    /* Define a altura. Valor atual: 28px. px mede pixels CSS. */
-    height:28px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 4px. px mede pixels CSS. */
-    padding:4px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
-    border:0;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
-    background:transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
-    cursor:pointer;
-}
-
-/* Seleciona .computer-user-actions button:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
-.computer-user-actions button:hover {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text);
-}
-
-/* Seleciona .computer-user-actions i. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-user-actions i {
-    /* Define a largura. Valor atual: 17px. px mede pixels CSS. */
-    width:17px;
-    /* Define a altura. Valor atual: 17px. px mede pixels CSS. */
-    height:17px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
-    background:currentColor;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: var(--action-icon) center/contain no-repeat. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    mask:var(--action-icon) center/contain no-repeat;
-}
-
-/* Seleciona .computer-user-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-user-status {
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-size:var(--font-size-5);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
-    white-space:nowrap;
-}
-
-/* Seleciona .computer-message--user.is-editing. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-message--user.is-editing {
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    width:100%;
-    /* Limita a largura máxima. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    max-width:100%;
-    /* Alinha este item na sua área do grid. Valor atual: stretch. */
-    justify-self:stretch;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 20px. px mede pixels CSS. */
-    padding:20px;
-}
-
-/* Seleciona .computer-message--user.is-editing .computer-user-actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-message--user.is-editing .computer-user-actions {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
-    display:none;
-}
-
-/* Seleciona .computer-user-editor textarea. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-user-editor textarea {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
-    display:block;
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    width:100%;
-    /* Define a altura mínima. Valor atual: 60px. px mede pixels CSS. */
-    min-height:60px;
-    /* Controla o redimensionamento manual; none remove a alça de ajuste. Valor atual: none. */
-    resize:none;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
-    border:0;
-    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: none. */
-    outline:none;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
-    background:transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text);
-    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
-    font:inherit;
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.5. */
-    line-height:1.5;
-}
-
-/* Seleciona .computer-user-editor>div. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-user-editor>div {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
-    display:flex;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: flex-end. */
-    justify-content:flex-end;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
-    gap:10px;
-    /* Define espaço externo acima. Valor atual: 14px. px mede pixels CSS. */
-    margin-top:14px;
-}
-
-/* Seleciona .computer-user-editor button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-user-editor button {
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px 14px. px mede pixels CSS. */
-    padding:8px 14px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
-    border:1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
-    border-radius:10px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
-    background:transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text);
-    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
-    font:inherit;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
-    cursor:pointer;
-}
-
-/* Seleciona .computer-user-editor .computer-user-editor__save. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-user-editor .computer-user-editor__save {
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    background:var(--text);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--bg);
-}
-
-/* Seleciona .computer-user-editor p. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-user-editor p {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-size:var(--font-size-5);
-}
-
-/* Seleciona .computer-user-editor button:disabled. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :disabled: controle desativado. */
-.computer-user-editor button:disabled {
-    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: .5. */
-    opacity:.5;
-}
-
-/* Condição (width<640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
-@media(width<640px) {
-    /* Seleciona .computer-message--user:not(.is-editing). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .computer-message--user:not(.is-editing) {
-        /* Limita a largura máxima. Valor atual: calc(100% - 78px). calc() calcula a medida combinando parcelas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-        max-width:calc(100% - 78px)
-    }
-
-    /* Seleciona .computer-user-actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .computer-user-actions {
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 3px. px mede pixels CSS. */
-        gap:3px;
-        /* Define espaço interno entre conteúdo e borda à direita. Valor atual: 6px. px mede pixels CSS. */
-        padding-right:6px
-    }
-
-    /* Seleciona .computer-user-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .computer-user-status {
-        /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
-        position:absolute;
-        /* Define o afastamento direito em relação à referência de position. Valor atual: 12px. px mede pixels CSS. */
-        right:12px;
-        /* Define o afastamento superior em relação à referência de position. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-        top:100%
-    }
-
-}
-
-/* Seleciona .computer-user-time. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-user-time {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-size:var(--font-size-5);
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
-    white-space:nowrap;
-    /* Define espaço externo à direita. Valor atual: 3px. px mede pixels CSS. */
-    margin-right:3px;
-}
-
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
-@media(width < 640px) {
-    /* Seleciona .computer-message--user:not(.is-editing). Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .computer-message--user:not(.is-editing) {
-        /* Limita a largura máxima. Valor atual: calc(100% - 125px). calc() calcula a medida combinando parcelas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-        max-width:calc(100% - 125px)
-    }
-
-}
-
-/* Seleciona .computer-intro__animated-logo. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-intro__animated-logo {
-    /* Define a largura. Valor atual: 42px. px mede pixels CSS. */
-    width:42px;
-    /* Define a altura. Valor atual: 42px. px mede pixels CSS. */
-    height:42px;
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 42px. px mede pixels CSS. */
-    flex:0 0 42px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text);
-}
-
-/* Condição (width<640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
-@media(width<640px) {
-    /* Seleciona .computer-intro__animated-logo. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .computer-intro__animated-logo {
-        /* Define a largura. Valor atual: 32px. px mede pixels CSS. */
-        width:32px;
-        /* Define a altura. Valor atual: 32px. px mede pixels CSS. */
-        height:32px;
-        /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 32px. px mede pixels CSS. */
-        flex-basis:32px
-    }
-
-}
-
-/* Seleciona .computer-intro h1. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-intro h1 {
-    /* Controla as quebras; balance equilibra linhas e nowrap impede quebra. Valor atual: nowrap. */
-    text-wrap:nowrap;
-}
-
-/* Seleciona [data-chat-greeting]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-[data-chat-greeting] {
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
-    white-space:nowrap;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
-    min-width:0;
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 1 auto. */
-    flex:0 1 auto;
-}
-
-/* Seleciona .attachment-toggle. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.attachment-toggle {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
-    display:grid;
-    /* Atalho de align-items e justify-items; center centraliza nos dois eixos. Valor atual: center. */
-    place-items:center;
-    /* Define a largura. Valor atual: 30px. px mede pixels CSS. */
-    width:30px;
-    /* Define a altura. Valor atual: 30px. px mede pixels CSS. */
-    height:30px;
-    /* Define quanto o item encolhe se faltar espaço; 0 impede o encolhimento. Valor atual: 0. */
-    flex-shrink:0;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
-    padding:0;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
-    border:0;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
-    background:transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: 0. */
-    font-size:0;
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1. */
-    line-height:1;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
-    cursor:pointer;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 50%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    border-radius:50%;
-}
-
-
-/* Seleciona .attachment-toggle:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
-.attachment-toggle:hover {
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb,var(--text) 7%,transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    background:color-mix(in srgb,var(--text) 7%,transparent);
-}
-
-/* Seleciona .attachment-menu. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.attachment-menu {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
-    position:fixed;
-    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: auto. */
-    inset:auto;
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
-    margin:0;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
-    padding:10px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
-    border:1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
-    border-radius:16px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    background:var(--surface);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text);
-    /* Define a largura. Valor atual: min(340px,calc(100vw - 24px)). calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
-    width:min(340px,calc(100vw - 24px));
-}
-
-/* Seleciona .attachment-menu button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.attachment-menu button {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
-    display:flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
-    align-items:center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
-    gap:10px;
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    width:100%;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
-    padding:8px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
-    border:0;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
-    background:transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: inherit. */
-    color:inherit;
-    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
-    font:inherit;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
-    cursor:pointer;
-    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
-    text-align:left;
-}
-
-/* Seleciona .attachment-menu i. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.attachment-menu i {
-    /* Define a largura. Valor atual: 16px. px mede pixels CSS. */
-    width:16px;
-    /* Define a altura. Valor atual: 16px. px mede pixels CSS. */
-    height:16px;
-    /* Define quanto o item encolhe se faltar espaço; 0 impede o encolhimento. Valor atual: 0. */
-    flex-shrink:0;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
-    background:currentColor;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: url('../img/icons/attachments.svg') center/contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
-    mask:url('../img/icons/attachments.svg') center/contain no-repeat;
-}
-
-/* Seleciona .attachment-menu p. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.attachment-menu p {
-    /* Define o tamanho das letras. Valor atual: 12px. px mede pixels CSS. */
-    font-size:12px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 4px 10px. px mede pixels CSS. */
-    margin:4px 10px;
-}
-
-/* Seleciona .attachment-list. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.attachment-list {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
-    display:flex;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
-    gap:8px;
-    /* Controla se itens flex podem quebrar para outra linha. Valor atual: wrap. */
-    flex-wrap:wrap;
-    /* Define espaço externo abaixo. Valor atual: 12px. px mede pixels CSS. */
-    margin-bottom:12px;
-}
-
-/* Seleciona .attachment-list[hidden]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
-.attachment-list[hidden] {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
-    display:none;
-}
-
-/* Seleciona .attachment-chip. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.attachment-chip {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
-    display:flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
-    align-items:center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
-    gap:8px;
-    /* Limita a largura máxima. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    max-width:100%;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 7px 10px. px mede pixels CSS. */
-    padding:7px 10px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
-    border:1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
-    border-radius:10px;
-    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-body). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-family:var(--font-body);
-    /* Define o tamanho das letras. Valor atual: 13px. px mede pixels CSS. */
-    font-size:13px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-}
-
-/* Seleciona .attachment-chip span. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.attachment-chip span {
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
-    overflow:hidden;
-    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
-    text-overflow:ellipsis;
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
-    white-space:nowrap;
-}
-
-/* Seleciona .attachment-chip button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.attachment-chip button {
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: none. */
-    background:none;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
-    border:0;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: 20px. px mede pixels CSS. */
-    font-size:20px;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
-    cursor:pointer;
-}
-
-/* Seleciona .attachment-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.attachment-status {
-    /* Define o tamanho das letras. Valor atual: 13px. px mede pixels CSS. */
-    font-size:13px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-}
-
-/* Seleciona .attachment-status:empty. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.attachment-status:empty {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
-    display:none;
-}
-
-/* Seleciona .computer-message--user .attachment-list. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-message--user .attachment-list {
-    /* Define espaço externo abaixo. Valor atual: 8px. px mede pixels CSS. */
-    margin-bottom:8px;
-}
-
-/* Seleciona .computer-response-reveal. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-.computer-response-reveal {
-    /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: computer-response-reveal .2s ease-out both. */
-    animation:computer-response-reveal .2s ease-out both;
-}
-
-/* Animação computer-response-reveal: os blocos internos definem estados no tempo; a propriedade animation define duração e repetição. */
-@keyframes computer-response-reveal {
-    /* Etapa from da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
-    from {
-        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 0. */
-        opacity:0;
-        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-        color:var(--accent);
-    }
-
-    /* Etapa 20% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
-    20% {
-        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
-        opacity:1;
-        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-        color:var(--accent);
-    }
-
-    /* Etapa 45% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
-    45% {
-        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
-        opacity:1;
-        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-        color:var(--accent);
-    }
-
-    /* Etapa to da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
-    to {
-        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
-        opacity:1;
-        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-        color:var(--text);
-    }
-
-}
-
-/* Condição (prefers-reduced-motion:reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
-@media(prefers-reduced-motion:reduce) {
-    /* Seleciona .computer-response-reveal. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .computer-response-reveal {
-        /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: none. */
-        animation:none;
-        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-        color:var(--text);
-    }
-
-}
-
-/* Seleciona [data-chat-greeting]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-[data-chat-greeting] {
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
-    overflow:hidden;
-    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
-    text-overflow:ellipsis;
-}
-
-/* Condição (width<640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
-@media(width<640px) {
-    /* Seleciona .computer-page .home__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .computer-page .home__actions {
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
-        gap:8px
-    }
-
-    /* Seleciona .computer-page .home__toolbar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .computer-page .home__toolbar {
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
-        gap:8px
-    }
-
-    /* Seleciona .computer-page .home__mode. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
-    .computer-page .home__mode {
-        /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 8px. px mede pixels CSS. */
-        padding-inline:8px;
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 5px. px mede pixels CSS. */
-        gap:5px
-    }
-
-}
-
-/* Nome da conversa no cabeçalho superior. */
-.computer-chat-title {
-    /* Permite truncar nomes longos dentro do cabeçalho. */
-    min-width: 0;
-    /* Esconde o trecho que ultrapassa o espaço disponível. */
-    overflow: hidden;
-    /* Indica o corte do nome com reticências. */
-    text-overflow: ellipsis;
-    /* Mantém o nome em uma única linha. */
-    white-space: nowrap;
-}
-/* Em celulares, elimina o indicador lateral de mensagens. */
-@media (max-width: 639px) {
-    .message-navigator {
-        /* Remove o indicador e sua área de interação. */
-        display: none;
-    }
-}
-
-
-/* Atalho flutuante para retornar ao fim da conversa. */
-.computer-jump {
-    /* Mantém o botão acima do compositor durante a rolagem. */
-    position: fixed;
-    /* Define as dimensões exatas solicitadas. */
-    width: 32px;
-    /* Define a altura do círculo. */
-    height: 32px;
-    /* Desenha um botão redondo. */
-    border-radius: 50%;
-    /* Delimita o botão discretamente. */
-    border: 1px solid var(--border);
-    /* Usa o fundo do tema. */
-    background: var(--surface);
-    /* Centraliza o desenho. */
-    display: grid;
-    /* Centraliza nos dois eixos. */
-    place-items: center;
-    /* Exibe acima das mensagens. */
-    z-index: 20;
-    /* Indica uma ação clicável. */
-    cursor: pointer;
-}
-/* Esconde o atalho quando o fim do chat já está visível. */
-.computer-jump[hidden] {
-    /* Remove também a área clicável. */
-    display: none;
-}
-/* Dimensões exatas do SVG fornecido. */
-.computer-jump img {
-    /* Largura do ícone. */
-    width: 16px;
-    /* Altura do ícone. */
-    height: 16px;
-}
-/* Repete o cabeçalho móvel de Finanças no chat. */
-@media (max-width: 639px) {
-    .computer-header .computer-chat-title {
-        /* O nome da conversa não aparece no celular. */
-        display: none;
-    }
-}
-
-
-/* Agrupa Gemini e Computer sem incluir o botão de anexos. */
-.composer-provider-group {
-    /* Posiciona as opções lado a lado. */
-    display: flex;
-    /* Alinha os ícones e rótulos. */
-    align-items: center;
-    /* Cria o contorno arredondado da referência. */
-    border-radius: 24px;
-    /* Distingue o grupo do compositor. */
-    background: var(--bg);
-    /* Mantém um pequeno respiro interno. */
-    padding: 3px;
-}
-.composer-provider-group button {
-    /* Mantém altura uniforme das opções. */
-    height: 34px;
-    /* Arredonda cada opção. */
-    border-radius: 20px;
-    /* Reserva a borda sem deslocar o texto ao selecionar. */
-    border: 1px solid transparent;
-    /* Opções inativas não têm preenchimento próprio. */
-    background: transparent;
-}
-.composer-provider-group button[aria-pressed="true"] {
-    /* Destaca a opção em uso. */
-    border-color: var(--border);
-    /* Usa o fundo das superfícies do site. */
-    background: var(--surface);
-    /* Mantém o texto ativo legível. */
-    color: var(--text);
-}
-.home__modes .attachment-toggle {
-    /* Separa visualmente o botão de anexos. */
-    margin-right: 10px;
-    /* Define um botão circular. */
-    border-radius: 50%;
-    /* Fundo independente do seletor de modelo. */
-    background: var(--surface);
-}
-
-/* Controles independentes, sem faixa de fundo unindo os botões. */
-.home__modes, .composer-provider-group {
-    /* Elimina o preenchimento preto do agrupamento. */
-    background: transparent;
-    /* Remove o espaço interno ao redor das opções. */
-    padding: 0;
-}
-/* Altura uniforme dos botões de modo e anexos. */
-.composer-provider-group button, .home__modes .attachment-toggle, .local-model-picker {
-    /* Usa os 32 pixels solicitados. */
-    height: 32px;
-    /* Impede mínimos antigos de aumentar os controles. */
-    min-height: 0;
-}
-/* Centraliza o símbolo de anexos com precisão. */
-.home__modes .attachment-toggle {
-    /* Forma uma área circular de 30 pixels. */
-    width: 30px;
-    /* Fixa o espaço no flex para evitar deformação. */
-    flex: 0 0 30px;
-    /* Centraliza o ícone nos dois eixos. */
-    display: grid;
-    /* Alinha o pseudo-elemento no centro. */
-    place-items: center;
-    /* Remove deslocamentos internos anteriores. */
-    padding: 0;
-}
-.home__modes .attachment-toggle::before {
-    /* Mantém o símbolo dentro do fluxo centralizado. */
-    position: static;
-    /* Define a largura do desenho. */
-    width: 16px;
-    /* Define a altura do desenho. */
-    height: 16px;
-    /* Cancela deslocamentos anteriores. */
     transform: none;
 }
-.composer-provider-group .computer-icon, .composer-provider-group .model-icon {
-    /* Padroniza a largura dos ícones. */
-    width: 14px;
-    /* Padroniza a altura dos ícones. */
-    height: 14px;
+
+.computer-message__actions {
+    display: flex;
+    gap: var(--space-1);
+    margin-top: 14px;
+    opacity: 0;
+    transition: opacity var(--duration-fast);
 }
-.local-model-picker {
-    /* Remove o fundo e a borda do seletor discreto à direita. */
-    background: transparent;
-    /* Evita contorno permanente. */
+
+.computer-message--assistant:last-child .computer-message__actions, .computer-message--assistant:hover .computer-message__actions, .computer-message--assistant:focus-within .computer-message__actions {
+    opacity: 1;
+}
+
+.computer-message__text:empty ~ .computer-message__actions {
+    display: none;
+}
+
+.computer-message__actions button {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 5px;
     border: 0;
-    /* Usa a cor secundária do tema. */
+    border-radius: var(--radius-panel);
+    background: transparent;
     color: var(--text-secondary);
-    /* Mantém a fonte do site. */
-    font: inherit;
-    /* Dimensiona o rótulo conforme a referência. */
-    font-size: 13px;
-    /* Indica ação de abrir menu. */
     cursor: pointer;
 }
-.model-icon--gemma {
-    /* Usa o SVG enviado para identificar o Gemma. */
-    mask: url('../img/icons/model-gemma.svg') center / contain no-repeat;
-}
 
-/* Cápsula única: somente Gemini e Computer compartilham o fundo. */
-.composer-provider-group {
-    /* Fundo escuro aparece atrás da opção inativa. */
-    background: var(--bg);
-    /* Une as duas opções sem espaço entre elas. */
-    gap: 0;
-    /* Mantém o contorno externo arredondado. */
-    border-radius: 999px;
-}
-.composer-provider-group button {
-    /* Remove margens que afastariam as opções. */
-    margin: 0;
-    /* Mantém o texto compacto e centralizado. */
-    padding-inline: 10px;
-}
-.composer-provider-group button[aria-pressed="true"] {
-    /* Destaca a opção ativa com o cinza da referência. */
-    background: color-mix(in srgb, var(--text) 6%, var(--surface));
-    /* Delimita a opção selecionada. */
-    border-color: var(--border);
-}
-/* O círculo de anexos aparece ao passar o mouse. */
-.home__modes .attachment-toggle {
-    /* Fora do hover, o botão não tem preenchimento. */
-    background: transparent;
-}
-.home__modes .attachment-toggle:hover {
-    /* Destaca a área circular sem alterar as dimensões. */
-    background: color-mix(in srgb, var(--text) 8%, var(--surface));
-    /* Realça o desenho do sinal de mais. */
+.computer-message__actions button:hover, .computer-message__actions button[aria-pressed=true] {
     color: var(--text);
-}
-/* Alinha o rótulo Modelo ao SVG de seta. */
-.local-model-picker:not([hidden]) {
-    /* Organiza texto e desenho na mesma linha. */
-    display: inline-flex;
-    /* Centraliza verticalmente. */
-    align-items: center;
-    /* Separa o texto da seta discretamente. */
-    gap: 6px;
-}
-/* Menu compacto de modelos locais. */
-.model-menu {
-    /* Usa a largura solicitada, limitada pela tela. */
-    width: min(275px, calc(100vw - 24px));
-}
-.model-menu > button {
-    /* Define a altura exata de cada opção. */
-    height: 36px;
-    /* Remove o mínimo antigo de 46 pixels. */
-    min-height: 36px;
-    /* Mantém o conteúdo dentro da altura definida. */
-    padding: 0 12px;
-}
-.model-menu .model-check {
-    /* Empurra a marca de seleção até a extremidade direita. */
-    margin-left: auto;
+    background: var(--surface);
 }
 
-/* O botão tem somente um SVG: nenhum texto ou pseudo-elemento cria outra linha. */
-.home__modes .attachment-toggle {
-    /* Usa um único eixo flex para centralização previsível. */
-    display: flex;
-    /* Centraliza horizontalmente o desenho no círculo. */
-    justify-content: center;
-    /* Centraliza verticalmente o desenho no círculo. */
-    align-items: center;
-}
-/* Caixa exata de 16 pixels, sem alinhamento pela linha de base de texto. */
-.attachment-toggle > .attachment-plus {
-    /* Remove o comportamento inline de imagens e SVGs. */
+.computer-message__actions i {
     display: block;
-    /* Impede crescimento ou redução do desenho. */
-    flex: 0 0 16px;
-    /* Define a largura do ícone. */
-    width: 16px;
-    /* Define a altura do ícone. */
-    height: 16px;
-    /* Evita espaço externo deslocando o centro. */
-    margin: 0;
+    width: var(--icon-small);
+    height: var(--icon-small);
+    background: currentColor;
+    mask: var(--action-icon) center/contain no-repeat;
 }
 
-/* Prévia compacta sobre os próprios riscos do navegador de mensagens. */
-.message-navigator__panel {
-    /* Sobrepõe a área dos riscos em vez de abrir ao lado dela. */
-    left: 0;
-    /* Define a largura total da referência. */
-    width: 256px;
-    /* Deixa 8px por lado contando a borda de 1px. */
-    padding: 7px;
-    /* Mantém o cartão acima dos indicadores. */
-    z-index: 1;
-    /* Usa o arredondamento proporcional ao cartão menor. */
-    border-radius: 12px;
-}
-.message-navigator__list {
-    /* Encosta as áreas clicáveis, mantendo o respiro pelo padding das linhas. */
-    gap: 0;
-}
-.message-navigator__list button {
-    /* Duas linhas de 32px mais as bordas e padding resultam em 80px. */
-    height: 32px;
-    /* Impede que mínimos herdados aumentem a linha. */
-    min-height: 0;
-    /* Texto ocupa 224px de largura e 17,5px de altura. */
-    padding: 7.25px 8px;
-    /* Define a altura exata da linha de texto. */
-    line-height: 17.5px;
-    /* Mantém a tipografia proporcional à referência. */
-    font-size: 14px;
-    /* Suaviza o fundo da mensagem selecionada. */
-    border-radius: 8px;
-}
-
-/* O seletor exibe o modelo inteiro quando há espaço, e corta nomes longos no celular. */
-.local-model-picker {
-    /* Não deixa o nome técnico empurrar os botões de envio. */
-    max-width: min(290px, 40vw);
-    /* Permite encolhimento dentro da barra de ações. */
-    min-width: 0;
-}
-.local-model-name, .model-menu > button > span {
-    /* Permite que os rótulos se ajustem à largura do menu. */
-    min-width: 0;
-    /* Recorta apenas texto excedente. */
-    overflow: hidden;
-    /* Indica que o nome continua. */
-    text-overflow: ellipsis;
-    /* Mantém cada nome em uma linha. */
-    white-space: nowrap;
-}
-.local-model-picker > svg {
-    /* Preserva a seta quando o rótulo é longo. */
-    flex-shrink: 0;
-}
-/* Status real da consulta, antes do texto da resposta. */
-.computer-research, .computer-instant {
-    /* Usa a tipografia da interface. */
-    font-family: inherit;
-    /* Mantém o status discreto. */
-    font-size: 13px;
-    /* Usa a cor secundária do tema. */
+.computer-action-status {
+    font-family: var(--font-body);
+    font-size: var(--font-size-5);
     color: var(--text-secondary);
-    /* Separa o status da resposta. */
-    margin-bottom: 10px;
+    align-self: center;
 }
-.computer-research, .computer-research-sites {
-    /* Alinha o aviso e as fontes. */
-    display: flex;
-    /* Centraliza os favicons na altura do texto. */
-    align-items: center;
-    /* Separa texto e ícones. */
-    gap: 8px;
-    /* Permite quebrar em telas estreitas. */
-    flex-wrap: wrap;
-}
-.computer-research.is-searching > span:first-child {
-    /* Mostra movimento apenas enquanto a consulta está em andamento. */
-    animation: research-pulse 1s ease-in-out infinite alternate;
-}
-@keyframes research-pulse {
-    from {
-        /* Inicia com menor opacidade. */
-        opacity: .55;
-    }
-    to {
-        /* Realça o status durante a pesquisa. */
+
+@media(hover:none) {
+    .computer-message__actions {
         opacity: 1;
     }
 }
-.computer-message__actions .computer-sources {
-    /* A contagem precisa de espaço além de um botão de ícone. */
-    width: auto;
-    /* Alinha ícones e contagem no mesmo botão. */
-    display: inline-flex;
-    /* Mantém os elementos centralizados. */
-    align-items: center;
-    /* Separa o grupo de ícones do número. */
-    gap: 7px;
-    /* Mantém o contador legível. */
-    padding: 4px 8px;
-    /* Reutiliza a fonte da interface. */
-    font: inherit;
-    /* Deixa a contagem compacta. */
-    font-size: 13px;
+
+@media(prefers-reduced-motion:reduce) {
+    .computer-message__actions {
+        transition: none;
+    }
 }
-.computer-source-icons {
-    /* Coloca os favicons em uma sequência. */
+
+.message-navigator {
+    position: fixed;
+    z-index: 85;
+    left: calc(var(--sidebar-width) + 6px);
+    top: 50%;
+    transition: left var(--sidebar-duration) var(--sidebar-easing);
+    transform: translateY(-50%);
+}
+
+.message-navigator[hidden], .message-navigator__panel[hidden] {
+    display: none;
+}
+
+.message-navigator__rail {
+    display: flex;
+    flex-direction: column;
+    max-height: 45dvh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding: var(--space-2);
+}
+
+.message-navigator__mark {
+    flex: 0 0 10px;
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 10px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.message-navigator__mark::before {
+    content: '';
+    width: 8px;
+    height: 1.5px;
+    border-radius: 2px;
+    background: var(--text);
+    opacity: .25;
+    transition: width var(--duration-slow), opacity var(--duration-slow);
+}
+
+.message-navigator__mark[aria-current=true]::before, .message-navigator__mark:hover::before {
+    width: 10px;
+    opacity: 1;
+}
+
+.message-navigator__panel {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: min(320px, calc(100vw - 64px));
+    padding: 9px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+    background: var(--surface);
+    box-shadow: 0 6px 24px rgb(0 0 0 / .12);
+}
+
+.message-navigator__list {
+    display: grid;
+    gap: 3px;
+    max-height: min(420px, 60dvh);
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.message-navigator__list button {
+    width: 100%;
+    min-width: 0;
+    padding: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: var(--font-size-3);
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    cursor: pointer;
+}
+
+.message-navigator__list button:hover, .message-navigator__list button[aria-current=true] {
+    background: var(--surface-hover-strong);
+    color: var(--text);
+}
+
+.message-navigator button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
+@media(width < 640px) {
+    .message-navigator {
+        left: 0;
+    }
+
+    .message-navigator__mark {
+        width: 14px;
+        height: 14px;
+        flex-basis: 14px;
+    }
+
+    .workspace:not(.is-sidebar-collapsed) .message-navigator, html.discovery-panel-shift .message-navigator {
+        visibility: hidden;
+    }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    .message-navigator, .message-navigator__mark::before {
+        transition: none;
+    }
+}
+
+.computer-message--user {
+    border: 0;
+    position: relative;
+    background: var(--accent);
+    color: var(--text);
+}
+
+.computer-message--user > .computer-message__text {
+    color: inherit;
+}
+
+.computer-user-actions {
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding-right: var(--space-3);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.computer-message--user:hover .computer-user-actions, .computer-message--user:focus-within .computer-user-actions {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.computer-user-actions button {
+    display: grid;
+    place-items: center;
+    width: 25px;
+    height: 28px;
+    padding: var(--space-1);
+    border: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.computer-user-actions button:hover {
+    color: var(--text);
+}
+
+.computer-user-actions i {
+    width: 17px;
+    height: 17px;
+    background: currentColor;
+    mask: var(--action-icon) center/contain no-repeat;
+}
+
+.computer-user-status {
+    font-size: var(--font-size-5);
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.computer-message--user.is-editing {
+    width: 100%;
+    max-width: 100%;
+    justify-self: stretch;
+    padding: var(--space-5);
+}
+
+.computer-message--user.is-editing .computer-user-actions {
+    display: none;
+}
+
+.computer-user-editor textarea {
+    display: block;
+    width: 100%;
+    min-height: 60px;
+    resize: none;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    line-height: 1.5;
+}
+
+.computer-user-editor>div {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.computer-user-editor button {
+    padding: var(--space-2) 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    cursor: pointer;
+}
+
+.computer-user-editor .computer-user-editor__save {
+    background: var(--text);
+    color: var(--bg);
+}
+
+.computer-user-editor p {
+    color: var(--text-secondary);
+    font-size: var(--font-size-5);
+}
+
+.computer-user-editor button:disabled {
+    opacity: .5;
+}
+
+@media(width<640px) {
+    .computer-message--user:not(.is-editing) {
+        max-width: calc(100% - 78px);
+    }
+
+    .computer-user-actions {
+        gap: 3px;
+        padding-right: 6px;
+    }
+
+    .computer-user-status {
+        position: absolute;
+        right: 12px;
+        top: 100%;
+    }
+}
+
+.computer-user-time {
+    color: var(--text-secondary);
+    font-size: var(--font-size-5);
+    white-space: nowrap;
+    margin-right: 3px;
+}
+
+@media(width < 640px) {
+    .computer-message--user:not(.is-editing) {
+        max-width: calc(100% - 125px);
+    }
+}
+
+.computer-intro__animated-logo {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    color: var(--text);
+}
+
+@media(width<640px) {
+    .computer-intro__animated-logo {
+        width: 32px;
+        height: 32px;
+        flex-basis: 32px;
+    }
+}
+
+.computer-intro h1 {
+    text-wrap: nowrap;
+}
+
+[data-chat-greeting] {
+    white-space: nowrap;
+    min-width: 0;
+    flex: 0 1 auto;
+}
+
+.attachment-toggle {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: var(--radius-circle);
+}
+
+.attachment-toggle:hover {
+    background: var(--surface-selected);
+}
+
+.attachment-menu {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+    background: var(--surface);
+    color: var(--text);
+    width: min(340px, calc(100vw - 24px));
+}
+
+.attachment-menu button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: var(--space-2);
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    text-align: left;
+}
+
+.attachment-menu i {
+    width: var(--icon-small);
+    height: var(--icon-small);
+    flex-shrink: 0;
+    background: currentColor;
+    mask: url('../img/icons/attachments.svg') center/contain no-repeat;
+}
+
+.attachment-menu p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: var(--space-1) 10px;
+}
+
+.attachment-list {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-3);
+}
+
+.attachment-list[hidden] {
+    display: none;
+}
+
+.attachment-chip {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    max-width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.attachment-chip span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.attachment-chip button {
+    background: none;
+    border: 0;
+    color: var(--text-secondary);
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.attachment-status {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.attachment-status:empty {
+    display: none;
+}
+
+.computer-message--user .attachment-list {
+    margin-bottom: var(--space-2);
+}
+
+.computer-response-reveal {
+    animation: computer-response-reveal .2s ease-out both;
+}
+
+@keyframes computer-response-reveal {
+    from {
+        opacity: 0;
+        color: var(--accent);
+    }
+
+    20% {
+        opacity: 1;
+        color: var(--accent);
+    }
+
+    45% {
+        opacity: 1;
+        color: var(--accent);
+    }
+
+    to {
+        opacity: 1;
+        color: var(--text);
+    }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    .computer-response-reveal {
+        animation: none;
+        color: var(--text);
+    }
+}
+
+[data-chat-greeting] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media(width<640px) {
+    .computer-page .home__actions {
+        gap: var(--space-2);
+    }
+
+    .computer-page .home__toolbar {
+        gap: var(--space-2);
+    }
+
+    .computer-page .home__mode {
+        padding-inline: var(--space-2);
+        gap: 5px;
+    }
+}
+
+.computer-chat-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 639px) {
+    .message-navigator {
+        display: none;
+    }
+}
+
+.computer-jump {
+    position: fixed;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-circle);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: grid;
+    place-items: center;
+    z-index: 20;
+    cursor: pointer;
+}
+
+.computer-jump[hidden] {
+    display: none;
+}
+
+.computer-jump img {
+    width: 16px;
+    height: 16px;
+}
+
+@media (max-width: 639px) {
+    .computer-header .computer-chat-title {
+        display: none;
+    }
+}
+
+.composer-provider-group {
+    display: flex;
+    align-items: center;
+    border-radius: 24px;
+    background: var(--bg);
+    padding: 3px;
+}
+
+.composer-provider-group button {
+    height: 34px;
+    border-radius: var(--radius-container);
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.composer-provider-group button[aria-pressed="true"] {
+    border-color: var(--border);
+    background: var(--surface);
+    color: var(--text);
+}
+
+.home__modes .attachment-toggle {
+    margin-right: 10px;
+    border-radius: var(--radius-circle);
+    background: var(--surface);
+}
+
+.home__modes, .composer-provider-group {
+    background: transparent;
+    padding: 0;
+}
+
+.composer-provider-group button, .home__modes .attachment-toggle, .local-model-picker {
+    height: 32px;
+    min-height: 0;
+}
+
+.home__modes .attachment-toggle {
+    width: 32px;
+    flex: 0 0 32px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+}
+
+.home__modes .attachment-toggle::before {
+    position: static;
+    width: 16px;
+    height: 16px;
+    transform: none;
+}
+
+.composer-provider-group .computer-icon, .composer-provider-group .model-icon {
+    width: 14px;
+    height: 14px;
+}
+
+.local-model-picker {
+    background: transparent;
+    border: 0;
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.model-icon--gemma {
+    mask: url('../img/icons/model-gemma.svg') center / contain no-repeat;
+}
+
+.composer-provider-group {
+    background: var(--bg);
+    gap: 0;
+    border-radius: var(--radius-pill);
+}
+
+.composer-provider-group button {
+    margin: 0;
+    padding-inline: 10px;
+}
+
+.composer-provider-group button[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--text) 6%, var(--surface));
+    border-color: var(--border);
+}
+
+.home__modes .attachment-toggle {
+    background: transparent;
+}
+
+.home__modes .attachment-toggle:hover {
+    background: color-mix(in srgb, var(--text) 8%, var(--surface));
+    color: var(--text);
+}
+
+.local-model-picker:not([hidden]) {
     display: inline-flex;
-    /* Evita comprimir os ícones. */
+    align-items: center;
+    gap: 6px;
+}
+
+.model-menu {
+    width: min(275px, calc(100vw - 24px));
+}
+
+.model-menu > button {
+    height: 36px;
+    min-height: 36px;
+    padding: 0 var(--space-3);
+}
+
+.model-menu .model-check {
+    margin-left: auto;
+}
+
+.home__modes .attachment-toggle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.attachment-toggle > .attachment-plus {
+    display: block;
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+}
+
+.message-navigator__panel {
+    left: 0;
+    width: 256px;
+    padding: 7px;
+    z-index: 1;
+    border-radius: var(--radius-large);
+}
+
+.message-navigator__list {
+    gap: 0;
+}
+
+.message-navigator__list button {
+    height: 32px;
+    min-height: 0;
+    padding: 7.25px var(--space-2);
+    line-height: 17.5px;
+    font-size: 14px;
+    border-radius: var(--radius-control);
+}
+
+.local-model-picker {
+    max-width: min(290px, 40vw);
+    min-width: 0;
+}
+
+.local-model-name, .model-menu > button > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.local-model-picker > svg {
     flex-shrink: 0;
 }
+
+.computer-research, .computer-instant {
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.computer-research, .computer-research-sites {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.computer-research.is-searching > span:first-child {
+    animation: research-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes research-pulse {
+    from {
+        opacity: .55;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.computer-message__actions .computer-sources {
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: var(--space-1) var(--space-2);
+    font: inherit;
+    font-size: 13px;
+}
+
+.computer-source-icons {
+    display: inline-flex;
+    flex-shrink: 0;
+}
+
 .computer-source-icons img + img {
-    /* Sobrepõe discretamente os favicons como na referência. */
     margin-left: -4px;
 }
+
 .computer-source-icons img {
-    /* Arredonda a moldura do ícone. */
-    border-radius: 50%;
-    /* Separa os ícones sobrepostos. */
+    border-radius: var(--radius-circle);
     border: 1px solid var(--bg);
 }
+
 .computer-source-list {
-    /* Ancora o popover à posição do botão. */
     position: fixed;
-    /* Remove a centralização padrão do navegador. */
     inset: auto;
-    /* Permite coordenadas calculadas pelo script. */
     margin: 0;
-    /* Limita a largura na tela pequena. */
     width: min(360px, calc(100vw - 24px));
-    /* Oferece rolagem em listas longas. */
     max-height: min(360px, 60dvh);
-    /* Habilita a rolagem quando necessária. */
     overflow-y: auto;
-    /* Define o espaço interno. */
-    padding: 12px;
-    /* Mantém a superfície do tema. */
+    padding: var(--space-3);
     background: var(--surface);
-    /* Cor dos títulos e links. */
     color: var(--text);
-    /* Contorno discreto do menu. */
     border: 1px solid var(--border);
-    /* Canto arredondado. */
     border-radius: 14px;
-    /* Evita que a lista herde a fonte serifada da resposta. */
     font-family: inherit;
 }
+
 .computer-source-list a {
-    /* Alinha favicon e título. */
     display: flex;
-    /* Afasta o ícone do título. */
-    gap: 8px;
-    /* Espaça cada fonte para o clique. */
+    gap: var(--space-2);
     padding: 9px 0;
-    /* Mantém os links no tema. */
     color: var(--text);
-    /* Evita URLs longas fora do menu. */
     overflow-wrap: anywhere;
 }
+
 .computer-source-list img, .computer-research-sites img {
-    /* Preserva as dimensões dos favicons. */
     flex: 0 0 16px;
 }
+
 .computer-search-suggestions {
-    /* Exibe o widget de atribuição retornado pelo provedor. */
     width: 100%;
-    /* Reserva espaço ao widget sem expandir a resposta em excesso. */
     height: 120px;
-    /* Remove a borda padrão de iframe. */
     border: 0;
-    /* Separa as sugestões dos botões da resposta. */
-    margin-top: 8px;
+    margin-top: var(--space-2);
 }
+
 @media (prefers-reduced-motion: reduce) {
     .computer-research.is-searching > span:first-child {
-        /* Respeita a preferência por reduzir movimentos. */
         animation: none;
     }
+}
+
+.computer-page .home__input {
+    min-height: 38px;
+    max-height: calc(var(--composer-max-lines) * 1.5em);
+    font-family: var(--font-ui);
+    overflow-y: hidden;
+}
+
+.computer-page .home__send.is-empty {
+    opacity: var(--opacity-disabled);
+}
+
+.computer-message--assistant > .computer-message__text {
+    font-family: var(--font-prose);
+}
+
+.computer-sources-panel {
+    position: fixed;
+    z-index: 85;
+    top: calc(var(--header-height) + 20px);
+    right: 20px;
+    width: var(--sources-panel-width);
+    max-width: calc(100vw - 76px);
+    max-height: calc(100dvh - var(--header-height) - 40px);
+    overflow-y: auto;
+    font-family: var(--font-ui);
+    font-size: var(--font-size-4);
+}
+
+.computer-sources-panel[hidden], .sources-panel-toggle[hidden] {
+    display: none;
+}
+
+.sources-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+    background: var(--surface);
+    padding: var(--space-panel);
+}
+
+.sources-card > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    list-style: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    min-height: 24px;
+}
+
+.sources-card > summary::-webkit-details-marker {
+    display: none;
+}
+
+.sources-card > summary > span:first-child {
+    margin-right: auto;
+}
+
+.sources-card > summary .ui-arrow {
+    width: var(--icon-small);
+    height: var(--icon-small);
+}
+
+.sources-card[open] > summary .ui-arrow {
+    transform: rotate(90deg);
+}
+
+.sources-card__compact {
+    display: flex;
+    align-items: center;
+}
+
+.sources-card[open] .sources-card__compact {
+    display: none;
+}
+
+.sources-card__compact img + img {
+    margin-left: -5px;
+}
+
+.sources-card__compact > span {
+    margin-left: var(--space-2);
+}
+
+.sources-card__list {
+    display: grid;
+    gap: var(--space-6);
+    padding-top: var(--space-5);
+}
+
+.sources-card__source {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr);
+    gap: var(--space-2);
+    color: var(--text);
+    text-decoration: none;
+}
+
+.sources-card__source > img {
+    margin-top: var(--space-1);
+    border-radius: var(--radius-circle);
+}
+
+.sources-card__publisher, .sources-card__title {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+.sources-card__publisher {
+    font-size: var(--font-size-5);
+    color: var(--text-secondary);
+}
+
+.sources-card__title {
+    line-height: 1.45;
+}
+
+.sources-card__source p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    overflow: hidden;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.sources-card__source small {
+    color: var(--text-secondary);
+    font-size: var(--font-size-6);
+}
+
+.sources-card__source:hover .sources-card__title {
+    text-decoration: underline;
+}
+
+.sources-panel-toggle {
+    position: fixed;
+    z-index: 86;
+    top: calc(var(--header-height) + 24px);
+    right: calc(var(--sources-panel-width) + 36px);
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--radius-circle);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+}
+
+.sources-panel-toggle img {
+    width: 16px;
+    height: 16px;
+}
+
+.sources-panel-toggle.is-collapsed {
+    right: 20px;
+}
+
+.sources-panel-toggle.is-collapsed img {
+    transform: rotate(180deg);
+}
+
+.sources-panel-toggle:hover {
+    background-color: var(--surface);
+}
+
+@media (min-width: 1100px) {
+    .has-source-panel .computer-page {
+        width: min(800px, calc(100% - var(--sources-panel-space)));
+        margin-left: max(0px, calc((100% - var(--sources-panel-space) - 800px) / 2));
+        margin-right: var(--sources-panel-space);
+    }
+
+    .has-source-panel .computer-page.has-conversation .computer-composer {
+        left: calc(var(--sidebar-width) + (100% - var(--sidebar-width) - var(--sources-panel-space)) / 2);
+        width: min(736px, calc(100% - var(--sidebar-width) - var(--sources-panel-space) - 64px));
+    }
+}
+
+@media (max-width: 1099px) {
+    .computer-sources-panel {
+        box-shadow: var(--panel-shadow);
+        right: 12px;
+    }
+
+    .sources-panel-toggle:not(.is-collapsed) {
+        right: min(calc(var(--sources-panel-width) + 24px), calc(100vw - 52px));
+    }
+}
+
+.sources-panel-toggle::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url('../img/icons/collapse-panel.svg') center / contain no-repeat;
+}
+
+.sources-panel-toggle img {
+    display: none;
+}
+
+.sources-panel-toggle.is-collapsed::before {
+    transform: rotate(180deg);
+}
+
+.computer-page[hidden], .chat-links[hidden], .chat-tabs[hidden], .anonymous-toggle[hidden], .anonymous-note[hidden] {
+    display: none;
+}
+
+.chat-is-empty .computer-header {
+    border-bottom-color: transparent;
+}
+
+.computer-page .home__composer:focus-within {
+    border-color: var(--border);
+    box-shadow: none;
+}
+
+.computer-page .home__input:focus {
+    outline: none;
+}
+
+.computer-message__actions [data-feedback="helpful"][aria-pressed="true"] i {
+    --action-icon: url('../img/icons/helpful-filled.svg') !important;
+}
+
+.computer-message__actions [data-feedback="unhelpful"][aria-pressed="true"] i {
+    --action-icon: url('../img/icons/unhelpful-filled.svg') !important;
+}
+
+.computer-rewrite {
+    margin-left: auto;
+    order: 10;
+}
+
+.computer-rewrite i {
+    --action-icon: url('../img/icons/rewrite.svg');
+}
+
+.computer-rewrite:disabled {
+    opacity: var(--opacity-disabled);
+    cursor: default;
+}
+
+.sources-card > summary .ui-arrow {
+    mask-image: url('../img/icons/topic-menu.svg');
+    transform: rotate(-90deg);
+}
+
+.sources-card[open] > summary .ui-arrow {
+    transform: none;
+}
+
+.anonymous-toggle {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.anonymous-toggle i {
+    display: block;
+    width: var(--icon-small);
+    height: var(--icon-small);
+    background: currentColor;
+    mask: url('../img/icons/anonymous.svg') center/contain no-repeat;
+}
+
+.anonymous-toggle[aria-pressed="true"] {
+    background: var(--surface-hover);
+}
+
+.anonymous-note {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-5);
+    color: var(--text-secondary);
+    text-align: center;
+    margin: 10px 0 0;
+}
+
+.is-anonymous .attachment-toggle, .is-anonymous .computer-user-actions button[aria-label="Editar"] {
+    display: none;
+}
+
+.chat-tabs {
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+    height: 100%;
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-6);
+    font-family: var(--font-ui);
+    font-size: var(--font-size-4);
+}
+
+.chat-tabs button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: none;
+    color: var(--text-secondary);
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: 0;
+    cursor: pointer;
+}
+
+.chat-tabs button[aria-current] {
+    color: var(--text);
+    border-bottom-color: var(--text);
+}
+
+.chat-tabs i {
+    display: block;
+    width: var(--icon-small);
+    height: var(--icon-small);
+    background: currentColor;
+}
+
+.chat-tab-logo {
+    mask: url('../img/logos/Logo.svg') center/contain no-repeat;
+}
+
+.chat-tab-links {
+    mask: url('../img/icons/web-links.svg') center/contain no-repeat;
+}
+
+.chat-links {
+    width: min(100%, 1000px);
+    margin: 0 auto;
+    padding: 40px var(--space-8);
+    font-family: var(--font-ui);
+    font-size: var(--font-size-4);
+}
+
+.chat-links__query {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-8);
+}
+
+.chat-links__result {
+    margin-bottom: 28px;
+    overflow-wrap: anywhere;
+}
+
+.chat-links__publisher {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--text);
+    text-decoration: none;
+    margin-bottom: 10px;
+}
+
+.chat-links__publisher img {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-circle);
+    flex-shrink: 0;
+}
+
+.chat-links__url {
+    display: block;
+    font-size: var(--font-size-5);
+    color: var(--text-secondary);
+    margin-top: var(--space-1);
+}
+
+.chat-links__title {
+    color: var(--text);
+    text-decoration: none;
+    line-height: 1.5;
+}
+
+.chat-links__title:hover {
+    text-decoration: underline;
+}
+
+.chat-links__result p {
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.showing-chat-links .computer-sources-panel, .showing-chat-links .sources-panel-toggle, .showing-chat-links .message-navigator {
+    display: none;
+}
+
+@media(max-width:900px) {
+    .chat-tabs {
+        gap: 14px;
+    }
+
+    .computer-header:has(.chat-tabs:not([hidden])) .computer-chat-title {
+        max-width: 20%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .chat-links {
+        padding: 28px var(--space-5);
+    }
+}
+
+@media (max-width:639px) {
+    .workspace:has(.chat-tabs:not([hidden])) {
+        --header-height: 96px;
+    }
+
+    .computer-header:has(.chat-tabs:not([hidden])) {
+        align-items: flex-start;
+        padding-top: var(--space-2);
+    }
+
+    .chat-tabs {
+        top: 48px;
+        height: 48px;
+    }
+}
+
+.workspace {
+    --chat-column-width: 800px;
+    --chat-column-padding: 32px;
+    --chat-side-reserve: 0px;
+    --chat-column-start: calc(max(0px, (100% - var(--chat-side-reserve) - var(--chat-column-width)) / 2) + var(--chat-column-padding));
+}
+
+.computer-page, .chat-links {
+    width: min(var(--chat-column-width), calc(100% - var(--chat-side-reserve)));
+    margin-left: max(0px, calc((100% - var(--chat-side-reserve) - var(--chat-column-width)) / 2));
+    margin-right: auto;
+    padding-inline: var(--chat-column-padding);
+}
+
+.chat-tabs {
+    left: var(--chat-column-start);
+    translate: none;
+}
+
+.computer-header .computer-chat-title {
+    max-width: min(240px, max(0px, calc(var(--chat-column-start) - 40px)));
+    flex: 0 1 auto;
+}
+
+@media(min-width:1100px) {
+    .has-source-panel {
+        --chat-side-reserve: var(--sources-panel-space);
+    }
+}
+
+@media(max-width:639px) {
+    .workspace {
+        --chat-column-padding: 16px;
+    }
+}
+
+:root {
+    --attachment-card-width: 288px;
+    --attachment-preview-size: 32px;
+}
+
+.attachment-chip {
+    width: var(--attachment-card-width);
+    min-width: 0;
+    gap: var(--space-3);
+    padding: var(--space-2);
+    border: 0;
+    background: color-mix(in srgb, var(--text) 5%, var(--surface));
+    font-family: var(--font-ui);
+    font-size: var(--font-size-4);
+}
+
+.attachment-chip__preview {
+    width: var(--attachment-preview-size);
+    height: var(--attachment-preview-size);
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-small);
+    overflow: hidden;
+    background: var(--bg);
+}
+
+.attachment-chip__preview img, .attachment-chip__file-icon {
+    grid-area: 1 / 1;
+}
+
+.attachment-chip__preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.attachment-chip__file-icon {
+    width: var(--icon-medium);
+    height: var(--icon-medium);
+    background: currentColor;
+    mask: url('../img/icons/attachments.svg') center/contain no-repeat;
+}
+
+.attachment-chip__file-icon[hidden] {
+    display: none;
+}
+
+.attachment-chip__info {
+    flex: 1;
+    min-width: 0;
+}
+
+.attachment-chip__info span {
+    display: block;
+    line-height: 1.4;
+}
+
+.attachment-chip__size {
+    font-size: var(--font-size-5);
+    color: var(--text-secondary);
+}
+
+.attachment-chip .attachment-chip__remove {
+    flex: 0 0 20px;
+    display: grid;
+    place-items: center;
+    height: 24px;
+    padding: 0;
+    color: var(--text);
 }

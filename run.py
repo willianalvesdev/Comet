@@ -1,4 +1,3 @@
-"""Servidor local do Ascenda, sem modo debug."""
 import os
 import sys
 import threading
@@ -25,7 +24,7 @@ if __name__ == '__main__':
     host = os.getenv('APP_HOST', '127.0.0.1')
     port = int(os.getenv('APP_PORT', '5001'))
     server = create_server(app, host=host, port=port, threads=4)
-    # Bind first: a second launch on the same port must not clear a live response.
+
     try:
         app.extensions['ascenda_conversations'].recover_interrupted(started_at)
     except Exception:

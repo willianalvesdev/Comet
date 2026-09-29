@@ -1,4 +1,3 @@
-"""Dated news and optional Brave search; requests only go to fixed provider hosts."""
 import http.client
 import json
 import os
@@ -36,7 +35,6 @@ def read(host, path, headers=None):
 
 
 def diversified(items, limit=6):
-    """Prefer one result per publisher; then permit one additional result, never a monopoly."""
     from .web_search import safe_url
     first, extra, seen, counts = [], [], set(), {}
     for item in items:
@@ -56,7 +54,7 @@ def diversified(items, limit=6):
 
 def result(items, query, engine):
     items = diversified(items)
-    sources = [{k:v for k,v in item.items() if k != 'excerpt'} for item in items]
+    sources = [{**item, 'excerpt':item.get('excerpt','')[:600]} for item in items]
     snippets = [{'source':i+1,'excerpt':item.get('excerpt','')[:240],
                  'published_at':item.get('published_at')} for i,item in enumerate(items)]
     return {'sources':sources,'queries':[query],'suggestions':'','engine':engine,
@@ -117,7 +115,6 @@ def brave_search(query):
 
 
 def result_date(entry, now):
-    """Normalize provider dates; relative ages stay explicitly approximate."""
     text = entry.get('publishedDate')
     if text:
         try:
@@ -136,7 +133,7 @@ def result_date(entry, now):
 
 
 def searxng_search(query):
-    # Address is server configuration, never a URL supplied by the user/model.
+
     base = urlsplit(os.getenv('SEARXNG_URL','').strip())
     if (base.scheme not in ('http','https') or not base.hostname or base.username
             or base.password or base.query or base.fragment
@@ -146,7 +143,7 @@ def searxng_search(query):
     params = {'q':query,'format':'json','language':'pt-BR','safesearch':1}
     is_news = bool(re.search(r'notícias|noticias|news',query,re.I))
     if is_news:
-        # Engine time_range excludes Google/Brave news. Filter publication dates below instead.
+
         params['categories'] = 'news'
     elif days:
         params['time_range'] = 'day' if days == 1 else 'month'
@@ -162,8 +159,8 @@ def searxng_search(query):
             raise AIError('provider_unavailable',503)
         data = json.loads(raw)
         items = []
+        now = datetime.now(timezone.utc)
         for entry in data.get('results',[])[:40]:
-            now = datetime.now(timezone.utc)
             date, approximate = result_date(entry,now)
             if days:
                 if date and (date < now-timedelta(days=days) or date > now+timedelta(hours=2)):

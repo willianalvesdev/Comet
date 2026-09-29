@@ -1,12 +1,19 @@
-"""Account-owned personalization and conservative memory of user statements."""
 import json
 import re
 from datetime import date
 
+from .errors import AIError
+
 EXTRAS = {"username": "","company": "", "birth_date": "", "gender": "", "response_length": "Padrão", "formatting": "Padrão", "location": ""}
 
+LIMIT = 6000
+
+PERSONAL = re.compile(r'^(?:eu\s+)?(?:me chamo|me chame de|pode me chamar de|meu nome [ée]|sou|trabalho (?:como|com|em)|estudo|moro|tenho|costumo|prefiro|gosto de|não gosto de|minha (?:meta|profissão|ocupação|preferência) [ée]|meu objetivo [ée]|quero (?:ser chamado|que me chame|economizar|poupar|aprender)|lembre(?:-se)? (?:de )?que)\b', re.I)
+SECRET = re.compile(r'\b(?:senha|password|token|api.?key|chave|cpf|cartão|cvv|segredo)\b', re.I)
+
+
+
 def unpack_about(value):
-    # Versioned storage keeps existing profiles compatible without a schema migration.
     try:
         data = json.loads(value)
         if isinstance(data, dict) and data.get("ascenda_profile_version") == 1 and isinstance(data.get("about"), str):
@@ -16,23 +23,23 @@ def unpack_about(value):
     return value, dict(EXTRAS)
 
 
-from .errors import AIError
-
-LIMIT = 6000
-# Keep explicit self-descriptions, never infer facts from the assistant's answers.
-PERSONAL = re.compile(r'^(?:eu\s+)?(?:me chamo|me chame de|pode me chamar de|meu nome [ée]|sou|trabalho (?:como|com|em)|estudo|moro|tenho|costumo|prefiro|gosto de|não gosto de|minha (?:meta|profissão|ocupação|preferência) [ée]|meu objetivo [ée]|quero (?:ser chamado|que me chame|economizar|poupar|aprender)|lembre(?:-se)? (?:de )?que)\b', re.I)
-SECRET = re.compile(r'\b(?:senha|password|token|api.?key|chave|cpf|cartão|cvv|segredo)\b', re.I)
-
 
 def learn(summary, message):
     entries = [line.strip() for line in summary.splitlines() if line.strip()]
+    known_entries = {entry.casefold() for entry in entries}
+    summary_length = len('\n'.join(entries))
     for sentence in re.split(r'[\n.!?]+', message):
         sentence = sentence.strip(' \t-•')
-        if 5 <= len(sentence) <= 350 and PERSONAL.search(sentence) and not SECRET.search(sentence):
-            entry = '• ' + sentence
-            if entry.casefold() not in {x.casefold() for x in entries}:
-                if len('\n'.join([*entries, entry])) <= LIMIT:
-                    entries.append(entry)
+        if not 5 <= len(sentence) <= 350 or not PERSONAL.search(sentence) or SECRET.search(sentence):
+            continue
+        entry = '• ' + sentence
+        normalized_entry = entry.casefold()
+        candidate_length = summary_length + len(entry) + bool(entries)
+        if normalized_entry in known_entries or candidate_length > LIMIT:
+            continue
+        entries.append(entry)
+        known_entries.add(normalized_entry)
+        summary_length = candidate_length
     return '\n'.join(entries)
 
 
@@ -40,14 +47,15 @@ class PersonalizationStore:
     def __init__(self, conversations):
         self.conversations = conversations
 
-    def ensure(self, cur, uid):
-        cur.execute("INSERT IGNORE INTO computer_personalizacao (usuario_id,sobre,resumo) VALUES (%s,'','')", (uid,))
+    @staticmethod
+    def ensure(database_cursor, user_id):
+        database_cursor.execute("INSERT IGNORE INTO computer_personalizacao (usuario_id,sobre,resumo) VALUES (%s,'','')", (user_id,))
 
-    def get(self, uid):
-        with self.conversations.cursor() as cur:
-            self.ensure(cur, uid)
-            cur.execute('SELECT p.*,u.nome AS nome_cadastro,u.email AS email_cadastro FROM computer_personalizacao p JOIN usuarios u ON u.id=p.usuario_id WHERE p.usuario_id=%s', (uid,))
-            row = cur.fetchone()
+    def get(self, user_id):
+        with self.conversations.cursor() as database_cursor:
+            self.ensure(database_cursor, user_id)
+            database_cursor.execute('SELECT p.*,u.nome AS nome_cadastro,u.email AS email_cadastro FROM computer_personalizacao p JOIN usuarios u ON u.id=p.usuario_id WHERE p.usuario_id=%s', (user_id,))
+            row = database_cursor.fetchone()
         return self.serialize(row)
 
     @staticmethod
@@ -57,7 +65,7 @@ class PersonalizationStore:
                 'occupation': row['ocupacao'], 'about': about,
                 'memory_enabled': bool(row['memoria_ativa']), 'summary': row['resumo'], 'version': row['versao']}
 
-    def update(self, uid, payload):
+    def update(self, user_id, payload):
         fields = {'name':100, 'occupation':200, 'about':2000, 'summary':LIMIT}
         if not isinstance(payload, dict) or not {*fields, 'memory_enabled', 'version'} <= set(payload) or set(payload) - {*fields, 'memory_enabled', 'version', 'full_name', *EXTRAS}:
             raise AIError('invalid_personalization', 422)
@@ -78,28 +86,28 @@ class PersonalizationStore:
                 raise AIError('invalid_personalization', 422)
         if payload.get('birth_date'):
             try:
-                born = date.fromisoformat(payload['birth_date'])
-                if born > date.today() or born.year < 1900:
+                birth_date = date.fromisoformat(payload['birth_date'])
+                if birth_date > date.today() or birth_date.year < 1900:
                     raise ValueError()
             except ValueError:
                 raise AIError('invalid_personalization', 422)
-        with self.conversations.cursor() as cur:
-            self.ensure(cur, uid)
-            cur.execute('SELECT versao,sobre FROM computer_personalizacao WHERE usuario_id=%s FOR UPDATE', (uid,))
-            current = cur.fetchone()
+        with self.conversations.cursor() as database_cursor:
+            self.ensure(database_cursor, user_id)
+            database_cursor.execute('SELECT versao,sobre FROM computer_personalizacao WHERE usuario_id=%s FOR UPDATE', (user_id,))
+            current = database_cursor.fetchone()
             if current['versao'] != payload['version']:
                 raise AIError('personalization_changed', 409)
             if 'full_name' in payload:
-                cur.execute('UPDATE usuarios SET nome=%s WHERE id=%s', (payload['full_name'].strip(), uid))
+                database_cursor.execute('UPDATE usuarios SET nome=%s WHERE id=%s', (payload['full_name'].strip(), user_id))
             _, extras = unpack_about(current['sobre'])
             extras.update({key: payload[key].strip() for key in EXTRAS if key in payload})
             about = json.dumps({'ascenda_profile_version': 1, 'about': payload['about'].strip(), **extras}, ensure_ascii=False)
-            cur.execute('UPDATE computer_personalizacao SET nome_preferido=%s,ocupacao=%s,sobre=%s,memoria_ativa=%s,resumo=%s,versao=versao+1,atualizado_em=UTC_TIMESTAMP(6) WHERE usuario_id=%s',
-                        (payload['name'].strip(),payload['occupation'].strip(),about,payload['memory_enabled'],payload['summary'].strip(),uid))
-        return self.get(uid)
+            database_cursor.execute('UPDATE computer_personalizacao SET nome_preferido=%s,ocupacao=%s,sobre=%s,memoria_ativa=%s,resumo=%s,versao=versao+1,atualizado_em=UTC_TIMESTAMP(6) WHERE usuario_id=%s',
+                        (payload['name'].strip(),payload['occupation'].strip(),about,payload['memory_enabled'],payload['summary'].strip(),user_id))
+        return self.get(user_id)
 
-    def context(self, uid):
-        profile = self.get(uid)
+    def context(self, user_id):
+        profile = self.get(user_id)
         values = {'como_chamar':profile['name'] or profile['account_name'], 'ocupacao':profile['occupation'], 'sobre':profile['about']}
         values.update({key: profile[key] for key in EXTRAS if profile[key]})
         if profile['memory_enabled']:
@@ -109,13 +117,13 @@ class PersonalizationStore:
                 'As memórias podem estar incompletas ou desatualizadas: a mensagem atual e as correções do usuário têm prioridade. '
                 'Não invente fatos nem afirme lembrar de conteúdo que não consta aqui ou na conversa.\n' + json.dumps(values, ensure_ascii=False))
 
-    def remember(self, uid, message):
-        with self.conversations.cursor() as cur:
-            self.ensure(cur, uid)
-            cur.execute('SELECT memoria_ativa,resumo FROM computer_personalizacao WHERE usuario_id=%s FOR UPDATE', (uid,))
-            row = cur.fetchone()
+    def remember(self, user_id, message):
+        with self.conversations.cursor() as database_cursor:
+            self.ensure(database_cursor, user_id)
+            database_cursor.execute('SELECT memoria_ativa,resumo FROM computer_personalizacao WHERE usuario_id=%s FOR UPDATE', (user_id,))
+            row = database_cursor.fetchone()
             if not row['memoria_ativa']:
                 return
             summary = learn(row['resumo'],message)
             if summary != row['resumo']:
-                cur.execute('UPDATE computer_personalizacao SET resumo=%s,versao=versao+1,atualizado_em=UTC_TIMESTAMP(6) WHERE usuario_id=%s', (summary,uid))
+                database_cursor.execute('UPDATE computer_personalizacao SET resumo=%s,versao=versao+1,atualizado_em=UTC_TIMESTAMP(6) WHERE usuario_id=%s', (summary,user_id))

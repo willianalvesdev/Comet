@@ -1,4 +1,3 @@
-"""Prepara um ambiente próprio e configuração local; não reutiliza dados do outro site."""
 import hashlib
 from pathlib import Path
 import secrets

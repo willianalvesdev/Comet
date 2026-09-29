@@ -46,7 +46,7 @@
                 stamp.textContent = stamp.hidden ? '' : elapsed(data.created_at);
                 if (!stamp.hidden) { stamp.dateTime = date.toISOString(); stamp.title = date.toLocaleString('pt-BR'); }
                 preview.hidden = false; position(); link.setAttribute('aria-describedby', preview.id);
-            } catch { /* Hover failures do not interrupt conversation navigation. */ }
+            } catch {   }
         }, 260);
     }
     function closeSoon() { clearTimeout(closeTimer); closeTimer = setTimeout(hide, 150); }
@@ -60,8 +60,14 @@
     document.addEventListener('keydown', event => { if (event.key === 'Escape') hide(); });
     window.addEventListener('scroll', hide, true);
     window.addEventListener('resize', hide);
-    new MutationObserver(() => { if (anchor && !anchor.isConnected) hide(); }).observe(list, {childList:true,subtree:true});
-    // Replace the browser's native title popup with this richer preview.
-    const clearTitles = () => list.querySelectorAll('.sessions__link[title]').forEach(link => link.removeAttribute('title'));
-    new MutationObserver(clearTitles).observe(list, {childList:true,subtree:true}); clearTitles();
+    function clearTitles(root) {
+        if (root.nodeType !== 1) return;
+        if (root.matches('.sessions__link[title]')) root.removeAttribute('title');
+        root.querySelectorAll('.sessions__link[title]').forEach(link => link.removeAttribute('title'));
+    }
+    new MutationObserver(records => {
+        if (anchor && !anchor.isConnected) hide();
+        records.forEach(record => record.addedNodes.forEach(clearTitles));
+    }).observe(list, {childList:true,subtree:true});
+    clearTitles(list);
 })();

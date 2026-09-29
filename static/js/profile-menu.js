@@ -1,39 +1,9 @@
 (() => {
     const menu = document.querySelector(".profile-menu");
     const trigger = document.querySelector(".sidebar__profile");
+    menu.querySelectorAll('[data-profile-submenu="news"], [aria-controls="profile-news"], #profile-news').forEach(element => element.remove());
     const triggers = [...menu.querySelectorAll("[data-profile-submenu]")];
-    const preferenceKey = 'ascenda-news-preferences-v2-' + menu.dataset.userId;
-    const topicButtons = [...menu.querySelectorAll('[data-news-topic]')];
-    let preferences = { topics: ['business'], languages: 'pt-en' };
-    try {
-        const saved = JSON.parse(window.AscendaStorage.getItem(preferenceKey));
-        const topics = saved?.topics?.filter(topic => topicButtons.some(button => button.dataset.newsTopic === topic));
-        if (topics?.length) preferences.topics = topics;
-        if (saved?.languages === 'all') preferences.languages = 'all';
-    } catch {}
-    function updatePreferences(save = false) {
-        topicButtons.forEach(button => button.setAttribute('aria-pressed', String(preferences.topics.includes(button.dataset.newsTopic))));
-        menu.querySelectorAll('[data-news-languages]').forEach(button => button.setAttribute('aria-pressed', String(preferences.languages === button.dataset.newsLanguages)));
-        menu.querySelector('[data-news-preference-label]').textContent = (preferences.topics.length === 1 ? topicButtons.find(button => button.dataset.newsTopic === preferences.topics[0]).querySelector('span').textContent : preferences.topics.length + ' assuntos') + ' · ' + (preferences.languages === 'all' ? 'Todos os idiomas' : 'PT / EN');
-        window.AscendaNewsPreferences = { topics: [...preferences.topics], languages: preferences.languages };
-        if (save) {
-            try { window.AscendaStorage.setItem(preferenceKey, JSON.stringify(preferences)); } catch {}
-            window.dispatchEvent(new Event('news-preferences-change'));
-        }
-    }
-    topicButtons.forEach(button => button.addEventListener('click', () => {
-        const topic = button.dataset.newsTopic;
-        if (preferences.topics.includes(topic)) {
-            if (preferences.topics.length === 1) return;
-            preferences.topics = preferences.topics.filter(value => value !== topic);
-        } else preferences.topics.push(topic);
-        updatePreferences(true);
-    }));
-    menu.querySelectorAll('[data-news-languages]').forEach(button => button.addEventListener('click', () => {
-        preferences.languages = button.dataset.newsLanguages;
-        updatePreferences(true);
-    }));
-    updatePreferences();
+    window.AscendaNewsPreferences = {topics:['business'], languages:'pt-en'};
     let active = null;
     function closeSubmenu(focus = false) {
         menu.querySelectorAll(".profile-menu__submenu").forEach(panel => panel.hidden = true);

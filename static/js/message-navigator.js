@@ -9,41 +9,39 @@
     const panel = document.createElement('div'); panel.className = 'message-navigator__panel'; panel.hidden = true;
     const list = document.createElement('div'); list.className = 'message-navigator__list';
     panel.append(list); nav.append(rail, panel); document.body.append(nav);
-    let entries = [], current = '', frame = 0;
+    let entries = [], current = -1, frame = 0;
     function open() { panel.hidden = false; nav.classList.add('is-open'); }
     function close() { panel.hidden = true; nav.classList.remove('is-open'); }
     function go(index) {
         const entry = entries[index]; if (!entry) return;
-        const header = document.querySelector('.workspace__header');
-        const offset = (header?.getBoundingClientRect().height || 52) + 24;
-        window.scrollTo({top: Math.max(0, scrollY + entry.message.getBoundingClientRect().top - offset), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
+        const rect = entry.message.getBoundingClientRect();
+        window.scrollTo({top: Math.max(0, scrollY + rect.top + rect.height/2 - innerHeight/2), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
         close();
     }
     function update() {
         frame = 0; if (!entries.length) return;
-        const target = (document.querySelector('.workspace__header')?.getBoundingClientRect().height || 52) + 50;
-        let index = 0;
-        entries.forEach((entry, i) => { if (entry.message.getBoundingClientRect().top <= target) index = i; });
-        const headerBottom = Math.max(0, document.querySelector('.workspace__header')?.getBoundingClientRect().bottom || 0);
-        const composerTop = Math.min(innerHeight, document.querySelector('.computer-composer')?.getBoundingClientRect().top ?? innerHeight);
-        const visible = entries.map((entry, i) => ({i, rect: entry.message.getBoundingClientRect()}))
-            .filter(({rect}) => rect.bottom > headerBottom && rect.top < composerTop)
-            .map(({i}) => i);
-        const active = visible.length ? visible : [index];
-        const signature = active.join(',');
-        if (signature === current) return;
-        current = signature;
-        entries.forEach((entry, i) => {
-            for (const button of [entry.mark, entry.item]) {
-                if (active.includes(i)) button.setAttribute('aria-current', 'true'); else button.removeAttribute('aria-current');
-            }
-        });
+        const atBottom = document.documentElement.scrollHeight - scrollY - innerHeight <= 8;
+        let index = entries.length - 1;
+        if (!atBottom) {
+            let distance = Infinity;
+            entries.forEach((entry,i) => {
+                const rect = entry.message.getBoundingClientRect();
+                const next = Math.abs(rect.top + rect.height/2 - innerHeight/2);
+                if (next < distance) { distance = next; index = i; }
+            });
+        }
+        if (index === current) return;
+        const previous = entries[current];
+        if (previous) { previous.mark.removeAttribute('aria-current'); previous.item.removeAttribute('aria-current'); }
+        current = index;
+        entries[index].mark.setAttribute('aria-current', 'true');
+        entries[index].item.setAttribute('aria-current', 'true');
     }
     function schedule() { if (!frame) frame = requestAnimationFrame(update); }
     function rebuild() {
         const nodes = [...messages.querySelectorAll('.computer-message--user')];
         if (nodes.length === entries.length && nodes.every((node, i) => node === entries[i].message)) return;
-        rail.replaceChildren(); list.replaceChildren(); current = '';
+        const marks = document.createDocumentFragment(), items = document.createDocumentFragment(); current = -1;
         entries = nodes.map((message, index) => {
             const text = message.querySelector('.computer-message__text').textContent.trim();
             const mark = document.createElement('button'); mark.type = 'button'; mark.className = 'message-navigator__mark';
@@ -52,9 +50,10 @@
             item.setAttribute('aria-label', `Ir para mensagem ${index + 1}: ${text.slice(0, 100)}`);
             mark.addEventListener('click', () => { if (matchMedia('(hover: none)').matches && panel.hidden) open(); else go(index); });
             item.addEventListener('click', () => go(index));
-            rail.append(mark); list.append(item);
+            marks.append(mark); items.append(item);
             return {message, mark, item};
         });
+        rail.replaceChildren(marks); list.replaceChildren(items);
         nav.hidden = !entries.length;
         if (!entries.length) close();
         schedule();

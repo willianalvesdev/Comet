@@ -1,4 +1,3 @@
-"""Offline checks for actual source attribution, bounded tool use and durable timing."""
 import io
 import json
 import unittest
@@ -18,6 +17,11 @@ SOURCE = {"sources": [{"url": "https://example.com/news", "title": "Example", "d
 
 
 class WebSearchTests(unittest.TestCase):
+    def test_explicit_search_variants_force_research(self):
+        for text in ['pesquisa sobre carros','quero pesquisar as novidades','pode buscar na internet','procure um carro','search for current prices']:
+            self.assertTrue(requires_web(text), text)
+        self.assertFalse(requires_web('Não pesquise na internet'))
+
     def setUp(self):
         environment = patch.dict('os.environ', {'SEARXNG_URL':'', 'BRAVE_SEARCH_API_KEY':''})
         environment.start()
@@ -27,7 +31,7 @@ class WebSearchTests(unittest.TestCase):
         provider = MagicMock()
         provider.key = "test-key"
         provider.stream.side_effect = lambda *args, **kwargs: iter(events)
-        # iter(list) has no close; real provider streams are generators.
+
         def stream(*args, **kwargs):
             yield from events
         provider.stream.side_effect = stream
@@ -186,7 +190,7 @@ class WebSearchTests(unittest.TestCase):
         self.assertEqual(unpack_response("Pensamento antigo"),("Pensamento antigo",{}))
 
     def test_enabled_local_models_route_explicit_search_only_to_searxng(self):
-        for name in ('qwen', 'qwen3:4b', 'qwen3:8b', 'gemma3:12b'):
+        for name in ('qwen', *LOCAL_MODELS):
             with self.subTest(model=name):
                 local = self.provider([{'type':'delta','text':'Resposta'}])
                 google = self.provider([])
@@ -203,7 +207,7 @@ class WebSearchTests(unittest.TestCase):
         service = ComputerService(google,CONFIG)
         service.web_search = WebSearch(google)
         with patch.dict('os.environ',{'SEARXNG_URL':'http://127.0.0.1:8888'}), patch('ascenda.ai.web_search.searxng_search') as local_search:
-            # Stop after research: this fixture only describes the grounded search stream.
+
             source=with_web(service,[{'role':'user','content':'Pesquise notícias hoje'}],google,'')
             try:
                 for event in source:
@@ -249,27 +253,21 @@ class WebSearchTests(unittest.TestCase):
         self.assertEqual(events[0]['provider'],'gemini')
         self.assertEqual(events[-1]['metadata']['research']['engine'],'Google Search')
 
-    def test_disabled_qwen_models_never_search_even_when_requested(self):
+    def test_small_and_instruct_qwen_models_can_search_again(self):
         from dataclasses import replace
         for model in ('qwen3:1.7b','qwen3:1.7b-q4_K_M','qwen3:4b-instruct-2507-q4_K_M'):
-            for message in ('Pesquise notícias hoje','Qual a versão mais recente?'):
-                with self.subTest(model=model,message=message):
-                    local=OllamaProvider(replace(CONFIG,model=model))
-                    google=self.provider([])
-                    service=ComputerService(local,CONFIG,{'qwen':local,'gemini':google})
-                    service.web_search=WebSearch(google)
-                    def stream(messages):
-                        yield {'type':'delta','text':'Resposta offline'}
-                    with patch.object(local,'stream',side_effect=stream) as generation, patch('ascenda.ai.web_search.searxng_search') as search:
-                        events=list(with_web(service,[{'role':'user','content':message}],local,''))
-                    search.assert_not_called()
-                    google.stream.assert_not_called()
-                    self.assertEqual(events,[{'type':'delta','text':'Resposta offline'}])
-                    prompt=generation.call_args.args[0][0]['content']
-                    self.assertIn('pesquisa na internet está desativada',prompt)
-                    self.assertNotIn('<web_search>',prompt)
+            with self.subTest(model=model):
+                local=OllamaProvider(replace(CONFIG,model=model))
+                google=self.provider([])
+                service=ComputerService(local,CONFIG,{'qwen':local,'gemini':google})
+                service.web_search=WebSearch(google)
+                def stream(messages):
+                    yield {'type':'delta','text':'Resposta pesquisada'}
+                with patch.object(local,'stream',side_effect=stream), patch('ascenda.ai.web_search.searxng_search',return_value=({**SOURCE,'engine':'SearXNG'},'Fato')) as search:
+                    events=list(with_web(service,[{'role':'user','content':'Pesquise notícias hoje'}],local,''))
+                search.assert_called_once()
+                google.stream.assert_not_called()
+                self.assertTrue(any(e['type']=='search' for e in events))
 
-    def test_other_local_models_keep_web_search_enabled(self):
-        from dataclasses import replace
-        for model in ('qwen3:4b','qwen3:4b-q4_K_M','qwen3:8b','gemma3:12b'):
-            self.assertTrue(OllamaProvider(replace(CONFIG,model=model)).web_search_enabled)
+    def test_local_model_catalog_contains_only_qwen(self):
+        self.assertEqual(LOCAL_MODELS,('qwen3:4b-instruct-2507-q4_K_M','qwen3:1.7b','qwen3:4b','qwen3:8b'))

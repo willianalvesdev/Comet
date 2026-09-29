@@ -74,8 +74,8 @@ class SearchEngineTests(unittest.TestCase):
         with patch.object(provider,'stream',side_effect=stream) as call:
             list(ComputerService(provider,provider.config).generate([{'role':'user','content':'Oi'}]))
         system=call.call_args.args[0][0]['content']
-        self.assertEqual(system,LOCAL_PROMPT)
-        self.assertLess(len(system),1500)
+        self.assertIn(LOCAL_PROMPT,system)
+        self.assertLess(len(system),2500)
 
     def test_searxng_failure_never_falls_back_to_google(self):
         provider=MagicMock(); provider.key='configured'

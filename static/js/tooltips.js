@@ -3,18 +3,19 @@
     tip.className = 'site-tooltip'; tip.id = 'site-tooltip'; tip.setAttribute('role', 'tooltip');
     tip.setAttribute('popover', 'manual'); document.body.append(tip);
     let active, timer;
+    function prepareTitle(node) {
+        if (!node.hasAttribute('title')) return;
+        if (node.title) node.dataset.tooltip = node.title;
+        node.removeAttribute('title');
+    }
     function prepare(root) {
         if (root.nodeType !== 1) return;
-        const nodes = [...root.querySelectorAll('[title]')];
-        if (root.hasAttribute('title')) nodes.push(root);
-        nodes.forEach(node => {
-            if (node.title) node.dataset.tooltip = node.title;
-            node.removeAttribute('title');
-        });
+        root.querySelectorAll('[title]').forEach(prepareTitle);
+        prepareTitle(root);
     }
     prepare(document.body);
     new MutationObserver(records => records.forEach(record => {
-        if (record.type === 'attributes') prepare(record.target);
+        if (record.type === 'attributes') prepareTitle(record.target);
         else record.addedNodes.forEach(prepare);
     })).observe(document.body, {subtree:true, childList:true, attributes:true, attributeFilter:['title']});
     function hide() {

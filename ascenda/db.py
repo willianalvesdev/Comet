@@ -1,4 +1,3 @@
-"""MySQL connections and schema, isolated from Rota Financeira."""
 from contextlib import contextmanager
 
 import mysql.connector
@@ -6,13 +5,19 @@ from flask import current_app, g
 
 
 def options(config, database=True):
-    result = dict(host=config['DB_HOST'], port=config['DB_PORT'],
-                  user=config['DB_USER'], password=config['DB_PASSWORD'],
-                  charset='utf8mb4', collation='utf8mb4_unicode_ci',
-                  connection_timeout=5, autocommit=False)
+    connection_options = {
+        'host': config['DB_HOST'],
+        'port': config['DB_PORT'],
+        'user': config['DB_USER'],
+        'password': config['DB_PASSWORD'],
+        'charset': 'utf8mb4',
+        'collation': 'utf8mb4_unicode_ci',
+        'connection_timeout': 5,
+        'autocommit': False,
+    }
     if database:
-        result['database'] = config['DB_NAME']
-    return result
+        connection_options['database'] = config['DB_NAME']
+    return connection_options
 
 
 def get_db():
@@ -28,16 +33,23 @@ def close_db(error=None):
 
 
 @contextmanager
-def cursor(write=False):
-    connection = get_db()
-    cur = connection.cursor(dictionary=True, buffered=True)
+def managed_cursor(connection, write=False):
+    database_cursor = None
     try:
-        yield cur
+        database_cursor = connection.cursor(dictionary=True, buffered=True)
+        yield database_cursor
         if write:
             connection.commit()
-    except Exception:
+    except BaseException:
         if write:
             connection.rollback()
         raise
     finally:
-        cur.close()
+        if database_cursor is not None:
+            database_cursor.close()
+
+
+@contextmanager
+def cursor(write=False):
+    with managed_cursor(get_db(), write=write) as database_cursor:
+        yield database_cursor

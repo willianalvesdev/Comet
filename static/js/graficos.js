@@ -31,7 +31,6 @@
     let priceFormat;
     let colors;
 
-    // Resolve CSS colors to RGBA, including alpha and color-mix() in the light theme.
     function cssColor(name) {
         const probe = document.createElement("span");
         probe.style.color = "var(" + name + ")";
@@ -272,7 +271,6 @@
         if (baseline) baseline.applyOptions({ color: colors["text-secondary"] });
     }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
-    // Site integration: provide local values in this format; no external data requests.
     function setData(data) {
         const next = {
             currency: data.currency || "BRL", demo: data.demo === true,

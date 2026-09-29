@@ -1,1461 +1,848 @@
-/* GUIA DE EDIÇÃO — graficos.css
- * Explicações em português antes de cada seletor e declaração.
- * A ordem foi preservada: regras posteriores podem sobrescrever as anteriores.
- * { abre um bloco; } encerra; : separa propriedade e valor; ; termina uma declaração.
- * Edite os valores do código. Os comentários são documentação e não alteram o visual.
- */
-/* Seleciona .finance-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-page {
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: 100%;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
-    /* Limita a largura máxima. Valor atual: none. */
     max-width: none;
-    /* Define espaço externo no eixo horizontal da escrita. Valor atual: auto. */
     margin-inline: auto;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 24px 32px 40px. px mede pixels CSS. */
-    padding: 24px 32px 40px;
+    padding: var(--space-6) var(--space-8) 40px;
 }
 
-/* Seleciona .finance-tabs. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-tabs {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 28px. px mede pixels CSS. */
     gap: 28px;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
-    /* Define espaço externo abaixo. Valor atual: 20px. px mede pixels CSS. */
-    margin-bottom: 20px;
-    /* Configura a borda inferior. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    margin-bottom: var(--space-5);
     border-bottom: 1px solid var(--border);
 }
 
-/* Seleciona .finance-tab. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-tab {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
     position: relative;
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-flex. */
     display: inline-flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define a altura mínima. Valor atual: 48px. px mede pixels CSS. */
     min-height: 48px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 18px 16px. px mede pixels CSS. */
-    padding: 0 18px 16px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    padding: 0 18px var(--space-4);
     color: var(--text);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
 }
 
-/* Seleciona .finance-tab::after. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::after: pseudoelemento depois do conteúdo. */
 .finance-tab::after {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
-    /* Define o afastamento direito em relação à referência de position. Valor atual: 18px. px mede pixels CSS. */
     right: 18px;
-    /* Define o afastamento inferior em relação à referência de position. Valor atual: -1px. px mede pixels CSS. */
     bottom: -1px;
-    /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 18px. px mede pixels CSS. */
     left: 18px;
-    /* Define a altura. Valor atual: 2px. px mede pixels CSS. */
     height: 2px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     background: var(--text);
-    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: "". */
     content: "";
 }
 
-/* Seleciona .market-card. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .market-card {
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 20px. px mede pixels CSS. */
-    border-radius: 20px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-radius: var(--radius-container);
     background: var(--surface);
 }
 
-/* Seleciona .market-summary. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .market-summary {
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 18px 20px 14px. px mede pixels CSS. */
-    padding: 18px 20px 14px;
-    /* Configura a borda inferior. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    padding: 18px var(--space-5) 14px;
     border-bottom: 1px solid var(--border);
 }
 
-/* Seleciona .market-summary__values. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .market-summary__values {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Controla se itens flex podem quebrar para outra linha. Valor atual: wrap. */
     flex-wrap: wrap;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: baseline. */
     align-items: baseline;
-    /* Define o espaço entre colunas. Valor atual: 12px. px mede pixels CSS. */
-    column-gap: 12px;
-    /* Define o espaço entre linhas. Valor atual: 4px. px mede pixels CSS. */
-    row-gap: 4px;
-    /* Configura números; tabular-nums dá a cada dígito a mesma largura. Valor atual: tabular-nums. */
+    column-gap: var(--space-3);
+    row-gap: var(--space-1);
     font-variant-numeric: tabular-nums;
 }
 
-/* Seleciona .market-price. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .market-price {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-3);
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 500. */
     font-weight: 500;
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.4. */
     line-height: 1.4;
 }
 
-/* Seleciona .market-change. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .market-change {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-flex. */
     display: inline-flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 5px. px mede pixels CSS. */
     gap: 5px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-3);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.5. */
     line-height: 1.5;
 }
 
-/* Seleciona .market-change[data-trend="up"]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .market-change[data-trend="up"] {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--green). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--green);
 }
 
-/* Seleciona .market-change[data-trend="down"]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .market-change[data-trend="down"] {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--red). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--red);
 }
 
-/* Seleciona .market-change svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .market-change svg {
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 16px. px mede pixels CSS. */
-    flex: 0 0 16px;
-    /* Define a largura. Valor atual: 16px. px mede pixels CSS. */
-    width: 16px;
-    /* Define a altura. Valor atual: 16px. px mede pixels CSS. */
-    height: 16px;
+    flex: 0 0 var(--icon-small);
+    width: var(--icon-small);
+    height: var(--icon-small);
 }
 
-/* Seleciona .market-period. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .market-period {
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 3px 0 0. px mede pixels CSS. */
     margin: 3px 0 0;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-6). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-6);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.6. */
     line-height: 1.6;
-    /* Controla a quebra de palavras longas para evitar transbordamento. Valor atual: anywhere. */
     overflow-wrap: anywhere;
 }
 
-/* Seleciona .chart-plot. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-plot {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
     position: relative;
-    /* Variável --chart-height: altura do gráfico. Alterá-la afeta as regras que usam var(--chart-height) neste escopo. Valor atual: 420px. px mede pixels CSS. */
     --chart-height: 420px;
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Define as linhas do grid. Valor atual: auto var(--chart-height). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     grid-template-rows: auto var(--chart-height);
-    /* isolate cria um contexto próprio de empilhamento. Valor atual: isolate. */
     isolation: isolate;
 }
 
-/* Seleciona .chart-toolbar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-toolbar {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
     position: relative;
-    /* Define a área do item por nome ou limites de linha/coluna. Valor atual: 1 / 1. */
     grid-area: 1 / 1;
-    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 2. */
     z-index: 2;
-    /* Sobrescreve o alinhamento do eixo transversal para este item. Valor atual: start. */
     align-self: start;
-    /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: none. */
     pointer-events: none;
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Controla se itens flex podem quebrar para outra linha. Valor atual: wrap. */
     flex-wrap: wrap;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
-    gap: 8px;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
+    gap: var(--space-2);
     min-width: 0;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
     padding: 10px;
 }
 
-/* Seleciona .chart-ranges,
-.chart-styles. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-ranges,
 .chart-styles {
-    /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: auto. */
     pointer-events: auto;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--surface) 65%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background: color-mix(in srgb, var(--surface) 65%, transparent);
-    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Variante de compatibilidade WebKit/Blink. Valor atual: blur(10px). px mede pixels CSS. */
     -webkit-backdrop-filter: blur(10px);
-    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Valor atual: blur(10px). px mede pixels CSS. */
     backdrop-filter: blur(10px);
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 2px. px mede pixels CSS. */
     gap: 2px;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 3px. px mede pixels CSS. */
     padding: 3px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 12px. px mede pixels CSS. */
-    border-radius: 12px;
+    border-radius: var(--radius-large);
 }
 
-/* Seleciona .chart-ranges. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-ranges {
-    /* Limita a largura máxima. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     max-width: 100%;
-    /* Controla o transbordamento horizontal. Valor atual: auto. */
     overflow-x: auto;
-    /* Controla a espessura da barra de rolagem; thin afina e none oculta. Valor atual: none. */
     scrollbar-width: none;
 }
 
-/* Seleciona .chart-ranges::-webkit-scrollbar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-ranges::-webkit-scrollbar {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
 }
 
-/* Seleciona .chart-range,
-.chart-style. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-range,
 .chart-style {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-flex. */
     display: inline-flex;
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 auto. */
     flex: 0 0 auto;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
     justify-content: center;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 36px. px mede pixels CSS. */
     min-width: 36px;
-    /* Define a altura. Valor atual: 32px. px mede pixels CSS. */
     height: 32px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 9px. px mede pixels CSS. */
     padding: 0 9px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 8px. px mede pixels CSS. */
-    border-radius: 8px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    border-radius: var(--radius-control);
     background: transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
     font: inherit;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-6). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-6);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1. */
     line-height: 1;
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
-    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: background-color 160ms ease, color 160ms ease. */
-    transition: background-color 160ms ease, color 160ms ease;
+    transition: background-color var(--duration-ui) ease, color var(--duration-ui) ease;
 }
 
-/* Seleciona .chart-range[aria-pressed="true"],
-.chart-style[aria-pressed="true"]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
 .chart-range[aria-pressed="true"],
 .chart-style[aria-pressed="true"] {
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text) 9%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background: color-mix(in srgb, var(--text) 9%, transparent);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
 }
 
-/* Seleciona .chart-style. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-style {
-    /* Define a largura. Valor atual: 36px. px mede pixels CSS. */
     width: 36px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     padding: 0;
 }
 
-/* Seleciona .chart-style__icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-style__icon {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
     background: currentColor;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Variante de compatibilidade WebKit/Blink. Valor atual: var(--chart-style-icon) center / contain no-repeat. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     -webkit-mask: var(--chart-style-icon) center / contain no-repeat;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: var(--chart-style-icon) center / contain no-repeat. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     mask: var(--chart-style-icon) center / contain no-repeat;
-    /* Define a largura. Valor atual: 19px. px mede pixels CSS. */
     width: 19px;
-    /* Define a altura. Valor atual: 19px. px mede pixels CSS. */
     height: 19px;
 }
 
-/* Seleciona .chart-range:focus-visible,
-.chart-style:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
 .chart-range:focus-visible,
 .chart-style:focus-visible {
-    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     outline: 2px solid var(--accent);
-    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: -2px. px mede pixels CSS. */
     outline-offset: -2px;
 }
 
-/* Seleciona .chart-style__icon--line. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-style__icon--line {
-    /* Variável --chart-style-icon: recurso do ícone. Alterá-la afeta as regras que usam var(--chart-style-icon) neste escopo. Valor atual: url("../img/icons/chart-line.svg"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     --chart-style-icon: url("../img/icons/chart-line.svg");
 }
 
-/* Seleciona .chart-style__icon--candles. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-style__icon--candles {
-    /* Variável --chart-style-icon: recurso do ícone. Alterá-la afeta as regras que usam var(--chart-style-icon) neste escopo. Valor atual: url("../img/icons/chart-candles.svg"). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     --chart-style-icon: url("../img/icons/chart-candles.svg");
 }
 
-/* Seleciona .chart-stage. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-stage {
-    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 0. */
     z-index: 0;
-    /* Define a área do item por nome ou limites de linha/coluna. Valor atual: 1 / 1 / 3 / 2. */
     grid-area: 1 / 1 / 3 / 2;
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
     position: relative;
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: 100%;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
-    /* Define a altura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     height: 100%;
 }
 
-/* Seleciona .market-chart. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .market-chart {
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: 100%;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
-    /* Define a altura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     height: 100%;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
 }
 
-/* Seleciona .chart-tooltip. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-tooltip {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
-    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 5. */
     z-index: 5;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 148px. px mede pixels CSS. */
     min-width: 148px;
-    /* Limita a largura máxima. Valor atual: calc(100% - 24px). calc() calcula a medida combinando parcelas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     max-width: calc(100% - 24px);
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 11px 13px. px mede pixels CSS. */
     padding: 11px 13px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
-    border-radius: 10px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-radius: var(--radius-medium);
     background: var(--bg);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-6). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-6);
-    /* Configura números; tabular-nums dá a cada dígito a mesma largura. Valor atual: tabular-nums. */
     font-variant-numeric: tabular-nums;
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.6. */
     line-height: 1.6;
-    /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: none. */
     pointer-events: none;
 }
 
-/* Seleciona .chart-tooltip[hidden],
-.chart-tooltip[data-hidden="true"]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
 .chart-tooltip[hidden],
 .chart-tooltip[data-hidden="true"] {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
 }
 
-/* Seleciona .chart-tooltip strong. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-tooltip strong {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-5);
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 500. */
     font-weight: 500;
 }
 
-/* Seleciona .chart-tooltip time,
-.chart-tooltip small. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-tooltip time,
 .chart-tooltip small {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: inherit. */
     font-size: inherit;
 }
 
-/* Seleciona .chart-footer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-footer {
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     margin: 0;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px 20px. px mede pixels CSS. */
-    padding: 12px 20px;
-    /* Configura a borda superior. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    padding: var(--space-3) var(--space-5);
     border-top: 1px solid var(--border);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-6). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-6);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.6. */
     line-height: 1.6;
 }
 
-/* Seleciona .chart-empty. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-empty {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
-    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: 0. */
     inset: 0;
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Atalho de align-content e justify-content para distribuir o conjunto de itens. Valor atual: center. */
     place-content: center;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 24px. px mede pixels CSS. */
-    padding: 24px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    padding: var(--space-6);
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-5);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.6. */
     line-height: 1.6;
-    /* Alinha o conteúdo textual na caixa. Valor atual: center. */
     text-align: center;
 }
 
-/* Seleciona .chart-empty[hidden]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
 .chart-empty[hidden] {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
 }
 
-/* Condição (hover: hover): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (hover: hover) {
-    /* Seleciona .chart-range:hover,
-    .chart-style:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
     .chart-range:hover,
     .chart-style:hover {
-        /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text) 6%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-        background: color-mix(in srgb, var(--text) 6%, transparent);
-        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+        background: var(--surface-hover-strong);
         color: var(--text);
     }
 
-    /* Seleciona .chart-range[aria-pressed="true"]:hover,
-    .chart-style[aria-pressed="true"]:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. [aria-: estado acessível informado por atributo. */
     .chart-range[aria-pressed="true"]:hover,
     .chart-style[aria-pressed="true"]:hover {
-        /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text) 12%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
         background: color-mix(in srgb, var(--text) 12%, transparent);
     }
-
 }
 
-/* Condição (width >= 1100px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width >= 1100px) {
-    /* Seleciona .finance-tabs. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .finance-tabs {
-        /* Define espaço externo abaixo. Valor atual: 20px. px mede pixels CSS. */
-        margin-bottom: 20px;
+        margin-bottom: var(--space-5);
     }
 
-    /* Seleciona .market-card. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .market-card {
-        /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
         width: 100%;
     }
 
-    /* Seleciona .chart-plot. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .chart-plot {
-        /* Variável --chart-height: altura do gráfico. Alterá-la afeta as regras que usam var(--chart-height) neste escopo. Valor atual: 340px. px mede pixels CSS. */
         --chart-height: 340px;
     }
-
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .finance-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .finance-page {
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 20px 16px 28px. px mede pixels CSS. */
-        padding: 20px 16px 28px;
+        padding: var(--space-5) var(--space-4) 28px;
     }
 
-    /* Seleciona .finance-tabs. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .finance-tabs {
-        /* Define espaço externo abaixo. Valor atual: 16px. px mede pixels CSS. */
-        margin-bottom: 16px;
+        margin-bottom: var(--space-4);
     }
 
-    /* Seleciona .finance-tab. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .finance-tab {
-        /* Define a altura mínima. Valor atual: 42px. px mede pixels CSS. */
         min-height: 42px;
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 8px 14px. px mede pixels CSS. */
-        padding: 0 8px 14px;
+        padding: 0 var(--space-2) 14px;
     }
 
-    /* Seleciona .finance-tab::after. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::after: pseudoelemento depois do conteúdo. */
     .finance-tab::after {
-        /* Define o afastamento direito em relação à referência de position. Valor atual: 8px. px mede pixels CSS. */
         right: 8px;
-        /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 8px. px mede pixels CSS. */
         left: 8px;
     }
 
-    /* Seleciona .market-card. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .market-card {
-        /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
-        border-radius: 16px;
+        border-radius: var(--radius-panel);
     }
 
-    /* Seleciona .market-summary. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .market-summary {
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 14px. px mede pixels CSS. */
         padding: 14px;
     }
 
-    /* Seleciona .market-summary__values. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .market-summary__values {
-        /* Define o espaço entre colunas. Valor atual: 10px. px mede pixels CSS. */
         column-gap: 10px;
     }
 
-    /* Seleciona .market-change. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .market-change {
-        /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         font-size: var(--font-size-5);
     }
 
-    /* Seleciona .chart-toolbar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .chart-toolbar {
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 7px. px mede pixels CSS. */
         gap: 7px;
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px. px mede pixels CSS. */
-        padding: 8px;
+        padding: var(--space-2);
     }
 
-    /* Seleciona .chart-range. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .chart-range {
-        /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 30px. px mede pixels CSS. */
         min-width: 30px;
-        /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 7px. px mede pixels CSS. */
         padding-inline: 7px;
     }
 
-    /* Seleciona .chart-plot. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .chart-plot {
-        /* Variável --chart-height: altura do gráfico. Alterá-la afeta as regras que usam var(--chart-height) neste escopo. Valor atual: 360px. px mede pixels CSS. */
         --chart-height: 360px;
     }
 
-    /* Seleciona .chart-footer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .chart-footer {
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 11px 14px. px mede pixels CSS. */
         padding: 11px 14px;
     }
-
 }
 
-/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (prefers-reduced-motion: reduce) {
-    /* Seleciona .chart-range,
-    .chart-style. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .chart-range,
     .chart-style {
-        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
         transition: none;
     }
-
 }
 
-/* Seleciona .finance-tab. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-tab {
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
 }
 
-/* Seleciona .market-chart:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
 .market-chart:focus-visible {
-    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     outline: 2px solid var(--accent);
-    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: -3px. px mede pixels CSS. */
     outline-offset: -3px;
 }
 
-/* Seleciona .chart-description. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-description {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
-    /* Define a largura. Valor atual: 1px. px mede pixels CSS. */
     width: 1px;
-    /* Define a altura. Valor atual: 1px. px mede pixels CSS. */
     height: 1px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     padding: 0;
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: -1px. px mede pixels CSS. */
     margin: -1px;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
-    /* Recorta visualmente o elemento na forma declarada. Valor atual: inset(50%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     clip-path: inset(50%);
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
 }
 
-/* Seleciona .chart-footer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chart-footer {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Controla se itens flex podem quebrar para outra linha. Valor atual: wrap. */
     flex-wrap: wrap;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: space-between. */
     justify-content: space-between;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 6px 16px. px mede pixels CSS. */
-    gap: 6px 16px;
+    gap: 6px var(--space-4);
 }
 
-/* Seleciona .chart-footer a:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
 .chart-footer a:hover {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
 }
 
-/* Keep price-axis labels below the floating controls. */
-/* Seleciona .chart-stage::after. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::after: pseudoelemento depois do conteúdo. */
 .chart-stage::after {
-    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: "". */
     content: "";
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
-    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 1. */
     z-index: 1;
-    /* Define o afastamento superior em relação à referência de position. Valor atual: 0. */
     top: 0;
-    /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 0. */
     left: 0;
-    /* Define a largura. Valor atual: var(--price-axis-width, 60px). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     width: var(--price-axis-width, 60px);
-    /* Define a altura. Valor atual: var(--chart-toolbar-height, 60px). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     height: var(--chart-toolbar-height, 60px);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     background: var(--surface);
-    /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: none. */
     pointer-events: none;
 }
 
-/* Seleciona .finance-layout. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-layout {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: minmax(0, 1fr) minmax(280px, .43fr). minmax() define mínimo e máximo de uma faixa do grid. px mede pixels CSS. */
     grid-template-columns: minmax(0, 1fr) minmax(280px, .43fr);
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 28px. px mede pixels CSS. */
     gap: 28px;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: stretch. */
     align-items: stretch;
 }
 
-/* Seleciona .finance-chart-column, .transfer-history. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-chart-column, .transfer-history {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
     flex-direction: column;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
 }
 
-/* Seleciona .finance-section-title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-section-title {
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 0 14px. px mede pixels CSS. */
     margin: 0 0 14px;
-    /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 18px. px mede pixels CSS. */
     padding-inline: 18px;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
 }
 
-/* Seleciona .transfer-card. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-card {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
     flex-direction: column;
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 1. */
     flex: 1;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 20px. px mede pixels CSS. */
-    border-radius: 20px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-radius: var(--radius-container);
     background: var(--surface);
 }
 
-/* Seleciona .transfer-list. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-list {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Define as linhas do grid. Valor atual: repeat(6, 1fr). */
     grid-template-rows: repeat(6, 1fr);
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 1. */
     flex: 1;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 14px. px mede pixels CSS. */
     gap: 14px;
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     margin: 0;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 16px. px mede pixels CSS. */
-    padding: 16px;
-    /* Configura os marcadores de lista; none os remove. Valor atual: none. */
+    padding: var(--space-4);
     list-style: none;
 }
 
-/* Seleciona .transfer-row. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-row {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 14px. px mede pixels CSS. */
     gap: 14px;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
 }
 
-/* Seleciona .transfer-avatar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-avatar {
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 48px. px mede pixels CSS. */
     flex: 0 0 48px;
-    /* Define a largura. Valor atual: 48px. px mede pixels CSS. */
     width: 48px;
-    /* Define a altura. Valor atual: 48px. px mede pixels CSS. */
     height: 48px;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
-    border-radius: 10px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-radius: var(--radius-medium);
     background: var(--bg);
 }
 
-/* Seleciona .transfer-description. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-description {
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 1. */
     flex: 1;
 }
 
-/* Seleciona .transfer-description > span. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-description > span {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
-    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
     text-overflow: ellipsis;
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
 }
 
-/* Seleciona .transfer-description, .transfer-values. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-description, .transfer-values {
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
 }
 
-/* Seleciona .transfer-description small. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-description small {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Define espaço externo acima. Valor atual: 6px. px mede pixels CSS. */
     margin-top: 6px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-6). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-6);
 }
 
-/* Seleciona .transfer-values. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-values {
-    /* Define quanto o item encolhe se faltar espaço; 0 impede o encolhimento. Valor atual: 0. */
     flex-shrink: 0;
-    /* Alinha o conteúdo textual na caixa. Valor atual: right. */
     text-align: right;
-    /* Configura números; tabular-nums dá a cada dígito a mesma largura. Valor atual: tabular-nums. */
     font-variant-numeric: tabular-nums;
 }
 
-/* Seleciona .transfer-values > span. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-values > span {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
 }
 
-/* Seleciona .transfer-change. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-change {
-    /* Define espaço externo acima. Valor atual: 4px. px mede pixels CSS. */
-    margin-top: 4px;
+    margin-top: var(--space-1);
 }
 
-/* Seleciona .transfer-change--income. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-change--income {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--green). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--green);
 }
 
-/* Seleciona .transfer-change--expense. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-change--expense {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--red). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--red);
 }
 
-/* Seleciona .transfer-more. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-more {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
     justify-content: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 4px. px mede pixels CSS. */
-    gap: 4px;
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    gap: var(--space-1);
     width: 100%;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
     padding: 10px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
-    /* Configura a borda superior. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border-top: 1px solid var(--border);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
     background: transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-6). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-6);
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: default. */
     cursor: default;
 }
 
-/* Seleciona .transfer-more .ui-arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-more .ui-arrow {
-    /* Define a largura. Valor atual: 12px. px mede pixels CSS. */
     width: 12px;
-    /* Define a altura. Valor atual: 12px. px mede pixels CSS. */
     height: 12px;
-    /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 12px. px mede pixels CSS. */
     flex-basis: 12px;
 }
 
-/* Condição (width < 1200px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 1200px) {
-    /* Seleciona .finance-layout. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .finance-layout {
-        /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: minmax(0, 1fr). minmax() define mínimo e máximo de uma faixa do grid. */
         grid-template-columns: minmax(0, 1fr);
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 24px. px mede pixels CSS. */
-        gap: 24px;
+        gap: var(--space-6);
     }
-
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .transfer-card. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .transfer-card {
-        /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
-        border-radius: 16px;
+        border-radius: var(--radius-panel);
     }
 
-    /* Seleciona .transfer-list. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .transfer-list {
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 14px. px mede pixels CSS. */
         padding: 14px;
     }
 
-    /* Seleciona .transfer-row. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .transfer-row {
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
         gap: 10px;
     }
 
-    /* Seleciona .transfer-avatar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .transfer-avatar {
-        /* Define a largura. Valor atual: 42px. px mede pixels CSS. */
         width: 42px;
-        /* Define a altura. Valor atual: 42px. px mede pixels CSS. */
         height: 42px;
-        /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 42px. px mede pixels CSS. */
         flex-basis: 42px;
     }
-
 }
 
-/* Match the spacing of the Discover navigation without moving the cards. */
-/* Seleciona .finance-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-page {
-    /* Define espaço interno entre conteúdo e borda acima. Valor atual: 0. */
     padding-top: 0;
 }
 
-/* Seleciona .finance-tabs. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-tabs {
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: stretch. */
     align-items: stretch;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 24px. px mede pixels CSS. */
-    gap: 24px;
-    /* Define espaço externo no eixo horizontal da escrita. Valor atual: 16px. px mede pixels CSS. */
-    margin-inline: 16px;
-    /* Define espaço externo abaixo. Valor atual: 32px. px mede pixels CSS. */
-    margin-bottom: 32px;
+    gap: var(--space-6);
+    margin-inline: var(--space-4);
+    margin-bottom: var(--space-8);
 }
 
-/* Seleciona .finance-tab. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-tab {
-    /* Define a altura mínima. Valor atual: 0. */
     min-height: 0;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 20px 0 16px. px mede pixels CSS. */
-    padding: 20px 0 16px;
-    /* Configura a borda inferior. Valor atual: 2px solid var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    padding: var(--space-5) 0 var(--space-4);
     border-bottom: 2px solid var(--text);
 }
 
-/* Seleciona .finance-tab::after. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::after: pseudoelemento depois do conteúdo. */
 .finance-tab::after {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
 }
 
-/* Condição (width < 1100px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 1100px) {
-    /* Seleciona .finance-tabs. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .finance-tabs {
-        /* Define espaço externo no eixo horizontal da escrita. Valor atual: -4px. px mede pixels CSS. */
         margin-inline: -4px;
     }
-
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .finance-tabs. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .finance-tabs {
-        /* Define espaço externo no eixo horizontal da escrita. Valor atual: 0. */
         margin-inline: 0;
-        /* Define espaço externo abaixo. Valor atual: 24px. px mede pixels CSS. */
-        margin-bottom: 24px;
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 20px. px mede pixels CSS. */
-        gap: 20px;
+        margin-bottom: var(--space-6);
+        gap: var(--space-5);
     }
-
 }
 
-/* Seleciona .finance-composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-composer {
-    /* Define as colunas ocupadas pelo item; span permite ocupar várias. Valor atual: 1. */
     grid-column: 1;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
-    /* Define espaço externo acima. Valor atual: 12px. px mede pixels CSS. */
-    margin-top: 12px;
+    margin-top: var(--space-3);
 }
 
-/* Seleciona .workspace .finance-composer .home__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .workspace .finance-composer .home__composer {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
     position: relative;
-    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: auto. */
     inset: auto;
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: 100%;
-    /* Limita a largura máxima. Valor atual: none. */
     max-width: none;
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     margin: 0;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 14px 16px 12px. px mede pixels CSS. */
-    padding: 14px 16px 12px;
-    /* Desloca o elemento visualmente nos eixos horizontal e vertical. Valor atual: none. */
+    padding: 14px var(--space-4) var(--space-3);
     translate: none;
 }
 
-/* Seleciona .finance-composer .home__input. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-composer .home__input {
-    /* Define a altura mínima. Valor atual: 30px. px mede pixels CSS. */
     min-height: 30px;
-    /* Limita a altura máxima. Valor atual: 120px. px mede pixels CSS. */
     max-height: 120px;
 }
 
-/* Seleciona .finance-composer .home__toolbar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-composer .home__toolbar {
-    /* Define espaço externo acima. Valor atual: 8px. px mede pixels CSS. */
-    margin-top: 8px;
+    margin-top: var(--space-2);
 }
 
-/* Seleciona .finance-composer.is-computer .home__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-composer.is-computer .home__composer {
-    /* Define a cor das bordas. Valor atual: color-mix(in srgb, var(--accent) 60%, var(--border)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
-    /* Desenha sombra com deslocamentos horizontal/vertical, desfoque, expansão opcional e cor; inset coloca a sombra por dentro. Valor atual: 0 0 24px color-mix(in srgb, var(--accent) 15%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
-/* Condição (width < 1200px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 1200px) {
-    /* Seleciona .finance-composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .finance-composer {
-        /* Define as linhas ocupadas pelo item. Valor atual: 2. */
         grid-row: 2;
-        /* Define espaço externo acima. Valor atual: 0. */
         margin-top: 0;
     }
-
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .workspace .finance-composer .home__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .workspace .finance-composer .home__composer {
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px 10px 10px. px mede pixels CSS. */
-        padding: 12px 10px 10px;
+        padding: var(--space-3) 10px 10px;
     }
-
 }
 
-/* Seleciona .finance-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-page {
-    /* Define espaço interno entre conteúdo e borda abaixo. Valor atual: calc(var(--finance-composer-height, 128px) + 40px). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. px mede pixels CSS. */
     padding-bottom: calc(var(--finance-composer-height, 128px) + 40px);
 }
 
-/* Seleciona .finance-composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-composer {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
     position: fixed;
-    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 80. */
     z-index: 80;
-    /* Define o afastamento esquerdo em relação à referência de position. Valor atual: var(--finance-composer-left, 272px). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     left: var(--finance-composer-left, 272px);
-    /* Define o afastamento inferior em relação à referência de position. Valor atual: calc(16px + env(safe-area-inset-bottom)). calc() calcula a medida combinando parcelas. env() consulta medidas do dispositivo, como a área segura da tela. px mede pixels CSS. */
     bottom: calc(16px + env(safe-area-inset-bottom));
-    /* Define a largura. Valor atual: var(--finance-composer-width, calc(100vw - 304px)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
     width: var(--finance-composer-width, calc(100vw - 304px));
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     margin: 0;
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .finance-composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .finance-composer {
-        /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
         left: 16px;
-        /* Define a largura. Valor atual: calc(100vw - 32px). calc() calcula a medida combinando parcelas. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
         width: calc(100vw - 32px);
-        /* Desloca o elemento visualmente nos eixos horizontal e vertical. Valor atual: var(--mobile-menu-offset) 0. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         translate: var(--mobile-menu-offset) 0;
-        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: translate var(--sidebar-duration) var(--sidebar-easing). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         transition: translate var(--sidebar-duration) var(--sidebar-easing);
     }
-
 }
 
-/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (prefers-reduced-motion: reduce) {
-    /* Seleciona .finance-composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .finance-composer {
-        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
         transition: none;
     }
-
 }
 
-/* Seleciona .finance-composer::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. */
 .finance-composer::before {
-    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: "". */
     content: "";
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
-    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: -1. */
     z-index: -1;
-    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: -56px -16px calc(-16px - env(safe-area-inset-bottom)). calc() calcula a medida combinando parcelas. env() consulta medidas do dispositivo, como a área segura da tela. px mede pixels CSS. */
     inset: -56px -16px calc(-16px - env(safe-area-inset-bottom));
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: linear-gradient(to bottom,
-        color-mix(in srgb, var(--bg) 0%, transparent),
-        color-mix(in srgb, var(--bg) 85%, transparent) 38%,
-        var(--bg) 70%). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    background: linear-gradient(to bottom,
-        color-mix(in srgb, var(--bg) 0%, transparent),
-        color-mix(in srgb, var(--bg) 85%, transparent) 38%,
-        var(--bg) 70%);
-    /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: none. */
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 0%, transparent), color-mix(in srgb, var(--bg) 85%, transparent) 38%, var(--bg) 70%);
     pointer-events: none;
 }
 
-/* Registra uma fonte e associa arquivo, família, peso e estilo nas declarações abaixo. */
 @font-face {
-    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: Geist. */
     font-family: Geist;
-    /* Indica o arquivo e o formato da fonte a carregar. Valor atual: url('../fonts/geist/Geist-Variable.ttf') format('truetype'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     src: url('../fonts/geist/Geist-Variable.ttf') format('truetype');
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 100 900. */
     font-weight: 100 900;
-    /* Define a variante normal ou itálica. Valor atual: normal. */
     font-style: normal;
-    /* Controla o carregamento; swap mostra fonte alternativa enquanto a fonte final carrega. Valor atual: swap. */
     font-display: swap;
 }
 
-/* Seleciona :root. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :root: elemento raiz, onde são definidos valores globais. */
-:root {
-    /* Variável --font-numbers: fonte de valores numéricos. Alterá-la afeta as regras que usam var(--font-numbers) neste escopo. Valor atual: 'Geist', var(--font-body). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    --font-numbers: 'Geist', var(--font-body);
-}
-
-/* Seleciona .finance-totals. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-totals {
-    /* Define as colunas ocupadas pelo item; span permite ocupar várias. Valor atual: 1. */
     grid-column: 1;
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: repeat(3, minmax(0, 1fr)). minmax() define mínimo e máximo de uma faixa do grid. */
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 14px. px mede pixels CSS. */
     gap: 14px;
 }
 
-/* Seleciona .finance-chart-column. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-chart-column {
-    /* Define as colunas ocupadas pelo item; span permite ocupar várias. Valor atual: 1. */
     grid-column: 1;
-    /* Define as linhas ocupadas pelo item. Valor atual: 2. */
     grid-row: 2;
 }
 
-/* Seleciona .transfer-history. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-history {
-    /* Define as colunas ocupadas pelo item; span permite ocupar várias. Valor atual: 2. */
     grid-column: 2;
-    /* Define as linhas ocupadas pelo item. Valor atual: 1 / span 2. */
     grid-row: 1 / span 2;
 }
 
-/* Seleciona .finance-total. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-total {
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
-    border-radius: 16px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-radius: var(--radius-panel);
     background: var(--surface);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--green). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--green);
 }
 
-/* Seleciona .finance-total--expense. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-total--expense {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--red). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--red);
 }
 
-/* Seleciona .finance-total__header. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-total__header {
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 14px 16px 4px. px mede pixels CSS. */
-    padding: 14px 16px 4px;
+    padding: 14px var(--space-4) var(--space-1);
 }
 
-/* Seleciona .finance-total h2. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-total h2 {
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 0 8px. px mede pixels CSS. */
-    margin: 0 0 8px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    margin: 0 0 var(--space-2);
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-6). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-6);
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
 }
 
-/* Seleciona .finance-total__values. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-total__values {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: space-between. */
     justify-content: space-between;
-    /* Controla se itens flex podem quebrar para outra linha. Valor atual: wrap. */
     flex-wrap: wrap;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 6px. px mede pixels CSS. */
     gap: 6px;
 }
 
-/* Seleciona .finance-total p. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-total p {
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     margin: 0;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
 }
 
-/* Seleciona .finance-total__change. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-total__change {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-flex. */
     display: inline-flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 4px. px mede pixels CSS. */
-    gap: 4px;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-6). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    gap: var(--space-1);
     font-size: var(--font-size-6);
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
 }
 
-/* Seleciona .finance-total__comparison. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-total__comparison {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Define espaço externo acima. Valor atual: 4px. px mede pixels CSS. */
-    margin-top: 4px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    margin-top: var(--space-1);
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-6). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-6);
 }
 
-/* Seleciona .finance-total__sparkline. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-total__sparkline {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: 100%;
-    /* Define a altura. Valor atual: 64px. px mede pixels CSS. */
     height: 64px;
 }
 
-/* Seleciona .finance-total__baseline. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-total__baseline {
-    /* Define o preenchimento de formas SVG. Valor atual: none. */
     fill: none;
-    /* Define a cor do contorno de formas SVG. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     stroke: var(--text-secondary);
-    /* Define a opacidade do traço SVG. Valor atual: .4. */
     stroke-opacity: .4;
-    /* Define a sequência de comprimentos de traços e intervalos em linhas SVG. Valor atual: 3 3. */
     stroke-dasharray: 3 3;
-    /* Controla transformações do traço SVG; non-scaling-stroke mantém sua espessura. Valor atual: non-scaling-stroke. */
     vector-effect: non-scaling-stroke;
 }
 
-/* Seleciona .finance-total__values, .finance-total__comparison, .market-summary__values, .market-period, .chart-tooltip, .transfer-values, .transfer-description small, .chart-range. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-total__values, .finance-total__comparison, .market-summary__values, .market-period, .chart-tooltip, .transfer-values, .transfer-description small, .chart-range {
-    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-numbers). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-family: var(--font-numbers);
-    /* Configura números; tabular-nums dá a cada dígito a mesma largura. Valor atual: tabular-nums. */
     font-variant-numeric: tabular-nums;
 }
 
-/* Seleciona .market-change__percentage. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .market-change__percentage {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-flex. */
     display: inline-flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 4px. px mede pixels CSS. */
-    gap: 4px;
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
+    gap: var(--space-1);
     white-space: nowrap;
 }
 
-/* Condição (width < 1200px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 1200px) {
-    /* Seleciona .transfer-history. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .transfer-history {
-        /* Define as colunas ocupadas pelo item; span permite ocupar várias. Valor atual: 1. */
         grid-column: 1;
-        /* Define as linhas ocupadas pelo item. Valor atual: 3. */
         grid-row: 3;
     }
-
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .finance-totals. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .finance-totals {
-        /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: minmax(0, 1fr). minmax() define mínimo e máximo de uma faixa do grid. */
         grid-template-columns: minmax(0, 1fr);
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 12px. px mede pixels CSS. */
-        gap: 12px;
+        gap: var(--space-3);
     }
-
 }
 
-/* Seleciona .finance-totals__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .finance-totals__title {
-    /* Define as colunas ocupadas pelo item; span permite ocupar várias. Valor atual: 1 / -1. */
     grid-column: 1 / -1;
-    /* Define espaço externo abaixo. Valor atual: 0. */
     margin-bottom: 0;
 }
 
-/* Keep history rows compact while aligned with the summary cards. */
-/* Seleciona .transfer-history. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-history {
-    /* Sobrescreve o alinhamento do eixo transversal para este item. Valor atual: start. */
     align-self: start;
 }
 
-/* Seleciona .transfer-card, .transfer-list. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-card, .transfer-list {
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: none. */
     flex: none;
 }
 
-/* Seleciona .transfer-list. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-list {
-    /* Define as linhas do grid. Valor atual: none. */
     grid-template-rows: none;
-    /* Define a altura das linhas criadas automaticamente. Valor atual: minmax(48px, auto). minmax() define mínimo e máximo de uma faixa do grid. px mede pixels CSS. */
     grid-auto-rows: minmax(48px, auto);
 }
 
-/* Compact transaction history. */
-/* Seleciona .transfer-card. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-card {
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 14px. px mede pixels CSS. */
     border-radius: 14px;
 }
 
-/* Seleciona .transfer-list. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-list {
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px 14px. px mede pixels CSS. */
-    padding: 12px 14px;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 14px. px mede pixels CSS. */
+    padding: var(--space-3) 14px;
     gap: 14px;
-    /* Define a altura das linhas criadas automaticamente. Valor atual: minmax(40px, auto). minmax() define mínimo e máximo de uma faixa do grid. px mede pixels CSS. */
     grid-auto-rows: minmax(40px, auto);
 }
 
-/* Seleciona .transfer-row. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-row {
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
     gap: 10px;
 }
 
-/* Seleciona .transfer-avatar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-avatar {
-    /* Define a largura. Valor atual: 40px. px mede pixels CSS. */
     width: 40px;
-    /* Define a altura. Valor atual: 40px. px mede pixels CSS. */
     height: 40px;
-    /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 40px. px mede pixels CSS. */
     flex-basis: 40px;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 6px. px mede pixels CSS. */
-    border-radius: 6px;
+    border-radius: var(--radius-small);
 }
 
-/* Seleciona .transfer-description, .transfer-values. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-description, .transfer-values {
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-5);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.25. */
     line-height: 1.25;
 }
 
-/* Seleciona .transfer-description small. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-description small {
-    /* Define espaço externo acima. Valor atual: 3px. px mede pixels CSS. */
     margin-top: 3px;
 }
 
-/* Seleciona .transfer-change. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-change {
-    /* Define espaço externo acima. Valor atual: 2px. px mede pixels CSS. */
     margin-top: 2px;
 }
 
-/* Seleciona .transfer-more. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .transfer-more {
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px. px mede pixels CSS. */
-    padding: 8px;
+    padding: var(--space-2);
 }

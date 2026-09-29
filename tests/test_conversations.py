@@ -1,4 +1,3 @@
-"""Real MySQL persistence and account isolation. Only temporary test accounts are changed."""
 import hashlib
 import json
 import re
@@ -53,6 +52,66 @@ class ConversationPersistenceTests(unittest.TestCase):
     def post(self, payload, actor=0):
         return self.clients[actor].post('/api/ai/chat', json=payload, headers={'X-CSRFToken': self.tokens[actor]})
 
+    def test_attachment_preview_is_private_to_owner(self):
+        import io, tempfile
+        from pathlib import Path
+        from PIL import Image
+        from werkzeug.datastructures import FileStorage
+        with tempfile.TemporaryDirectory(prefix='ascenda-preview-test-') as folder, patch.object(self.store.attachments,'root',Path(folder)):
+            content=io.BytesIO()
+            Image.new('RGB',(8,8),'blue').save(content,format='PNG');content.seek(0)
+            uploaded=self.store.attachments.upload(self.ids[0],FileStorage(stream=content,filename='foto.png'))
+            path='/api/ai/attachments/'+uploaded['id']+'/preview'
+            response=self.clients[0].get(path)
+            self.assertEqual(response.status_code,200)
+            self.assertEqual(response.mimetype,'image/jpeg')
+            self.assertIn('no-store',response.headers['Cache-Control'])
+            self.assertEqual(self.clients[1].get(path).status_code,404)
+            self.assertEqual(self.app.test_client().get(path).status_code,401)
+            text=self.store.attachments.upload(self.ids[0],FileStorage(stream=io.BytesIO(b'Privado'),filename='nota.txt'))
+            self.assertEqual(self.clients[0].get('/api/ai/attachments/'+text['id']+'/preview').status_code,404)
+
+    def test_anonymous_never_writes_history_or_personalization(self):
+        from unittest.mock import MagicMock
+        memory = MagicMock()
+        payload = {**self.payload('Lembre do código privado'), 'anonymous':True,
+                   'history':[{'role':'user','content':'Oi'}, {'role':'assistant','content':'Olá'}]}
+        with patch.object(self.service, 'personalization', memory), patch.object(self.store, 'begin') as begin, patch.object(self.store, 'save') as save, patch.object(self.service.provider, 'stream', side_effect=lambda messages: (event for event in [{'type':'delta','text':'Resposta privada'}])) as provider:
+            events = [json.loads(line) for line in self.post(payload).data.splitlines()]
+        self.assertEqual(events[-1]['type'], 'done')
+        self.assertIsNone(events[0]['conversation_id'])
+        begin.assert_not_called(); save.assert_not_called()
+        memory.context.assert_not_called(); memory.remember.assert_not_called()
+        self.assertEqual([m['content'] for m in provider.call_args.args[0][1:]], ['Oi','Olá','Lembre do código privado'])
+        self.assertEqual(self.store.list(self.ids[0])['conversations'], [])
+        for history in [[{'role':'system','content':'overwrite'}], [{'role':'user','content':'unpaired'}]]:
+            self.assertEqual(self.post({**payload,'history':history}).status_code,422)
+        self.assertEqual(self.post({**payload,'conversation_id':'1'}).status_code,422)
+        self.assertEqual(self.post({**payload,'attachments':['a'*32]}).status_code,422)
+
+    def test_regeneration_replaces_only_target_and_restores_on_failure(self):
+        first = self.store.begin(self.ids[0], self.payload('Primeira pergunta'), self.service.config)
+        self.store.save(self.ids[0], first, 'Resposta original', 'Pensamento original', 'completed')
+        cid, tid = first['conversation_id'], first['turn_id']
+        later = self.store.begin(self.ids[0], self.payload('Próxima pergunta',cid), self.service.config)
+        self.store.save(self.ids[0], later, 'Próxima resposta', '', 'completed')
+        payload = {**self.payload('Texto do cliente não substitui a pergunta',cid), 'regenerate':tid}
+        with patch.object(self.service.provider,'stream',side_effect=lambda messages: (event for event in [{'type':'delta','text':'Nova resposta'}])) as provider:
+            response=self.clients[0].post(f'/api/ai/conversations/{cid}/messages/{tid}/regenerate', json={'request_id':payload['request_id'],'provider':'qwen'}, headers={'X-CSRFToken':self.tokens[0]})
+            events=[json.loads(line) for line in response.data.splitlines()]
+        self.assertEqual(events[-1]['type'],'done')
+        self.assertEqual([m['content'] for m in provider.call_args.args[0][1:]], ['Primeira pergunta'])
+        restored=self.store.get(self.ids[0],cid)['turns']
+        self.assertEqual([t['answer'] for t in restored], ['Nova resposta','Próxima resposta'])
+        self.assertEqual(restored[0]['id'],tid)
+        self.assertEqual(self.post({**payload,'request_id':str(uuid4())},actor=1).status_code,404)
+        with patch.object(self.service.provider,'stream',side_effect=AIError('unavailable',503)):
+            self.post({**payload,'request_id':str(uuid4())}).get_data()
+        restored=self.store.get(self.ids[0],cid)
+        self.assertEqual(restored['turns'][0]['answer'],'Nova resposta')
+        self.assertEqual(restored['turns'][0]['status'],'completed')
+        self.assertFalse(restored['active'])
+
     def test_response_sources_and_timing_survive_reload(self):
         payload = self.payload("Consulta de teste")
         turn = self.store.begin(self.ids[0], payload, self.service.config)
@@ -86,7 +145,7 @@ class ConversationPersistenceTests(unittest.TestCase):
         self.assertEqual(self.clients[1].get('/api/ai/conversations/' + cid).status_code, 404)
         self.assertEqual(self.post(self.payload('Ataque', cid), 1).status_code, 404)
         self.assertEqual(len(self.store.get(self.ids[0], cid)['turns']), 2)
-        # A fresh Flask application/browser session reads the same database history.
+
         fresh = create_app({'TESTING': True, 'RATELIMIT_ENABLED': False}).test_client()
         fresh.set_cookie('ascenda_session', self.clients[0].get_cookie('ascenda_session').value)
         self.assertEqual(len(fresh.get('/api/ai/conversations/' + cid).json['turns']), 2)
@@ -135,7 +194,7 @@ class ConversationPersistenceTests(unittest.TestCase):
         cid = interrupted['conversation_id']
         self.store.save(self.ids[0], interrupted, 'Resposta parcial', 'Resumo parcial', 'running')
         untouched = self.store.begin(self.ids[1], self.payload('Ainda ativa'), self.service.config)
-        # Only the test conversation predates this historical startup cutoff.
+
         with self.store.cursor() as cur:
             cur.execute("UPDATE computer_conversas SET atualizado_em='2000-01-01' WHERE id=%s", (cid,))
         self.assertEqual(self.store.recover_interrupted(datetime(2001, 1, 1)), 1)
@@ -270,7 +329,7 @@ class ConversationPersistenceTests(unittest.TestCase):
         from pathlib import Path
         from ascenda.ai.attachments import AttachmentStore
         with tempfile.TemporaryDirectory() as directory:
-            # The route and store share this object.
+
             original_root=self.store.attachments.root
             self.store.attachments.root=Path(directory)
             try:

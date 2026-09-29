@@ -1,4 +1,3 @@
-# O script de início substitui a chave e salva config/settings.yml apenas localmente.
 use_default_settings: true
 server:
   secret_key: "REPLACE_WITH_RANDOM_SECRET"

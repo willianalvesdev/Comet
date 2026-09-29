@@ -2,17 +2,23 @@
     const gemini = document.querySelector('.model-picker'), computer = document.querySelector('.computer-provider');
     const trigger = document.querySelector('.local-model-picker'), menu = document.querySelector('.model-menu');
     if (!gemini || !computer || !trigger || !menu) return;
+    const labels = {'qwen3:4b-instruct-2507-q4_K_M':'4b no-think','qwen3:1.7b':'1.7b','qwen3:4b':'4b','qwen3:8b':'8b'};
+    menu.querySelectorAll('[data-provider]').forEach(option => {
+        const label = labels[option.dataset.provider];
+        if (!label) { option.remove(); return; }
+        option.querySelector('span').textContent = label;
+    });
     const options = [...menu.querySelectorAll('[data-provider]')];
     let selected = 'gemini', local = 'qwen3:4b-instruct-2507-q4_K_M', availability;
     function update() {
         gemini.setAttribute('aria-pressed', String(selected === 'gemini'));
         computer.setAttribute('aria-pressed', String(selected !== 'gemini'));
         trigger.hidden = selected === 'gemini';
-        trigger.querySelector('.local-model-name').textContent = local;
-        trigger.setAttribute('aria-label', 'Modelo local: ' + local);
+        trigger.querySelector('.local-model-name').textContent = labels[local] || local;
+        trigger.setAttribute('aria-label', 'Modelo local: ' + (labels[local] || local));
         gemini.removeAttribute('title'); gemini.removeAttribute('data-tooltip');
         gemini.setAttribute('aria-label', 'Usar Gemini');
-        options.forEach(option => { option.setAttribute('aria-checked', String(option.dataset.provider === local)); option.title = option.dataset.provider; });
+        options.forEach(option => { option.setAttribute('aria-checked', String(option.dataset.provider === local)); option.title = labels[option.dataset.provider] || option.dataset.provider; });
         if (selected === 'gemini' && menu.matches(':popover-open')) menu.hidePopover();
     }
     function position() {

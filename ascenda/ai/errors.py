@@ -1,4 +1,3 @@
-"""Safe messages for the UI; technical exceptions stay in server logs."""
 MESSAGES = {
     'context_size': 'Esta conversa excedeu o contexto disponível do modelo. Abra um novo chat ou escolha um modelo com maior capacidade.',
     'attachment_size': 'Cada arquivo pode ter até 8 MB.',

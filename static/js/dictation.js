@@ -109,7 +109,6 @@
             indicate(false, "Não foi possível iniciar o microfone. Tente novamente.");
         }
     });
-    // End dictation before manual edits so late results cannot overwrite them.
     input.addEventListener("beforeinput", cancel);
     document.addEventListener("visibilitychange", () => { if (document.hidden) cancel(); });
     window.addEventListener("pagehide", cancel);

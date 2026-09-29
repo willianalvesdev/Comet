@@ -1,636 +1,370 @@
-/* GUIA DE EDIÇÃO — home.css
- * Explicações em português antes de cada seletor e declaração.
- * A ordem foi preservada: regras posteriores podem sobrescrever as anteriores.
- * { abre um bloco; } encerra; : separa propriedade e valor; ; termina uma declaração.
- * Edite os valores do código. Os comentários são documentação e não alteram o visual.
- */
-/* Seleciona .home. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home {
-    /* Define a altura mínima. Valor atual: calc(100svh - var(--header-height)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
     min-height: calc(100svh - var(--header-height));
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
     justify-content: center;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 48px 32px calc(48px + 18svh). calc() calcula a medida combinando parcelas. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
-    padding: 48px 32px calc(48px + 18svh);
+    padding: 48px var(--space-8) calc(48px + 18svh);
 }
 
-/* Seleciona .home__inner. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__inner {
-    /* Define a largura. Valor atual: min(100%, 800px). min() escolhe o menor valor. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: min(100%, 800px);
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
 }
 
-/* Seleciona .home__heading. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__heading {
-    /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 20px. px mede pixels CSS. */
-    padding-inline: 20px;
-    /* Define espaço externo abaixo. Valor atual: 36px. px mede pixels CSS. */
+    padding-inline: var(--space-5);
     margin-bottom: 36px;
 }
 
-/* Seleciona .home__eyebrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__eyebrow {
-    /* Define espaço externo abaixo. Valor atual: 8px. px mede pixels CSS. */
-    margin-bottom: 8px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    margin-bottom: var(--space-2);
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
 }
 
-/* Seleciona .home h1. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home h1 {
-    /* Define o tamanho das letras. Valor atual: var(--font-size-2). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-2);
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.3. */
     line-height: 1.3;
 }
 
-/* Seleciona .home__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__composer {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
     position: relative;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 20px 16px 14px. px mede pixels CSS. */
-    padding: 20px 16px 14px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    padding: var(--space-5) var(--space-4) 14px;
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 20px. px mede pixels CSS. */
-    border-radius: 20px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-radius: var(--radius-container);
     background: var(--surface);
-    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: border-color 200ms ease, box-shadow 200ms ease. */
-    transition: border-color 200ms ease, box-shadow 200ms ease;
+    transition: border-color var(--duration-normal) ease, box-shadow var(--duration-normal) ease;
 }
 
-/* Seleciona .home__input. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__input {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: 100%;
-    /* Define a altura mínima. Valor atual: 60px. px mede pixels CSS. */
     min-height: 60px;
-    /* Limita a altura máxima. Valor atual: 240px. px mede pixels CSS. */
     max-height: 240px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 8px. px mede pixels CSS. */
-    padding: 0 8px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    padding: 0 var(--space-2);
     border: 0;
-    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: none. */
     outline: none;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
     background: transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-3);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.5. */
     line-height: 1.5;
 }
 
-/* Seleciona .home__input::placeholder. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__input::placeholder {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
     opacity: 1;
 }
 
-/* Seleciona .home__composer:focus-within. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-within: foco no elemento ou descendentes. */
 .home__composer:focus-within {
-    /* Define a cor das bordas. Valor atual: color-mix(in srgb, var(--text) 30%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     border-color: color-mix(in srgb, var(--text) 30%, transparent);
 }
 
-/* Seleciona .home__toolbar, .home__modes, .home__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__toolbar, .home__modes, .home__actions {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
 }
 
-/* Seleciona .home__toolbar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__toolbar {
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: space-between. */
     justify-content: space-between;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 12px. px mede pixels CSS. */
-    gap: 12px;
-    /* Define espaço externo acima. Valor atual: 10px. px mede pixels CSS. */
+    gap: var(--space-3);
     margin-top: 10px;
 }
 
-/* Seleciona .home__modes. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__modes {
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 2px. px mede pixels CSS. */
     gap: 2px;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 999px. px mede pixels CSS. */
-    border-radius: 999px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--bg) 65%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    border-radius: var(--radius-pill);
     background: color-mix(in srgb, var(--bg) 65%, transparent);
 }
 
-/* Seleciona .home__mode. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__mode {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
     justify-content: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
-    gap: 8px;
-    /* Define a altura mínima. Valor atual: 36px. px mede pixels CSS. */
+    gap: var(--space-2);
     min-height: 36px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 7px 12px. px mede pixels CSS. */
-    padding: 7px 12px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid transparent. px mede pixels CSS. */
+    padding: 7px var(--space-3);
     border: 1px solid transparent;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 999px. px mede pixels CSS. */
-    border-radius: 999px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    border-radius: var(--radius-pill);
     background: transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
 }
 
-/* Seleciona .home__mode[aria-pressed="true"]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
 .home__mode[aria-pressed="true"] {
-    /* Define a cor das bordas. Valor atual: var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     border-color: var(--border);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text) 5%, var(--surface)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background: color-mix(in srgb, var(--text) 5%, var(--surface));
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
 }
 
-/* Seleciona .home__mode svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__mode svg {
-    /* Define a largura. Valor atual: 16px. px mede pixels CSS. */
-    width: 16px;
-    /* Define a altura. Valor atual: 16px. px mede pixels CSS. */
-    height: 16px;
-    /* Define quanto o item encolhe se faltar espaço; 0 impede o encolhimento. Valor atual: 0. */
+    width: var(--icon-small);
+    height: var(--icon-small);
     flex-shrink: 0;
 }
 
-/* Seleciona .home__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__actions {
-    /* Define quanto o item encolhe se faltar espaço; 0 impede o encolhimento. Valor atual: 0. */
     flex-shrink: 0;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 12px. px mede pixels CSS. */
-    gap: 12px;
+    gap: var(--space-3);
 }
 
-/* Seleciona .home__microphone, .home__send. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__microphone, .home__send {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Atalho de align-items e justify-items; center centraliza nos dois eixos. Valor atual: center. */
     place-items: center;
-    /* Define quanto o item encolhe se faltar espaço; 0 impede o encolhimento. Valor atual: 0. */
     flex-shrink: 0;
-    /* Define a largura. Valor atual: 40px. px mede pixels CSS. */
     width: 40px;
-    /* Define a altura. Valor atual: 40px. px mede pixels CSS. */
     height: 40px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 50%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    border-radius: 50%;
+    border-radius: var(--radius-circle);
 }
 
-/* Seleciona .home__microphone. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__microphone {
-    /* Define a largura. Valor atual: 24px. px mede pixels CSS. */
     width: 24px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
     background: transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
 }
 
-/* Seleciona .home__microphone svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__microphone svg {
-    /* Define a largura. Valor atual: 13px. px mede pixels CSS. */
     width: 13px;
-    /* Define a altura. Valor atual: 20px. px mede pixels CSS. */
-    height: 20px;
+    height: var(--icon-medium);
 }
 
-/* Seleciona .home__send. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__send {
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    background: var(--text);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color: var(--bg);
+    background: var(--accent);
+    color: var(--text);
 }
 
-/* Seleciona .home__send svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__send svg {
-    /* Define a largura. Valor atual: 13px. px mede pixels CSS. */
     width: 13px;
-    /* Define a altura. Valor atual: 13px. px mede pixels CSS. */
     height: 13px;
 }
 
-/* Seleciona .home button:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
 .home button:focus-visible {
-    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     outline: 2px solid var(--accent);
-    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: 3px. px mede pixels CSS. */
     outline-offset: 3px;
 }
 
-/* Seleciona .home.is-computer .home__eyebrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home.is-computer .home__eyebrow {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--accent);
 }
 
-/* Seleciona .home.is-computer .home__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home.is-computer .home__composer {
-    /* Define a cor das bordas. Valor atual: color-mix(in srgb, var(--accent) 60%, var(--border)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
-    /* Desenha sombra com deslocamentos horizontal/vertical, desfoque, expansão opcional e cor; inset coloca a sombra por dentro. Valor atual: 0 0 36px color-mix(in srgb, var(--accent) 20%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     box-shadow: 0 0 36px color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .home. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .home {
-        /* Define a altura mínima. Valor atual: calc(100dvh - var(--header-height)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
         min-height: calc(100dvh - var(--header-height));
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 16px 16px calc(16px + env(safe-area-inset-bottom)). calc() calcula a medida combinando parcelas. env() consulta medidas do dispositivo, como a área segura da tela. px mede pixels CSS. */
-        padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+        padding: var(--space-4) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom));
     }
 
-    /* Seleciona .home__heading. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .home__heading {
-        /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
         position: fixed;
-        /* Define o afastamento superior em relação à referência de position. Valor atual: 50dvh. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
         top: 50dvh;
-        /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
         left: 16px;
-        /* Define o afastamento direito em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
         right: 16px;
-        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateY(-50%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
         transform: translateY(-50%);
-        /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 8px. px mede pixels CSS. */
-        padding-inline: 8px;
-        /* Define espaço externo abaixo. Valor atual: 0. */
+        padding-inline: var(--space-2);
         margin-bottom: 0;
-        /* Alinha o conteúdo textual na caixa. Valor atual: center. */
         text-align: center;
     }
 
-    /* Seleciona .home__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .home__composer {
-        /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
         position: fixed;
-        /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 10. */
         z-index: 10;
-        /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
         left: 16px;
-        /* Define o afastamento direito em relação à referência de position. Valor atual: 16px. px mede pixels CSS. */
         right: 16px;
-        /* Define o afastamento inferior em relação à referência de position. Valor atual: calc(16px + env(safe-area-inset-bottom)). calc() calcula a medida combinando parcelas. env() consulta medidas do dispositivo, como a área segura da tela. px mede pixels CSS. */
         bottom: calc(16px + env(safe-area-inset-bottom));
-        /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
         margin: 0;
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 16px 10px 10px. px mede pixels CSS. */
-        padding: 16px 10px 10px;
-        /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
-        border-radius: 16px;
+        padding: var(--space-4) 10px 10px;
+        border-radius: var(--radius-panel);
     }
 
-    /* Seleciona .home__input. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .home__input {
-        /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 4px. px mede pixels CSS. */
-        padding-inline: 4px;
+        padding-inline: var(--space-1);
     }
 
-    /* Seleciona .home__toolbar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .home__toolbar {
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 6px. px mede pixels CSS. */
         gap: 6px;
     }
 
-    /* Seleciona .home__mode. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .home__mode {
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 5px. px mede pixels CSS. */
         gap: 5px;
-        /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 8px. px mede pixels CSS. */
-        padding-inline: 8px;
+        padding-inline: var(--space-2);
     }
 
-    /* Seleciona .home__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .home__actions {
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 6px. px mede pixels CSS. */
         gap: 6px;
     }
 
-    /* Seleciona .home__send. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .home__send {
-        /* Define a largura. Valor atual: 34px. px mede pixels CSS. */
         width: 34px;
-        /* Define a altura. Valor atual: 34px. px mede pixels CSS. */
         height: 34px;
     }
-
 }
 
-/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (prefers-reduced-motion: reduce) {
-    /* Seleciona .home__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .home__composer {
-        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
         transition: none;
     }
-
 }
 
-/* Seleciona .home__dictation-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__dictation-status {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
-    /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 8px. px mede pixels CSS. */
     left: 8px;
-    /* Define o afastamento direito em relação à referência de position. Valor atual: 8px. px mede pixels CSS. */
     right: 8px;
-    /* Define o afastamento inferior em relação à referência de position. Valor atual: calc(100% + 8px). calc() calcula a medida combinando parcelas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     bottom: calc(100% + 8px);
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 6px 10px. px mede pixels CSS. */
     padding: 6px 10px;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 8px. px mede pixels CSS. */
-    border-radius: 8px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-radius: var(--radius-control);
     background: var(--bg);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-5);
-    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
     text-align: left;
 }
 
-/* Seleciona .home__dictation-status:empty. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__dictation-status:empty {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
 }
 
-/* Seleciona .home__microphone[aria-pressed="true"]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
 .home__microphone[aria-pressed="true"] {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--red). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--red);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--red) 12%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background: color-mix(in srgb, var(--red) 12%, transparent);
 }
 
-/* Keep the composer size stable while the sidebar opens or closes. */
-/* Condição (width >= 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width >= 640px) {
-    /* Seleciona .home__inner. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .home__inner {
-        /* Define a largura. Valor atual: min(800px, calc(100vw - 304px)). calc() calcula a medida combinando parcelas. min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
         width: min(800px, calc(100vw - 304px));
-        /* Define quanto o item encolhe se faltar espaço; 0 impede o encolhimento. Valor atual: 0. */
         flex-shrink: 0;
     }
-
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .workspace .home__heading,
-    .workspace .home__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .workspace .home__heading,
     .workspace .home__composer {
-        /* Define a largura. Valor atual: calc(100vw - 32px). calc() calcula a medida combinando parcelas. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
         width: calc(100vw - 32px);
-        /* Limita a largura máxima. Valor atual: none. */
         max-width: none;
-        /* Define o afastamento direito em relação à referência de position. Valor atual: auto. */
         right: auto;
-        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: translate var(--sidebar-duration) var(--sidebar-easing), border-color 200ms ease, box-shadow 200ms ease. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-        transition: translate var(--sidebar-duration) var(--sidebar-easing), border-color 200ms ease, box-shadow 200ms ease;
+        transition: translate var(--sidebar-duration) var(--sidebar-easing), border-color var(--duration-normal) ease, box-shadow var(--duration-normal) ease;
     }
-
 }
 
-/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (prefers-reduced-motion: reduce) {
-    /* Seleciona .workspace .home__heading,
-    .workspace .home__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .workspace .home__heading,
     .workspace .home__composer {
-        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
         transition: none;
     }
-
 }
 
-/* Seleciona .home__microphone[aria-pressed="true"]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
 .home__microphone[aria-pressed="true"] {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
     background: transparent;
 }
 
-/* Seleciona .home__microphone[aria-pressed="true"] svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
 .home__microphone[aria-pressed="true"] svg {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
 }
 
-/* Seleciona .home__microphone[aria-pressed="true"]::before. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::before: pseudoelemento antes do conteúdo. [aria-: estado acessível informado por atributo. */
 .home__microphone[aria-pressed="true"]::before {
-    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: "". */
     content: "";
-    /* Define a largura. Valor atual: 16px. px mede pixels CSS. */
     width: 16px;
-    /* Define a altura. Valor atual: 16px. px mede pixels CSS. */
     height: 16px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
     background: currentColor;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: url('../img/icons/pause.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     mask: url('../img/icons/pause.svg') center / contain no-repeat;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Variante de compatibilidade WebKit/Blink. Valor atual: url('../img/icons/pause.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     -webkit-mask: url('../img/icons/pause.svg') center / contain no-repeat;
 }
 
-/* Seleciona .home__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__actions {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
     position: relative;
 }
 
-/* Seleciona .home__toolbar.is-dictating .home__send .ui-arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__toolbar.is-dictating .home__send .ui-arrow {
-    /* Escolhe a imagem que recorta a pintura do elemento. Valor atual: url('../img/icons/check.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     mask-image: url('../img/icons/check.svg');
-    /* Escolhe a imagem que recorta a pintura do elemento. Variante de compatibilidade WebKit/Blink. Valor atual: url('../img/icons/check.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     -webkit-mask-image: url('../img/icons/check.svg');
 }
 
-/* Seleciona .microphone-icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .microphone-icon {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Define a largura. Valor atual: 16px. px mede pixels CSS. */
-    width: 16px;
-    /* Define a altura. Valor atual: 16px. px mede pixels CSS. */
-    height: 16px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
+    width: var(--icon-small);
+    height: var(--icon-small);
     background: currentColor;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: url('../img/icons/microphone.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     mask: url('../img/icons/microphone.svg') center / contain no-repeat;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Variante de compatibilidade WebKit/Blink. Valor atual: url('../img/icons/microphone.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     -webkit-mask: url('../img/icons/microphone.svg') center / contain no-repeat;
 }
 
-/* Seleciona .home__send. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__send {
-    /* Define a largura. Valor atual: 32px. px mede pixels CSS. */
     width: 32px;
-    /* Define a altura. Valor atual: 32px. px mede pixels CSS. */
     height: 32px;
 }
 
-/* Seleciona .home__send .ui-arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__send .ui-arrow {
-    /* Define a largura. Valor atual: 13px. px mede pixels CSS. */
     width: 13px;
-    /* Define a altura. Valor atual: 13px. px mede pixels CSS. */
     height: 13px;
-    /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 13px. px mede pixels CSS. */
     flex-basis: 13px;
 }
 
-/* Seleciona .home__microphone[aria-pressed="true"] .microphone-icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
 .home__microphone[aria-pressed="true"] .microphone-icon {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .home__toolbar.is-dictating .home__mode. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .home__toolbar.is-dictating .home__mode {
-        /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 6px. px mede pixels CSS. */
         padding-inline: 6px;
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 4px. px mede pixels CSS. */
-        gap: 4px;
+        gap: var(--space-1);
     }
-
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .home__toolbar.is-dictating .home__mode span. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .home__toolbar.is-dictating .home__mode span {
-        /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
         display: none;
     }
 
-    /* Seleciona .home__toolbar.is-dictating .home__mode. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .home__toolbar.is-dictating .home__mode {
-        /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 36px. px mede pixels CSS. */
         min-width: 36px;
     }
-
 }
 
-/* Registra uma propriedade personalizada animável, com tipo, herança e valor inicial. */
 @property --dictation-angle {
-    /* Declara o tipo de valor permitido numa propriedade personalizada registrada. Valor atual: '<angle>'. */
     syntax: '<angle>';
-    /* Define o valor inicial da propriedade personalizada registrada. Valor atual: 0deg. */
     initial-value: 0deg;
-    /* Controla se a propriedade registrada recebe o valor do pai. Valor atual: false. */
     inherits: false;
 }
 
-/* Seleciona .home__composer.is-dictating::after. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::after: pseudoelemento depois do conteúdo. */
 .home__composer.is-dictating::after {
-    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: ''. */
     content: '';
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
-    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: -1px. px mede pixels CSS. */
     inset: -1px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 1.5px. px mede pixels CSS. */
     padding: 1.5px;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: inherit. */
     border-radius: inherit;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: conic-gradient(from var(--dictation-angle), transparent 0deg 230deg, color-mix(in srgb,var(--accent) 25%,transparent) 275deg, var(--accent) 320deg, color-mix(in srgb,var(--text) 75%,var(--accent)) 340deg, transparent 360deg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    background: conic-gradient(from var(--dictation-angle), transparent 0deg 230deg, color-mix(in srgb,var(--accent) 25%,transparent) 275deg, var(--accent) 320deg, color-mix(in srgb,var(--text) 75%,var(--accent)) 340deg, transparent 360deg);
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0). */
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    /* Combina máscaras; exclude exclui as áreas sobrepostas. Valor atual: exclude. */
+    background: conic-gradient(from var(--dictation-angle), transparent 0deg 230deg, color-mix(in srgb, var(--accent) 25%, transparent) 275deg, var(--accent) 320deg, color-mix(in srgb, var(--text) 75%, var(--accent)) 340deg, transparent 360deg);
+    mask: linear-gradient(var(--text-white) 0 0) content-box, linear-gradient(var(--text-white) 0 0);
     mask-composite: exclude;
-    /* Controla os eventos de ponteiro; none deixa atingir o que está atrás. Valor atual: none. */
     pointer-events: none;
-    /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: dictation-border 4s linear infinite. */
     animation: dictation-border 4s linear infinite;
 }
 
-/* Animação dictation-border: os blocos internos definem estados no tempo; a propriedade animation define duração e repetição. */
 @keyframes dictation-border {
-    /* Etapa to da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
     to {
-        /* Variável --dictation-angle: ângulo animado do brilho de ditado. Alterá-la afeta as regras que usam var(--dictation-angle) neste escopo. Valor atual: 360deg. */
         --dictation-angle: 360deg;
     }
-
 }
 
-/* Seleciona .home__dictation-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .home__dictation-status {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
-    position:absolute;
-    /* Define a largura. Valor atual: 1px. px mede pixels CSS. */
-    width:1px;
-    /* Define a altura. Valor atual: 1px. px mede pixels CSS. */
-    height:1px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
-    padding:0;
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: -1px. px mede pixels CSS. */
-    margin:-1px;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
-    overflow:hidden;
-    /* Recorta visualmente o elemento na forma declarada. Valor atual: inset(50%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    clip-path:inset(50%);
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
-    white-space:nowrap;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
-    border:0;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
 }
 
-/* Condição (prefers-reduced-motion:reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media(prefers-reduced-motion:reduce) {
-    /* Seleciona .home__composer.is-dictating::after. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::after: pseudoelemento depois do conteúdo. */
     .home__composer.is-dictating::after {
-        /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: none. */
-        animation:none;
+        animation: none;
     }
-
 }

@@ -1,4 +1,3 @@
-"""Offline provider protocol tests. No API credits or external requests are used."""
 import io
 import json
 import unittest

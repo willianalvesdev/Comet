@@ -9,9 +9,9 @@ O Ascenda usa diretamente a API do SearXNG. Open WebUI é opcional e não é nec
 
 O JSON está habilitado na configuração. Filtros de período dependem do suporte de cada buscador; o Ascenda também rejeita notícias com datas fora do período solicitado. Resultados sem data não comprovam atualidade. O SearXNG consulta serviços externos: não garante resultados nem evita bloqueios dos buscadores.
 
-Qwen3 1.7B e Qwen3 4B Instruct não pesquisam na internet, mesmo com pedido explícito.
+Todos os modelos locais disponíveis podem pesquisar na internet pelo SearXNG.
 
-Roteamento exclusivo por modelo: os demais modelos locais usam SearXNG; Gemini usa a API Google Search com grounding. Se o buscador escolhido falhar ou não retornar fontes, a interface informa isso sem trocar de serviço. Anexos que exigem Gemini também usam a busca Google.
+Roteamento exclusivo por modelo: os modelos locais usam SearXNG; Gemini usa a API Google Search com grounding. Se o buscador escolhido falhar ou não retornar fontes, a interface informa isso sem trocar de serviço. Anexos que exigem Gemini também usam a busca Google.
 
 Os títulos e trechos de busca são evidências limitadas, não leitura integral das páginas. O histórico salvo não é apagado quando o contexto local é reduzido.
 

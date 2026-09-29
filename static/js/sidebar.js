@@ -16,7 +16,6 @@
             initialCollapsed = savedState === "true";
         }
     } catch {
-        // Use the screen-size default if browser storage is unavailable.
     }
 
     function setCollapsed(collapsed) {
@@ -32,7 +31,6 @@
         try {
             window.AscendaStorage.setItem(storageKey, String(collapsed));
         } catch {
-            // The menu remains usable even when its state cannot be saved.
         }
     }
 

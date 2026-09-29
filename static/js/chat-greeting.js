@@ -12,14 +12,15 @@
  if(hour>=17)choices.push('Como foi seu dia?','Como foi seu dia, {name}?');
  if(hour>=6&&hour<11||hour>=14&&hour<17)choices.push('Hora do café e do Computer?');
  if(returning)choices.push('{name} está de volta!','De volta à ativa, {name}','De volta à ativa!');
- // The anonymous greeting is reserved for a real anonymous mode; this chat saves history.
  const greeting=choices[Math.floor(Math.random()*choices.length)];
  function fit(){
   const heading=label.parentElement;const width=heading.clientWidth-(heading.querySelector('svg')?.getBoundingClientRect().width||42)-14;
   const base=Math.min(44,Math.max(22,innerWidth*.032));label.style.fontSize=base+'px';
   if(label.scrollWidth>width)label.style.fontSize=Math.max(12,base*width/label.scrollWidth)+'px';
  }
- const render=name=>{label.textContent=greeting.replaceAll('{name}',name||label.dataset.accountName);fit();};
+ let anonymous=false,currentName=label.dataset.accountName;
+ const render=name=>{currentName=name||currentName;label.textContent=anonymous?'Você está no modo anônimo':greeting.replaceAll('{name}',currentName);fit();};
+ window.addEventListener('chat:anonymous',event=>{anonymous=event.detail;render(currentName);});
  new ResizeObserver(fit).observe(label.parentElement);document.fonts.ready.then(fit);
  render(label.dataset.accountName);
  fetch('/api/ai/personalization',{credentials:'same-origin',cache:'no-store'}).then(response=>response.ok?response.json():null).then(profile=>{if(profile)render(profile.name||profile.account_name);}).catch(()=>{});

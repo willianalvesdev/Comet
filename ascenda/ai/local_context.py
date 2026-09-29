@@ -1,4 +1,3 @@
-"""Compact local instructions and a bounded recent history; never change saved messages."""
 LOCAL_PROMPT = """Você é Computer, assistente do Ascenda especializada em finanças pessoais.
 Converse em português de forma natural, clara e breve. Pode ajudar em outros assuntos e ouvir sentimentos sem forçar uma ligação com dinheiro.
 Use somente os dados financeiros fornecidos; não invente saldos, transações, ações realizadas ou memórias. Explique cálculos e incertezas quando relevantes.
@@ -17,7 +16,7 @@ def clipped(text, budget):
 
 
 def fit_messages(messages, budget):
-    """Budget in UTF-8 bytes, retaining system instructions and latest request first."""
+
     system = messages[0] if messages and messages[0]['role'] == 'system' else None
     history = messages[1:] if system else messages
     result = []
@@ -30,7 +29,7 @@ def fit_messages(messages, budget):
     latest = {'role':history[-1]['role'], 'content':clipped(history[-1]['content'], max(100,budget-80))}
     budget -= len(latest['content'].encode('utf-8')) + 80
     recent = []
-    # Preserve complete user/assistant pairs; no orphaned answers or gaps in recent history.
+
     for i in range(len(history)-3, -1, -2):
         pair = history[i:i+2]
         cost = sum(len(m['content'].encode('utf-8'))+80 for m in pair)

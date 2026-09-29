@@ -130,6 +130,13 @@
     }
     anchorWeather();
     window.addEventListener('resize', anchorWeather);
+    const compactWeather = matchMedia('(max-width: 900px)');
+    function resetCompactWeather() {
+        if (!compactWeather.matches || !layout || !widgets) return;
+        layout.classList.remove('is-weather-collapsed'); widgets.hidden = false;
+        toggle?.setAttribute('aria-expanded','true');
+    }
+    compactWeather.addEventListener('change',resetCompactWeather); resetCompactWeather();
     toggle?.addEventListener('click', () => {
         const collapsed = document.querySelector('.discovery-layout').classList.toggle('is-weather-collapsed');
         toggle.setAttribute('aria-expanded', String(!collapsed));

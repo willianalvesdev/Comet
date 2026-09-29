@@ -1,4 +1,3 @@
-"""Store the NewsAPI key locally, never in frontend assets or Git."""
 from getpass import getpass
 from pathlib import Path
 

@@ -1,4 +1,3 @@
-"""Versioned response details inside the existing thought column; no schema migration."""
 import json
 
 PREFIX = "\x1eascenda-response-v1:"

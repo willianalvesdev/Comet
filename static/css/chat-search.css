@@ -1,297 +1,167 @@
-/* GUIA DE EDIÇÃO — chat-search.css
- * Explicações em português antes de cada seletor e declaração.
- * A ordem foi preservada: regras posteriores podem sobrescrever as anteriores.
- * { abre um bloco; } encerra; : separa propriedade e valor; ; termina uma declaração.
- * Edite os valores do código. Os comentários são documentação e não alteram o visual.
- */
-/* Seleciona .sidebar__search. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .sidebar__search {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
-    position:absolute;
-    /* Define o afastamento superior em relação à referência de position. Valor atual: 10px. px mede pixels CSS. */
-    top:10px;
-    /* Define o afastamento direito em relação à referência de position. Valor atual: 54px. px mede pixels CSS. */
-    right:54px;
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
-    display:grid;
-    /* Atalho de align-items e justify-items; center centraliza nos dois eixos. Valor atual: center. */
-    place-items:center;
-    /* Define a largura. Valor atual: 36px. px mede pixels CSS. */
-    width:36px;
-    /* Define a altura. Valor atual: 36px. px mede pixels CSS. */
-    height:36px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
-    padding:0;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
-    border:0;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
-    border-radius:10px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
-    background:transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
-    cursor:pointer;
+    position: absolute;
+    top: 10px;
+    right: 54px;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-medium);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
 }
 
-/* Seleciona .sidebar__search:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
 .sidebar__search:hover {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb,var(--text) 6%,transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    background:color-mix(in srgb,var(--text) 6%,transparent);
+    color: var(--text);
+    background: var(--surface-hover-strong);
 }
 
-/* Seleciona .chat-search__icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chat-search__icon {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
-    display:block;
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 18px. px mede pixels CSS. */
-    flex:0 0 18px;
-    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
-    width:18px;
-    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
-    height:18px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
-    background:currentColor;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: url('../img/icons/settings-settings-search.svg') center/contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
-    mask:url('../img/icons/settings-settings-search.svg') center/contain no-repeat;
+    display: block;
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    background: currentColor;
+    mask: url('../img/icons/settings-settings-search.svg') center/contain no-repeat;
 }
 
-/* Seleciona .is-sidebar-collapsed .sidebar__search. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .is-sidebar-collapsed .sidebar__search {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
-    display:none;
+    display: none;
 }
 
-/* Seleciona .chat-search. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chat-search {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: fixed. */
-    position:fixed;
-    /* Define o afastamento nas bordas (topo/direita/base/esquerda) em relação à referência de position. Valor atual: 20.5dvh 0 auto. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
-    inset:20.5dvh 0 auto;
-    /* Define a largura. Valor atual: min(776px,max(560px,40.4vw),calc(100vw - 32px)). calc() calcula a medida combinando parcelas. min() escolhe o menor valor. max() escolhe o maior valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
-    width:min(776px,max(560px,40.4vw),calc(100vw - 32px));
-    /* Define a altura. Valor atual: min(460px,50dvh). min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
-    height:min(460px,50dvh);
-    /* Limita a altura máxima. Valor atual: calc(100dvh - 48px). calc() calcula a medida combinando parcelas. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
-    max-height:calc(100dvh - 48px);
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 auto. */
-    margin:0 auto;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
-    padding:0;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
-    border:1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 20px. px mede pixels CSS. */
-    border-radius:20px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    background:var(--surface);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text);
-    /* Desenha sombra com deslocamentos horizontal/vertical, desfoque, expansão opcional e cor; inset coloca a sombra por dentro. Valor atual: 0 20px 45px rgb(0 0 0 / .3). px mede pixels CSS. */
-    box-shadow:0 20px 45px rgb(0 0 0 / .3);
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
-    overflow:hidden;
+    position: fixed;
+    inset: 20.5dvh 0 auto;
+    width: min(776px, max(560px, 40.4vw), calc(100vw - 32px));
+    height: min(460px, 50dvh);
+    max-height: calc(100dvh - 48px);
+    margin: 0 auto;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-container);
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 20px 45px rgb(0 0 0 / .3);
+    overflow: hidden;
 }
 
-/* Seleciona .chat-search::backdrop. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chat-search::backdrop {
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: rgb(0 0 0 / .12). */
-    background:rgb(0 0 0 / .12);
+    background: rgb(0 0 0 / .12);
 }
 
-/* Seleciona .chat-search[open]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chat-search[open] {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
-    display:flex;
-    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
-    flex-direction:column;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Seleciona .chat-search__field. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chat-search__field {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
-    display:flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
-    align-items:center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 12px. px mede pixels CSS. */
-    gap:12px;
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 70px. px mede pixels CSS. */
-    flex:0 0 70px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 24px. px mede pixels CSS. */
-    padding:0 24px;
-    /* Configura a borda inferior. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
-    border-bottom:1px solid var(--border);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex: 0 0 70px;
+    padding: 0 var(--space-6);
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
 }
 
-/* Seleciona .chat-search__field input. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chat-search__field input {
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    width:100%;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
-    min-width:0;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
-    border:0;
-    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 0. */
-    outline:0;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
-    padding:0;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
-    background:transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text);
-    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
-    font:inherit;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-size:var(--font-size-3);
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: var(--font-size-3);
 }
 
-/* Seleciona .chat-search__field input::placeholder. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chat-search__field input::placeholder {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
-    opacity:1;
+    color: var(--text-secondary);
+    opacity: 1;
 }
 
-/* Seleciona .chat-search__body. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chat-search__body {
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 1. */
-    flex:1;
-    /* Define a altura mínima. Valor atual: 0. */
-    min-height:0;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 18px 15px. px mede pixels CSS. */
-    padding:18px 15px;
-    /* Controla o transbordamento vertical. Valor atual: auto. */
-    overflow-y:auto;
-    /* Controla a espessura da barra de rolagem; thin afina e none oculta. Valor atual: thin. */
-    scrollbar-width:thin;
+    flex: 1;
+    min-height: 0;
+    padding: 18px 15px;
+    overflow-y: auto;
+    scrollbar-width: thin;
 }
 
-/* Seleciona .chat-search h2. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chat-search h2 {
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 15px 8px. px mede pixels CSS. */
-    margin:0 15px 8px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
-    font:inherit;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-size:var(--font-size-5);
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
-    font-weight:400;
+    margin: 0 15px var(--space-2);
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: var(--font-size-5);
+    font-weight: 400;
 }
 
-/* Seleciona .chat-search__results. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chat-search__results {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
-    display:grid;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 3px. px mede pixels CSS. */
-    gap:3px;
+    display: grid;
+    gap: 3px;
 }
 
-/* Seleciona .chat-search__result. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chat-search__result {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
-    display:block;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
-    min-width:0;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px 15px. px mede pixels CSS. */
-    padding:12px 15px;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
-    border-radius:10px;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
-    overflow:hidden;
-    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
-    text-overflow:ellipsis;
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
-    white-space:nowrap;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-size:var(--font-size-3);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text);
-    /* Configura sublinhado e outras decorações; none remove as decorações. Valor atual: none. */
-    text-decoration:none;
+    display: block;
+    min-width: 0;
+    padding: var(--space-3) 15px;
+    border-radius: var(--radius-medium);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--font-size-3);
+    color: var(--text);
+    text-decoration: none;
 }
 
-/* Seleciona .chat-search__result:hover, .chat-search__result:focus. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
 .chat-search__result:hover, .chat-search__result:focus {
-    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 0. */
-    outline:0;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb,var(--text) 5%,transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    background:color-mix(in srgb,var(--text) 5%,transparent);
+    outline: 0;
+    background: var(--surface-hover);
 }
 
-/* Seleciona .chat-search__status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chat-search__status {
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px 15px. px mede pixels CSS. */
-    margin:12px 15px;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    font-size:var(--font-size-5);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
+    margin: var(--space-3) 15px;
+    font-size: var(--font-size-5);
+    color: var(--text-secondary);
 }
 
-/* Seleciona .chat-search__status:empty. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chat-search__status:empty {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
-    display:none;
+    display: none;
 }
 
-/* Seleciona .chat-search__more. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .chat-search__more {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
-    display:block;
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px auto 0. px mede pixels CSS. */
-    margin:12px auto 0;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px 14px. px mede pixels CSS. */
-    padding:8px 14px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
-    border:1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
-    border-radius:10px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
-    background:transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color:var(--text-secondary);
-    /* Atalho tipográfico: estilo, peso, tamanho/altura de linha e família; inherit reaproveita a fonte do pai. Valor atual: inherit. */
-    font:inherit;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
-    cursor:pointer;
+    display: block;
+    margin: var(--space-3) auto 0;
+    padding: var(--space-2) 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: transparent;
+    color: var(--text-secondary);
+    font: inherit;
+    cursor: pointer;
 }
 
-/* Seleciona .chat-search__more[hidden]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
 .chat-search__more[hidden] {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
-    display:none;
+    display: none;
 }
 
-/* Seleciona .sidebar__search:focus-visible, .chat-search__more:focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
 .sidebar__search:focus-visible, .chat-search__more:focus-visible {
-    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
-    outline:2px solid var(--accent);
-    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: 2px. px mede pixels CSS. */
-    outline-offset:2px;
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media(width < 640px) {
-    /* Seleciona .chat-search. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .chat-search {
-        /* Define o afastamento superior em relação à referência de position. Valor atual: 12dvh. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
-        top:12dvh;
-        /* Define a altura. Valor atual: min(460px,65dvh). min() escolhe o menor valor. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
-        height:min(460px,65dvh);
+        top: 12dvh;
+        height: min(460px, 65dvh);
     }
 
-    /* Seleciona .chat-search__field. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .chat-search__field {
-        /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 62px. px mede pixels CSS. */
-        flex-basis:62px;
-        /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 18px. px mede pixels CSS. */
-        padding-inline:18px;
+        flex-basis: 62px;
+        padding-inline: 18px;
     }
-
 }

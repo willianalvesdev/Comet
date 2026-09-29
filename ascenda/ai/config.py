@@ -1,10 +1,9 @@
-"""Server-only defaults. Environment overrides live in .env."""
 import os
 from dataclasses import dataclass
 from urllib.parse import urlsplit
 
 
-LOCAL_MODELS = ('qwen3:4b-instruct-2507-q4_K_M', 'qwen3:1.7b', 'qwen3:4b', 'qwen3:8b', 'gemma3:12b')
+LOCAL_MODELS = ('qwen3:4b-instruct-2507-q4_K_M', 'qwen3:1.7b', 'qwen3:4b', 'qwen3:8b')
 PROVIDERS = ('qwen', 'gemini', *LOCAL_MODELS)
 
 @dataclass(frozen=True)
@@ -25,7 +24,7 @@ class AIConfig:
 
     def __post_init__(self):
         url = urlsplit(self.base_url)
-        # A configuration typo must never send a conversation to a remote host.
+
         if (url.scheme != 'http' or url.hostname not in ('localhost', '127.0.0.1', '::1')
                 or url.username or url.password or url.path or url.query or url.fragment):
             raise ValueError('OLLAMA_BASE_URL deve apontar para HTTP local, sem caminho ou credenciais.')

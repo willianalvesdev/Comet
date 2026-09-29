@@ -1,4 +1,3 @@
-"""Isolated chat tests: no accounts, real models or network required."""
 import io
 import json
 import re
@@ -140,7 +139,9 @@ class ComputerServiceTests(unittest.TestCase):
                    {'role': 'user', 'content': 'Qual meu nome?'}]
         self.assertEqual(list(self.service.stream(7, history))[-1], {'type': 'done'})
         actual = self.provider.stream.call_args.args[0]
-        self.assertEqual(actual[0], {'role': 'system', 'content': COMPUTER_PROMPT})
+        self.assertEqual(actual[0]['role'], 'system')
+        self.assertIn(COMPUTER_PROMPT, actual[0]['content'])
+        self.assertIn('CONTEXTO ATUAL DO SERVIDOR', actual[0]['content'])
         self.assertEqual(actual[1:], history)
 
     def test_invalid_histories_and_client_overrides(self):
@@ -218,7 +219,7 @@ class ComputerRouteTests(unittest.TestCase):
         self.csrf = re.search(r'name="csrf_token" value="([^"]+)"', html).group(1)
         self.service = self.app.extensions['ascenda_computer']
         self.store = self.app.extensions['ascenda_conversations']
-        self.service.personalization = None  # Covered with real account data in personalization tests.
+        self.service.personalization = None
         begin = patch.object(self.store, 'begin', side_effect=lambda user, payload, config: {
             'conversation_id': '1', 'turn_id': '1', 'request_id': payload['request_id'],
             'messages': [{'role': 'user', 'content': payload['message']}]})
@@ -265,7 +266,7 @@ class ComputerRouteTests(unittest.TestCase):
             metadata = events[-1].pop('metadata')
             self.assertFalse(metadata['instant'])
             self.assertIsNotNone(metadata['thinking_seconds'])
-            self.assertEqual(events, [{'type': 'conversation', 'conversation_id': '1', 'turn_id': '1', 'created_at': None, 'attachments': [], 'provider': 'qwen'}, {'type': 'thinking', 'text': 'Analisando a pergunta.'}, {'type': 'delta', 'text': 'Olá'}, {'type': 'delta', 'text': ', mundo'}, {'type': 'done'}])
+            self.assertEqual(events, [{'type': 'conversation', 'conversation_id': '1', 'turn_id': '1', 'created_at': None, 'attachments': [], 'provider': 'qwen'}, {'type': 'thinking', 'text': 'Analisando a pergunta.'}, {'type': 'delta', 'text': 'Olá, mundo'}, {'type': 'done'}])
         self.assertFalse(self.service._active)
 
     def test_provider_failure_before_and_after_first_chunk(self):
@@ -306,7 +307,7 @@ class ComputerRouteTests(unittest.TestCase):
         with self.db:
             response = self.client.get('/api/ai/models')
             self.assertEqual(response.status_code, 200)
-            self.assertEqual([m['id'] for m in response.json['models']], ['qwen', 'gemini', 'qwen3:4b-instruct-2507-q4_K_M', 'qwen3:1.7b', 'qwen3:4b', 'qwen3:8b', 'gemma3:12b'])
+            self.assertEqual([m['id'] for m in response.json['models']], ['qwen', 'gemini', 'qwen3:4b-instruct-2507-q4_K_M', 'qwen3:1.7b', 'qwen3:4b', 'qwen3:8b'])
             self.assertTrue(response.json['models'][0]['configured'])
             self.assertTrue(all(set(m) == {'id','name','configured'} for m in response.json['models']))
             def local(messages):

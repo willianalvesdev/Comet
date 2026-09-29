@@ -1,4 +1,3 @@
-"""Private, bounded HTTPS streaming to the Gemini API."""
 import http.client
 import json
 import os
@@ -10,7 +9,7 @@ from .errors import AIError
 
 
 def sse(response, deadline):
-    """SSE framing allows comments and multiple data lines, with bounded memory."""
+
     data, size, total = [], 0, 0
     while True:
         if time.monotonic() > deadline:
@@ -57,7 +56,7 @@ class RemoteProvider:
         for message in messages[1:]:
             parts = [{'text': message['content']}]
             if message['role'] == 'user':
-                # AttachmentStore validates and normalizes every image to JPEG.
+
                 parts.extend({'inlineData': {'mimeType': 'image/jpeg', 'data': data}}
                              for data in message.get('images', []))
             contents.append({'role': 'model' if message['role'] == 'assistant' else 'user',
@@ -86,7 +85,7 @@ class RemoteProvider:
                 code = ('provider_auth' if response.status in (401, 403) else
                         'provider_quota' if response.status in (402, 429) else
                         'provider_model' if response.status in (400, 404) else 'provider_unavailable')
-                # Never forward vendor error bodies: they may contain credentials or user data.
+
                 raise AIError(code, 429 if response.status == 429 else 502)
             if 'text/event-stream' not in response.getheader('Content-Type', ''):
                 raise AIError('invalid_response')

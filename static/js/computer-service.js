@@ -12,11 +12,14 @@
             return this.get(`/api/ai/conversations/${encodeURIComponent(id)}${before ? `?before=${encodeURIComponent(before)}` : ''}`);
         }
         async chat(payload, onDelta, signal, onThinking, onConversation, onResearch, onDone) {
-            const response = await fetch('/api/ai/chat', {
+            const regenerating = !!payload.regenerate && !payload.anonymous;
+            const endpoint = regenerating ? `/api/ai/conversations/${encodeURIComponent(payload.conversation_id)}/messages/${encodeURIComponent(payload.regenerate)}/regenerate` : '/api/ai/chat';
+            const body = regenerating ? {request_id:payload.request_id,provider:payload.provider} : payload;
+            const response = await fetch(endpoint, {
                 method: 'POST', credentials: 'same-origin', signal,
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/x-ndjson',
                     'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(body),
             }).catch(error => {
                 if (error.name === 'AbortError') throw error;
                 throw new Error(connectionError);

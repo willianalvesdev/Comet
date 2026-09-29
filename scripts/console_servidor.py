@@ -1,4 +1,3 @@
-"""Console controls for restarting only the server launched by this process."""
 import os
 from pathlib import Path
 import subprocess

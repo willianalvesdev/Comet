@@ -1,5 +1,4 @@
 (() => {
-    // Local demonstration only. Replace this fixture with data from the site.
     const day = 86400;
     const end = Date.UTC(2026, 8, 21) / 1000;
     const anchors = [70497.01, 65100, 69100, 77000, 79000, 73500, 60000, 64100, 58600, 62200, 63400, 61500, 77200, 75300, 74500, 85410.14];

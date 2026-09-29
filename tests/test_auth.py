@@ -1,4 +1,3 @@
-r"""Run with venv\Scripts\python.exe -m unittest discover -s tests -v."""
 import re
 import unittest
 import uuid

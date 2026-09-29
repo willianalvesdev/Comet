@@ -1,7 +1,8 @@
-"""Flask application and authentication for Ascenda."""
-import os
+import base64
 import json
+import os
 import secrets
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from hashlib import sha256
@@ -9,7 +10,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from email_validator import EmailNotValidError, validate_email
-from flask import Flask, Response, g, jsonify, redirect, render_template, request, session
+from flask import Flask, Response, g, jsonify, redirect, render_template, request, send_from_directory, session
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf.csrf import CSRFError, CSRFProtect
@@ -35,6 +36,7 @@ def create_app(test_config=None):
     load_dotenv(ROOT / '.env')
     app = Flask(__name__, template_folder=str(ROOT), static_folder=str(ROOT / 'static'))
     app.config.from_mapping(
+        TEMPLATES_AUTO_RELOAD=True,
         SECRET_KEY=os.getenv('SECRET_KEY'),
         DB_HOST=os.getenv('DB_HOST', '127.0.0.1'), DB_PORT=int(os.getenv('DB_PORT', '3306')),
         DB_NAME=os.getenv('DB_NAME', 'ascenda_db'), DB_USER=os.getenv('DB_USER', 'ascenda_app'),
@@ -53,7 +55,6 @@ def create_app(test_config=None):
     if (not app.config['SECRET_KEY'] or len(app.config['SECRET_KEY']) < 32
             or app.config['SECRET_KEY'].startswith('gere-')):
         raise RuntimeError('Execute iniciar.bat para preparar a configuração local.')
-    # Only chat accepts a larger body; authentication forms retain their limits.
     @app.before_request
     def chat_request_limit():
         if request.path == '/api/ai/attachments':
@@ -76,7 +77,6 @@ def create_app(test_config=None):
     from .ai.conversations import ConversationStore
     ai_config = app.config.get('AI_CONFIG') or AIConfig.from_env()
     providers = {'qwen': OllamaProvider(ai_config), 'gemini': RemoteProvider.from_env('gemini', ai_config)}
-    from dataclasses import replace
     for model in LOCAL_MODELS:
         providers[model] = OllamaProvider(replace(ai_config, model=model))
         providers[model].label = model
@@ -101,11 +101,16 @@ def create_app(test_config=None):
             g.user = None
             token = session.get('auth_token')
             if isinstance(token, str):
-                with db.cursor() as cur:
-                    cur.execute('SELECT u.id, u.nome, u.email FROM usuarios u JOIN sessoes s '
-                                'ON s.usuario_id=u.id WHERE s.token_hash=%s AND s.expira_em>UTC_TIMESTAMP()',
-                                (sha256(token.encode()).hexdigest(),))
-                    g.user = cur.fetchone()
+                try:
+                    with db.cursor() as cursor:
+                        cursor.execute(
+                            'SELECT u.id, u.nome, u.email FROM usuarios u JOIN sessoes s '
+                            'ON s.usuario_id=u.id WHERE s.token_hash=%s AND s.expira_em>UTC_TIMESTAMP()',
+                            (sha256(token.encode()).hexdigest(),),
+                        )
+                        g.user = cursor.fetchone()
+                finally:
+                    db.close_db()
             if not g.user and token:
                 session.clear()
         return g.user
@@ -118,15 +123,29 @@ def create_app(test_config=None):
             return view(*args, **kwargs)
         return wrapper
 
-    def issue_session(cur, user_id):
-        old = session.get('auth_token')
-        if old:
-            cur.execute('DELETE FROM sessoes WHERE token_hash=%s', (sha256(old.encode()).hexdigest(),))
+    def api_protected(message, include_code=False):
+        def decorate(view):
+            @wraps(view)
+            def wrapper(*args, **kwargs):
+                user = current_user()
+                if not user:
+                    payload = {'error': message}
+                    if include_code:
+                        payload['code'] = 'unauthorized'
+                    return jsonify(payload), 401
+                return view(user, *args, **kwargs)
+            return wrapper
+        return decorate
+
+    def issue_session(cursor, user_id):
+        previous_token = session.get('auth_token')
+        if isinstance(previous_token, str):
+            cursor.execute('DELETE FROM sessoes WHERE token_hash=%s', (sha256(previous_token.encode()).hexdigest(),))
         token = secrets.token_urlsafe(32)
-        expires = datetime.now(timezone.utc).replace(tzinfo=None) + app.permanent_session_lifetime
-        cur.execute('DELETE FROM sessoes WHERE usuario_id=%s AND expira_em<=UTC_TIMESTAMP()', (user_id,))
-        cur.execute('INSERT INTO sessoes (token_hash, usuario_id, expira_em) VALUES (%s,%s,%s)',
-                    (sha256(token.encode()).hexdigest(), user_id, expires))
+        expires_at = datetime.now(timezone.utc).replace(tzinfo=None) + app.permanent_session_lifetime
+        cursor.execute('DELETE FROM sessoes WHERE usuario_id=%s AND expira_em<=UTC_TIMESTAMP()', (user_id,))
+        cursor.execute('INSERT INTO sessoes (token_hash, usuario_id, expira_em) VALUES (%s,%s,%s)',
+                    (sha256(token.encode()).hexdigest(), user_id, expires_at))
         return token
 
     def save_session(token):
@@ -144,23 +163,36 @@ def create_app(test_config=None):
     @app.get('/principal.html')
     @protected
     def principal():
-        return redirect('/computer.html?new=1' + ('&settings=personalization' if request.args.get('settings') == 'personalization' else ''))
+        destination = '/computer.html?new=1'
+        if request.args.get('settings') == 'personalization':
+            destination += '&settings=personalization'
+        return redirect(destination)
 
     @app.get('/api/ai/models')
-    def computer_models():
-        if not current_user():
-            return jsonify(error='Entre novamente para escolher um modelo.'), 401
+    @api_protected('Entre novamente para escolher um modelo.')
+    def computer_models(user):
         response = jsonify(models=[{'id': name, 'name': provider.label, 'configured': isinstance(provider, OllamaProvider) or bool(provider.key)}
                                    for name, provider in providers.items()])
         response.headers['Cache-Control'] = 'no-store'
         return response
 
+    @app.get('/api/ai/attachments/<token>/preview')
+    @api_protected('Entre novamente para ver o anexo.')
+    def attachment_preview(user, token):
+        try:
+            data = attachments.read(user['id'], token)
+            if data.get('kind') != 'image':
+                raise AIError('attachment_missing', 404)
+            response = Response(base64.b64decode(data['image']), mimetype='image/jpeg')
+            response.headers['Cache-Control'] = 'private, no-store'
+            return response
+        except AIError as exc:
+            return jsonify(error=exc.message), exc.status
+
     @app.post('/api/ai/attachments')
     @limiter.limit('20 per minute')
-    def computer_attachment():
-        user = current_user()
-        if not user:
-            return jsonify(error='Entre novamente para anexar arquivos.'), 401
+    @api_protected('Entre novamente para anexar arquivos.')
+    def computer_attachment(user):
         if set(request.files) != {'file'}:
             return jsonify(error='Selecione um arquivo.'), 422
         try:
@@ -170,18 +202,29 @@ def create_app(test_config=None):
         except AIError as exc:
             return jsonify(error=exc.message), exc.status
 
+    @app.post('/api/ai/conversations/<cid>/messages/<tid>/regenerate')
     @app.post('/api/ai/chat')
     @limiter.limit('10 per minute')
-    def computer_chat():
-        user = current_user()
-        if not user:
-            return jsonify(error='Entre novamente para conversar com a Computer.', code='unauthorized'), 401
-        # Do not hold a database connection during generation.
-        db.close_db()
+    @api_protected('Entre novamente para conversar com a Computer.', include_code=True)
+    def computer_chat(user, cid=None, tid=None):
         try:
-            payload = conversation_store.validate(request.get_json(silent=True))
-            source = computer_service.stream_saved(user['id'], payload, conversation_store)
-            first = next(source)
+            request_payload = request.get_json(silent=True)
+            if tid is not None:
+                if not isinstance(request_payload, dict) or 'request_id' not in request_payload or set(request_payload) - {'request_id', 'provider'}:
+                    raise AIError('invalid_request', 422)
+                request_payload = {
+                    **request_payload, 'conversation_id': cid, 'regenerate': tid,
+                    'message': 'Reescrever resposta.',
+                }
+            if isinstance(request_payload, dict) and request_payload.get('anonymous') is True:
+                from .ai.ephemeral import EphemeralStore
+                payload = EphemeralStore.validate(request_payload, computer_service)
+                store = EphemeralStore()
+            else:
+                payload = conversation_store.validate(request_payload)
+                store = conversation_store
+            event_stream = computer_service.stream_saved(user['id'], payload, store)
+            first_event = next(event_stream)
         except AIError as exc:
             app.logger.warning('Computer request failed (%s)', exc.code)
             return jsonify(error=exc.message, code=exc.code), exc.status
@@ -191,8 +234,8 @@ def create_app(test_config=None):
 
         def generate():
             try:
-                yield encode(first)
-                for event in source:
+                yield encode(first_event)
+                for event in event_stream:
                     yield encode(event)
             except AIError as exc:
                 app.logger.warning('Computer stream failed (%s)', exc.code)
@@ -201,19 +244,17 @@ def create_app(test_config=None):
                 app.logger.exception('Unexpected Computer stream failure')
                 yield encode({'type': 'error', 'error': 'A resposta foi interrompida. Tente novamente.'})
             finally:
-                source.close()
+                event_stream.close()
 
         response = Response(generate(), content_type='application/x-ndjson; charset=utf-8')
         response.headers['Cache-Control'] = 'no-store'
         response.headers['X-Accel-Buffering'] = 'no'
-        response.call_on_close(source.close)
+        response.call_on_close(event_stream.close)
         return response
 
     @app.get('/api/ai/conversations')
-    def computer_conversations():
-        user = current_user()
-        if not user:
-            return jsonify(error='Entre novamente para acessar suas conversas.'), 401
+    @api_protected('Entre novamente para acessar suas conversas.')
+    def computer_conversations(user):
         try:
             offset = int(request.args.get('offset', '0'))
             if not 0 <= offset <= 1000000:
@@ -225,10 +266,8 @@ def create_app(test_config=None):
             return jsonify(error=exc.message, code=exc.code), exc.status
 
     @app.get('/api/ai/conversations/<cid>/preview')
-    def computer_conversation_preview(cid):
-        user = current_user()
-        if not user:
-            return jsonify(error='Entre novamente para acessar suas conversas.'), 401
+    @api_protected('Entre novamente para acessar suas conversas.')
+    def computer_conversation_preview(user, cid):
         try:
             response = jsonify(conversation_store.preview(user['id'], cid))
             response.headers['Cache-Control'] = 'no-store'
@@ -237,10 +276,8 @@ def create_app(test_config=None):
             return jsonify(error=exc.message, code=exc.code), exc.status
 
     @app.get('/api/ai/conversations/<cid>')
-    def computer_conversation(cid):
-        user = current_user()
-        if not user:
-            return jsonify(error='Entre novamente para acessar suas conversas.'), 401
+    @api_protected('Entre novamente para acessar suas conversas.')
+    def computer_conversation(user, cid):
         try:
             return jsonify(conversation_store.get(user['id'], cid, request.args.get('before')))
         except AIError as exc:
@@ -248,10 +285,8 @@ def create_app(test_config=None):
 
     @app.route('/api/ai/conversations/<cid>', methods=['PATCH', 'DELETE'])
     @limiter.limit('30 per minute')
-    def change_computer_conversation(cid):
-        user = current_user()
-        if not user:
-            return jsonify(error='Entre novamente para acessar suas conversas.'), 401
+    @api_protected('Entre novamente para acessar suas conversas.')
+    def change_computer_conversation(user, cid):
         try:
             title = None
             if request.method == 'PATCH':
@@ -265,10 +300,8 @@ def create_app(test_config=None):
 
     @app.post('/api/ai/conversations/<cid>/messages/<tid>/edit')
     @limiter.limit('10 per minute')
-    def edit_computer_message(cid, tid):
-        user = current_user()
-        if not user:
-            return jsonify(error='Entre novamente para editar suas mensagens.'), 401
+    @api_protected('Entre novamente para editar suas mensagens.')
+    def edit_computer_message(user, cid, tid):
         try:
             return jsonify(conversation_store.truncate_from(user['id'], cid, tid))
         except AIError as exc:
@@ -281,12 +314,13 @@ def create_app(test_config=None):
 
     @app.route('/api/ai/personalization', methods=['GET', 'PUT'])
     @limiter.limit('30 per minute')
-    def computer_personalization():
-        user = current_user()
-        if not user:
-            return jsonify(error='Entre novamente para personalizar o Computer.'), 401
+    @api_protected('Entre novamente para personalizar o Computer.')
+    def computer_personalization(user):
         try:
-            data = personalization.get(user['id']) if request.method == 'GET' else personalization.update(user['id'], request.get_json(silent=True))
+            if request.method == 'GET':
+                data = personalization.get(user['id'])
+            else:
+                data = personalization.update(user['id'], request.get_json(silent=True))
             response = jsonify(data)
             response.headers['Cache-Control'] = 'no-store'
             return response
@@ -307,17 +341,14 @@ def create_app(test_config=None):
 
     @app.get('/robots.txt')
     def robots():
-        from flask import send_from_directory
         return send_from_directory(ROOT, 'robots.txt', mimetype='text/plain')
 
     @app.get('/llms.txt')
     def llms():
-        from flask import send_from_directory
         return send_from_directory(ROOT, 'llms.txt', mimetype='text/plain')
 
     @app.get('/manifest.webmanifest')
     def manifest():
-        from flask import send_from_directory
         return send_from_directory(ROOT, 'manifest.webmanifest')
 
     @app.get('/descobrir.html')
@@ -327,9 +358,8 @@ def create_app(test_config=None):
 
     @app.get('/api/news')
     @limiter.limit('30 per minute')
-    def discovery_news():
-        if not current_user():
-            return jsonify(error='Entre novamente para ver as notícias.', code='unauthorized'), 401
+    @api_protected('Entre novamente para ver as notícias.', include_code=True)
+    def discovery_news(user):
         try:
             languages = request.args.get('languages', 'pt-en')
             if languages not in ('pt-en', 'all'):
@@ -365,10 +395,10 @@ def create_app(test_config=None):
             return jsonify(error='As senhas não coincidem.'), 422
         password_hash = generate_password_hash(password)
         try:
-            with db.cursor(write=True) as cur:
-                cur.execute('INSERT INTO usuarios (nome, email, senha) VALUES (%s,%s,%s)',
+            with db.cursor(write=True) as cursor:
+                cursor.execute('INSERT INTO usuarios (nome, email, senha) VALUES (%s,%s,%s)',
                             (name, email, password_hash))
-                token = issue_session(cur, cur.lastrowid)
+                token = issue_session(cursor, cursor.lastrowid)
         except IntegrityError as exc:
             if exc.errno != 1062:
                 raise
@@ -385,25 +415,25 @@ def create_app(test_config=None):
             email = normalize_email(request.form.get('email', ''))
             if len(password) > 128:
                 raise ValueError
-            with db.cursor() as cur:
-                cur.execute('SELECT id, senha FROM usuarios WHERE email=%s', (email,))
-                user = cur.fetchone()
-            valid = check_password_hash(user['senha'] if user else dummy_hash, password)
+            with db.cursor() as cursor:
+                cursor.execute('SELECT id, senha FROM usuarios WHERE email=%s', (email,))
+                user = cursor.fetchone()
+            password_matches = check_password_hash(user['senha'] if user else dummy_hash, password)
         except (ValueError, TypeError):
-            valid = False
-        if not user or not valid:
+            password_matches = False
+        if not user or not password_matches:
             return jsonify(error='E-mail ou senha incorretos.'), 401
-        with db.cursor(write=True) as cur:
-            token = issue_session(cur, user['id'])
+        with db.cursor(write=True) as cursor:
+            token = issue_session(cursor, user['id'])
         save_session(token)
         return jsonify(ok=True)
 
     @app.post('/logout')
     def logout():
         token = session.get('auth_token')
-        if token:
-            with db.cursor(write=True) as cur:
-                cur.execute('DELETE FROM sessoes WHERE token_hash=%s', (sha256(token.encode()).hexdigest(),))
+        if isinstance(token, str):
+            with db.cursor(write=True) as cursor:
+                cursor.execute('DELETE FROM sessoes WHERE token_hash=%s', (sha256(token.encode()).hexdigest(),))
         session.clear()
         return redirect('/')
 
@@ -412,7 +442,6 @@ def create_app(test_config=None):
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['X-Frame-Options'] = 'SAMEORIGIN' if request.endpoint == 'descobrir' else 'DENY'
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-        # Keep the microphone available for the dictation feature.
         response.headers['Permissions-Policy'] = 'camera=(), microphone=(self), geolocation=(self)'
         if response.mimetype in ('text/html', 'application/json'):
             response.headers['Cache-Control'] = 'no-store'

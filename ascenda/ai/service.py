@@ -1,4 +1,3 @@
-"""Conversation validation, identity and bounded inference concurrency."""
 from threading import Lock
 from contextlib import contextmanager
 import logging
@@ -9,6 +8,7 @@ from mysql.connector import Error as DatabaseError
 from .errors import AIError
 from .prompt import COMPUTER_PROMPT
 from .local_context import LOCAL_PROMPT
+from .response_policy import current_context, without_source_list
 from .ollama import OllamaProvider
 from .web_search import with_web
 
@@ -56,7 +56,8 @@ class ComputerService:
     def generate(self, messages, provider=None, context=""):
         target = provider or self.provider
         prompt = LOCAL_PROMPT if isinstance(target, OllamaProvider) else COMPUTER_PROMPT
-        source = target.stream([{'role': 'system', 'content': prompt + context}, *messages])
+        runtime_context = current_context()
+        source = target.stream([{'role': 'system', 'content': runtime_context + prompt + context + runtime_context}, *messages])
         try:
             yield from source
         finally:
@@ -81,7 +82,7 @@ class ComputerService:
                 if self.providers and name not in self.providers:
                     raise AIError('invalid_request', 422)
                 provider = self.providers.get(name, self.provider)
-                context = self.personalization.context(user_id) if self.personalization else ''
+                context = self.personalization.context(user_id) if self.personalization and not payload.get('anonymous') else ''
                 turn = store.begin(user_id, payload, self.config)
                 if turn.get('has_attachments'):
                     provider = self.providers['gemini']
@@ -93,7 +94,7 @@ class ComputerService:
                 for event in source:
                     if event['type'] == 'search':
                         turn['response_meta']['research'] = {key: value for key, value in event.items() if key != 'type'}
-                        store.save(user_id, turn, answer, thinking, 'running')
+                        store.save(user_id, turn, '', thinking, 'running')
                         yield event
                         continue
                     if event['type'] == 'thinking':
@@ -107,9 +108,12 @@ class ComputerService:
                     else:
                         raise AIError('invalid_response')
                     if time.monotonic() - checkpoint >= 1:
-                        store.save(user_id, turn, answer, thinking, 'running')
+                        store.save(user_id, turn, '', thinking, 'running')
                         checkpoint = time.monotonic()
-                    yield event
+                    if event['type'] == 'thinking':
+                        yield event
+                if turn['response_meta'].get('research'):
+                    answer = without_source_list(answer)
                 if not answer.strip():
                     raise AIError('invalid_response')
                 elapsed = time.perf_counter() - started
@@ -120,11 +124,12 @@ class ComputerService:
                 })
                 store.save(user_id, turn, answer, thinking, 'completed')
                 saved = True
-                if self.personalization:
+                if self.personalization and not payload.get('anonymous') and not payload.get('regenerate'):
                     try:
                         self.personalization.remember(user_id, payload['message'])
                     except DatabaseError:
                         logging.getLogger(__name__).warning('Could not update account memory')
+                yield {'type': 'delta', 'text': answer}
                 yield {'type': 'done', 'metadata': turn['response_meta']}
             except DatabaseError:
                 status = 'failed'
@@ -133,10 +138,12 @@ class ComputerService:
                 status = 'failed'
                 raise
             finally:
-                if source is not None:
-                    source.close()
-                if turn is not None and not saved:
-                    try:
-                        store.save(user_id, turn, answer, thinking, status)
-                    except (DatabaseError, AIError):
-                        logging.getLogger(__name__).warning('Could not finalize saved Computer turn')
+                try:
+                    if source is not None:
+                        source.close()
+                finally:
+                    if turn is not None and not saved:
+                        try:
+                            store.save(user_id, turn, answer, thinking, status)
+                        except (DatabaseError, AIError):
+                            logging.getLogger(__name__).warning('Could not finalize saved Computer turn')

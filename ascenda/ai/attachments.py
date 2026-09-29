@@ -1,10 +1,10 @@
-"""Private, per-account attachments. Originals are never served as public files."""
 import base64
 import io
 import json
 import re
 import warnings
 import zipfile
+from contextlib import closing
 from pathlib import Path
 from uuid import uuid4
 from xml.etree import ElementTree
@@ -46,37 +46,40 @@ class AttachmentStore:
         if not raw or len(raw) > MAX_BYTES:
             raise AIError('attachment_size', 422)
         name = (file.filename or 'arquivo').replace('\\', '/').split('/')[-1][:150]
-        ext = Path(name).suffix.lower()
+        extension = Path(name).suffix.lower()
         data = {'id': uuid4().hex, 'name': name, 'size': len(raw), 'kind': 'file'}
         try:
-            if ext in ('.png', '.jpg', '.jpeg', '.webp'):
+            if extension in ('.png', '.jpg', '.jpeg', '.webp'):
                 with warnings.catch_warnings():
                     warnings.simplefilter('error', Image.DecompressionBombWarning)
-                    with Image.open(io.BytesIO(raw)) as image:
-                        if image.width * image.height > 25000000:
+                    with io.BytesIO(raw) as image_buffer, closing(Image.open(image_buffer)) as original_image:
+                        if original_image.width * original_image.height > 25000000:
                             raise ValueError()
-                        image = ImageOps.exif_transpose(image).convert('RGB')
-                        image.thumbnail((1600, 1600))
-                        output = io.BytesIO(); image.save(output, format='JPEG', quality=85)
-                data.update(kind='image', image=base64.b64encode(output.getvalue()).decode('ascii'))
+                        with closing(ImageOps.exif_transpose(original_image)) as oriented_image:
+                            with closing(oriented_image.convert('RGB')) as normalized_image, io.BytesIO() as output:
+                                normalized_image.thumbnail((1600, 1600))
+                                normalized_image.save(output, format='JPEG', quality=85)
+                                encoded_image = base64.b64encode(output.getvalue()).decode('ascii')
+                data.update(kind='image', image=encoded_image)
             else:
-                if ext == '.pdf':
-                    reader = PdfReader(io.BytesIO(raw))
-                    if reader.is_encrypted or len(reader.pages) > 40:
-                        raise AIError('attachment_content', 422)
-                    text = ''
-                    for page in reader.pages:
-                        text += (page.extract_text() or '') + '\n'
-                        if len(text) > 20000:
+                if extension == '.pdf':
+                    with io.BytesIO(raw) as document_buffer:
+                        reader = PdfReader(document_buffer)
+                        if reader.is_encrypted or len(reader.pages) > 40:
                             raise AIError('attachment_content', 422)
-                elif ext == '.docx':
-                    with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+                        text = ''
+                        for page in reader.pages:
+                            text += (page.extract_text() or '') + '\n'
+                            if len(text) > 20000:
+                                raise AIError('attachment_content', 422)
+                elif extension == '.docx':
+                    with io.BytesIO(raw) as document_buffer, zipfile.ZipFile(document_buffer) as archive:
                         info = archive.getinfo('word/document.xml')
                         if info.file_size > 2 * 1024 * 1024:
                             raise ValueError()
                         document = ElementTree.fromstring(archive.read(info))
                         text = ' '.join(node.text or '' for node in document.iter() if node.tag.endswith('}t'))
-                elif ext in ('.txt', '.md', '.csv', '.json', '.py', '.js', '.html', '.css', '.log'):
+                elif extension in ('.txt', '.md', '.csv', '.json', '.py', '.js', '.html', '.css', '.log'):
                     text = raw.decode('utf-8-sig')
                 else:
                     raise AIError('attachment_type', 422)
@@ -94,7 +97,7 @@ class AttachmentStore:
 
     @staticmethod
     def public(data):
-        return {k: data[k] for k in ('id', 'name', 'size', 'kind')}
+        return {field: data[field] for field in ('id', 'name', 'size', 'kind')}
 
     def read(self, user_id, token):
         try:

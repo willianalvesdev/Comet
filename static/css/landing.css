@@ -1,613 +1,353 @@
-/* GUIA DE EDIÇÃO — landing.css
- * Explicações em português antes de cada seletor e declaração.
- * A ordem foi preservada: regras posteriores podem sobrescrever as anteriores.
- * { abre um bloco; } encerra; : separa propriedade e valor; ; termina uma declaração.
- * Edite os valores do código. Os comentários são documentação e não alteram o visual.
- */
-/* Seleciona .hero. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
     flex-direction: column;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define a altura mínima. Valor atual: 100svh. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
     min-height: 100svh;
-    /* Define espaço externo no eixo horizontal da escrita. Valor atual: var(--margin-inline-1). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     margin-inline: var(--margin-inline-1);
-    /* Define espaço interno entre conteúdo e borda no eixo vertical da escrita. Valor atual: calc(var(--header-height) + var(--gap)) 64px. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. px mede pixels CSS. */
     padding-block: calc(var(--header-height) + var(--gap)) 64px;
-    /* Alinha o conteúdo textual na caixa. Valor atual: center. */
     text-align: center;
 }
 
-/* Seleciona .hero h1. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero h1 {
-    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: "Kalice", Georgia, serif. */
-    font-family: "Kalice", Georgia, serif;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-1). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    font-family: var(--font-heading);
     font-size: var(--font-size-1);
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 500. */
     font-weight: 500;
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.15. */
     line-height: 1.15;
-    /* Controla as quebras; balance equilibra linhas e nowrap impede quebra. Valor atual: balance. */
     text-wrap: balance;
-    /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: scaleY(1.10). */
     transform: scaleY(1.10);
-    /* Define o ponto usado como origem de escala e rotação. Valor atual: center top. */
     transform-origin: center top;
-    /* Define espaço externo abaixo. Valor atual: 0.1em. em usa o tamanho da fonte do contexto. */
     margin-bottom: 0.1em;
 }
 
-/* Seleciona .hero__description. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__description {
-    /* Limita a largura máxima. Valor atual: 900px. px mede pixels CSS. */
     max-width: 900px;
-    /* Define espaço externo acima. Valor atual: var(--gap-half). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     margin-top: var(--gap-half);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-2). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-2);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.4. */
     line-height: 1.4;
-    /* Reserva distância acima do elemento quando uma navegação o traz à vista. Valor atual: calc(var(--header-height) + 28px). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. px mede pixels CSS. */
     scroll-margin-top: calc(var(--header-height) + 28px);
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 500. */
     font-weight: 500;
 }
 
-/* Seleciona .hero__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__composer {
-    /* Define a largura. Valor atual: min(100%, 750px). min() escolhe o menor valor. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: min(100%, 750px);
-    /* Define a altura mínima. Valor atual: 170px. px mede pixels CSS. */
     min-height: 170px;
-    /* Define espaço externo acima. Valor atual: var(--gap). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     margin-top: var(--gap);
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 18px. px mede pixels CSS. */
     padding: 18px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 36px. px mede pixels CSS. */
     border-radius: 36px;
-    /* Define somente a cor de fundo. Valor atual: color-mix(in srgb, var(--surface) 65%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background-color: color-mix(in srgb, var(--surface) 65%, transparent);
-    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Variante de compatibilidade WebKit/Blink. Valor atual: blur(8px). px mede pixels CSS. */
     -webkit-backdrop-filter: blur(8px);
-    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Valor atual: blur(8px). px mede pixels CSS. */
     backdrop-filter: blur(8px);
-    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
     text-align: left;
 }
 
-/* Seleciona .hero__input-bar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__input-bar {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Controla se itens flex podem quebrar para outra linha. Valor atual: nowrap. */
     flex-wrap: nowrap;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 16px. px mede pixels CSS. */
-    gap: 16px;
-    /* Define a altura mínima. Valor atual: 74px. px mede pixels CSS. */
+    gap: var(--space-4);
     min-height: 74px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 14px 20px. px mede pixels CSS. */
-    padding: 14px 20px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    padding: 14px var(--space-5);
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 26px. px mede pixels CSS. */
     border-radius: 26px;
-    /* Define somente a cor de fundo. Valor atual: color-mix(in srgb, var(--surface) 90%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background-color: color-mix(in srgb, var(--surface) 90%, transparent);
 }
 
-/* Seleciona .hero__symbol. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__symbol {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 24px. px mede pixels CSS. */
     flex: 0 0 24px;
-    /* Define a largura. Valor atual: 24px. px mede pixels CSS. */
     width: 24px;
-    /* Define a altura. Valor atual: 24px. px mede pixels CSS. */
     height: 24px;
 }
 
-/* Seleciona .hero__input. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__input {
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 1. */
     flex: 1;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: 100%;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
-    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
     text-overflow: ellipsis;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 4px. px mede pixels CSS. */
     border-radius: 4px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
     background: transparent;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-3);
-    /* Define a altura mínima. Valor atual: 1.5em. em usa o tamanho da fonte do contexto. */
     min-height: 1.5em;
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.5. */
     line-height: 1.5;
 }
 
-/* Seleciona .sr-only. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .sr-only {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
-    /* Define a largura. Valor atual: 1px. px mede pixels CSS. */
     width: 1px;
-    /* Define a altura. Valor atual: 1px. px mede pixels CSS. */
     height: 1px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     padding: 0;
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: -1px. px mede pixels CSS. */
     margin: -1px;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
-    /* Recorta visualmente o elemento na forma declarada. Valor atual: inset(50%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     clip-path: inset(50%);
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
 }
 
-/* Seleciona .hero__typewriter.is-typing::after. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::after: pseudoelemento depois do conteúdo. */
 .hero__typewriter.is-typing::after {
-    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: "". */
     content: "";
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-block. */
     display: inline-block;
-    /* Define a largura. Valor atual: 1.5px. px mede pixels CSS. */
     width: 1.5px;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     border-radius: 100%;
-    /* Define a altura. Valor atual: 1em. em usa o tamanho da fonte do contexto. */
     height: 1em;
-    /* Define espaço externo à esquerda. Valor atual: 3px. px mede pixels CSS. */
     margin-left: 3px;
-    /* Alinha elementos inline ou células verticalmente. Valor atual: -0.1em. em usa o tamanho da fonte do contexto. */
     vertical-align: -0.1em;
-    /* Define somente a cor de fundo. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     background-color: var(--accent);
-    /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: typewriter-caret 1s steps(1) infinite. */
     animation: typewriter-caret 1s steps(1) infinite;
 }
 
-/* Animação typewriter-caret: os blocos internos definem estados no tempo; a propriedade animation define duração e repetição. */
 @keyframes typewriter-caret {
-    /* Etapa 0%, 49% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
     0%, 49% {
-        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 1. */
         opacity: 1;
     }
 
-    /* Etapa 50%, 100% da animação. from é o início (0%) e to o fim (100%); os valores mudam gradualmente entre etapas. */
     50%, 100% {
-        /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: 0. */
         opacity: 0;
     }
-
 }
 
-/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (prefers-reduced-motion: reduce) {
-    /* Seleciona .hero__typewriter.is-typing::after. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::after: pseudoelemento depois do conteúdo. */
     .hero__typewriter.is-typing::after {
-        /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
         display: none;
-        /* Atalho da animação: nome, duração, curva, atraso, repetições e preenchimento; both mantém os estados inicial/final e infinite repete sem fim. Valor atual: none. */
         animation: none;
     }
-
 }
 
-/* Seleciona .hero__microphone,
-.hero__send. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__microphone,
 .hero__send {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-flex. */
     display: inline-flex;
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 auto. */
     flex: 0 0 auto;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
     justify-content: center;
-    /* Define a largura. Valor atual: 40px. px mede pixels CSS. */
     width: 40px;
-    /* Define a altura. Valor atual: 40px. px mede pixels CSS. */
     height: 40px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
 }
 
-/* Seleciona .hero__microphone. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__microphone {
-    /* Define a largura. Valor atual: 24px. px mede pixels CSS. */
     width: 24px;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 6px. px mede pixels CSS. */
-    border-radius: 6px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    border-radius: var(--radius-small);
     background: transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
 }
 
-/* Seleciona .hero__send. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__send {
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 50%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    border-radius: 50%;
-    /* Define somente a cor de fundo. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    background-color: var(--text);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
-    color: var(--bg);
+    border-radius: var(--radius-circle);
+    background-color: var(--accent);
+    color: var(--text-white);
 }
 
-/* Seleciona .hero__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__actions {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
     justify-content: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 20px. px mede pixels CSS. */
-    gap: 20px;
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    gap: var(--space-5);
     width: 100%;
-    /* Define espaço externo acima. Valor atual: var(--gap). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     margin-top: var(--gap);
 }
 
-/* Seleciona .hero__action. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__action {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-flex. */
     display: inline-flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
     justify-content: center;
-    /* Define a largura. Valor atual: 200px. px mede pixels CSS. */
     width: 200px;
-    /* Define a altura mínima. Valor atual: 40px. px mede pixels CSS. */
     min-height: 40px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px 24px. px mede pixels CSS. */
-    padding: 12px 24px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid transparent. px mede pixels CSS. */
+    padding: var(--space-3) var(--space-6);
     border: 1px solid transparent;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 999px. px mede pixels CSS. */
-    border-radius: 999px;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-radius: var(--radius-pill);
     font-size: var(--font-size-3);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.3. */
     line-height: 1.3;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-white). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-white);
-    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: transform 200ms ease, background-color 200ms ease. */
-    transition: transform 200ms ease, background-color 200ms ease;
+    transition: transform var(--duration-normal) ease, background-color var(--duration-normal) ease;
 }
 
-/* Condição (hover: hover): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (hover: hover) {
-    /* Seleciona .hero__action:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
     .hero__action:hover {
-        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: translateY(-2px). px mede pixels CSS. */
         transform: translateY(-2px);
     }
 
-    /* Seleciona .hero__action--primary:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
     .hero__action--primary:hover {
-        /* Define somente a cor de fundo. Valor atual: color-mix(in srgb, var(--accent) 65%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
         background-color: color-mix(in srgb, var(--accent) 65%, transparent);
     }
 
-    /* Seleciona .hero__action--secondary:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
     .hero__action--secondary:hover {
-        /* Define somente a cor de fundo. Valor atual: color-mix(in srgb, var(--text) 5%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-        background-color: color-mix(in srgb, var(--text) 5%, transparent);
+        background-color: var(--surface-hover);
     }
-
 }
 
-/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (prefers-reduced-motion: reduce) {
-    /* Seleciona .hero__action. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__action {
-        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
         transition: none;
     }
 
-    /* Seleciona .hero__action:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
     .hero__action:hover {
-        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: none. */
         transform: none;
     }
-
 }
 
-/* Seleciona .hero__action--primary. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__action--primary {
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid color-mix(in srgb, var(--accent) 70%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     border: 1px solid color-mix(in srgb, var(--accent) 70%, transparent);
-    /* Define somente a cor de fundo. Valor atual: color-mix(in srgb, var(--accent) 50%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background-color: color-mix(in srgb, var(--accent) 50%, transparent);
-    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Variante de compatibilidade WebKit/Blink. Valor atual: blur(8px). px mede pixels CSS. */
     -webkit-backdrop-filter: blur(8px);
-    /* Aplica filtros ao que está atrás do elemento; blur desfoca o fundo. Valor atual: blur(8px). px mede pixels CSS. */
     backdrop-filter: blur(8px);
 }
 
-/* Seleciona .hero__action--secondary. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__action--secondary {
-    /* Define a espessura das bordas. Valor atual: 2px. px mede pixels CSS. */
     border-width: 2px;
-    /* Define a cor das bordas. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     border-color: var(--text);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
     background: transparent;
 }
 
-/* Seleciona .hero__notice. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__notice {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Limita a largura máxima. Valor atual: 850px. px mede pixels CSS. */
     max-width: 850px;
-    /* Define espaço externo acima. Valor atual: 40px. px mede pixels CSS. */
     margin-top: 40px;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.3. */
     line-height: 1.3;
 }
 
-/* Seleciona .hero__report. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__report {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: #fff. */
-    color: #fff;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    color: var(--text-white);
     border: 0;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
     background: transparent;
-    /* Configura sublinhado e outras decorações; none remove as decorações. Valor atual: underline. */
     text-decoration: underline;
-    /* Define a distância entre texto e sublinhado. Valor atual: 3px. px mede pixels CSS. */
     text-underline-offset: 3px;
 }
 
-/* Condição (max-width: 1100px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (max-width: 1100px) {
-    /* Seleciona .hero. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero {
-        /* Define espaço externo no eixo horizontal da escrita. Valor atual: var(--margin-inline-2). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         margin-inline: var(--margin-inline-2);
     }
-
 }
 
-/* Condição (max-width: 760px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (max-width: 760px) {
-    /* Seleciona .hero. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero {
-        /* Define espaço interno entre conteúdo e borda no eixo vertical da escrita. Valor atual: calc(var(--header-height) + var(--gap) / 2) 40px. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. px mede pixels CSS. */
         padding-block: calc(var(--header-height) + var(--gap) / 2) 40px;
     }
 
-    /* Seleciona .hero__line-break. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__line-break {
-        /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
         display: none;
     }
 
-    /* Seleciona .hero__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__composer {
-        /* Define a altura mínima. Valor atual: 140px. px mede pixels CSS. */
         min-height: 140px;
-        /* Define espaço externo acima. Valor atual: calc(var(--gap) / 2). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. */
         margin-top: calc(var(--gap) / 2);
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
         padding: 10px;
-        /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 24px. px mede pixels CSS. */
         border-radius: 24px;
     }
 
-    /* Seleciona .hero__input-bar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__input-bar {
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
         gap: 10px;
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px. px mede pixels CSS. */
-        padding: 12px;
-        /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
-        border-radius: 16px;
+        padding: var(--space-3);
+        border-radius: var(--radius-panel);
     }
 
-    /* Seleciona .hero__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__actions {
-        /* Controla se itens flex podem quebrar para outra linha. Valor atual: wrap. */
         flex-wrap: wrap;
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 12px. px mede pixels CSS. */
-        gap: 12px;
-        /* Define espaço externo acima. Valor atual: var(--gap). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+        gap: var(--space-3);
         margin-top: var(--gap);
     }
 
-    /* Seleciona .hero__action. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__action {
-        /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 1 1 180px. px mede pixels CSS. */
         flex: 1 1 180px;
-        /* Limita a largura máxima. Valor atual: 260px. px mede pixels CSS. */
         max-width: 260px;
-        /* Define a altura mínima. Valor atual: 48px. px mede pixels CSS. */
         min-height: 48px;
     }
 
-    /* Seleciona .hero__notice. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__notice {
-        /* Define espaço externo acima. Valor atual: 32px. px mede pixels CSS. */
-        margin-top: 32px;
-        /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.5. */
+        margin-top: var(--space-8);
         line-height: 1.5;
     }
-
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .hero__composer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__composer {
-        /* Define a altura mínima. Valor atual: 124px. px mede pixels CSS. */
         min-height: 124px;
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
-        padding: 10px;
-        /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 24px. px mede pixels CSS. */
+        padding: var(--space-3);
         border-radius: 24px;
     }
 
-    /* Seleciona .hero__input-bar. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__input-bar {
-        /* Define a altura mínima. Valor atual: 62px. px mede pixels CSS. */
         min-height: 62px;
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
-        gap: 8px;
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
-        padding: 10px;
-        /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 18px. px mede pixels CSS. */
+        gap: var(--space-2);
+        padding: var(--space-3);
         border-radius: 18px;
     }
 
-    /* Seleciona .hero__symbol. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__symbol {
-        /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 20px. px mede pixels CSS. */
         flex-basis: 20px;
-        /* Define a largura. Valor atual: 20px. px mede pixels CSS. */
         width: 20px;
-        /* Define a altura. Valor atual: 20px. px mede pixels CSS. */
         height: 20px;
     }
 
-    /* Seleciona .hero__microphone. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__microphone {
-        /* Define a largura. Valor atual: 20px. px mede pixels CSS. */
         width: 20px;
-        /* Define a altura. Valor atual: 34px. px mede pixels CSS. */
         height: 34px;
     }
 
-    /* Seleciona .hero__microphone svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__microphone svg {
-        /* Define a largura. Valor atual: 11.7px. px mede pixels CSS. */
         width: 11.7px;
-        /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
         height: 18px;
     }
 
-    /* Seleciona .hero__send. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__send {
-        /* Define a largura. Valor atual: 34px. px mede pixels CSS. */
         width: 34px;
-        /* Define a altura. Valor atual: 34px. px mede pixels CSS. */
         height: 34px;
     }
 
-    /* Seleciona .hero__send svg. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__send svg {
-        /* Define a largura. Valor atual: 11px. px mede pixels CSS. */
         width: 11px;
-        /* Define a altura. Valor atual: 11px. px mede pixels CSS. */
         height: 11px;
     }
 
-    /* Seleciona .hero__action--secondary. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__action--secondary {
-        /* Define a espessura das bordas. Valor atual: 1px. px mede pixels CSS. */
         border-width: 1px;
     }
 
-    /* Seleciona .hero__actions. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__actions {
-        /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
         flex-direction: column;
-        /* Controla se itens flex podem quebrar para outra linha. Valor atual: nowrap. */
         flex-wrap: nowrap;
     }
 
-    /* Seleciona .hero__action. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__action {
-        /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 0 0 auto. */
         flex: 0 0 auto;
-        /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
         width: 100%;
-        /* Limita a largura máxima. Valor atual: none. */
         max-width: none;
     }
 
-    /* Seleciona .hero h1. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero h1 {
-        /* Define o tamanho das letras. Valor atual: clamp(calc(var(--font-size-1) / 2), 7.2vw, var(--font-size-1)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. clamp() recebe mínimo, valor preferido e máximo. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
         font-size: clamp(calc(var(--font-size-1) / 2), 7.2vw, var(--font-size-1));
     }
 
-    /* Seleciona .hero__description,
-    .hero__action. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__description,
     .hero__action {
-        /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         font-size: var(--font-size-4);
     }
 
-    /* Seleciona .hero__input,
-    .hero__notice. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .hero__input,
     .hero__notice {
-        /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         font-size: var(--font-size-5);
     }
-
 }
 
-/* Seleciona .microphone-icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .microphone-icon {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Define a largura. Valor atual: 16px. px mede pixels CSS. */
-    width: 16px;
-    /* Define a altura. Valor atual: 16px. px mede pixels CSS. */
-    height: 16px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
+    width: var(--icon-small);
+    height: var(--icon-small);
     background: currentColor;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: url('../img/icons/microphone.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     mask: url('../img/icons/microphone.svg') center / contain no-repeat;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Variante de compatibilidade WebKit/Blink. Valor atual: url('../img/icons/microphone.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     -webkit-mask: url('../img/icons/microphone.svg') center / contain no-repeat;
 }
 
-/* Seleciona .hero__send. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__send {
-    /* Define a largura. Valor atual: 32px. px mede pixels CSS. */
     width: 32px;
-    /* Define a altura. Valor atual: 32px. px mede pixels CSS. */
     height: 32px;
 }
 
-/* Seleciona .hero__send .ui-arrow. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .hero__send .ui-arrow {
-    /* Define a largura. Valor atual: 13px. px mede pixels CSS. */
-    width: 13px;
-    /* Define a altura. Valor atual: 13px. px mede pixels CSS. */
-    height: 13px;
-    /* Define o tamanho inicial do item no eixo principal do flex. Valor atual: 13px. px mede pixels CSS. */
-    flex-basis: 13px;
+    width: var(--icon-small);
+    height: var(--icon-small);
+    flex-basis: var(--icon-small);
 }

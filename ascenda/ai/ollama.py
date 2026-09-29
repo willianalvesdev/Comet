@@ -1,4 +1,3 @@
-"""Loopback-only Ollama transport. No redirects, proxies, tools or cloud fallback."""
 import http.client
 import json
 import logging
@@ -23,16 +22,10 @@ class OllamaProvider:
 
     def __init__(self, config):
         self.config = config
-        # Apply to the concrete model, including when selected through the legacy qwen alias.
-        model = config.model.lower()
-        self.web_search_enabled = not (
-            model == 'qwen3:1.7b' or model.startswith('qwen3:1.7b-')
-            or model.startswith('qwen3:4b-instruct')
-        )
 
     def _connect(self):
         url = urlsplit(self.config.base_url)
-        # Map localhost explicitly to loopback, independent of DNS/proxy settings.
+
         host = '127.0.0.1' if url.hostname == 'localhost' else url.hostname
         return http.client.HTTPConnection(host, url.port or 80, timeout=self.config.timeout)
 
@@ -42,7 +35,7 @@ class OllamaProvider:
         response = connection.getresponse()
         if response.status != 200:
             log.warning('Local AI HTTP %s at %s', response.status, path)
-            # Read only bounded diagnostic metadata; never expose the error body or prompt.
+
             raw_error = response.read(16385)
             if response.status == 400 and len(raw_error) <= 16384:
                 try:
@@ -56,7 +49,7 @@ class OllamaProvider:
                             raise ContextSizeError(required)
                 except (ValueError, TypeError, AttributeError):
                     pass
-            # Do not echo provider messages: they may include conversation text.
+
             response.close()
             if response.status == 404:
                 raise AIError('model_missing', 503)
@@ -103,7 +96,7 @@ class OllamaProvider:
             try:
                 response = self._post(connection, '/api/chat', payload)
             except ContextSizeError as error:
-                # Reduce input after exact tokenizer feedback, never grow RAM/context to fit history.
+
                 ratio = max(0.1, (context_limit - 1024) / error.required)
                 payload['messages'] = fit_messages(local_messages, max(512, int(input_budget * min(ratio, 0.7))))
                 response = self._post(connection, '/api/chat', payload)
@@ -131,7 +124,7 @@ class OllamaProvider:
                         raise AIError('invalid_response')
                     if message.get('tool_calls'):
                         raise AIError('incompatible', 503)
-                    # Stream reasoning separately from the answer; never log it.
+
                     if reasoning:
                         if received:
                             raise AIError('invalid_response')

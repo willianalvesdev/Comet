@@ -1,4 +1,3 @@
-"""Real MySQL account isolation, memory opt-out and model context integration."""
 import hashlib
 import json
 import re
@@ -108,7 +107,7 @@ class PersonalizationTests(unittest.TestCase):
         self.assertEqual(response.json['about'], 'Meu texto antigo')
         self.assertIn('Estúdio Aurora', self.store.context(self.ids[0]))
         self.assertNotIn('Estúdio Aurora', self.store.context(self.ids[1]))
-        # Older clients can update their fields without erasing the new preferences.
+
         old = {key: response.json[key] for key in ['name','occupation','about','summary','memory_enabled','version']}
         self.assertEqual(self.clients[0].put('/api/ai/personalization',json=old,headers={'X-CSRFToken':self.tokens[0]}).json['company'],'Estúdio Aurora')
         for values in [{'birth_date':'2999-01-01'},{'birth_date':'not a date'},{'response_length':'invalid'},{'gender':3},{'company':'x'*201}]:

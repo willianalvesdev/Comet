@@ -1,4 +1,3 @@
-"""NewsAPI discovery feed. Tokens and requests stay on the server."""
 import hashlib
 import ipaddress
 import json

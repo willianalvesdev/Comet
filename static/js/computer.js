@@ -31,7 +31,12 @@
     const models = window.ComputerModels;
     const olderButton = page.querySelector('.computer-history__older');
     const service = new window.ComputerService();
-    let editing = null;
+    let editing = null, anonymous = false;
+    if(!document.querySelector('.anonymous-toggle')){
+        const button=document.createElement('button');button.type='button';button.className='workspace__header-button anonymous-toggle';button.setAttribute('aria-label','Ativar modo anônimo');button.setAttribute('aria-pressed','false');button.innerHTML='<i aria-hidden="true"></i>';document.querySelector('.computer-header').append(button);
+    }
+    if(!document.querySelector('.anonymous-note')){const note=document.createElement('p');note.className='anonymous-note';note.hidden=true;note.textContent='Esse chat não será salvo no histórico';form.after(note);}
+    const anonymousButton = document.querySelector('.anonymous-toggle');
     let currentId = null, active = null, loading = true, ready = false, remoteActive = false;
     let nextOffset = null, before = null, turns = [], pollTimer = null, leaving = false, revision = 0;
 
@@ -83,6 +88,17 @@
             : 'Pensou por ' + total + (total === 1 ? ' segundo' : ' segundos');
     }
     const feedback = new Map();
+    function copied(button, glyph, original) {
+        clearTimeout(button.copyTimer);
+        glyph.style.setProperty('--action-icon', "url('/static/img/icons/check.svg')");
+        button.setAttribute('aria-label','Texto copiado');
+        button.copyTimer=setTimeout(()=>{glyph.style.setProperty('--action-icon',original);button.setAttribute('aria-label','Copiar');},2200);
+    }
+    async function rewrite(article) {
+        if(active || loading || remoteActive || editing)return;
+        const turn=turns.find(item=>item.id===article.dataset.turn);if(!turn)return;
+        await submitMessage(turn);
+    }
     function addActions(article, body) {
         const actions = document.createElement('div'); actions.className = 'computer-message__actions';
         const status = document.createElement('span'); status.className = 'computer-action-status'; status.setAttribute('role','status');
@@ -92,7 +108,7 @@
             if(kind!=='copy') button.setAttribute('aria-pressed','false');
             button.addEventListener('click',async()=>{
                 if(kind==='copy') {
-                    try { await navigator.clipboard.writeText(body.textContent); status.textContent='Copiado'; }
+                    try { await navigator.clipboard.writeText(body.textContent); status.textContent=''; copied(button,icon,"url('/static/img/icons/copy.svg')"); }
                     catch { status.textContent='Não foi possível copiar. Selecione o texto para copiar.'; }
                     return;
                 }
@@ -103,7 +119,8 @@
             });
             button.dataset.feedback=kind; actions.append(button);
         }
-        actions.append(status); article.append(actions);
+        const rewriteButton=document.createElement('button');rewriteButton.type='button';rewriteButton.className='computer-rewrite';rewriteButton.setAttribute('aria-label','Reescrever resposta');rewriteButton.title='Reescrever resposta';rewriteButton.innerHTML='<i aria-hidden="true"></i>';rewriteButton.addEventListener('click',()=>rewrite(article));
+        actions.append(status,rewriteButton); article.append(actions);
         requestAnimationFrame(()=>{const value=feedback.get(article.dataset.turn || article);if(value)actions.querySelector(`[data-feedback="${value}"]`).setAttribute('aria-pressed','true');});
     }
     function messageAttachments(article, files) {
@@ -111,7 +128,7 @@
         article.querySelector('.attachment-list')?.remove();
         if(!files?.length)return;
         const list=document.createElement('div');list.className='attachment-list';
-        for(const file of files){const chip=document.createElement('div');chip.className='attachment-chip';const name=document.createElement('span');name.textContent=file.name;chip.append(name);list.append(chip);}
+        for(const file of files)list.append(window.ComputerAttachmentCard(file));
         article.prepend(list);
     }
     function messageTime(article, value) {
@@ -127,8 +144,8 @@
             const button=document.createElement('button');button.type='button';button.title=label;button.setAttribute('aria-label',label);
             const glyph=document.createElement('i');glyph.style.setProperty('--action-icon',`url('/static/img/icons/${icon}.svg')`);glyph.setAttribute('aria-hidden','true');button.append(glyph);
             button.addEventListener('click',async()=>{
-                if(kind==='copy'){try{await navigator.clipboard.writeText(body.textContent);status.textContent='Copiado';}catch{status.textContent='Não foi possível copiar.';}return;}
-                if(active||loading||remoteActive||editing||!article.dataset.turn)return;
+                if(kind==='copy'){try{await navigator.clipboard.writeText(body.textContent);status.textContent='';copied(button,glyph,"url('/static/img/icons/copy.svg')");}catch{status.textContent='Não foi possível copiar.';}return;}
+                if(active||loading||remoteActive||editing||anonymous||!article.dataset.turn)return;
                 const original=body.textContent;
                 const editor=document.createElement('div');editor.className='computer-user-editor';
                 const text=document.createElement('textarea');text.value=original;text.maxLength=8000;text.setAttribute('aria-label','Editar mensagem');
@@ -173,7 +190,7 @@
         const summary = document.createElement('summary');
         summary.className = 'computer-thinking__toggle';
         const label = document.createElement('span');
-        label.textContent = 'Pensando…';
+        label.textContent = 'Pensando';
         const arrow = document.querySelector('[data-profile-submenu] > svg').cloneNode(true);
         arrow.classList.add('computer-thinking__arrow');
         summary.append(label, arrow);
@@ -198,11 +215,18 @@
     }
     function controls() {
         const busy = !!active;
+        const empty = !input.value.trim() && !(window.ComputerAttachments?.files()?.length);
+        send.classList.toggle('is-empty', empty && !busy);
 
         const unavailable = loading || !ready || remoteActive;
         form.classList.toggle('is-responding', busy);
-        send.disabled = !busy && (unavailable || window.ComputerAttachments?.busy());
-        window.ComputerAttachments?.setBusy(busy || unavailable);
+        send.disabled = !busy && (unavailable || window.ComputerAttachments?.busy() || (empty && microphone.getAttribute("aria-pressed") !== "true"));
+        window.ComputerAttachments?.setBusy(busy || unavailable || anonymous);
+        anonymousButton.hidden = !!currentId || conversation.children.length > 0;
+        anonymousButton.disabled = busy || unavailable;
+        document.body.classList.toggle('chat-is-empty', conversation.children.length === 0);
+        document.querySelector('.chat-tabs').hidden = conversation.children.length === 0;
+        conversation.querySelectorAll('.computer-rewrite').forEach(button=>button.disabled=busy||unavailable);
         send.setAttribute('aria-label', busy ? 'Parar resposta' : 'Enviar mensagem');
         send.title = busy ? 'Parar resposta' : 'Enviar mensagem';
         input.readOnly = busy || unavailable;
@@ -217,9 +241,10 @@
         page.classList.toggle('has-conversation', !conversation.hidden);
     }
     function remember(id, title) {
+        if (id !== currentId) window.ComputerResponseDetails.reset();
         currentId = id;
         document.querySelector(".computer-chat-title").textContent = id ? (title || "") : "";
-        document.title = (id ? (title || 'Conversa') : 'Novo chat') + ' — Ascenda';
+        document.title = (id ? (title || 'Conversa') : 'Novo chat');
         const url = new URL(location.href);
         url.searchParams.delete('new');
         if (id) url.searchParams.set('conversation', id); else url.searchParams.delete('conversation');
@@ -241,7 +266,7 @@
                 thinking.details.open = opened.has(turn.id);
                 const running = turn.status === 'running' && !turn.answer;
                 thinking.details.classList.toggle('is-thinking', running);
-                thinking.label.textContent = running ? 'Pensando…' : ['completed', 'running'].includes(turn.status) ? thoughtLabel(turn.metadata?.thinking_seconds ?? durations[turn.id]) : 'Pensamento interrompido';
+                thinking.label.textContent = running ? 'Pensando' : ['completed', 'running'].includes(turn.status) ? thoughtLabel(turn.metadata?.thinking_seconds ?? durations[turn.id]) : 'Pensamento interrompido';
             }
             window.ComputerResponseDetails.research(assistant.article, turn.metadata?.research, turn.status !== 'running');
             window.ComputerResponseDetails.timing(assistant.article, turn.metadata);
@@ -283,6 +308,7 @@
         }, 2000);
     }
     async function loadConversation(id) {
+        setAnonymous(false);
         editing = null;
         window.ComputerAttachments?.clear();
         revision++;
@@ -311,6 +337,8 @@
         }
     }
     function newConversation() {
+        setAnonymous(false);
+        window.ComputerResponseDetails.reset();
         resetRecovery();
         editing = null;
         window.ComputerAttachments?.clear();
@@ -364,25 +392,41 @@
         } catch (error) { recovery(error); }
         finally { loading = false; controls(); }
     });
-    form.addEventListener('submit', async event => {
+    form.addEventListener('submit', event => {
         event.preventDefault();
-        if (active) { active.abort(); return; }
+        if(active){active.abort();return;}
+        submitMessage();
+    });
+    async function submitMessage(rewriting = null) {
+        if(active)return;
         if (editing || loading || !ready || remoteActive || microphone.getAttribute('aria-pressed') === 'true') return;
         if(window.ComputerAttachments?.busy())return;
-        const attached=window.ComputerAttachments?.files()||[];
-        const text = input.value.trim() || (attached.length ? 'Analise os arquivos anexados.' : '');
+        const privateTurn = anonymous, requestRevision = revision;
+        const currentRequest=()=>!leaving && revision===requestRevision;
+        const attached=rewriting?.attachments || window.ComputerAttachments?.files()||[];
+        const text = rewriting ? rewriting.message : input.value.trim() || (attached.length ? 'Analise os arquivos anexados.' : '');
         if (!text) { input.focus(); return; }
         if (text.length > 8000) { note.textContent = 'Escreva uma mensagem com até 8.000 caracteres.'; return; }
         if(attached.length)models.select('gemini');
         if (models.error()) { note.textContent = models.error(); return; }
         const payload = { conversation_id: currentId, message: text, request_id: crypto.randomUUID(), provider: models.selected() };
         if(attached.length)payload.attachments=attached.map(file=>file.id);
-        const user = addMessage('user', text);messageAttachments(user.article,attached);
+        if(rewriting && !privateTurn)payload.regenerate=rewriting.id;
+        if(privateTurn){
+            const prior=rewriting?turns.slice(0,turns.indexOf(rewriting)):turns;
+            let history=prior.filter(t=>t.status==='completed').slice(-19).flatMap(t=>[{role:'user',content:t.message},{role:'assistant',content:t.answer}]);
+            while(history.reduce((n,m)=>n+m.content.length,0)+text.length>48000)history.splice(0,2);
+            payload.anonymous=true;payload.history=history;payload.conversation_id=null;
+        }
+        const existingUser=rewriting&&conversation.querySelector(`.computer-message--user[data-turn="${rewriting.id}"]`);
+        const user = existingUser ? {article:existingUser} : addMessage('user', text);messageAttachments(user.article,attached);
         let sentAt = new Date().toISOString();messageTime(user.article,sentAt);
+        const oldAssistant=rewriting&&conversation.querySelector(`.computer-message--assistant[data-turn="${rewriting.id}"]`);
         const assistant = addMessage('assistant', '');
+        if(oldAssistant){oldAssistant.replaceWith(assistant.article);window.ComputerResponseDetails.reset();}
         const thinking = addThinking(assistant);
         showConversation(); note.textContent = '';
-        input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true }));
+        if(!rewriting){input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true }));}
         const controller = new AbortController(); active = controller;
         let timedOut = false, answer = '', persisted = false, savedTurnId = null;
         let thoughtStart = null, thoughtSeconds = null, responseMeta = {};
@@ -390,81 +434,84 @@
         controls(); scrollToLatest();
         try {
             await service.chat(payload, delta => {
-                const nearBottom = nearLatest();
+                if(!currentRequest())return;
                 answer += delta;
-                if (thoughtSeconds === null && thoughtStart !== null) {
-                    thoughtSeconds = (performance.now() - thoughtStart) / 1000;
-                    if (savedTurnId) { durations[savedTurnId] = thoughtSeconds; try { localStorage.setItem(durationKey, JSON.stringify(durations)); } catch {} }
-                }
-                thinking.details.classList.remove('is-thinking'); thinking.label.textContent = thoughtLabel(thoughtSeconds);
-                thinking.details.hidden = !thinking.text.length;
-                assistant.body.hidden = false;
-                const reveal = document.createElement('span');
-                reveal.className = 'computer-response-reveal';
-                reveal.textContent = delta;
-                assistant.body.append(reveal);
-                note.textContent = '';
-                if (nearBottom) scrollToLatest();
             }, controller.signal, delta => {
+                if(!currentRequest())return;
                 if (thoughtStart === null) thoughtStart = performance.now();
+                thinking.label.textContent = 'Pensando';
+                thinking.details.classList.add('is-thinking');
                 thinking.details.hidden = false;
                 if (thinking.text.length + delta.length > 48000) throw new Error('O pensamento excedeu o limite. Tente novamente.');
                 const follow = thinking.panel.scrollHeight - thinking.panel.scrollTop - thinking.panel.clientHeight < 40;
                 thinking.text.appendData(delta);
                 if (thinking.details.open && follow) thinking.panel.scrollTop = thinking.panel.scrollHeight;
             }, metadata => {
-                persisted = true;
+                if(!currentRequest())return;
+                persisted = !privateTurn;
                 window.ComputerAttachments?.clear();
                 if(metadata.provider)models.select(metadata.provider);
-                savedTurnId = metadata.turn_id; user.article.dataset.turn=metadata.turn_id; sentAt=metadata.created_at||sentAt; messageTime(user.article,sentAt);
-                assistant.article.dataset.turn = metadata.turn_id;
+                savedTurnId = rewriting?.id || metadata.turn_id; user.article.dataset.turn=savedTurnId; sentAt=metadata.created_at||sentAt; messageTime(user.article,sentAt);
+                assistant.article.dataset.turn = savedTurnId;
                 const chatTitle = currentId === metadata.conversation_id
                     ? document.querySelector('.computer-chat-title').textContent
                     : text.slice(0, 100);
-                remember(metadata.conversation_id, chatTitle);
+                if(!privateTurn)remember(metadata.conversation_id, chatTitle);
             }, research => {
+                if(!currentRequest())return;
                 responseMeta.research = research;
-                thinking.details.hidden = true;
+                thinking.details.hidden = false;
+                thinking.details.classList.add('is-thinking');
+                thinking.label.textContent = ['searching','reading'].includes(research.state) ? 'Pesquisando' : 'Pensando';
                 window.ComputerResponseDetails.research(assistant.article, research);
             }, metadata => {
+                if(!currentRequest())return;
                 responseMeta = metadata;
                 window.ComputerResponseDetails.research(assistant.article, metadata.research, true);
                 window.ComputerResponseDetails.timing(assistant.article, metadata);
                 if (thinking.text.length) thinking.label.textContent = thoughtLabel(metadata.thinking_seconds ?? thoughtSeconds);
             });
+            if(!currentRequest())return;
             if (!answer.trim()) throw new Error('A resposta veio vazia. Tente novamente.');
-            turns.push({ id: savedTurnId, message: text, answer, thinking: thinking.text.data, status: 'completed', metadata:responseMeta, created_at:sentAt, attachments:attached });
+            thinking.details.classList.remove('is-thinking');
+            thinking.details.hidden = !thinking.text.length;
+            if (thinking.text.length) thinking.label.textContent = thoughtLabel(responseMeta.thinking_seconds);
+            await revealAnswer(assistant.body, answer, controller.signal);
+            if(!currentRequest())return;
+            const completed={ id:savedTurnId, message:text, answer, thinking:thinking.text.data, status:'completed', metadata:responseMeta, created_at:sentAt, attachments:attached };
+            if(rewriting)turns[turns.indexOf(rewriting)]=completed;else turns.push(completed);
             note.textContent = '';
         } catch (error) {
+            if(!currentRequest())return;
             if (responseMeta.research) window.ComputerResponseDetails.research(assistant.article, responseMeta.research, true);
             thinking.details.classList.remove('is-thinking'); thinking.label.textContent = 'Pensamento interrompido';
             if (!answer && !thinking.text.length) thinking.details.hidden = true;
-            if (!persisted) { user.article.remove(); assistant.article.remove(); showConversation(); }
+            if(rewriting){renderTurns(turns,true);}
+            else if (!persisted) { user.article.remove(); assistant.article.remove(); showConversation(); }
             else warning(assistant, 'Resposta interrompida. Reabra a conversa para conferir o conteúdo salvo.');
-            input.value = text; input.dispatchEvent(new Event('input', { bubbles: true }));
+            if(!rewriting){input.value = text; input.dispatchEvent(new Event('input', { bubbles: true }));}
             note.textContent = timedOut ? 'A resposta demorou mais que o esperado.'
                 : error.name === 'AbortError' ? 'Resposta interrompida.' : error.message;
-            // Re-read the authoritative history before another send after a connection loss.
-            if (persisted) {
+            if (persisted && !rewriting) {
                 ready = false;
                 recovery(note.textContent);
             }
         } finally {
-            clearTimeout(timeout); active = null; controls();
-            if (!leaving) {
+            clearTimeout(timeout); if(active===controller)active = null; controls();
+            if (currentRequest()) {
                 try { await listConversations(); } catch (error) { recovery(error); }
                 input.focus({ preventScroll: true });
             }
         }
-    });
+    }
     input.addEventListener('keydown', event => {
         if (event.key === 'Enter' && !event.shiftKey && !event.isComposing && !active) { event.preventDefault(); form.requestSubmit(); }
     });
-    window.addEventListener('pagehide', () => { leaving = true; clearTimeout(pollTimer); clearTimeout(recoveryTimer); active?.abort(); });
+    window.addEventListener('pagehide', () => { leaving = true; clearTimeout(pollTimer); clearTimeout(recoveryTimer); active?.abort(); if(anonymous){revision++;turns=[];conversation.replaceChildren();window.ComputerResponseDetails.reset();input.value='';feedback.clear();setAnonymous(false);showConversation();} });
     window.addEventListener('pageshow', event => { if (event.persisted) { leaving = false; active = null; initialize(); } });
     let syncing = false;
     async function syncHistory() {
-        if (document.hidden || editing || loading || active || syncing || leaving) return;
+        if (anonymous || document.hidden || editing || loading || active || syncing || leaving) return;
         if (!ready) {
             syncing = true;
             const draft = input.value, id = currentId;
@@ -498,5 +545,45 @@
     }
     window.addEventListener('online', syncHistory);
     document.addEventListener('visibilitychange', syncHistory);
+    function resizeInput() {
+        const style = getComputedStyle(input);
+        const line = parseFloat(style.lineHeight) || 24;
+        const rows = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--composer-max-lines')) || 10;
+        const limit = line * rows + parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+        input.style.height = 'auto';
+        input.style.height = Math.max(38, Math.min(input.scrollHeight, limit)) + 'px';
+        input.style.overflowY = input.scrollHeight > limit ? 'auto' : 'hidden';
+        controls();
+    }
+    input.addEventListener('input',resizeInput);
+    window.addEventListener('resize',resizeInput);
+    async function revealAnswer(body,text,signal) {
+        body.hidden = false;
+        body.replaceChildren(); let shown=0;
+        const speed = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--response-characters-per-second')) || 500;
+        const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const started = performance.now();
+        await new Promise(resolve => {
+            function frame(now) {
+                const follow = nearLatest();
+                const count = reduce || signal.aborted || document.hidden ? text.length : Math.min(text.length, Math.ceil((now-started)*speed/1000));
+                if(count>shown){const chunk=document.createElement('span');chunk.className='computer-response-reveal';chunk.textContent=text.slice(shown,count);body.append(chunk);shown=count;}
+                if (follow) scrollToLatest();
+                if (count === text.length) resolve(); else requestAnimationFrame(frame);
+            }
+            requestAnimationFrame(frame);
+        });
+    }
+    function setAnonymous(value) {
+        anonymous=value;document.body.classList.toggle('is-anonymous',value);
+        anonymousButton.setAttribute('aria-pressed',String(value));
+        anonymousButton.setAttribute('aria-label',value?'Desativar modo anônimo':'Ativar modo anônimo');
+        document.querySelector('.anonymous-note').hidden=!value;
+        window.dispatchEvent(new CustomEvent('chat:anonymous',{detail:value}));
+        if(value){window.ComputerAttachments?.clear();document.title='Chat anônimo';}else if(!currentId){document.title='Novo chat';}
+        controls();
+    }
+    anonymousButton.addEventListener('click',()=>{if(!active&&!currentId&&!conversation.children.length)setAnonymous(!anonymous);});
     initialize();
+    resizeInput();
 })();

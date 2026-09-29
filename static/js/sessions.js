@@ -3,10 +3,11 @@
     if (!nav) return;
     const inComputer = !!document.querySelector('.computer-page');
     const items = new Map();
+    let drawn = false;
     let selected = new URL(location.href).searchParams.get('conversation'), busy = false, nextOffset = null, target = null, opener = null;
     const section = document.createElement('details');
     section.className = 'sessions'; section.open = true;
-    section.innerHTML = `<summary>Recentes<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></summary><div class="sessions__list"></div><p class="sessions__status" role="status"></p><div class="sessions__tools"><button type="button" data-action="more" hidden>Mais sessões</button><button type="button" data-action="refresh" hidden>Tentar novamente</button></div>`;
+    section.innerHTML = `<summary>Recentes<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></summary><div class="sessions__list"></div><p class="sessions__status" role="status"></p><div class="sessions__tools"><button type="button" data-action="more" hidden>Mais chats</button><button type="button" data-action="refresh" hidden>Tentar novamente</button></div>`;
     const pinKey = 'ascenda-pinned-' + document.querySelector('[data-user-id]')?.dataset.userId;
     let pins = {};
     try { pins = JSON.parse(localStorage.getItem(pinKey) || '{}'); } catch {}
@@ -18,6 +19,41 @@
     pinned.querySelector('.sessions__status').remove();
     const pinList = pinned.querySelector('.sessions__list');
     nav.append(pinned, section);
+    const recentsButton=document.createElement('button');recentsButton.type='button';recentsButton.className='sidebar-recents';
+    recentsButton.setAttribute('aria-label','Recentes');recentsButton.setAttribute('aria-expanded','false');recentsButton.innerHTML='<i aria-hidden="true"></i>';
+    nav.insertBefore(recentsButton,pinned);
+    const recentMenu=document.createElement('div');recentMenu.className='recents-popover';recentMenu.setAttribute('popover','auto');recentMenu.setAttribute('aria-label','Recentes');
+    recentMenu.innerHTML='<div class="recents-popover__heading">Recentes</div><div class="recents-popover__list"></div>';
+    document.body.append(recentMenu);let recentTimer;
+    function closeRecents(){clearTimeout(recentTimer);if(recentMenu.matches(':popover-open'))recentMenu.hidePopover();}
+    function openRecents(){
+        clearTimeout(recentTimer);
+        if(!document.body.classList.contains('is-sidebar-collapsed')||innerWidth<640)return;
+        recentMenu.showPopover();const rect=recentsButton.getBoundingClientRect();
+        recentMenu.style.left=Math.min(document.querySelector('.sidebar').getBoundingClientRect().right+4,innerWidth-332)+'px';
+        recentMenu.style.top=Math.max(8,Math.min(rect.top,innerHeight-270))+'px';
+    }
+    function delayClose(){recentTimer=setTimeout(()=>{if(!recentMenu.contains(document.activeElement)&&document.activeElement!==recentsButton)closeRecents();},160);}
+    recentsButton.addEventListener('pointerenter',openRecents);recentsButton.addEventListener('pointerleave',delayClose);
+    recentsButton.addEventListener('focus',openRecents);recentsButton.addEventListener('blur',delayClose);
+    recentsButton.addEventListener('click',()=>recentMenu.matches(':popover-open')?closeRecents():openRecents());
+    recentMenu.addEventListener('pointerenter',()=>clearTimeout(recentTimer));recentMenu.addEventListener('pointerleave',delayClose);recentMenu.addEventListener('focusout',delayClose);
+    recentMenu.addEventListener('toggle',()=>recentsButton.setAttribute('aria-expanded',String(recentMenu.matches(':popover-open'))));
+    recentMenu.addEventListener('click',event=>{
+        const link=event.target.closest('[data-chat-id]');if(!link)return;
+        if(busy){event.preventDefault();return;}
+        closeRecents();if(inComputer){event.preventDefault();emit('open',{id:link.dataset.chatId});}
+    });
+    new MutationObserver(closeRecents).observe(document.body,{attributes:true,attributeFilter:['class']});
+    function drawRecents(){
+        const container=recentMenu.querySelector('.recents-popover__list'), fragment=document.createDocumentFragment();
+        for(const item of items.values()){
+            const link=document.createElement('a');link.href='/computer.html?conversation='+encodeURIComponent(item.id);link.dataset.chatId=item.id;link.textContent=item.title||'Conversa';
+            if(item.id===selected)link.setAttribute('aria-current','page');fragment.append(link);
+        }
+        if(!items.size){const empty=document.createElement('p');empty.textContent='Nenhum chat recente';fragment.append(empty);}
+        container.replaceChildren(fragment);
+    }
     function savePins() { try { localStorage.setItem(pinKey, JSON.stringify(pins)); } catch {} }
 
     const list = section.querySelector('.sessions__list'), status = section.querySelector('.sessions__status');
@@ -44,7 +80,8 @@
         return result;
     }
     function draw() {
-        list.replaceChildren(); pinList.replaceChildren();
+        drawRecents();
+        const recentRows = document.createDocumentFragment(), pinnedRows = document.createDocumentFragment();
         const combined = new Map([...Object.values(pins).map(item => [item.id, item]), ...items]);
         for (const item of combined.values()) {
             const row = document.createElement('div'); row.className = 'sessions__row'; row.dataset.id = item.id;
@@ -69,11 +106,13 @@
                 menu.style.top = Math.max(8, Math.min(rect.bottom + 6, innerHeight - 156)) + 'px';
                 menu.showPopover(); options.setAttribute('aria-expanded','true'); menu.querySelector('button').focus({preventScroll:true});
             });
-            row.append(link,options); (pins[item.id] ? pinList : list).append(row);
+            row.append(link,options); (pins[item.id] ? pinnedRows : recentRows).append(row);
             if (pins[item.id]) pins[item.id] = item;
         }
+        list.replaceChildren(recentRows); pinList.replaceChildren(pinnedRows);
         pinned.hidden = !pinList.children.length; savePins();
         status.textContent = list.children.length ? '' : 'Nenhuma conversa recente.';
+        drawn = true;
     }
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && menu.matches(':popover-open')) { event.preventDefault(); event.stopPropagation(); menu.hidePopover(); opener?.focus({preventScroll:true}); } }, true);
     menu.addEventListener('toggle', event => { if (event.newState === 'closed') opener?.setAttribute('aria-expanded','false'); });
@@ -129,16 +168,22 @@
         section.querySelector('[data-action="refresh"]').hidden=true;
         more.hidden=!hasMore; draw();
     }
+    function markSelected(link, active) {
+        if(active===link.hasAttribute('aria-current'))return;
+        if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
+    }
     function select(id,title) {
         selected=id;
-        if(id&&!items.has(id)) items.set(id,{id,title:title||'Conversa atual'});
-        draw();
+        if(id&&!items.has(id)) { items.set(id,{id,title:title||'Conversa atual'}); draw(); return; }
+        if(!drawn) { draw(); return; }
+        nav.querySelectorAll('.sessions__link').forEach(link=>markSelected(link,inComputer&&link.closest('.sessions__row').dataset.id===id));
+        recentMenu.querySelectorAll('[data-chat-id]').forEach(link=>markSelected(link,link.dataset.chatId===id));
     }
-    function setBusy(value) { busy=value; nav.querySelectorAll('.sessions button').forEach(button=>button.disabled=value); }
+    function setBusy(value) { if(busy===value)return; busy=value; nav.querySelectorAll('.sessions button').forEach(button=>button.disabled=value); }
     async function load(append=false) {
         setBusy(true);
         try { const result=await request(`/api/ai/conversations?offset=${append ? nextOffset : 0}`); nextOffset=result.next_offset; render(result.conversations,append,nextOffset!==null); }
-        catch(failure) { status.textContent='Não foi possível carregar as sessões.'; section.querySelector('[data-action="refresh"]').hidden=false; }
+        catch(failure) { status.textContent='Não foi possível carregar os chats.'; section.querySelector('[data-action="refresh"]').hidden=false; }
         finally { setBusy(false); }
     }
     window.ComputerSessions={render,select,setBusy};

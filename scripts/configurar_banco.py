@@ -1,4 +1,3 @@
-"""Cria apenas o banco e o usuário próprios do Ascenda, sem apagar registros."""
 import getpass
 from pathlib import Path
 import re

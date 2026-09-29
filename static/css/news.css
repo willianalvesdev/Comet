@@ -1,1542 +1,967 @@
-/* GUIA DE EDIÇÃO — news.css
- * Explicações em português antes de cada seletor e declaração.
- * A ordem foi preservada: regras posteriores podem sobrescrever as anteriores.
- * { abre um bloco; } encerra; : separa propriedade e valor; ; termina uma declaração.
- * Edite os valores do código. Os comentários são documentação e não alteram o visual.
- */
-/* Seleciona .news-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-page {
-    /* Limita a largura máxima. Valor atual: 1120px. px mede pixels CSS. */
     max-width: 1120px;
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0 auto. */
     margin: 0 auto;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 36px 48px 60px. px mede pixels CSS. */
     padding: 36px 48px 60px;
 }
 
-/* Seleciona .news-page__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-page__title {
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
-    /* Define espaço externo abaixo. Valor atual: 24px. px mede pixels CSS. */
-    margin-bottom: 24px;
+    margin-bottom: var(--space-6);
 }
 
-/* Seleciona .news-feed. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-feed {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: repeat(3, minmax(0, 1fr)). minmax() define mínimo e máximo de uma faixa do grid. */
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 28px 20px. px mede pixels CSS. */
-    gap: 28px 20px;
+    gap: 28px var(--space-5);
 }
 
-/* Seleciona .news-card. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card {
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
     flex-direction: column;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
-    border-radius: 16px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-radius: var(--radius-panel);
     background: var(--surface);
 }
 
-/* Seleciona .news-card__media. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card__media {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Define a proporção largura/altura para calcular uma dimensão automática. Valor atual: 1.5. */
     aspect-ratio: 1.5;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 15px 15px 0 0. px mede pixels CSS. */
     border-radius: 15px 15px 0 0;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--accent) 12%, var(--surface)). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background: color-mix(in srgb, var(--accent) 12%, var(--surface));
 }
 
-/* Seleciona .news-card__media img. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card__media img {
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: 100%;
-    /* Define a altura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     height: 100%;
-    /* Ajusta imagens à caixa; cover preenche com corte e contain preserva a imagem inteira. Valor atual: cover. */
     object-fit: cover;
-    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: transform 250ms ease. */
-    transition: transform 250ms ease;
+    transition: transform var(--duration-slow) ease;
 }
 
-/* Seleciona .news-card__media.is-empty. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card__media.is-empty {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Atalho de align-items e justify-items; center centraliza nos dois eixos. Valor atual: center. */
     place-items: center;
 }
 
-/* Seleciona .news-card__media.is-empty::after. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. ::after: pseudoelemento depois do conteúdo. */
 .news-card__media.is-empty::after {
-    /* Cria conteúdo de ::before/::after; uma string vazia permite desenhar formas decorativas. Valor atual: ''. */
     content: '';
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Define a largura. Valor atual: 42px. px mede pixels CSS. */
     width: 42px;
-    /* Define a altura. Valor atual: 42px. px mede pixels CSS. */
     height: 42px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     background: var(--text-secondary);
-    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: .4. */
     opacity: .4;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Variante de compatibilidade WebKit/Blink. Valor atual: url('../img/icons/discover.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     -webkit-mask: url('../img/icons/discover.svg') center / contain no-repeat;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: url('../img/icons/discover.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     mask: url('../img/icons/discover.svg') center / contain no-repeat;
 }
 
-/* Seleciona .news-card__body. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card__body {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 1. */
     flex: 1;
-    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
     flex-direction: column;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 14px 16px. px mede pixels CSS. */
-    padding: 14px 16px;
+    padding: 14px var(--space-4);
 }
 
-/* Seleciona .news-card__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card__title {
-    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-heading). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-family: var(--font-heading);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-3);
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.4. */
     line-height: 1.4;
-    /* Controla a quebra de palavras longas para evitar transbordamento. Valor atual: anywhere. */
     overflow-wrap: anywhere;
 }
 
-/* Seleciona .news-card__title a. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card__title a {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: -webkit-box. */
     display: -webkit-box;
-    /* Limita a quantidade de linhas junto de display -webkit-box e overflow hidden. Valor atual: 3. */
     -webkit-line-clamp: 3;
-    /* Define a orientação da caixa WebKit usada para limitar linhas de texto. Valor atual: vertical. */
     -webkit-box-orient: vertical;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
-    /* Configura sublinhado e outras decorações; none remove as decorações. Valor atual: none. */
     text-decoration: none;
-    /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: color 200ms ease. */
-    transition: color 200ms ease;
+    transition: color var(--duration-normal) ease;
 }
 
-/* Condição (hover: hover): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (hover: hover) {
-    /* Seleciona .news-card:has(.news-card__title a:hover, .news-card__media:hover) .news-card__title a. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
     .news-card:has(.news-card__title a:hover, .news-card__media:hover) .news-card__title a {
-        /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         color: var(--accent);
     }
 
-    /* Seleciona .news-card:has(.news-card__title a:hover, .news-card__media:hover) .news-card__media img. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
     .news-card:has(.news-card__title a:hover, .news-card__media:hover) .news-card__media img {
-        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: scale(1.035). */
         transform: scale(1.035);
     }
-
 }
 
-
-
-/* Condição (prefers-reduced-motion: reduce): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (prefers-reduced-motion: reduce) {
-    /* Seleciona .news-card__media img, .news-card__title a. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .news-card__media img, .news-card__title a {
-        /* Define as propriedades que mudam suavemente, a duração e a curva de velocidade. Valor atual: none. */
         transition: none;
     }
 
-    /* Seleciona .news-card:has(.news-card__title a:hover, .news-card__media:hover) .news-card__media img. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
     .news-card:has(.news-card__title a:hover, .news-card__media:hover) .news-card__media img {
-        /* Aplica deslocamento, escala ou rotação visual sem reorganizar o espaço original do layout. Valor atual: none. */
         transform: none;
     }
-
 }
 
-/* Seleciona .news-card__time. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card__time {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Define espaço externo acima. Valor atual: 10px. px mede pixels CSS. */
     margin-top: 10px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-6). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-6);
 }
 
-/* Seleciona .news-card__description. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card__description {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
-    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-heading). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-family: var(--font-heading);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-3);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.5. */
     line-height: 1.5;
 }
 
-/* Seleciona .news-card__footer. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card__footer {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
-    gap: 8px;
-    /* Define espaço externo acima. Valor atual: auto. */
+    gap: var(--space-2);
     margin-top: auto;
-    /* Define espaço interno entre conteúdo e borda acima. Valor atual: 18px. px mede pixels CSS. */
     padding-top: 18px;
 }
 
-/* Seleciona .news-card__source. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card__source {
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
-    /* Atalho de crescimento, encolhimento e tamanho inicial do item, nessa ordem. Valor atual: 1. */
     flex: 1;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
-    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
     text-overflow: ellipsis;
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-6). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-6);
 }
 
-/* Seleciona .news-icon-button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-icon-button {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Atalho de align-items e justify-items; center centraliza nos dois eixos. Valor atual: center. */
     place-items: center;
-    /* Define quanto o item encolhe se faltar espaço; 0 impede o encolhimento. Valor atual: 0. */
     flex-shrink: 0;
-    /* Define a largura. Valor atual: 28px. px mede pixels CSS. */
     width: 28px;
-    /* Define a altura. Valor atual: 28px. px mede pixels CSS. */
     height: 28px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     padding: 0;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 6px. px mede pixels CSS. */
-    border-radius: 6px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-radius: var(--radius-small);
     color: var(--text-secondary);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
     background: transparent;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
 }
 
-/* Seleciona .news-icon-button:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
 .news-icon-button:hover {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text) 5%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    background: color-mix(in srgb, var(--text) 5%, transparent);
+    background: var(--surface-hover);
 }
 
-/* Seleciona .news-icon-button span. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-icon-button span {
-    /* Define a largura. Valor atual: 16px. px mede pixels CSS. */
-    width: 16px;
-    /* Define a altura. Valor atual: 16px. px mede pixels CSS. */
-    height: 16px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
+    width: var(--icon-small);
+    height: var(--icon-small);
     background: currentColor;
 }
 
-/* Seleciona .news-like-icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-like-icon {
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Variante de compatibilidade WebKit/Blink. Valor atual: url('../img/icons/news-like.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     -webkit-mask: url('../img/icons/news-like.svg') center / contain no-repeat;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: url('../img/icons/news-like.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     mask: url('../img/icons/news-like.svg') center / contain no-repeat;
 }
 
-/* Seleciona .news-more-icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-more-icon {
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Variante de compatibilidade WebKit/Blink. Valor atual: url('../img/icons/news-more.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     -webkit-mask: url('../img/icons/news-more.svg') center / contain no-repeat;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: url('../img/icons/news-more.svg') center / contain no-repeat. url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     mask: url('../img/icons/news-more.svg') center / contain no-repeat;
 }
 
-/* Seleciona .news-icon-button[aria-pressed='true']. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
 .news-icon-button[aria-pressed='true'] {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--red). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--red);
 }
 
-/* Seleciona .news-card--featured. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card--featured {
-    /* Define as colunas ocupadas pelo item; span permite ocupar várias. Valor atual: 1 / -1. */
     grid-column: 1 / -1;
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: 1fr 1fr. */
     grid-template-columns: 1fr 1fr;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 36px. px mede pixels CSS. */
     gap: 36px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
     background: transparent;
-    /* Define espaço externo abaixo. Valor atual: 8px. px mede pixels CSS. */
-    margin-bottom: 8px;
+    margin-bottom: var(--space-2);
 }
 
-/* Seleciona .news-card--featured .news-card__media. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card--featured .news-card__media {
-    /* Define as colunas ocupadas pelo item; span permite ocupar várias. Valor atual: 2. */
     grid-column: 2;
-    /* Define as linhas ocupadas pelo item. Valor atual: 1. */
     grid-row: 1;
-    /* Sobrescreve o alinhamento do eixo transversal para este item. Valor atual: start. */
     align-self: start;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
-    border-radius: 16px;
+    border-radius: var(--radius-panel);
 }
 
-/* Seleciona .news-card--featured .news-card__body. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card--featured .news-card__body {
-    /* Define as colunas ocupadas pelo item; span permite ocupar várias. Valor atual: 1. */
     grid-column: 1;
-    /* Define as linhas ocupadas pelo item. Valor atual: 1. */
     grid-row: 1;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 0. */
     padding: 0;
 }
 
-/* Seleciona .news-card--featured .news-card__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card--featured .news-card__title {
-    /* Define o tamanho das letras. Valor atual: calc(var(--font-size-2) * 1.3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. */
     font-size: calc(var(--font-size-2) * 1.3);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.2. */
     line-height: 1.2;
 }
 
-/* Seleciona .news-card--featured .news-card__time. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card--featured .news-card__time {
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-5);
-    /* Define espaço externo acima. Valor atual: 16px. px mede pixels CSS. */
-    margin-top: 16px;
+    margin-top: var(--space-4);
 }
 
-/* Seleciona .news-card--featured .news-card__description. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card--featured .news-card__description {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: -webkit-box. */
     display: -webkit-box;
-    /* Limita a quantidade de linhas junto de display -webkit-box e overflow hidden. Valor atual: 4. */
     -webkit-line-clamp: 4;
-    /* Define a orientação da caixa WebKit usada para limitar linhas de texto. Valor atual: vertical. */
     -webkit-box-orient: vertical;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
-    /* Define espaço externo acima. Valor atual: 16px. px mede pixels CSS. */
-    margin-top: 16px;
+    margin-top: var(--space-4);
 }
 
-/* Seleciona .news-card--featured .news-card__source. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-card--featured .news-card__source {
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-5);
 }
 
-/* Seleciona .news-options. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-options {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
     position: relative;
-    /* Define quanto o item encolhe se faltar espaço; 0 impede o encolhimento. Valor atual: 0. */
     flex-shrink: 0;
 }
 
-/* Seleciona .news-options > summary. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-options > summary {
-    /* Configura os marcadores de lista; none os remove. Valor atual: none. */
     list-style: none;
 }
 
-/* Seleciona .news-options > summary::-webkit-details-marker. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-options > summary::-webkit-details-marker {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
 }
 
-/* Seleciona .news-options__panel. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-options__panel {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
-    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 5. */
     z-index: 5;
-    /* Define o afastamento superior em relação à referência de position. Valor atual: calc(100% + 6px). calc() calcula a medida combinando parcelas. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     top: calc(100% + 6px);
-    /* Define o afastamento direito em relação à referência de position. Valor atual: 0. */
     right: 0;
-    /* Define a largura. Valor atual: 210px. px mede pixels CSS. */
     width: 210px;
-    /* Limita a altura máxima. Valor atual: 240px. px mede pixels CSS. */
     max-height: 240px;
-    /* Controla o transbordamento vertical. Valor atual: auto. */
     overflow-y: auto;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 6px. px mede pixels CSS. */
     padding: 6px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 12px. px mede pixels CSS. */
-    border-radius: 12px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-radius: var(--radius-large);
     background: var(--surface);
-    /* Desenha sombra com deslocamentos horizontal/vertical, desfoque, expansão opcional e cor; inset coloca a sombra por dentro. Valor atual: 0 8px 24px rgb(0 0 0 / 18%). px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
 }
 
-/* Seleciona .news-options__panel a, .news-options__panel button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-options__panel a, .news-options__panel button {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: 100%;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 9px. px mede pixels CSS. */
     padding: 9px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 6px. px mede pixels CSS. */
-    border-radius: 6px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    border-radius: var(--radius-small);
     background: transparent;
-    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
     text-align: left;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-5);
-    /* Controla a quebra de palavras longas para evitar transbordamento. Valor atual: anywhere. */
     overflow-wrap: anywhere;
 }
 
-/* Seleciona .news-options__panel :is(a, button):hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
 .news-options__panel :is(a, button):hover {
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text) 5%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    background: color-mix(in srgb, var(--text) 5%, transparent);
+    background: var(--surface-hover);
 }
 
-/* Seleciona .news-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-status {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Define a altura mínima. Valor atual: 280px. px mede pixels CSS. */
     min-height: 280px;
-    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
     flex-direction: column;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 16px. px mede pixels CSS. */
-    gap: 16px;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
+    gap: var(--space-4);
     align-items: center;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: center. */
     justify-content: center;
-    /* Alinha o conteúdo textual na caixa. Valor atual: center. */
     text-align: center;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
 }
 
-/* Seleciona .news-status > span. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-status > span {
-    /* Define a largura. Valor atual: 36px. px mede pixels CSS. */
     width: 36px;
-    /* Define a altura. Valor atual: 36px. px mede pixels CSS. */
     height: 36px;
 }
 
-/* Seleciona .news-status[hidden], .news-page [hidden]. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [hidden]: atributo hidden presente. */
 .news-status[hidden], .news-page [hidden] {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
 }
 
-/* Seleciona .news-bottom. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-bottom {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
     flex-direction: column;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 18px. px mede pixels CSS. */
     gap: 18px;
-    /* Define espaço externo acima. Valor atual: 36px. px mede pixels CSS. */
     margin-top: 36px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-6). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-6);
-    /* Alinha o conteúdo textual na caixa. Valor atual: center. */
     text-align: center;
 }
 
-/* Seleciona #news-more, #news-retry. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 #news-more, #news-retry {
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px 18px. px mede pixels CSS. */
     padding: 10px 18px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
-    border-radius: 10px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-radius: var(--radius-medium);
     background: var(--surface);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
 }
 
-/* Seleciona .news-page :is(button, a, summary):focus-visible. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. focus-visible: foco visível de teclado. */
 .news-page :is(button, a, summary):focus-visible {
-    /* Define o contorno, frequentemente usado no foco; não ocupa espaço no layout. Valor atual: 2px solid var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     outline: 2px solid var(--accent);
-    /* Afasta o contorno da borda; valores negativos colocam o contorno por dentro. Valor atual: 3px. px mede pixels CSS. */
     outline-offset: 3px;
 }
 
-/* Condição (width < 1100px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 1100px) {
-    /* Seleciona .news-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .news-page {
-        /* Define espaço interno entre conteúdo e borda no eixo horizontal da escrita. Valor atual: 28px. px mede pixels CSS. */
         padding-inline: 28px;
     }
 
-    /* Seleciona .news-feed. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .news-feed {
-        /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: repeat(2, minmax(0, 1fr)). minmax() define mínimo e máximo de uma faixa do grid. */
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    /* Seleciona .news-card--featured. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .news-card--featured {
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 24px. px mede pixels CSS. */
-        gap: 24px;
+        gap: var(--space-6);
     }
-
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .news-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .news-page {
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 24px 16px 40px. px mede pixels CSS. */
-        padding: 24px 16px 40px;
+        padding: var(--space-6) var(--space-4) 40px;
     }
 
-    /* Seleciona .news-feed. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .news-feed {
-        /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: 1fr. */
         grid-template-columns: 1fr;
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 24px. px mede pixels CSS. */
-        gap: 24px;
+        gap: var(--space-6);
     }
 
-    /* Seleciona .news-card--featured. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .news-card--featured {
-        /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
         display: flex;
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 0. */
         gap: 0;
     }
 
-    /* Seleciona .news-card--featured .news-card__body. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .news-card--featured .news-card__body {
-        /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 18px 0 0. px mede pixels CSS. */
         padding: 18px 0 0;
     }
 
-    /* Seleciona .news-card--featured .news-card__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .news-card--featured .news-card__title {
-        /* Define o tamanho das letras. Valor atual: var(--font-size-2). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
         font-size: var(--font-size-2);
     }
 
-    /* Seleciona .news-card__title. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .news-card__title {
-        /* Define o tamanho das letras. Valor atual: calc(var(--font-size-3) * 1.15). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. calc() calcula a medida combinando parcelas. */
         font-size: calc(var(--font-size-3) * 1.15);
     }
 
-    /* Seleciona .news-icon-button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .news-icon-button {
-        /* Define a largura. Valor atual: 36px. px mede pixels CSS. */
         width: 36px;
-        /* Define a altura. Valor atual: 36px. px mede pixels CSS. */
         height: 36px;
     }
-
 }
 
-/* Discovery navigation and the interests/weather column. */
-/* Seleciona .news-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .news-page {
-    /* Limita a largura máxima. Valor atual: 1480px. px mede pixels CSS. */
     max-width: 1480px;
-    /* Separa as notícias do cabeçalho em 32px, como o espaço abaixo da barra de Finanças. */
-    padding-top: 32px;
+    padding-top: var(--space-8);
 }
 
-/* Seleciona .discovery-nav. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .discovery-nav {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: stretch. */
     align-items: stretch;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 24px. px mede pixels CSS. */
-    gap: 24px;
-    /* Configura a borda inferior. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    gap: var(--space-6);
     border-bottom: 1px solid var(--border);
-    /* Define espaço externo abaixo. Valor atual: 32px. px mede pixels CSS. */
-    margin-bottom: 32px;
+    margin-bottom: var(--space-8);
 }
 
-/* Seleciona .discovery-nav > button, .discovery-topics > summary. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .discovery-nav > button, .discovery-topics > summary {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
-    gap: 8px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 20px 0 16px. px mede pixels CSS. */
-    padding: 20px 0 16px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    gap: var(--space-2);
+    padding: var(--space-5) 0 var(--space-4);
     border: 0;
-    /* Configura a borda inferior. Valor atual: 2px solid transparent. px mede pixels CSS. */
     border-bottom: 2px solid transparent;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: none. */
     background: none;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
 }
 
-/* Seleciona .discovery-nav > button[aria-current], .discovery-topics.is-active > summary. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
 .discovery-nav > button[aria-current], .discovery-topics.is-active > summary {
-    /* Configura a cor da borda inferior. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     border-bottom-color: var(--text);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
 }
 
-/* Seleciona .discovery-topics. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .discovery-topics {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
     position: relative;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
 }
 
-/* Seleciona .discovery-topics > summary. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .discovery-topics > summary {
-    /* Configura os marcadores de lista; none os remove. Valor atual: none. */
     list-style: none;
 }
 
-/* Seleciona .discovery-topics > summary::-webkit-details-marker. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .discovery-topics > summary::-webkit-details-marker {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
     display: none;
 }
 
-/* Seleciona #topic-label. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 #topic-label {
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
-    /* Controla a indicação de texto cortado; ellipsis mostra reticências quando há corte de overflow. Valor atual: ellipsis. */
     text-overflow: ellipsis;
 }
 
-/* Seleciona .discovery-dropdown. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .discovery-dropdown {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
-    /* Define o afastamento superior em relação à referência de position. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     top: 100%;
-    /* Define o afastamento esquerdo em relação à referência de position. Valor atual: 0. */
     left: 0;
-    /* Controla a ordem de sobreposição dentro do contexto; valores maiores ficam acima. Valor atual: 20. */
     z-index: 20;
-    /* Define a largura. Valor atual: 255px. px mede pixels CSS. */
     width: 255px;
-    /* Limita a largura máxima. Valor atual: calc(100vw - 32px). calc() calcula a medida combinando parcelas. px mede pixels CSS. vw/vh são percentuais da janela; dvh acompanha a altura visível e svh usa a menor altura da janela. */
     max-width: calc(100vw - 32px);
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px. px mede pixels CSS. */
-    padding: 8px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    padding: var(--space-2);
     background: var(--surface);
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
-    border-radius: 16px;
-    /* Desenha sombra com deslocamentos horizontal/vertical, desfoque, expansão opcional e cor; inset coloca a sombra por dentro. Valor atual: 0 12px 30px #0002. px mede pixels CSS. */
+    border-radius: var(--radius-panel);
     box-shadow: 0 12px 30px #0002;
 }
 
-/* Seleciona .discovery-dropdown button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .discovery-dropdown button {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 12px. px mede pixels CSS. */
-    gap: 12px;
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
+    gap: var(--space-3);
     width: 100%;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px. px mede pixels CSS. */
-    padding: 12px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
+    padding: var(--space-3);
     border: 0;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 8px. px mede pixels CSS. */
-    border-radius: 8px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: none. */
+    border-radius: var(--radius-control);
     background: none;
-    /* Alinha o conteúdo textual na caixa. Valor atual: left. */
     text-align: left;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
 }
 
-/* Seleciona .discovery-dropdown button:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
 .discovery-dropdown button:hover {
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text) 6%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    background: color-mix(in srgb, var(--text) 6%, transparent);
+    background: var(--surface-hover-strong);
 }
 
-/* Seleciona .discovery-icon. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .discovery-icon {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: inline-block. */
     display: inline-block;
-    /* Define quanto o item encolhe se faltar espaço; 0 impede o encolhimento. Valor atual: 0. */
     flex-shrink: 0;
-    /* Define a largura. Valor atual: 18px. px mede pixels CSS. */
     width: 18px;
-    /* Define a altura. Valor atual: 18px. px mede pixels CSS. */
     height: 18px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: currentColor. currentColor reaproveita color do elemento. */
     background: currentColor;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Valor atual: var(--discovery-icon) center / contain no-repeat. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     mask: var(--discovery-icon) center / contain no-repeat;
-    /* Recorta a pintura usando a transparência de uma imagem ou gradiente. Variante de compatibilidade WebKit/Blink. Valor atual: var(--discovery-icon) center / contain no-repeat. var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     -webkit-mask: var(--discovery-icon) center / contain no-repeat;
 }
 
-/* Seleciona .icon-technology. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .icon-technology {
-    /* Variável --discovery-icon: recurso do ícone. Alterá-la afeta as regras que usam var(--discovery-icon) neste escopo. Valor atual: url('../img/icons/topic-technology.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     --discovery-icon: url('../img/icons/topic-technology.svg');
 }
 
-/* Seleciona .icon-business. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .icon-business {
-    /* Variável --discovery-icon: recurso do ícone. Alterá-la afeta as regras que usam var(--discovery-icon) neste escopo. Valor atual: url('../img/icons/topic-business.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     --discovery-icon: url('../img/icons/topic-business.svg');
 }
 
-/* Seleciona .icon-culture. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .icon-culture {
-    /* Variável --discovery-icon: recurso do ícone. Alterá-la afeta as regras que usam var(--discovery-icon) neste escopo. Valor atual: url('../img/icons/topic-culture.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     --discovery-icon: url('../img/icons/topic-culture.svg');
 }
 
-/* Seleciona .icon-sports. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .icon-sports {
-    /* Variável --discovery-icon: recurso do ícone. Alterá-la afeta as regras que usam var(--discovery-icon) neste escopo. Valor atual: url('../img/icons/topic-sports.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     --discovery-icon: url('../img/icons/topic-sports.svg');
 }
 
-/* Seleciona .icon-entertainment. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .icon-entertainment {
-    /* Variável --discovery-icon: recurso do ícone. Alterá-la afeta as regras que usam var(--discovery-icon) neste escopo. Valor atual: url('../img/icons/topic-entertainment.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     --discovery-icon: url('../img/icons/topic-entertainment.svg');
 }
 
-/* Seleciona .icon-menu. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .icon-menu {
-    /* Variável --discovery-icon: recurso do ícone. Alterá-la afeta as regras que usam var(--discovery-icon) neste escopo. Valor atual: url('../img/icons/topic-menu.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     --discovery-icon: url('../img/icons/topic-menu.svg');
-    /* Define a largura. Valor atual: 12px. px mede pixels CSS. */
     width: 12px;
-    /* Define a altura. Valor atual: 12px. px mede pixels CSS. */
     height: 12px;
 }
 
-/* Seleciona .icon-sun. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .icon-sun {
-    /* Variável --discovery-icon: recurso do ícone. Alterá-la afeta as regras que usam var(--discovery-icon) neste escopo. Valor atual: url('../img/icons/weather-sun.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     --discovery-icon: url('../img/icons/weather-sun.svg');
 }
 
-/* Seleciona .icon-partly-cloudy. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .icon-partly-cloudy {
-    /* Variável --discovery-icon: recurso do ícone. Alterá-la afeta as regras que usam var(--discovery-icon) neste escopo. Valor atual: url('../img/icons/weather-partly-cloudy.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     --discovery-icon: url('../img/icons/weather-partly-cloudy.svg');
 }
 
-/* Seleciona .icon-cloud. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .icon-cloud {
-    /* Variável --discovery-icon: recurso do ícone. Alterá-la afeta as regras que usam var(--discovery-icon) neste escopo. Valor atual: url('../img/icons/weather-cloud.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     --discovery-icon: url('../img/icons/weather-cloud.svg');
 }
 
-/* Seleciona .icon-rain. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .icon-rain {
-    /* Variável --discovery-icon: recurso do ícone. Alterá-la afeta as regras que usam var(--discovery-icon) neste escopo. Valor atual: url('../img/icons/weather-rain.svg'). url() referencia um recurso; caminhos relativos partem do arquivo CSS. */
     --discovery-icon: url('../img/icons/weather-rain.svg');
 }
 
-/* Seleciona .discovery-layout. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .discovery-layout {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: minmax(0, 1fr) minmax(260px, 30%). minmax() define mínimo e máximo de uma faixa do grid. px mede pixels CSS. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     grid-template-columns: minmax(0, 1fr) minmax(260px, 30%);
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 28px. px mede pixels CSS. */
     gap: 28px;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: start. */
     align-items: start;
 }
 
-/* Seleciona .discovery-stories. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .discovery-stories {
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
 }
 
-/* Seleciona .discovery-widgets. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .discovery-widgets {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 28px. px mede pixels CSS. */
     gap: 28px;
-    /* Define a largura mínima; 0 permite encolher dentro de flex/grid. Valor atual: 0. */
     min-width: 0;
 }
 
-/* Seleciona .discovery-panel. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .discovery-panel {
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     background: var(--surface);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 16px. px mede pixels CSS. */
-    border-radius: 16px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 20px. px mede pixels CSS. */
-    padding: 20px;
+    border-radius: var(--radius-panel);
+    padding: var(--space-5);
 }
 
-/* Seleciona .interests-panel. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .interests-panel {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: relative. */
     position: relative;
 }
 
-/* Seleciona .interests-panel h2. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .interests-panel h2 {
-    /* Escolhe a família de fonte; as alternativas seguintes são usadas se a primeira não carregar. Valor atual: var(--font-body). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-family: var(--font-body);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-3);
-    /* Define o peso: 400 regular, 500 médio, 600 seminegrito e 700 negrito. Valor atual: 400. */
     font-weight: 400;
-    /* Define espaço interno entre conteúdo e borda à direita. Valor atual: 20px. px mede pixels CSS. */
-    padding-right: 20px;
+    padding-right: var(--space-5);
 }
 
-/* Seleciona .interests-panel p. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .interests-panel p {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Define a altura de linha; um número sem unidade multiplica o tamanho da fonte. Valor atual: 1.5. */
     line-height: 1.5;
-    /* Define espaço externo acima. Valor atual: 6px. px mede pixels CSS. */
     margin-top: 6px;
 }
 
-/* Seleciona .interests-close. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .interests-close {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
-    /* Define o afastamento direito em relação à referência de position. Valor atual: 12px. px mede pixels CSS. */
     right: 12px;
-    /* Define o afastamento superior em relação à referência de position. Valor atual: 10px. px mede pixels CSS. */
     top: 10px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: none. */
     background: none;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define o tamanho das letras. Valor atual: 20px. px mede pixels CSS. */
     font-size: 20px;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
 }
 
-/* Seleciona .interest-choices. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .interest-choices {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Controla se itens flex podem quebrar para outra linha. Valor atual: wrap. */
     flex-wrap: wrap;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
-    gap: 8px;
-    /* Define espaço externo acima. Valor atual: 20px. px mede pixels CSS. */
-    margin-top: 20px;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
 }
 
-/* Seleciona .interest-choices button. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .interest-choices button {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
-    gap: 8px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 8px 10px. px mede pixels CSS. */
-    padding: 8px 10px;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 8px. px mede pixels CSS. */
-    border-radius: 8px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    gap: var(--space-2);
+    padding: var(--space-2) 10px;
+    border-radius: var(--radius-control);
     border: 1px solid var(--border);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text) 3%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background: color-mix(in srgb, var(--text) 3%, transparent);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-5);
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
 }
 
-/* Seleciona .interest-choices button[aria-pressed='true']. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. [aria-: estado acessível informado por atributo. */
 .interest-choices button[aria-pressed='true'] {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--accent);
-    /* Define a cor das bordas. Valor atual: var(--accent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     border-color: var(--accent);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--accent) 10%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     background: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
-/* Seleciona .interests-save. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .interests-save {
-    /* Define espaço externo acima. Valor atual: 20px. px mede pixels CSS. */
-    margin-top: 20px;
-    /* Define espaço interno entre conteúdo e borda acima. Valor atual: 16px. px mede pixels CSS. */
-    padding-top: 16px;
-    /* Configura a borda superior. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    margin-top: var(--space-5);
+    padding-top: var(--space-4);
     border-top: 1px solid var(--border);
 }
 
-/* Seleciona #save-interests. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 #save-interests {
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: 100%;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 0. */
     border: 0;
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 8px. px mede pixels CSS. */
-    border-radius: 8px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px. px mede pixels CSS. */
+    border-radius: var(--radius-control);
     padding: 10px;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--bg). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--bg);
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     background: var(--text);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-4). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-4);
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
 }
 
-/* Seleciona #edit-interests. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 #edit-interests {
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 10px. px mede pixels CSS. */
-    border-radius: 10px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 12px. px mede pixels CSS. */
-    padding: 12px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: var(--surface). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    border-radius: var(--radius-medium);
+    padding: var(--space-3);
     background: var(--surface);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
 }
 
-/* Seleciona .weather-panel. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .weather-panel {
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-5);
 }
 
-/* Seleciona #weather-locate. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 #weather-locate {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Define a largura. Valor atual: 100%. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     width: 100%;
-    /* Define espaço externo abaixo. Valor atual: 16px. px mede pixels CSS. */
-    margin-bottom: 16px;
-    /* Define espaço interno entre conteúdo e borda (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 10px 12px. px mede pixels CSS. */
-    padding: 10px 12px;
-    /* Atalho de espessura, estilo e cor da borda; 0 remove a borda. Valor atual: 1px solid var(--border). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. px mede pixels CSS. */
+    margin-bottom: var(--space-4);
+    padding: 10px var(--space-3);
     border: 1px solid var(--border);
-    /* Arredonda os cantos; valores altos criam cápsulas e 50% pode criar círculos. Valor atual: 8px. px mede pixels CSS. */
-    border-radius: 8px;
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: transparent. */
+    border-radius: var(--radius-control);
     background: transparent;
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text);
-    /* Define o tamanho das letras. Valor atual: var(--font-size-5). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     font-size: var(--font-size-5);
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: pointer. */
     cursor: pointer;
 }
 
-/* Seleciona #weather-locate:hover. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. hover: mouse sobre o elemento. */
 #weather-locate:hover {
-    /* Atalho para cor, imagem/gradiente, posição, tamanho e repetição do fundo. Valor atual: color-mix(in srgb, var(--text) 5%, transparent). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. color-mix() mistura cores nas proporções indicadas. % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
-    background: color-mix(in srgb, var(--text) 5%, transparent);
+    background: var(--surface-hover);
 }
 
-/* Seleciona #weather-locate:disabled. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. :disabled: controle desativado. */
 #weather-locate:disabled {
-    /* Define a opacidade de todo o elemento: 0 invisível e 1 opaco; seu espaço continua reservado. Valor atual: .6. */
     opacity: .6;
-    /* Define o cursor do mouse; pointer sinaliza um controle clicável. Valor atual: wait. */
     cursor: wait;
 }
 
-/* Seleciona #weather-status. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 #weather-status {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
 }
 
-/* Seleciona .weather-now, .weather-meta. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .weather-now, .weather-meta {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Distribui o conjunto de itens no eixo principal do flex ou no eixo inline do grid. Valor atual: space-between. */
     justify-content: space-between;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 12px. px mede pixels CSS. */
-    gap: 12px;
+    gap: var(--space-3);
 }
 
-/* Seleciona .weather-temp. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .weather-temp {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
-    gap: 8px;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-3). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    gap: var(--space-2);
     font-size: var(--font-size-3);
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
 }
 
-/* Seleciona .weather-description. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .weather-description {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Alinha o conteúdo textual na caixa. Valor atual: right. */
     text-align: right;
 }
 
-/* Seleciona .weather-meta. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .weather-meta {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
-    /* Define espaço externo (1 valor: todos os lados; 2: vertical/horizontal; 3: topo/horizontal/base; 4: topo/direita/base/esquerda). Valor atual: 20px 0. px mede pixels CSS. */
-    margin: 20px 0;
+    margin: var(--space-5) 0;
 }
 
-/* Seleciona .weather-days. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .weather-days {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: grid. */
     display: grid;
-    /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: repeat(5, minmax(0, 1fr)). minmax() define mínimo e máximo de uma faixa do grid. */
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 8px. px mede pixels CSS. */
-    gap: 8px;
+    gap: var(--space-2);
 }
 
-/* Seleciona .weather-day. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .weather-day {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
     display: flex;
-    /* Define o eixo principal: row em linha, column em coluna. Valor atual: column. */
     flex-direction: column;
-    /* Alinha os filhos no eixo transversal do flex ou no eixo de bloco do grid. Valor atual: center. */
     align-items: center;
-    /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 10px. px mede pixels CSS. */
     gap: 10px;
 }
 
-/* Seleciona .weather-day small. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .weather-day small {
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
 }
 
-/* Seleciona .weather-credit. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .weather-credit {
-    /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: block. */
     display: block;
-    /* Define espaço externo acima. Valor atual: 20px. px mede pixels CSS. */
-    margin-top: 20px;
-    /* Define o tamanho das letras. Valor atual: var(--font-size-6). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
+    margin-top: var(--space-5);
     font-size: var(--font-size-6);
-    /* Define a cor do texto e a cor usada por currentColor. Valor atual: var(--text-secondary). var() lê a variável do tema/componente; o segundo argumento, se houver, é o valor de reserva. */
     color: var(--text-secondary);
 }
 
-/* Seleciona .sr-only. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
 .sr-only {
-    /* Define a referência: relative mantém o espaço, absolute usa o ancestral posicionado, fixed usa a janela e sticky acompanha a rolagem até o limite. Valor atual: absolute. */
     position: absolute;
-    /* Define a largura. Valor atual: 1px. px mede pixels CSS. */
     width: 1px;
-    /* Define a altura. Valor atual: 1px. px mede pixels CSS. */
     height: 1px;
-    /* Controla conteúdo excedente: hidden corta, auto oferece rolagem quando necessário e visible permite transbordar. Valor atual: hidden. */
     overflow: hidden;
-    /* Recorta visualmente o elemento na forma declarada. Valor atual: inset(50%). % usa a referência da propriedade: dimensão da caixa, mistura de cor ou progresso da animação. */
     clip-path: inset(50%);
-    /* Controla espaços e quebras: nowrap impede quebra; pre-wrap preserva espaços/quebras e ajusta à largura. Valor atual: nowrap. */
     white-space: nowrap;
 }
 
-/* Condição (width >= 1100px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width >= 1100px) {
-    /* Seleciona .discovery-stories .news-card--featured. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .discovery-stories .news-card--featured {
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 24px. px mede pixels CSS. */
-        gap: 24px;
+        gap: var(--space-6);
     }
-
 }
 
-/* Condição (width < 1200px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 1200px) {
-    /* Seleciona .discovery-layout. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .discovery-layout {
-        /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: minmax(0, 1fr) 270px. minmax() define mínimo e máximo de uma faixa do grid. px mede pixels CSS. */
         grid-template-columns: minmax(0, 1fr) 270px;
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 20px. px mede pixels CSS. */
-        gap: 20px;
+        gap: var(--space-5);
     }
 
-    /* Seleciona .discovery-stories .news-feed. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .discovery-stories .news-feed {
-        /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: repeat(2, minmax(0, 1fr)). minmax() define mínimo e máximo de uma faixa do grid. */
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    /* Seleciona .discovery-stories .news-card--featured. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .discovery-stories .news-card--featured {
-        /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: flex. */
         display: flex;
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 16px. px mede pixels CSS. */
-        gap: 16px;
+        gap: var(--space-4);
     }
-
 }
 
-/* Condição (width < 1000px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 1000px) {
-    /* Seleciona .discovery-layout. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .discovery-layout {
-        /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: minmax(0, 1fr). minmax() define mínimo e máximo de uma faixa do grid. */
         grid-template-columns: minmax(0, 1fr);
     }
 
-    /* Seleciona .discovery-widgets. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .discovery-widgets {
-        /* Define as linhas ocupadas pelo item. Valor atual: 1. */
         grid-row: 1;
-        /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: repeat(2, minmax(0, 1fr)). minmax() define mínimo e máximo de uma faixa do grid. */
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .news-page. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .news-page {
-        /* Mantém 32px de distância entre o cabeçalho e as notícias. */
-        padding-top: 32px;
+        padding-top: var(--space-8);
     }
 
-    /* Seleciona .discovery-nav. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .discovery-nav {
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 20px. px mede pixels CSS. */
-        gap: 20px;
-        /* Define espaço externo abaixo. Valor atual: 24px. px mede pixels CSS. */
-        margin-bottom: 24px;
+        gap: var(--space-5);
+        margin-bottom: var(--space-6);
     }
 
-    /* Seleciona .discovery-dropdown. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .discovery-dropdown {
-        /* Define o afastamento esquerdo em relação à referência de position. Valor atual: auto. */
         left: auto;
-        /* Define o afastamento direito em relação à referência de position. Valor atual: 0. */
         right: 0;
     }
 
-    /* Seleciona .discovery-widgets. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .discovery-widgets {
-        /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: minmax(0, 1fr). minmax() define mínimo e máximo de uma faixa do grid. */
         grid-template-columns: minmax(0, 1fr);
-        /* Define o espaço entre itens; com dois valores, o primeiro é entre linhas e o segundo entre colunas. Valor atual: 16px. px mede pixels CSS. */
-        gap: 16px;
+        gap: var(--space-4);
     }
 
-    /* Seleciona .discovery-stories .news-feed. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .discovery-stories .news-feed {
-        /* Define as colunas do grid; fr divide o espaço restante proporcionalmente. Valor atual: minmax(0, 1fr). minmax() define mínimo e máximo de uma faixa do grid. */
         grid-template-columns: minmax(0, 1fr);
     }
-
 }
 
-/* Condição (width < 640px): aplica os estilos internos somente quando for satisfeita. width testa a largura; hover indica capacidade de apontar; prefers-reduced-motion respeita a preferência por menos movimento. */
 @media (width < 640px) {
-    /* Seleciona .discovery-widgets. Ponto identifica classe; # identifica ID; espaço seleciona descendentes; > exige filho direto; vírgula separa alternativas. */
     .discovery-widgets {
-        /* Define o modelo de layout: flex organiza por eixo, grid por linhas/colunas, block ocupa uma linha e none remove a caixa do layout. Valor atual: none. */
         display: none;
     }
-
 }
 
-/* Área Descobrir: margens laterais constantes de 32 pixels. */
 .news-page {
-    /* Usa toda a largura disponível sem o limite central anterior. */
     max-width: none;
-    /* Mantém 32 pixels de espaço em cada lateral. */
-    padding-inline: 32px;
+    padding-inline: var(--space-8);
 }
-/* Reserva uma coluna estreita para o botão entre notícias e clima. */
+
 .discovery-layout {
-    /* Distribui notícia, botão e painel de previsão. */
     grid-template-columns: minmax(0, 1fr) 40px minmax(260px, 30%);
-    /* Espaça as três colunas sem afastar demais o botão. */
-    gap: 16px;
+    gap: var(--space-4);
 }
-/* Botão circular que recolhe o painel meteorológico. */
+
 .weather-toggle {
-    /* Define o diâmetro horizontal. */
     width: 40px;
-    /* Define o diâmetro vertical. */
     height: 40px;
-    /* Transforma o botão em círculo. */
-    border-radius: 50%;
-    /* Remove a borda padrão do navegador. */
+    border-radius: var(--radius-circle);
     border: 0;
-    /* Usa o fundo secundário do tema. */
     background: var(--surface);
-    /* Centraliza o ícone nos dois eixos. */
     display: grid;
-    /* Alinha o desenho ao centro da célula. */
     place-items: center;
-    /* Indica que o controle é clicável. */
     cursor: pointer;
 }
-/* Tamanho do SVG do botão de recolher. */
+
 .weather-toggle img {
-    /* Mantém o desenho pequeno dentro do círculo. */
     width: 16px;
-    /* Mantém proporção quadrada. */
     height: 16px;
 }
-/* Mantém clima e atualização no mesmo ponto durante a rolagem. */
+
 .discovery-widgets {
-    /* Fixa o painel ao atingir o topo durante a rolagem. */
     position: sticky;
-    /* Deixa uma margem superior para o cabeçalho. */
     top: 16px;
-    /* Separa o botão externo do cartão do clima. */
-    gap: 12px;
+    gap: var(--space-3);
 }
-/* Oculta de fato o painel recolhido, inclusive se houver display grid. */
+
 .discovery-widgets[hidden] {
-    /* Retira a coluna do clima da apresentação. */
     display: none;
 }
-/* Sem clima, as notícias usam o espaço liberado. */
+
 .discovery-layout.is-weather-collapsed {
-    /* Preserva apenas notícias e botão de expansão. */
     grid-template-columns: minmax(0, 1fr) 40px;
 }
-/* Inverte a seta para indicar que o painel pode ser reaberto. */
+
 .is-weather-collapsed .weather-toggle img {
-    /* Aponta as setas para a esquerda. */
     transform: rotate(180deg);
 }
-/* Em telas estreitas, o painel fica abaixo das notícias. */
+
 @media (max-width: 900px) {
     .discovery-layout {
-        /* Evita colunas estreitas ou transbordamento no celular. */
         grid-template-columns: minmax(0, 1fr) 40px;
     }
+
     .discovery-widgets {
-        /* Ocupa a largura das duas colunas. */
         grid-column: 1 / -1;
-        /* Mantém o painel no fluxo de leitura em telas pequenas. */
         position: static;
     }
 }
 
-
-/* No desktop, mantém o clima na posição original da tela. */
 @media (min-width: 901px) {
     .discovery-widgets {
-        /* As coordenadas iniciais são calculadas pelo weather.js. */
         position: fixed;
     }
+
     .discovery-layout.is-weather-collapsed {
-        /* Conserva a largura original das notícias ao recolher o clima. */
         grid-template-columns: var(--stories-width) 40px;
-        /* Centraliza a coluna sem aumentar os cartões. */
         justify-content: center;
     }
 }
-/* Desfaz as coordenadas do desktop em dispositivos pequenos. */
+
 @media (max-width: 900px) {
     .discovery-widgets {
-        /* Permite ocupar a largura natural da linha. */
         width: auto !important;
-        /* Remove o deslocamento horizontal fixo. */
         left: auto !important;
-        /* Remove o deslocamento vertical fixo. */
         top: auto !important;
     }
 }
 
-
-/* Devolve o clima ao fluxo normal da página. */
 .discovery-layout .discovery-widgets {
-    /* Acompanha as notícias ao rolar a página. */
     position: static;
-    /* Usa a largura da coluna do grid. */
     width: auto;
 }
-/* Filtros na barra fixa de navegação do Descobrir. */
+
 .workspace__header:has(.discovery-nav) {
-    /* Mantém os filtros visíveis durante a leitura. */
     position: sticky;
-    /* Encosta o cabeçalho no topo da tela. */
     top: 0;
-    /* Sobrepõe cartões e imagens. */
     z-index: 35;
-    /* Evita transparência sobre as notícias. */
     background: var(--bg);
 }
+
 .workspace__header .discovery-nav {
-    /* Remove o espaço usado quando a navegação ficava no conteúdo. */
     margin: 0;
-    /* Distribui filtros e seletor de tópicos. */
     display: flex;
-    /* Mantém os controles alinhados. */
     align-items: center;
 }
 
-/* Restaura a barra fixa, usando os deslocamentos do menu lateral já existentes. */
 .workspace__header:has(.discovery-nav) {
-    /* Fica no topo da janela, sem ocupar uma segunda linha no conteúdo. */
     position: fixed;
-    /* Mantém o cabeçalho acima das notícias e seus controles. */
     z-index: 90;
 }
+
 .workspace__header .discovery-nav {
-    /* Centraliza independentemente da largura do título à esquerda. */
     position: absolute;
-    /* Define o centro da barra como referência. */
     left: 50%;
-    /* Compensa metade da largura dos filtros. */
     transform: translateX(-50%);
-    /* Ocupa toda a altura da barra para alinhar o sublinhado. */
     height: 100%;
-    /* Encosta no topo do cabeçalho. */
     top: 0;
-    /* Evita que rótulos de tópicos quebrem em duas linhas. */
     white-space: nowrap;
-    /* Permite ao menu suspenso sair da barra. */
     overflow: visible;
 }
+
 .discovery-nav > button, .discovery-topics, .discovery-topics > summary {
-    /* Estende a opção até a base da barra fixa. */
     height: 100%;
 }
+
 .discovery-topics > summary {
-    /* Centraliza rótulo e seta na vertical. */
     display: flex;
-    /* Mantém o desenho no eixo do texto. */
     align-items: center;
-    /* Separa texto e seta de forma compacta. */
     gap: 6px;
 }
+
 .discovery-dropdown {
-    /* Largura total solicitada para o menu. */
     width: 204px;
-    /* Espaçamento interno compacto sem intervalo entre linhas. */
-    padding: 4px;
-    /* Não adiciona espaço entre tópicos. */
+    padding: var(--space-1);
     gap: 0;
 }
+
 .discovery-dropdown button {
-    /* Altura exata de cada tópico. */
     height: 36px;
-    /* Elimina mínimos herdados que aumentariam as linhas. */
     min-height: 0;
-    /* Centraliza o conteúdo sem padding vertical. */
     padding: 0 6px;
-    /* Não deixa margem entre os itens. */
     margin: 0;
-    /* Separa ícone, texto e seleção dentro de cada linha. */
     gap: 6px;
-    /* Ajusta os rótulos à largura de 204 pixels. */
     font-size: 13px;
 }
+
 .discovery-dropdown .discovery-icon {
-    /* Mantém o ícone pequeno e proporcional. */
-    width: 16px;
-    /* Mantém o ícone quadrado. */
-    height: 16px;
-    /* Impede que o flex reduza o desenho. */
-    flex: 0 0 16px;
+    width: var(--icon-small);
+    height: var(--icon-small);
+    flex: 0 0 var(--icon-small);
 }
+
 .topic-check {
-    /* Reserva o espaço da marca à direita. */
     width: 14px;
-    /* Define a altura da marca. */
     height: 14px;
-    /* Impede o encolhimento do SVG. */
     flex: 0 0 14px;
-    /* Encosta a seleção na extremidade direita. */
     margin-left: auto;
-    /* Usa a cor do texto para pintar o SVG. */
     background: currentColor;
-    /* Reaproveita a marca de seleção já salva no site. */
     mask: url('../img/icons/check.svg') center / contain no-repeat;
-    /* Esconde a marca das opções não selecionadas. */
     opacity: 0;
 }
+
 [aria-pressed="true"] > .topic-check {
-    /* Exibe a marca somente no tópico ativo. */
     opacity: 1;
 }
-/* Evita sobreposição com os controles móveis. */
+
 @media (max-width: 639px) {
     .workspace__header:has(.discovery-nav) .workspace__mobile-brand,
     .workspace__header:has(.discovery-nav) .mobile-discover-toggle {
-        /* Reserva o cabeçalho compacto para os filtros do Descobrir. */
         display: none;
     }
+
     .workspace__header .discovery-nav {
-        /* Mantém os filtros dentro da largura disponível. */
         max-width: calc(100% - 16px);
-        /* Reduz o intervalo em telas pequenas. */
-        gap: 8px;
+        gap: var(--space-2);
     }
 }
 
-/* Esqueleto de carregamento no mesmo grid e proporções das notícias. */
 .news-skeleton {
-    /* Ignora interações enquanto não existe uma notícia real. */
     pointer-events: none;
 }
+
 .news-skeleton .skeleton-block, .news-skeleton .skeleton-line {
-    /* Usa tons do tema para o efeito de carregamento. */
     background: linear-gradient(100deg, var(--surface) 25%, color-mix(in srgb, var(--text) 9%, var(--surface)) 45%, var(--surface) 65%);
-    /* Reserva espaço para o brilho atravessar a área. */
     background-size: 200% 100%;
-    /* Move o brilho suavemente. */
     animation: news-skeleton-shimmer 1.2s linear infinite;
 }
+
 .news-skeleton .skeleton-line {
-    /* Simula uma linha de título. */
     height: 18px;
-    /* Separa as linhas do esqueleto. */
-    margin-bottom: 12px;
-    /* Evita pontas rígidas nas linhas. */
+    margin-bottom: var(--space-3);
     border-radius: 5px;
 }
+
 .news-skeleton .skeleton-line--short {
-    /* Simula o comprimento menor da data e da fonte. */
     width: 55%;
 }
+
 @keyframes news-skeleton-shimmer {
     to {
-        /* Desloca o brilho para a outra extremidade. */
         background-position: -200% 0;
     }
 }
+
 @media (prefers-reduced-motion: reduce) {
     .news-skeleton .skeleton-block, .news-skeleton .skeleton-line {
-        /* Exibe placeholders estáticos quando o usuário reduz animações. */
         animation: none;
+    }
+}
+
+.news-card, .news-card--featured {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.news-card__body {
+    padding-inline: 0;
+}
+
+.news-card__media {
+    border-radius: var(--radius-panel);
+}
+
+@media (max-width: 900px) {
+    .weather-toggle {
+        display: none;
+    }
+
+    .discovery-layout, .discovery-layout.is-weather-collapsed {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
