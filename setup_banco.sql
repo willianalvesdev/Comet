@@ -53,3 +53,18 @@ CREATE TABLE IF NOT EXISTS computer_personalizacao (
     atualizado_em DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS finance_transactions (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    usuario_id BIGINT UNSIGNED NOT NULL,
+    external_id VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    kind ENUM('income','expense') NOT NULL,
+    amount DECIMAL(14,2) NOT NULL,
+    description VARCHAR(200) NOT NULL,
+    category VARCHAR(80) NOT NULL DEFAULT '',
+    occurred_on DATE NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY finance_external (usuario_id, external_id),
+    INDEX finance_history (usuario_id, occurred_on, id),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

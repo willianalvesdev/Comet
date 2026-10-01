@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "node"
+    ],
+    "strict": true,
+    "noEmitOnError": true,
+    "removeComments": true,
+    "rootDir": "tests/frontend",
+    "outDir": "artifacts/tests",
+    "skipLibCheck": false
+  },
+  "include": [
+    "tests/frontend/**/*.cts",
+    "tests/frontend/**/*.d.ts",
+    "artifacts/types/**/*.d.ts",
+    "static/ts/types/**/*.d.ts"
+  ]
+}

@@ -33,6 +33,13 @@ class RouteContractTests(unittest.TestCase):
         with self.client.session_transaction() as session:
             session['auth_token'] = token
 
+    def test_recent_chats_page_renders_for_authenticated_user(self):
+        self.sign_in()
+        response = self.client.get('/recentes.html')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('select-all-chats', response.get_data(as_text=True))
+        self.assertIn('recent-chats.js', response.get_data(as_text=True))
+
     def test_api_authentication_preserves_status_messages_and_codes(self):
         cases = [
             ('GET', '/api/ai/models', 'Entre novamente para escolher um modelo.', False),

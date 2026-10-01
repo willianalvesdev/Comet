@@ -120,7 +120,7 @@
 .sessions__status {
     padding-inline: var(--space-2);
     color: var(--text-secondary);
-    font-size: var(--font-size-5);
+    font-size: var(--font-size-4);
 }
 
 .sessions__status:empty {
@@ -421,7 +421,7 @@
     border: 0;
     border-radius: var(--radius-control);
     background: transparent;
-    color: var(--text-secondary);
+    color: var(--text);
     cursor: pointer;
     flex-shrink: 0;
 }
@@ -436,7 +436,6 @@
 
 .sidebar-recents:hover, .sidebar-recents[aria-expanded="true"] {
     background: var(--surface-hover);
-    color: var(--text);
 }
 
 @media (min-width: 640px) {
@@ -463,6 +462,9 @@
 }
 
 .recents-popover__heading {
+    display: block;
+    color: inherit;
+    text-decoration: none;
     padding: 0 var(--space-2) var(--space-3);
     color: var(--text-secondary);
 }
@@ -486,4 +488,64 @@
 
 .recents-popover__list a:hover, .recents-popover__list a[aria-current] {
     background: var(--surface-hover);
+}
+
+.sessions > summary:has(.sessions__heading) {
+    padding: 0;
+    cursor: default;
+    border-radius: var(--radius-control);
+}
+
+.sessions > summary:has(a.sessions__heading):hover {
+    background: var(--surface-hover);
+}
+
+.sessions__heading {
+    flex: 1;
+    padding: var(--space-2);
+    color: inherit;
+    text-decoration: none;
+}
+
+.sessions__collapse {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    margin-right: var(--space-1);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-control);
+    color: inherit;
+    background: transparent;
+}
+
+.sessions__collapse:hover {
+    background: var(--surface-selected);
+}
+
+.sessions__chevron {
+    width: var(--icon-small-medium);
+    height: var(--icon-small-medium);
+    background: currentColor;
+    mask: url('../img/icons/topic-menu.svg') center/contain no-repeat;
+    transform: rotate(-90deg);
+    transition: transform var(--duration-normal);
+}
+
+.sessions[open] .sessions__chevron {
+    transform: rotate(0deg);
+}
+
+.sidebar .sessions__row,
+.sidebar .sessions > summary {
+    height: 32px;
+    min-height: 32px;
+}
+.sidebar .sessions__link,
+.sidebar .sessions__heading {
+    box-sizing: border-box;
+    height: 32px;
+    padding-block: 0;
+    line-height: 32px;
 }

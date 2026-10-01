@@ -90,7 +90,7 @@
     margin-top: var(--space-3);
 }
 
-.workspace .computer-page .home__composer {
+.workspace :is(.computer-page, .finance-composer) .home__composer {
     position: relative;
     inset: auto;
     width: 100%;
@@ -136,16 +136,16 @@
     display: flex;
 }
 
-.workspace .computer-page .home__composer {
+.workspace :is(.computer-page, .finance-composer) .home__composer {
     padding: 14px var(--space-4) var(--space-3);
 }
 
-.computer-page .home__input {
+:is(.computer-page, .finance-composer) .home__input {
     min-height: 38px;
     height: 38px;
 }
 
-.computer-page .home__toolbar {
+:is(.computer-page, .finance-composer) .home__toolbar {
     margin-top: var(--space-2);
 }
 
@@ -263,12 +263,12 @@
     font-size: var(--font-size-5);
 }
 
-.computer-page .home__composer.is-responding .home__send .ui-arrow {
+:is(.computer-page, .finance-composer) .home__composer.is-responding .home__send .ui-arrow {
     mask-image: url('../img/icons/pause.svg');
     -webkit-mask-image: url('../img/icons/pause.svg');
 }
 
-.computer-page .home__microphone:disabled {
+:is(.computer-page, .finance-composer) .home__microphone:disabled {
     opacity: .4;
     cursor: default;
 }
@@ -521,12 +521,12 @@
 }
 
 @media (width < 480px) {
-    .computer-page .home__toolbar {
+    :is(.computer-page, .finance-composer) .home__toolbar {
         flex-wrap: wrap;
         gap: var(--space-2);
     }
 
-    .computer-page .home__actions {
+    :is(.computer-page, .finance-composer) .home__actions {
         margin-left: auto;
         gap: 6px;
     }
@@ -613,7 +613,7 @@
     font-size: var(--font-size-3);
 }
 
-.computer-page .home__send .ui-arrow {
+:is(.computer-page, .finance-composer) .home__send .ui-arrow {
     width: var(--icon-small);
     height: var(--icon-small);
     flex-basis: var(--icon-small);
@@ -1122,21 +1122,22 @@
 }
 
 @media(width<640px) {
-    .computer-page .home__actions {
+    :is(.computer-page, .finance-composer) .home__actions {
         gap: var(--space-2);
     }
 
-    .computer-page .home__toolbar {
+    :is(.computer-page, .finance-composer) .home__toolbar {
         gap: var(--space-2);
     }
 
-    .computer-page .home__mode {
+    :is(.computer-page, .finance-composer) .home__mode {
         padding-inline: var(--space-2);
         gap: 5px;
     }
 }
 
 .computer-chat-title {
+    font-weight: 500;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1241,10 +1242,6 @@
     font: inherit;
     font-size: 13px;
     cursor: pointer;
-}
-
-.model-icon--gemma {
-    mask: url('../img/icons/model-gemma.svg') center / contain no-repeat;
 }
 
 .composer-provider-group {
@@ -1435,14 +1432,14 @@
     }
 }
 
-.computer-page .home__input {
+:is(.computer-page, .finance-composer) .home__input {
     min-height: 38px;
     max-height: calc(var(--composer-max-lines) * 1.5em);
     font-family: var(--font-ui);
     overflow-y: hidden;
 }
 
-.computer-page .home__send.is-empty {
+:is(.computer-page, .finance-composer) .home__send.is-empty {
     opacity: var(--opacity-disabled);
 }
 
@@ -1650,12 +1647,7 @@
     border-bottom-color: transparent;
 }
 
-.computer-page .home__composer:focus-within {
-    border-color: var(--border);
-    box-shadow: none;
-}
-
-.computer-page .home__input:focus {
+:is(.computer-page, .finance-composer) .home__input:focus {
     outline: none;
 }
 
@@ -1963,4 +1955,124 @@
     height: 24px;
     padding: 0;
     color: var(--text);
+}
+
+.anonymous-bar {
+    display: none;
+}
+
+.is-anonymous {
+    --sidebar-width: 0px;
+    --mobile-menu-offset: 0px;
+    background: var(--surface);
+    padding: 0 var(--space-2) var(--space-2);
+}
+
+.is-anonymous::after {
+    content: "";
+    position: fixed;
+    inset: var(--header-height) var(--space-2) var(--space-2);
+    z-index: 95;
+    border-radius: var(--radius-container);
+    box-shadow: 0 0 0 100vmax var(--surface);
+    pointer-events: none;
+}
+
+.is-anonymous .sidebar,
+.is-anonymous .sidebar-backdrop,
+.is-anonymous .workspace__header,
+.is-anonymous .message-navigator {
+    display: none;
+}
+
+.is-anonymous .anonymous-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-height);
+    padding-inline: var(--space-4);
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-size: var(--font-size-4);
+}
+
+.anonymous-bar > span {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.anonymous-bar i {
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    mask: url('../img/icons/anonymous.svg') center/contain no-repeat;
+}
+
+.is-anonymous .workspace__content {
+    margin: 0;
+    padding-top: 0;
+    min-height: calc(100svh - var(--header-height) - var(--space-2));
+    background: var(--bg);
+    border-radius: var(--radius-container);
+}
+
+.is-anonymous .computer-page {
+    min-height: 100%;
+}
+
+.is-anonymous .computer-page:not(.has-conversation) {
+    padding-top: clamp(48px, 22svh, 220px);
+}
+
+.is-anonymous .computer-intro {
+    text-align: center;
+    margin-bottom: var(--space-8);
+}
+
+.is-anonymous .computer-page:not(.has-conversation) .computer-composer {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    transform: none;
+    translate: none;
+}
+
+.is-anonymous .computer-page:not(.has-conversation) .computer-composer::before {
+    display: none;
+}
+
+.is-anonymous .anonymous-note {
+    margin-top: var(--space-6);
+}
+
+.computer-page .home__composer:has(.computer-provider[aria-pressed="true"]) {
+    border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+    box-shadow: 0 0 36px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+
+.is-anonymous .home__composer {
+    border-style: dashed;
+}
+
+.computer-message__actions[hidden] {
+    display: none;
+}
+
+.chat-is-loading .sessions button:disabled:not(.sessions__more),
+.chat-is-loading .model-picker:disabled,
+.chat-is-loading :is(.computer-page, .finance-composer) .home__microphone:disabled,
+.chat-is-loading .computer-rewrite:disabled {
+    opacity: 1;
+}
+
+.workspace .computer-page .home__composer:focus-within:not(:has(.computer-provider[aria-pressed="true"])),
+.workspace .finance-composer .home__composer:focus-within {
+    border-color: var(--border-focus);
 }

@@ -156,7 +156,7 @@ def with_web(service, messages, provider, context):
         return
 
     engine = "google" if provider is searcher.provider else "searxng"
-    if requires_web(text):
+    if engine == "searxng" or requires_web(text):
         evidence = yield from searcher.run(text, engine=engine)
         yield from service.generate(messages, provider, context + evidence)
         return

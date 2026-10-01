@@ -171,12 +171,6 @@ html:has(.auth[open]) {
     line-height: 1.5;
 }
 
-.auth__form input:focus {
-    border-width: 2px;
-    padding: 11px 27px;
-    outline: none;
-}
-
 .auth button:focus-visible {
     outline: 2px solid var(--text);
     outline-offset: 4px;
@@ -246,7 +240,4 @@ html:has(.auth[open]) {
         padding-inline: var(--space-4);
     }
 
-    .auth__form input:focus {
-        padding-inline: 15px;
-    }
 }

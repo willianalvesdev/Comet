@@ -23,7 +23,7 @@ if __name__ == '__main__':
         raise SystemExit('Banco indisponível. Execute configurar_banco.bat e confira se o MySQL está iniciado.')
     host = os.getenv('APP_HOST', '127.0.0.1')
     port = int(os.getenv('APP_PORT', '5001'))
-    server = create_server(app, host=host, port=port, threads=4)
+    server = create_server(app, host=host, port=port, threads=16)
 
     try:
         app.extensions['ascenda_conversations'].recover_interrupted(started_at)

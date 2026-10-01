@@ -95,27 +95,29 @@ class WebSearchTests(unittest.TestCase):
         self.assertFalse(requires_web("Não pesquise na internet, explique juros"))
         self.assertFalse(requires_web("Olá, tudo bem?"))
 
-    def test_local_model_can_request_one_search_in_split_chunks(self):
-        local = MagicMock()
-        calls = []
-        def stream(messages):
-            calls.append(messages)
-            if len(calls) == 1:
-                for token in ["<web_", "search>", '{"query":"teste"}', "</web_search>"]:
-                    yield {"type":"delta","text":token}
-            else:
-                yield {"type":"delta","text":"Resposta com evidência [1]."}
-        local.stream.side_effect = stream
-        remote = self.provider([{"type":"delta","text":"Fato"}, {"type":"grounding","data":SOURCE}])
+    def test_local_model_searches_before_generating_even_without_explicit_request(self):
+        local = self.provider([{"type":"delta","text":"Resposta com evidência [1]."}])
+        remote = self.provider([])
         service = ComputerService(local, CONFIG)
         service.web_search = WebSearch(remote)
         with patch("ascenda.ai.web_search.searxng_search", return_value=({**SOURCE,"engine":"SearXNG"}, "Fato")) as search:
             events = list(with_web(service, [{"role":"user","content":"Uma pergunta factual"}], local, ""))
-        self.assertEqual("".join(e.get("text","") for e in events if e["type"]=="delta"), "Resposta com evidência [1].")
+        search.assert_called_once_with("Uma pergunta factual")
+        local.stream.assert_called_once()
         remote.stream.assert_not_called()
-        search.assert_called_once_with("teste")
-        self.assertIn("example.com", calls[1][0]["content"])
-        self.assertNotIn("<web_search>", events[-1]["text"])
+        self.assertEqual(events[0]['type'], 'search')
+        self.assertIn("example.com", local.stream.call_args.args[0][0]['content'])
+        self.assertEqual(events[-1]['text'], "Resposta com evidência [1].")
+
+    def test_local_model_answers_when_automatic_search_is_unavailable(self):
+        local = self.provider([{"type":"delta","text":"Resposta sem pesquisa."}])
+        service = ComputerService(local, CONFIG)
+        service.web_search = WebSearch(self.provider([]))
+        with patch("ascenda.ai.web_search.searxng_search", side_effect=AIError('provider_missing',503)):
+            events = list(with_web(service,[{'role':'user','content':'Explique juros'}],local,''))
+        self.assertTrue(any(e.get('state')=='failed' for e in events))
+        self.assertEqual(events[-1]['text'],'Resposta sem pesquisa.')
+        local.stream.assert_called_once()
 
     def test_opt_out_never_executes_model_tool_marker(self):
         local = self.provider([{"type":"delta","text":"Resposta"}])
@@ -125,13 +127,13 @@ class WebSearchTests(unittest.TestCase):
         service.web_search.run.assert_not_called()
 
     def test_instruct_model_does_not_send_thinking_option(self):
-        provider = OllamaProvider(CONFIG)
+        provider = OllamaProvider(AIConfig(CONFIG.base_url, "qwen3:4b-instruct-2507-q4_K_M"))
         show = io.BytesIO(json.dumps({"thinking":{"values":[False]}}).encode())
         chat = io.BytesIO(b'{"message":{"content":"Oi"},"done":true}\n')
         with patch.object(provider, "_connect"), patch.object(provider, "_post", side_effect=[show,chat]) as request:
             self.assertEqual(list(provider.stream([{"role":"user","content":"Oi"}])), [{"type":"delta","text":"Oi"}])
         self.assertNotIn("think", request.call_args.args[2])
-        self.assertEqual(request.call_args.args[2]["model"], LOCAL_MODELS[0])
+        self.assertEqual(request.call_args.args[2]["model"], "qwen3:4b-instruct-2507-q4_K_M")
 
     def test_context_reduces_input_instead_of_growing_memory(self):
         provider = OllamaProvider(CONFIG)
@@ -270,4 +272,4 @@ class WebSearchTests(unittest.TestCase):
                 self.assertTrue(any(e['type']=='search' for e in events))
 
     def test_local_model_catalog_contains_only_qwen(self):
-        self.assertEqual(LOCAL_MODELS,('qwen3:4b-instruct-2507-q4_K_M','qwen3:1.7b','qwen3:4b','qwen3:8b'))
+        self.assertEqual(LOCAL_MODELS,('qwen3:1.7b','qwen3:4b','qwen3:8b','qwen3:4b-instruct-2507-q4_K_M'))

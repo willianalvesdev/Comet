@@ -10,3 +10,6 @@ artifacts/
 *.log
 
 instance/
+
+node_modules/
+static/js/*.js

@@ -34,7 +34,7 @@ def normalize_email(value):
 
 def create_app(test_config=None):
     load_dotenv(ROOT / '.env')
-    app = Flask(__name__, template_folder=str(ROOT), static_folder=str(ROOT / 'static'))
+    app = Flask(__name__, template_folder=str(ROOT / 'templates'), static_folder=str(ROOT / 'static'))
     app.config.from_mapping(
         TEMPLATES_AUTO_RELOAD=True,
         SECRET_KEY=os.getenv('SECRET_KEY'),
@@ -136,6 +136,33 @@ def create_app(test_config=None):
                 return view(user, *args, **kwargs)
             return wrapper
         return decorate
+
+    from . import finance
+
+    @app.get('/api/finance/dashboard')
+    @api_protected('Entre novamente para acessar suas finanças.')
+    def finance_dashboard(user):
+        return jsonify(finance.dashboard(user['id']))
+
+    @app.get('/api/finance/transactions')
+    @api_protected('Entre novamente para acessar suas finanças.')
+    def finance_history(user):
+        try:
+            return jsonify(finance.history(user['id'], int(request.args.get('limit', '30')), request.args.get('before')))
+        except ValueError as error:
+            return jsonify(error=str(error)), 422
+
+    @app.post('/api/finance/transactions')
+    @limiter.limit('120 per minute')
+    @api_protected('Entre novamente para acessar suas finanças.')
+    def finance_receive(user):
+        try:
+            transaction, created = finance.receive(user['id'], request.get_json(silent=True))
+        except ValueError as error:
+            return jsonify(error=str(error)), 422
+        if transaction is None:
+            return jsonify(error='external_id já utilizado com dados diferentes.'), 409
+        return jsonify(transaction=transaction, created=created), 201 if created else 200
 
     def issue_session(cursor, user_id):
         previous_token = session.get('auth_token')
@@ -329,6 +356,11 @@ def create_app(test_config=None):
         except DatabaseError:
             return jsonify(error='A personalização precisa da atualização do banco. Execute configurar_banco.bat e recarregue esta página.'), 503
 
+    @app.get('/recentes.html')
+    @protected
+    def recent_chats_page():
+        return render_template('recentes.html', user=g.user)
+
     @app.get('/computer.html')
     @protected
     def computer():
@@ -454,6 +486,8 @@ def create_app(test_config=None):
     @app.errorhandler(DatabaseError)
     def database_error(error):
         app.logger.error('Falha na conexão/operação MySQL (código %s)', error.errno)
+        if request.path.startswith('/api/finance/') and error.errno == 1146:
+            return jsonify(error='Prepare as tabelas financeiras executando configurar_banco.bat com o administrador do MySQL.'), 503
         return jsonify(error='Não foi possível acessar sua conta agora. Tente novamente em instantes.'), 503
 
     @app.errorhandler(HTTPException)

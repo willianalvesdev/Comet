@@ -56,10 +56,6 @@
     opacity: 1;
 }
 
-.home__composer:focus-within {
-    border-color: color-mix(in srgb, var(--text) 30%, transparent);
-}
-
 .home__toolbar, .home__modes, .home__actions {
     display: flex;
     align-items: center;
@@ -367,4 +363,7 @@
     .home__composer.is-dictating::after {
         animation: none;
     }
+}
+
+.home__input {
 }

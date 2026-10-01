@@ -19,7 +19,7 @@ class PublicSecurityTests(unittest.TestCase):
         self.client = self.app.test_client()
 
     def test_private_pages_require_login(self):
-        for route in ('/principal.html', '/graficos.html'):
+        for route in ('/principal.html', '/graficos.html', '/recentes.html'):
             response = self.client.get(route)
             self.assertEqual(response.status_code, 302)
             self.assertEqual(response.location, '/?login=1')

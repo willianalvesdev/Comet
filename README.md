@@ -1,12 +1,12 @@
 # Ascenda
 
 Site com Python, Flask, MySQL e Waitress, seguindo a estrutura do Rota Financeira.
-O frontend continua usando HTML, CSS e JavaScript. O banco `ascenda_db` e a conta
+O frontend usa HTML, CSS e TypeScript, compilado para scripts JavaScript clássicos. O banco `ascenda_db` e a conta
 `ascenda_app` são exclusivos deste projeto.
 
 ## Iniciar no Windows
 
-1. Tenha Python 3.10+ e MySQL 8+ instalados, com o serviço MySQL iniciado.
+1. Tenha Python 3.10+, Node.js 22+ com npm 10+ e MySQL 8+ instalados, com o serviço MySQL iniciado.
 2. Na primeira execução, abra `configurar_banco.bat`. Ele prepara `venv`, instala
    as bibliotecas e gera `.env` com chaves aleatórias. Informe o administrador do
    MySQL e sua senha na janela. A senha administrativa não é salva.
@@ -25,7 +25,7 @@ As páginas principal e de gráficos exigem autenticação. As sessões duram 30
 são verificadas no MySQL e invalidadas ao sair. As senhas são armazenadas com hash
 scrypt, e os formulários têm proteção CSRF e limite de tentativas por IP.
 
-Os dados do gráfico continuam demonstrativos. A página Computer tem chat com Qwen local e Gemini.
+Os gráficos financeiros usam as transações armazenadas por usuário. A página Computer tem chat com Qwen local e Gemini.
 O ditado usa o reconhecimento de voz do navegador; a permissão de microfone permanece disponível.
 
 ## Verificação
@@ -34,19 +34,52 @@ Execute `venv\Scripts\python.exe -m unittest discover -s tests -v`.
 Os testes de integração usam contas temporárias no banco configurado e removem apenas
 essas contas ao final. Sem MySQL configurado, esses testes são marcados como ignorados.
 
-Os testes do frontend exigem Node.js e Playwright disponível ao Node:
-`node --test tests/frontend/navigation.test.cjs`. No Windows, usam o Edge instalado;
-`BROWSER_PATH` permite selecionar outro executável Chromium. `PLAYWRIGHT_MODULE`
-pode apontar para uma instalação existente do Playwright. Os testes usam dados
-simulados, sem contas reais ou chamadas aos modelos.
+Instale as dependências locais com `npm ci`. Execute:
+
+- `npm run typecheck`: checagem estrita do site e dos testes; gera apenas declarações em `artifacts/types`.
+- `npm run build`: compila `static/ts` nos mesmos endereços de `static/js`.
+- `npm run test:frontend`: compila e executa os testes `.cts` como CommonJS em `artifacts/tests`.
+- `npm run watch`: recompila os scripts durante o desenvolvimento.
+
+Os testes usam Playwright local e, no Windows, o Edge instalado. `BROWSER_PATH`
+permite selecionar outro Chromium. As APIs são simuladas, sem contas reais nem
+chamadas aos modelos. Não há lint configurado.
+
+O iniciador executa `npm ci` na primeira utilização e quando o lockfile muda.
+A compilação ocorre depois da verificação de instância duplicada. No comando R,
+um build com erro mantém o servidor existente; `noEmitOnError` preserva os arquivos
+JavaScript anteriores. Nenhuma ferramenta é instalada globalmente.
+
+## Estrutura do projeto
+
+- `ascenda/`: aplicação Flask, banco e serviços de IA.
+- `templates/`: páginas Jinja; `partials/` contém lateral e configurações compartilhadas.
+- `static/ts/`: fontes TypeScript; `static/js/`: saída gerada e biblioteca vendorizada.
+- `static/`: também contém CSS, fontes e imagens.
+- `scripts/`: preparação e inicialização do ambiente.
+- `infra/`: configuração do SearXNG.
+- `tests/`: testes do backend e frontend.
+- `docs/`: documentação complementar.
+- `instance/`: dados locais de execução.
+
+Os arquivos `.bat` permanecem na raiz para facilitar o uso no Windows.
+A localização dos templates não altera as URLs públicas das páginas.
 
 ## Organização do frontend
 
-O site mantém HTML com templates Jinja, CSS e JavaScript, sem etapa de compilação.
+O site mantém HTML com templates Jinja e CSS. O TypeScript compila para scripts
+clássicos ES2022, sem framework ou bundler. Edite os arquivos de `static/ts`;
+não edite a saída gerada de `static/js`. Lightweight Charts 5.0.9 e suas licenças
+continuam em `static/js/vendor`, com os tipos oficiais fixados na mesma versão.
 `static/css/globals.css` centraliza fontes, cores, espaçamentos, raios, tamanhos de
 ícones e durações em `:root`. Os estilos de cada página usam esses valores sem
 alterar seus pontos de quebra. `templates/partials/sidebar.html` compartilha o
 menu lateral das páginas autenticadas, mantendo a seleção da página atual.
+Os demais componentes de `templates/partials/` compartilham o menu móvel, o fundo
+clicável da lateral, o painel Descobrir e seu botão de abertura, além dos controles
+de ditado e envio. As páginas os incluem com Jinja, sem duplicar o HTML nem mudar
+os seletores usados pelo JavaScript. As caixas de mensagem mantêm suas diferenças
+entre chat e finanças.
 
 As listas atualizam a seleção sem reconstruir seus elementos. Observadores de
 DOM limitam as buscas aos elementos alterados; o navegador de mensagens atualiza
@@ -86,7 +119,7 @@ mais de uma instância. Não versione `.env`, o ambiente Python ou dados do banc
 
 ## Computer — conversa com Qwen local e Gemini
 
-`computer.html` organiza a conversa; `static/js/computer.js` controla seu estado e
+`templates/computer.html` organiza a conversa; `static/js/computer.js` controla seu estado e
 `static/js/computer-service.js` lê os eventos da API interna. A geração passa por
 `POST /api/ai/chat`, `ComputerService` e o provedor escolhido. As chaves permanecem
 no servidor. O modo inicial da interface é Gemini. Computer seleciona inicialmente
@@ -210,3 +243,54 @@ anexos que não estejam referenciados em outra conversa.
 Os cartões de anexos mostram nome, tamanho e miniatura de imagem. O endpoint
 `GET /api/ai/attachments/<token>/preview` exige a conta proprietária do anexo e
 responde com `Cache-Control: private, no-store`.
+
+A navegação entre Chat, Finanças, Descobrir e Recentes mantém a lateral no mesmo
+documento. `workspace-navigation.js` substitui apenas `#workspace-page` e encerra
+os eventos, requisições e temporizadores da página anterior antes de montar a próxima.
+
+## Dados financeiros
+
+A página Finanças usa registros de `finance_transactions`, isolados pela conta autenticada.
+Execute `configurar_banco.bat` uma vez com o administrador do MySQL após esta atualização;
+o configurador cria a nova tabela sem apagar registros existentes. Reinicie o servidor.
+A conta do site mantém apenas permissões de leitura e escrita, sem criação de tabelas.
+
+Não há formulário de cadastro nem conexão bancária automática nesta etapa. A API recebe
+uma transação por chamada, exige sessão autenticada e `X-CSRFToken` (meta `csrf-token`
+da página), e ignora qualquer identidade que não venha da sessão:
+
+- `POST /api/finance/transactions`: recebe e persiste uma transação.
+- `GET /api/finance/transactions?limit=30`: histórico em ordem de data e ID decrescentes;
+  envie o `next_cursor` retornado em `before` para obter a próxima página (limite 100).
+- `GET /api/finance/dashboard`: saldo, receitas e despesas do mês corrente, comparações,
+  pequenas curvas mensais e série diária do gráfico.
+
+Exemplo de corpo JSON para recebimento:
+
+```json
+{
+  "external_id": "importacao-banco-2026-09-001",
+  "kind": "income",
+  "amount": "2500.50",
+  "description": "Salário",
+  "category": "Trabalho",
+  "occurred_on": "2026-09-01"
+}
+```
+
+`kind` aceita `income` ou `expense`; valores são positivos, em BRL, enviados como string
+com ponto decimal e até duas casas, armazenados em DECIMAL(14,2). `category` é opcional.
+`occurred_on` é a data efetiva (AAAA-MM-DD), de 1970 até hoje; o fechamento diário usa
+UTC−03:00. Não são aceitos agendamentos futuros. `external_id` é obrigatório e único
+por usuário: repetir o mesmo registro retorna 200 sem duplicar; reutilizá-lo com outros
+valores retorna 409. Novos registros retornam 201 e dados inválidos retornam 422.
+
+O saldo parte de zero e soma receitas menos despesas de todo o histórico recebido;
+não representa saldo bancário não importado. Receitas e gastos são totais do mês atual.
+A comparação usa o mês anterior inteiro; para o saldo, usa o saldo no fim do mês anterior.
+Se a base anterior for zero, a porcentagem aparece como “—”. Dias sem transações carregam
+o saldo anterior. As velas representam abertura, máximo, mínimo e fechamento do saldo
+por data, seguindo a ordem de registro dentro do dia; o volume é a soma movimentada em BRL.
+Sem movimentações, o gráfico exibe uma linha cinza no zero e os totais ficam em zero. Falhas de conexão exibem erro,
+sem substituir dados por exemplos. A página atualiza ao reabrir, reconectar ou receber
+o evento `finance:changed`, disponível para a futura interface de inclusão.

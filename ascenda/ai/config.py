@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from urllib.parse import urlsplit
 
 
-LOCAL_MODELS = ('qwen3:4b-instruct-2507-q4_K_M', 'qwen3:1.7b', 'qwen3:4b', 'qwen3:8b')
+LOCAL_MODELS = ('qwen3:1.7b', 'qwen3:4b', 'qwen3:8b', 'qwen3:4b-instruct-2507-q4_K_M')
 PROVIDERS = ('qwen', 'gemini', *LOCAL_MODELS)
 
 @dataclass(frozen=True)
@@ -19,7 +19,7 @@ class AIConfig:
     @classmethod
     def from_env(cls):
         return cls(os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434').rstrip('/'),
-                   os.getenv('OLLAMA_MODEL', 'qwen3:4b-q4_K_M'),
+                   os.getenv('OLLAMA_MODEL', 'qwen3:1.7b'),
                    float(os.getenv('OLLAMA_TIMEOUT_SECONDS', '120')))
 
     def __post_init__(self):

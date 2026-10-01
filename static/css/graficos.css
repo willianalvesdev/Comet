@@ -6,36 +6,6 @@
     padding: var(--space-6) var(--space-8) 40px;
 }
 
-.finance-tabs {
-    display: flex;
-    align-items: center;
-    gap: 28px;
-    min-width: 0;
-    margin-bottom: var(--space-5);
-    border-bottom: 1px solid var(--border);
-}
-
-.finance-tab {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    min-height: 48px;
-    padding: 0 18px var(--space-4);
-    color: var(--text);
-    font-size: var(--font-size-4);
-    white-space: nowrap;
-}
-
-.finance-tab::after {
-    position: absolute;
-    right: 18px;
-    bottom: -1px;
-    left: 18px;
-    height: 2px;
-    background: var(--text);
-    content: "";
-}
-
 .market-card {
     min-width: 0;
     overflow: hidden;
@@ -91,7 +61,7 @@
 .market-period {
     margin: 3px 0 0;
     color: var(--text-secondary);
-    font-size: var(--font-size-6);
+    font-size: var(--font-size-5);
     line-height: 1.6;
     overflow-wrap: anywhere;
 }
@@ -287,9 +257,6 @@
 }
 
 @media (width >= 1100px) {
-    .finance-tabs {
-        margin-bottom: var(--space-5);
-    }
 
     .market-card {
         width: 100%;
@@ -303,20 +270,6 @@
 @media (width < 640px) {
     .finance-page {
         padding: var(--space-5) var(--space-4) 28px;
-    }
-
-    .finance-tabs {
-        margin-bottom: var(--space-4);
-    }
-
-    .finance-tab {
-        min-height: 42px;
-        padding: 0 var(--space-2) 14px;
-    }
-
-    .finance-tab::after {
-        right: 8px;
-        left: 8px;
     }
 
     .market-card {
@@ -359,10 +312,6 @@
     .chart-style {
         transition: none;
     }
-}
-
-.finance-tab {
-    font-weight: 400;
 }
 
 .market-chart:focus-visible {
@@ -557,39 +506,12 @@
 }
 
 .finance-page {
-    padding-top: 0;
+    padding-top: var(--space-6);
 }
 
-.finance-tabs {
-    align-items: stretch;
-    gap: var(--space-6);
-    margin-inline: var(--space-4);
-    margin-bottom: var(--space-8);
-}
 
-.finance-tab {
-    min-height: 0;
-    padding: var(--space-5) 0 var(--space-4);
-    border-bottom: 2px solid var(--text);
-}
 
-.finance-tab::after {
-    display: none;
-}
 
-@media (width < 1100px) {
-    .finance-tabs {
-        margin-inline: -4px;
-    }
-}
-
-@media (width < 640px) {
-    .finance-tabs {
-        margin-inline: 0;
-        margin-bottom: var(--space-6);
-        gap: var(--space-5);
-    }
-}
 
 .finance-composer {
     grid-column: 1;
@@ -616,10 +538,6 @@
     margin-top: var(--space-2);
 }
 
-.finance-composer.is-computer .home__composer {
-    border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
-    box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 15%, transparent);
-}
 
 @media (width < 1200px) {
     .finance-composer {
@@ -765,9 +683,13 @@
     vector-effect: non-scaling-stroke;
 }
 
-.finance-total__values, .finance-total__comparison, .market-summary__values, .market-period, .chart-tooltip, .transfer-values, .transfer-description small, .chart-range {
+.finance-total__values, .market-summary__values, .chart-tooltip, .transfer-values {
     font-family: var(--font-numbers);
     font-variant-numeric: tabular-nums;
+}
+
+.chart-range, .market-period {
+   font-weight: 500;
 }
 
 .market-change__percentage {
@@ -845,4 +767,71 @@
 
 .transfer-more {
     padding: var(--space-2);
+}
+
+.market-number {
+    display: inline-flex;
+    overflow: hidden;
+    vertical-align: bottom;
+    white-space: pre;
+    font-variant-numeric: tabular-nums;
+}
+.market-number > span {
+    display: inline-block;
+}
+
+.market-change {
+    transition: color .6s ease;
+}
+.market-change[data-trend="neutral"] {
+    color: var(--text-secondary);
+}
+.market-digit {
+    width: 1ch;
+    height: 1.5em;
+    overflow: hidden;
+}
+.market-digit > span,
+.market-digit > span > span {
+    display: block;
+    height: 1.5em;
+    line-height: 1.5em;
+}
+.market-direction {
+    display: inline-flex;
+    width: 16px;
+    height: 16px;
+    transition: transform .6s ease;
+}
+.market-direction svg { width: 100%; height: 100%; }
+.market-direction__head {
+    transform-origin: 14px 8px;
+    transition: transform .4s ease, opacity .4s ease;
+}
+.is-starting .market-direction__head { transform: scale(0); opacity: 0; }
+.market-change[data-trend="up"] .market-direction { transform: rotate(-45deg); }
+.market-change[data-trend="down"] .market-direction { transform: rotate(45deg); }
+@media (prefers-reduced-motion: reduce) {
+    .market-change, .market-direction, .market-direction__head { transition: none; }
+}
+
+.finance-composer .home__send {
+    background: var(--text);
+    color: var(--surface);
+}
+
+.finance-status {
+    padding: var(--space-4);
+    color: var(--text-secondary);
+}
+.finance-status:empty { display: none; }
+
+.transfer-more[hidden], .market-change__percentage[hidden] { display: none; }
+
+.finance-total--zero {
+    color: var(--text-secondary);
+}
+.market-change[data-trend="neutral"] .market-direction__head {
+    transform: scale(0);
+    opacity: 0;
 }

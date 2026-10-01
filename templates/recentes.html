@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <script src="/static/js/dom.js"></script>
+    <script src="/static/js/api-data.js"></script>
+    <script src="/static/js/workspace-navigation.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Recentes — Ascenda</title>
+    <link rel="icon" type="image/png" href="/static/img/icons/widget-dark.png">
+    <script src="/static/js/cookies.js"></script>
+    <script src="/static/js/theme.js"></script>
+    {% for stylesheet in ['globals', 'principal', 'cookies', 'sessions', 'chat-search', 'recent-chats'] %}
+    <link rel="stylesheet" href="/static/css/{{ stylesheet }}.css">
+    {% endfor %}
+    {% for script in ['sidebar', 'profile-menu', 'chat-search', 'sessions', 'recent-chats', 'tooltips'] %}
+    <script src="/static/js/{{ script }}.js" defer></script>
+    {% endfor %}
+</head>
+<body class="workspace recent-chats-page">
+{% with active_page='recentes' %}{% include 'partials/sidebar.html' %}{% endwith %}
+{% include 'partials/sidebar-backdrop.html' %}
+<div id="workspace-page">
+<main class="workspace__content">
+    <header class="workspace__header recent-chats__header">
+{% include 'partials/mobile-menu.html' %}
+        <h1 id="recent-chats-title">Recentes</h1>
+        <div class="recent-chats__default-actions">
+            <button class="recent-chats__search-toggle" type="button" aria-label="Pesquisar conversas" aria-expanded="false" aria-controls="recent-chats-search"><i class="chat-search__icon" aria-hidden="true"></i></button>
+            <label class="recent-chats__search" hidden><i class="chat-search__icon" aria-hidden="true"></i><input id="recent-chats-search" type="search" placeholder="Buscar conversas..." aria-label="Buscar conversas" maxlength="100"></label>
+            <a class="recent-chats__new" href="/computer.html?new=1"><i class="recent-chats__icon recent-chats__icon--new" aria-hidden="true"></i>Novo</a>
+        </div>
+        <div class="recent-chats__selection-actions" hidden>
+            <button class="recent-chats__delete" type="button"><i class="sessions-icon sessions-icon--delete" aria-hidden="true"></i>Excluir</button>
+            <button class="recent-chats__cancel" type="button">Cancelar</button>
+        </div>
+    </header>
+    <section class="recent-chats" aria-labelledby="recent-chats-title">
+        <div class="recent-chats__toolbar">
+            <div class="recent-chats__select-group">
+                <input class="recent-chats__checkbox" id="select-all-chats" type="checkbox" aria-label="Selecionar todas as conversas exibidas" disabled>
+                <button type="button" popovertarget="chat-selection-menu" aria-label="Opções de seleção"><i class="recent-chats__chevron" aria-hidden="true"></i></button>
+            </div>
+            <label class="recent-chats__sort">Ordenar:
+                <select aria-label="Ordenar conversas"><option value="recent">mais recentes</option><option value="oldest">mais antigas</option><option value="title">nome</option></select>
+                <i class="recent-chats__chevron" aria-hidden="true"></i>
+            </label>
+        </div>
+        <div id="chat-selection-menu" class="recent-chats__select-menu" popover>
+            <button type="button" data-select="all">Todas</button>
+            <button type="button" data-select="none">Nenhuma</button>
+        </div>
+        <p class="recent-chats__status" role="status">Carregando conversas…</p>
+        <button class="recent-chats__retry" type="button" hidden>Tentar novamente</button>
+        <div class="recent-chats__list" aria-label="Conversas" aria-busy="true"></div>
+    </section>
+</main>
+<dialog class="sessions-dialog recent-chats__confirm" aria-labelledby="delete-chats-title">
+    <form>
+        <h2 id="delete-chats-title">Excluir conversas?</h2>
+        <p class="recent-chats__delete-description"></p>
+        <p class="sessions-dialog__error" role="alert"></p>
+        <div><button type="button" data-cancel>Cancelar</button><button type="submit" class="sessions-menu__delete">Excluir</button></div>
+    </form>
+</dialog>
+</div>
+{% include 'partials/settings.html' %}
+</body>
+</html>

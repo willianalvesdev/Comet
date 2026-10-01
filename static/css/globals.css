@@ -203,9 +203,10 @@
     --surface-hover-strong: color-mix(in srgb, var(--text) 6%, transparent);
     --surface-selected: color-mix(in srgb, var(--text) 7%, transparent);
     --accent: #20808D;
-    --border: #d6d5d41A;
+    --border: rgb(from var(--text) r g b / .1);
+    --border-focus: rgb(from var(--text) r g b / .2);
     --text: #D6D5D4;
-    --text-secondary: #959593;
+    --text-secondary: rgb(from var(--text) r g b / .65);
     --text-white: #ffffff;
     --green: #539E55;
     --red: #DC6973;
@@ -226,6 +227,7 @@
     --radius-pill: 999px;
     --radius-circle: 50%;
     --icon-small: 16px;
+    --icon-small-medium: 18px;
     --icon-medium: 20px;
     --icon-large: 24px;
     --duration-fast: 150ms;
@@ -245,7 +247,7 @@
     --recents-panel-width: 320px;
     --recents-panel-height: 262px;
     --composer-max-lines: 10;
-    --response-characters-per-second: 500;
+    --response-characters-per-second: 250;
 }
 
 *,
@@ -561,4 +563,19 @@ button, input, textarea, select {
 
 code, pre, kbd {
     font-family: var(--font-mono);
+}
+
+:is(textarea, input:not([type]), input[type="text"], input[type="search"], input[type="email"], input[type="password"], input[type="tel"], input[type="url"], input[type="number"]):focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.ui-icon-x {
+    display: inline-block;
+    width: var(--icon-small, 16px);
+    height: var(--icon-small, 16px);
+    flex-shrink: 0;
+    background: currentColor;
+    mask: url('../img/icons/x.svg') center/contain no-repeat;
+    vertical-align: middle;
 }

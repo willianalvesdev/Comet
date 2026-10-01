@@ -218,6 +218,7 @@ class ComputerRouteTests(unittest.TestCase):
         html = self.client.get('/').get_data(as_text=True)
         self.csrf = re.search(r'name="csrf_token" value="([^"]+)"', html).group(1)
         self.service = self.app.extensions['ascenda_computer']
+        self.service.web_search = None
         self.store = self.app.extensions['ascenda_conversations']
         self.service.personalization = None
         begin = patch.object(self.store, 'begin', side_effect=lambda user, payload, config: {
@@ -307,7 +308,7 @@ class ComputerRouteTests(unittest.TestCase):
         with self.db:
             response = self.client.get('/api/ai/models')
             self.assertEqual(response.status_code, 200)
-            self.assertEqual([m['id'] for m in response.json['models']], ['qwen', 'gemini', 'qwen3:4b-instruct-2507-q4_K_M', 'qwen3:1.7b', 'qwen3:4b', 'qwen3:8b'])
+            self.assertEqual([m['id'] for m in response.json['models']], ['qwen', 'gemini', 'qwen3:1.7b', 'qwen3:4b', 'qwen3:8b', 'qwen3:4b-instruct-2507-q4_K_M'])
             self.assertTrue(response.json['models'][0]['configured'])
             self.assertTrue(all(set(m) == {'id','name','configured'} for m in response.json['models']))
             def local(messages):

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <script src="/static/js/dom.js"></script>
+    <script src="/static/js/api-data.js"></script>
+    <script src="/static/js/workspace-navigation.js"></script>
+    <script src="/static/js/cookies.js"></script>
+    <link rel="stylesheet" href="/static/css/cookies.css">
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#171615">
+    <meta name="color-scheme" content="dark">
+    <title>Finanças</title>
+    <link rel="icon" type="image/png" href="/static/img/icons/widget-dark.png">
+    <script src="./static/js/theme.js"></script>
+    <link rel="stylesheet" href="./static/css/globals.css">
+    <link rel="stylesheet" href="./static/css/principal.css">
+    <link rel="stylesheet" href="./static/css/home.css">
+    <link rel="stylesheet" href="./static/css/graficos.css">
+    <link rel="stylesheet" href="/static/css/computer.css">
+    <script src="/static/js/computer-service.js" defer></script>
+    <script src="/static/js/model-menu.js" defer></script>
+    <script src="./static/js/sidebar.js" defer></script>
+    <script src="./static/js/profile-menu.js" defer></script>
+    <script src="./static/js/vendor/lightweight-charts.js" defer></script>
+    <script src="./static/js/graficos.js" defer></script>
+    <script src="/static/js/finance-data.js" defer></script>
+    <script src="/static/js/discovery-panel.js" defer></script>
+    <script src="./static/js/graph-composer.js" defer></script>
+    <script src="./static/js/dictation.js" defer></script>
+    <link rel="stylesheet" href="/static/css/sessions.css">
+    <link rel="stylesheet" href="/static/css/chat-search.css">
+    <script src="/static/js/chat-search.js" defer></script>
+    <script src="/static/js/sessions.js" defer></script>
+    <script src="/static/js/chat-preview.js" defer></script>
+</head>
+<body class="workspace">
+{% with active_page='graficos' %}{% include 'partials/sidebar.html' %}{% endwith %}
+{% include 'partials/sidebar-backdrop.html' %}
+<div id="workspace-page">
+    <main class="workspace__content" aria-label="Área de trabalho">
+        <header class="workspace__header">
+{% include 'partials/mobile-menu.html' %}
+            <span class="workspace__title">Finanças</span>
+{% include 'partials/discovery-toggle.html' %}
+        </header>
+
+        <section class="finance-page" aria-label="Finanças">
+            <div class="finance-layout">
+            <section class="finance-totals" aria-labelledby="finance-totals-title">
+                <h2 class="finance-section-title finance-totals__title" id="finance-totals-title">Resumo atual</h2>
+                {% for key, title in [('balance', 'Balanço total'), ('income', 'Receitas do mês'), ('expense', 'Gastos do mês')] %}
+                <article class="finance-total finance-total--{{ key }}" data-finance-total="{{ key }}">
+                    <div class="finance-total__header"><h2>{{ title }}</h2><div class="finance-total__values"><p>—</p><span class="finance-total__change"></span></div><span class="finance-total__comparison">Carregando…</span></div>
+                    <svg class="finance-total__sparkline" viewBox="0 0 260 76" preserveAspectRatio="none" role="img" aria-label="Evolução no mês atual"><defs><linearGradient id="total-{{ key }}" x1="0" y1="0" x2="0" y2="1"><stop stop-color="currentColor" stop-opacity=".2"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path class="finance-total__area" fill="url(#total-{{ key }})"/><path class="finance-total__line" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>
+                </article>
+                {% endfor %}
+            </section>
+            <div class="finance-chart-column">
+            <h2 class="finance-section-title">Gráfico</h2>
+            <section class="market-card" aria-label="Evolução dos valores">
+                <div class="market-summary">
+                    <div class="market-summary__values">
+                        <span class="market-price" id="market-price">—</span>
+                        <span class="market-change" id="market-change" data-trend="up"></span>
+                    </div>
+                    <p class="market-period" id="market-period"></p>
+                </div>
+                <div class="chart-plot">
+                <div class="chart-toolbar">
+                    <div class="chart-ranges" role="group" aria-label="Período do gráfico">
+                        <button class="chart-range" type="button" data-range="1D" aria-pressed="false" aria-label="Um dia">1D</button>
+                        <button class="chart-range" type="button" data-range="5D" aria-pressed="false" aria-label="Cinco dias">5D</button>
+                        <button class="chart-range" type="button" data-range="1M" aria-pressed="false" aria-label="Um mês">1M</button>
+                        <button class="chart-range" type="button" data-range="6M" aria-pressed="true" aria-label="Seis meses">6M</button>
+                        <button class="chart-range" type="button" data-range="YTD" aria-pressed="false" aria-label="Desde o início do ano">YTD</button>
+                        <button class="chart-range" type="button" data-range="1Y" aria-pressed="false" aria-label="Um ano">1A</button>
+                        <button class="chart-range" type="button" data-range="5Y" aria-pressed="false" aria-label="Cinco anos">5A</button>
+                        <button class="chart-range" type="button" data-range="MAX" aria-pressed="false" aria-label="Todo o período">MÁX</button>
+                    </div>
+                    <div class="chart-styles" role="group" aria-label="Tipo de gráfico">
+                        <button class="chart-style" type="button" data-chart-style="line" aria-label="Gráfico de linha" title="Gráfico de linha" aria-pressed="true">
+                            <span class="chart-style__icon chart-style__icon--line" aria-hidden="true"></span>
+                        </button>
+                        <button class="chart-style" type="button" data-chart-style="candles" aria-label="Gráfico de velas" title="Gráfico de velas" aria-pressed="false">
+                            <span class="chart-style__icon chart-style__icon--candles" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="chart-stage">
+                    <div class="market-chart" id="market-chart" role="group" tabindex="0" aria-label="Gráfico interativo de valores e volume" aria-describedby="chart-description"></div>
+                    <p class="chart-empty" id="chart-state" role="status">Carregando gráfico…</p>
+                </div>
+                    <div class="chart-tooltip" id="chart-tooltip" hidden aria-hidden="true">
+                        <time></time><strong></strong><small></small>
+                    </div>
+                </div>
+                <p class="chart-description" id="chart-description" aria-live="polite"></p>
+                <noscript><p class="chart-footer">Ative o JavaScript para visualizar o gráfico.</p></noscript>
+            </section>
+            </div>
+            <section class="transfer-history" aria-labelledby="history-title">
+                <h2 class="finance-section-title" id="history-title">Recentes</h2>
+                <div class="transfer-card">
+                    <ul class="transfer-list" aria-label="Transações"></ul>
+                    <p class="finance-status" role="status">Carregando transações…</p>
+                    <button class="transfer-more" type="button" hidden>Carregar mais <i class="ui-arrow" aria-hidden="true"></i></button>
+                </div>
+            </section>
+            <div class="finance-composer" aria-label="Mensagem sobre o gráfico">
+<form class="home__composer" aria-label="Escrever uma mensagem">
+                    <p class="home__dictation-status" role="status" aria-live="polite" id="dictation-status"></p>
+                    <textarea class="home__input" aria-label="Mensagem" placeholder="Pergunte qualquer coisa" rows="2" maxlength="8000"></textarea>
+{% with composer_attachments=false %}{% include 'partials/chat-toolbar.html' %}{% endwith %}
+                </form>
+            </div>
+            </div>
+        </section>
+    </main>
+{% include 'partials/discovery-panel.html' %}
+</div>
+{% include 'partials/settings.html' %}
+<script src="/static/js/tooltips.js" defer></script>
+</body>
+</html>
