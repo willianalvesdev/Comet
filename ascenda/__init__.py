@@ -148,7 +148,7 @@ def create_app(test_config=None):
     @api_protected('Entre novamente para acessar suas finanças.')
     def finance_history(user):
         try:
-            return jsonify(finance.history(user['id'], int(request.args.get('limit', '30')), request.args.get('before')))
+            return jsonify(finance.history(user['id'], int(request.args.get('limit', '30')), request.args.get('before'), request.args.get('state', 'active')))
         except ValueError as error:
             return jsonify(error=str(error)), 422
 
@@ -163,6 +163,33 @@ def create_app(test_config=None):
         if transaction is None:
             return jsonify(error='external_id já utilizado com dados diferentes.'), 409
         return jsonify(transaction=transaction, created=created), 201 if created else 200
+
+    @app.post('/api/finance/interpret')
+    @limiter.limit('30 per minute')
+    @api_protected('Entre novamente para acessar suas finanças.')
+    def finance_interpret(user):
+        from .finance_interpretation import prepare_interpretation, validate_interpretation, SYSTEM, SCHEMA
+        try:
+            with computer_service.slot(user['id']):
+                provider, data, context = prepare_interpretation(user['id'], request.get_json(silent=True), providers)
+                interpretation = validate_interpretation(providers[provider].structured(SYSTEM, data, SCHEMA))
+                return jsonify(interpretation=interpretation, context=context)
+        except ValueError as error:
+            return jsonify(error=str(error)), 422
+        except AIError as error:
+            return jsonify(error=error.message, code=error.code), error.status
+
+    @app.post('/api/finance/actions')
+    @limiter.limit('120 per minute')
+    @api_protected('Entre novamente para acessar suas finanças.')
+    def finance_actions(user):
+        from .finance_execution import execute_financial_actions, FinancialConflict
+        try:
+            return jsonify(execute_financial_actions(user['id'], request.get_json(silent=True)))
+        except FinancialConflict as error:
+            return jsonify(error=str(error)), 409
+        except ValueError as error:
+            return jsonify(error=str(error)), 422
 
     def issue_session(cursor, user_id):
         previous_token = session.get('auth_token')
@@ -486,7 +513,7 @@ def create_app(test_config=None):
     @app.errorhandler(DatabaseError)
     def database_error(error):
         app.logger.error('Falha na conexão/operação MySQL (código %s)', error.errno)
-        if request.path.startswith('/api/finance/') and error.errno == 1146:
+        if request.path.startswith('/api/finance/') and error.errno in (1146, 1054):
             return jsonify(error='Prepare as tabelas financeiras executando configurar_banco.bat com o administrador do MySQL.'), 503
         return jsonify(error='Não foi possível acessar sua conta agora. Tente novamente em instantes.'), 503
 

@@ -35,7 +35,7 @@
     border-radius: var(--radius-medium);
 }
 
-.sessions__row:hover, .sessions__row:focus-within, .sessions__row:has([aria-current]) {
+.sessions__row:hover, .sessions__row:has(:focus-visible), .sessions__row:has([aria-current]) {
     background: var(--surface-hover);
 }
 
@@ -55,10 +55,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 30px;
-    width: 30px;
-    height: 30px;
-    margin-right: var(--space-1);
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    margin: var(--space-1);
     padding: 0;
     border: 0;
     border-radius: var(--radius-control);
@@ -68,7 +68,7 @@
     cursor: pointer;
 }
 
-.sessions__row:hover .sessions__more, .sessions__row:focus-within .sessions__more, .sessions__more[aria-expanded="true"] {
+.sessions__row:hover .sessions__more, .sessions__row:has(:focus-visible) .sessions__more, .sessions__more[aria-expanded="true"] {
     opacity: 1;
 }
 
@@ -79,9 +79,9 @@
 
 .sessions-icon {
     display: inline-block;
-    width: var(--icon-small);
-    height: var(--icon-small);
-    flex: 0 0 var(--icon-small);
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
     background: currentColor;
     mask: var(--session-icon) center / contain no-repeat;
     -webkit-mask: var(--session-icon) center / contain no-repeat;
@@ -496,45 +496,53 @@
     border-radius: var(--radius-control);
 }
 
-.sessions > summary:has(a.sessions__heading):hover {
-    background: var(--surface-hover);
-}
-
 .sessions__heading {
-    flex: 1;
-    padding: var(--space-2);
-    color: inherit;
-    text-decoration: none;
-}
-
-.sessions__collapse {
-    display: grid;
-    place-items: center;
-    width: 24px;
-    height: 24px;
-    margin-right: var(--space-1);
-    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 0 var(--space-2);
     border: 0;
-    border-radius: var(--radius-control);
-    color: inherit;
     background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
 }
-
-.sessions__collapse:hover {
-    background: var(--surface-selected);
-}
-
 .sessions__chevron {
-    width: var(--icon-small-medium);
-    height: var(--icon-small-medium);
+    width: 14px;
+    height: 14px;
     background: currentColor;
     mask: url('../img/icons/topic-menu.svg') center/contain no-repeat;
     transform: rotate(-90deg);
     transition: transform var(--duration-normal);
 }
-
-.sessions[open] .sessions__chevron {
-    transform: rotate(0deg);
+.sessions[open] .sessions__chevron { transform: rotate(0deg); }
+.sessions__visit, .sessions__preferences {
+    display: grid;
+    place-items: center;
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+}
+.sessions__visit i, .sessions__preferences i {
+    width: 18px;
+    height: 18px;
+    background: currentColor;
+}
+.sessions__visit { margin-left: auto; }
+.sessions__visit i { mask: url('../img/icons/arrow.svg') center/contain no-repeat; transform: rotate(-45deg); }
+.sessions__preferences i { mask: url('../img/icons/settings-preferences.svg') center/contain no-repeat; }
+.sessions__chevron, .sessions__visit { opacity: 0; }
+.sessions__preferences { opacity: 1; }
+.sidebar:hover :is(.sessions__chevron, .sessions__visit, .sessions__preferences),
+.sessions:has(:focus-visible) :is(.sessions__chevron, .sessions__visit, .sessions__preferences) { opacity: 1; }
+@media (hover: none) {
+    .sessions__chevron, .sessions__visit, .sessions__preferences { opacity: 1; }
 }
 
 .sidebar .sessions__row,
@@ -548,4 +556,48 @@
     height: 32px;
     padding-block: 0;
     line-height: 32px;
+}
+#recent-chats {
+    display: grid;
+    gap: 4px;
+}
+#recent-chats .sessions__link {
+    position: relative;
+    padding-left: 30px;
+}
+#recent-chats .sessions__link::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    box-sizing: border-box;
+    border: 1px solid var(--text-secondary);
+    border-radius: 50%;
+    opacity: .5;
+    transform: translateY(-50%);
+}
+
+.sessions__more .sessions-icon--more { transform: rotate(90deg); }
+
+.sessions-menu .sessions-menu__delete {
+    margin-top: 4px;
+    border-top: 1px solid var(--border);
+}
+.sessions-menu .sessions-menu__delete:hover,
+.sessions-menu .sessions-menu__delete:focus-visible {
+    background: var(--red);
+    color: #fff;
+}
+
+.sessions__heading:hover {
+    color: var(--text);
+}
+.sessions__visit, .sessions__preferences {
+    border-radius: var(--radius-control);
+}
+.sessions__visit:hover, .sessions__preferences:hover {
+    background: var(--surface-hover);
+    color: var(--text);
 }

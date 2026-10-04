@@ -40,7 +40,7 @@ function researchData(value: unknown): Research {
 }
 function metadataData(value:unknown):ResponseMetadata {
     const data=record(value ?? {});
-    return {research:data.research==null?undefined:researchData(data.research),thinking_seconds:data.thinking_seconds==null?data.thinking_seconds:numberValue(data.thinking_seconds),elapsed_seconds:data.elapsed_seconds==null?undefined:numberValue(data.elapsed_seconds),instant:data.instant==null?undefined:booleanValue(data.instant)};
+    return {provider:optionalString(data.provider),research:data.research==null?undefined:researchData(data.research),thinking_seconds:data.thinking_seconds==null?data.thinking_seconds:numberValue(data.thinking_seconds),elapsed_seconds:data.elapsed_seconds==null?undefined:numberValue(data.elapsed_seconds),instant:data.instant==null?undefined:booleanValue(data.instant)};
 }
 function turnData(value:unknown):Turn {
     const data=record(value);
@@ -77,7 +77,7 @@ function financeDashboardData(value:unknown):FinanceDashboard {
 }
 function financeHistoryData(value:unknown):FinanceHistory {
     const data=record(value);
-    return {next_cursor:data.next_cursor==null?null:stringValue(data.next_cursor),transactions:arrayValue(data.transactions,value=>{const item=record(value);if(item.kind!=='income'&&item.kind!=='expense')throw new Error('Transação inválida.');return {id:stringValue(item.id),kind:item.kind,amount:stringValue(item.amount),description:stringValue(item.description),category:stringValue(item.category),occurred_on:stringValue(item.occurred_on),currency:stringValue(item.currency ?? 'BRL')};})};
+    return {next_cursor:data.next_cursor==null?null:stringValue(data.next_cursor),transactions:arrayValue(data.transactions,value=>{const item=record(value);if(item.kind!=='income'&&item.kind!=='expense')throw new Error('Transação inválida.');return {id:stringValue(item.id),kind:item.kind,amount:stringValue(item.amount),description:stringValue(item.description),category:stringValue(item.category),occurred_on:stringValue(item.occurred_on),currency:stringValue(item.currency ?? 'BRL'),deleted_at:item.deleted_at == null ? null : stringValue(item.deleted_at)};})};
 }
 
 function chartTimestamp(value:number):import('lightweight-charts').UTCTimestamp {

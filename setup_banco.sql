@@ -65,6 +65,31 @@ CREATE TABLE IF NOT EXISTS finance_transactions (
     occurred_on DATE NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY finance_external (usuario_id, external_id),
+    deleted_at DATETIME(6) NULL DEFAULT NULL,
     INDEX finance_history (usuario_id, occurred_on, id),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS finance_operations (
+    usuario_id BIGINT UNSIGNED NOT NULL,
+    operation_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    request_hash CHAR(64) CHARACTER SET ascii NOT NULL,
+    result JSON NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (usuario_id, operation_id),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS finance_transaction_events (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    usuario_id BIGINT UNSIGNED NOT NULL,
+    operation_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL,
+    transaction_id BIGINT UNSIGNED NOT NULL,
+    event ENUM('TRANSACTION_CREATED', 'TRANSACTION_UPDATED', 'TRANSACTION_DELETED',
+               'TRANSACTION_RESTORED', 'TRANSACTION_PERMANENTLY_DELETED') NOT NULL,
+    occurred_at DATETIME(6) NOT NULL,
+    before_json JSON NULL,
+    after_json JSON NULL,
+    INDEX finance_event_history (usuario_id, transaction_id, id),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

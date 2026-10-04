@@ -252,14 +252,26 @@ os eventos, requisições e temporizadores da página anterior antes de montar a
 
 A página Finanças usa registros de `finance_transactions`, isolados pela conta autenticada.
 Execute `configurar_banco.bat` uma vez com o administrador do MySQL após esta atualização;
-o configurador cria a nova tabela sem apagar registros existentes. Reinicie o servidor.
+o configurador cria `finance_operations` e `finance_transaction_events` e acrescenta `deleted_at` às transações existentes, sem apagá-las. Reinicie o servidor.
 A conta do site mantém apenas permissões de leitura e escrita, sem criação de tabelas.
 
-Não há formulário de cadastro nem conexão bancária automática nesta etapa. A API recebe
-uma transação por chamada, exige sessão autenticada e `X-CSRFToken` (meta `csrf-token`
-da página), e ignora qualquer identidade que não venha da sessão:
+O chat de Finanças interpreta primeiro no parser local. Somente quando falta confiança,
+usa Gemini ou Ollama local (conforme o modelo selecionado) para produzir JSON, validado
+antes da execução. Pedidos ambíguos exigem esclarecimento e não gravam parcialmente.
+A chave Gemini fica no servidor. Não há conexão bancária automática.
+Após a confirmação, o chat informa o que foi adicionado, alterado, removido ou restaurado.
+Em caso de dúvida, pergunta qual transação escolher usando valores, descrições e datas.
+Lotes são validados por inteiro antes de qualquer alteração financeira e gravados atomicamente.
+A origem local/IA fica somente nos metadados internos de observabilidade.
+As APIs exigem sessão autenticada e, para gravações, `X-CSRFToken` (meta `csrf-token` da página).
+A identidade sempre vem da sessão:
 
 - `POST /api/finance/transactions`: recebe e persiste uma transação.
+- `POST /api/finance/interpret`: interpreta com IA usando contexto mínimo da conta; não grava transações.
+- `POST /api/finance/actions`: executa um lote atômico com `operation_id` UUID e `actions`.
+  Aceita create/update/delete/restore/permanent_delete; repetir o mesmo UUID e ações não duplica o pedido.
+- `GET /api/finance/transactions?state=deleted`: lista a lixeira com a mesma paginação.
+  Sem esse parâmetro, o histórico contém apenas registros ativos.
 - `GET /api/finance/transactions?limit=30`: histórico em ordem de data e ID decrescentes;
   envie o `next_cursor` retornado em `before` para obter a próxima página (limite 100).
 - `GET /api/finance/dashboard`: saldo, receitas e despesas do mês corrente, comparações,
@@ -285,7 +297,10 @@ UTC−03:00. Não são aceitos agendamentos futuros. `external_id` é obrigatór
 por usuário: repetir o mesmo registro retorna 200 sem duplicar; reutilizá-lo com outros
 valores retorna 409. Novos registros retornam 201 e dados inválidos retornam 422.
 
-O saldo parte de zero e soma receitas menos despesas de todo o histórico recebido;
+A exclusão comum define `deleted_at` em UTC; a restauração limpa esse campo e preserva o ID.
+Somente pedidos explícitos produzem `permanent_delete`, e apenas registros na lixeira podem ser
+apagados fisicamente. UPDATE de um registro excluído é recusado. Todos os cálculos ignoram a lixeira.
+O saldo parte de zero e soma receitas menos despesas do histórico ativo;
 não representa saldo bancário não importado. Receitas e gastos são totais do mês atual.
 A comparação usa o mês anterior inteiro; para o saldo, usa o saldo no fim do mês anterior.
 Se a base anterior for zero, a porcentagem aparece como “—”. Dias sem transações carregam
@@ -293,4 +308,11 @@ o saldo anterior. As velas representam abertura, máximo, mínimo e fechamento d
 por data, seguindo a ordem de registro dentro do dia; o volume é a soma movimentada em BRL.
 Sem movimentações, o gráfico exibe uma linha cinza no zero e os totais ficam em zero. Falhas de conexão exibem erro,
 sem substituir dados por exemplos. A página atualiza ao reabrir, reconectar ou receber
-o evento `finance:changed`, disponível para a futura interface de inclusão.
+o evento `finance:changed`, emitido após a execução pelo chat; os números animam a atualização.
+
+
+O histórico mínimo em `finance_transaction_events` registra criação, alteração,
+exclusão, restauração e exclusão definitiva na mesma transação da gravação financeira.
+Atualizações preservam somente os campos alterados antes/depois; reenvios não duplicam
+eventos. Os eventos são apenas auditoria/debug/apoio à recuperação, sem participar dos
+saldos ou gráficos. Detalhes em [interpretação financeira](docs/financial-interpretation.md).

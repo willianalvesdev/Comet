@@ -5,6 +5,7 @@ import re
 from mysql.connector import IntegrityError
 
 from . import db
+from .finance_audit import record_event
 
 
 def today_local():
@@ -61,7 +62,8 @@ def transaction_title(description):
 def serialize(row):
     return {**{field: row[field] for field in ('external_id', 'kind', 'description', 'category')},
             'description': transaction_title(row['description']), 'id': str(row['id']), 'amount': format(row['amount'], '.2f'), 'currency': 'BRL',
-            'occurred_on': row['occurred_on'].isoformat()}
+            'occurred_on': row['occurred_on'].isoformat(),
+            'deleted_at': row['deleted_at'].isoformat() + 'Z' if row.get('deleted_at') else None}
 
 
 def receive(user_id, payload):
@@ -71,6 +73,8 @@ def receive(user_id, payload):
             cursor.execute('INSERT INTO finance_transactions (usuario_id, external_id, kind, amount, description, category, occurred_on) VALUES (%s,%s,%s,%s,%s,%s,%s)',
                            (user_id, *(values[field] for field in ('external_id', 'kind', 'amount', 'description', 'category', 'occurred_on'))))
             identifier = cursor.lastrowid
+            record_event(cursor, user_id, None, identifier, 'TRANSACTION_CREATED', None,
+                         {key: value for key, value in values.items() if key != 'external_id'})
         return serialize({'id': identifier, **values}), True
     except IntegrityError as error:
         if error.errno != 1062:
@@ -83,10 +87,12 @@ def receive(user_id, payload):
         return serialize(existing), False
 
 
-def history(user_id, limit=30, before=None):
+def history(user_id, limit=30, before=None, state="active"):
+    if state not in ("active", "deleted"):
+        raise ValueError("Estado de transação inválido.")
     if not 1 <= limit <= 100:
         raise ValueError('limit deve estar entre 1 e 100.')
-    condition, parameters = '', [user_id]
+    condition, parameters = ' AND deleted_at IS ' + ('NULL' if state == 'active' else 'NOT NULL'), [user_id]
     if before:
         try:
             day, identifier = before.split(':')
@@ -95,7 +101,7 @@ def history(user_id, limit=30, before=None):
                 raise ValueError()
         except (ValueError, TypeError):
             raise ValueError('Cursor inválido.') from None
-        condition = ' AND (occurred_on < %s OR (occurred_on=%s AND id < %s))'
+        condition += ' AND (occurred_on < %s OR (occurred_on=%s AND id < %s))'
         parameters.extend([day, day, identifier])
     with db.cursor() as cursor:
         cursor.execute('SELECT * FROM finance_transactions WHERE usuario_id=%s' + condition + ' ORDER BY occurred_on DESC, id DESC LIMIT %s', (*parameters, limit + 1))
@@ -117,7 +123,7 @@ def summarize(rows, today=None):
     daily = {}
     for row in rows:
         day, amount = row['occurred_on'], row['amount']
-        if day > today:
+        if day > today or row.get('deleted_at') is not None:
             continue
         point = daily.setdefault(day, {'open': balance, 'high': balance, 'low': balance, 'close': balance, 'volume': Decimal(0), 'income': Decimal(0), 'expense': Decimal(0)})
         balance += amount if row['kind'] == 'income' else -amount
@@ -154,6 +160,6 @@ def summarize(rows, today=None):
 
 def dashboard(user_id):
     with db.cursor() as cursor:
-        cursor.execute('SELECT id, kind, amount, occurred_on FROM finance_transactions WHERE usuario_id=%s AND occurred_on<=%s ORDER BY occurred_on, id', (user_id, today_local()))
+        cursor.execute('SELECT id, kind, amount, occurred_on FROM finance_transactions WHERE usuario_id=%s AND deleted_at IS NULL AND occurred_on<=%s ORDER BY occurred_on, id', (user_id, today_local()))
         rows = cursor.fetchall()
     return summarize(rows)

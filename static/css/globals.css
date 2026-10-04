@@ -196,16 +196,17 @@
     --font-size-4: 14px;
     --font-size-5: 12px;
     --font-size-6: 10px;
-    --color-ink: #171615;
+    --new-dark: #121212;
+    --color-ink: #161616;
     --bg: var(--color-ink);
-    --surface: #1E1D1B;
+    --surface: #1d1d1d;
     --surface-hover: color-mix(in srgb, var(--text) 5%, transparent);
     --surface-hover-strong: color-mix(in srgb, var(--text) 6%, transparent);
     --surface-selected: color-mix(in srgb, var(--text) 7%, transparent);
-    --accent: #20808D;
+    --accent: #20808d;
     --border: rgb(from var(--text) r g b / .1);
     --border-focus: rgb(from var(--text) r g b / .2);
-    --text: #D6D5D4;
+    --text: #dedede;
     --text-secondary: rgb(from var(--text) r g b / .65);
     --text-white: #ffffff;
     --green: #539E55;
@@ -247,7 +248,7 @@
     --recents-panel-width: 320px;
     --recents-panel-height: 262px;
     --composer-max-lines: 10;
-    --response-characters-per-second: 250;
+    --response-characters-per-second: 280;
 }
 
 *,

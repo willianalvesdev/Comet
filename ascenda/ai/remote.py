@@ -35,6 +35,37 @@ def sse(response, deadline):
             data.append(value)
 
 
+def structured_json(raw):
+    def unique_pairs(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError('Duplicate JSON key')
+            result[key] = value
+        return result
+    def invalid_constant(value):
+        raise ValueError(value)
+    try:
+        return json.loads(raw, object_pairs_hook=unique_pairs, parse_constant=invalid_constant)
+    except RecursionError:
+        raise ValueError('JSON nesting exceeds the supported depth') from None
+
+
+def read_structured_response(response, deadline):
+    chunks, size = [], 0
+    while True:
+        if time.monotonic() > deadline:
+            raise AIError('timeout', 504)
+        raw = response.read1(8192)
+        if not raw:
+            break
+        size += len(raw)
+        if size > 131072:
+            raise AIError('invalid_response')
+        chunks.append(raw)
+    return structured_json(b''.join(chunks))
+
+
 class RemoteProvider:
     def __init__(self, name, key, model, config):
         if name not in ('gemini',) or not re.fullmatch(r'[A-Za-z0-9._-]{1,100}', model):
@@ -69,6 +100,47 @@ class RemoteProvider:
             payload['tools'] = [{'google_search': {}}]
         return ('generativelanguage.googleapis.com',
                 f'/v1beta/models/{self.model}:streamGenerateContent?alt=sse', headers, payload)
+
+    def structured(self, system, data, schema):
+        if not self.key:
+            raise AIError('provider_missing', 503)
+        payload = {'systemInstruction': {'parts': [{'text': system}]},
+                   'contents': [{'role': 'user', 'parts': [{'text': json.dumps(data, ensure_ascii=False)}]}],
+                   'generationConfig': {'temperature': 0, 'maxOutputTokens': 8192,
+                                        'responseMimeType': 'application/json', 'responseJsonSchema': schema}}
+        connection = http.client.HTTPSConnection('generativelanguage.googleapis.com', timeout=self.config.timeout)
+        deadline = time.monotonic() + self.config.total_timeout
+        try:
+            connection.request('POST', f'/v1beta/models/{self.model}:generateContent',
+                               body=json.dumps(payload, ensure_ascii=False).encode(),
+                               headers={'Content-Type': 'application/json', 'Accept': 'application/json', 'x-goog-api-key': self.key})
+            response = connection.getresponse()
+            if response.status != 200:
+                code = ('provider_auth' if response.status in (401, 403) else
+                        'provider_quota' if response.status in (402, 429) else
+                        'provider_model' if response.status in (400, 404) else 'provider_unavailable')
+                raise AIError(code, 429 if response.status == 429 else 502)
+            result = read_structured_response(response, deadline)
+            if not isinstance(result, dict) or result.get('error'):
+                raise AIError('invalid_response')
+            if result.get('promptFeedback', {}).get('blockReason'):
+                raise AIError('provider_blocked')
+            candidates = result.get('candidates', [])
+            if not isinstance(candidates, list) or len(candidates) != 1 or candidates[0].get('finishReason') != 'STOP':
+                raise AIError('invalid_response')
+            parts = candidates[0].get('content', {}).get('parts', [])
+            if not isinstance(parts, list) or not parts or any(not isinstance(part, dict) or set(part) - {'text', 'thought', 'thoughtSignature'} for part in parts):
+                raise AIError('invalid_response')
+            answer = ''.join(part['text'] for part in parts if not part.get('thought'))
+            return structured_json(answer)
+        except (socket.timeout, TimeoutError):
+            raise AIError('timeout', 504) from None
+        except (OSError, http.client.HTTPException):
+            raise AIError('provider_unavailable', 503) from None
+        except (ValueError, TypeError, KeyError, AttributeError, IndexError):
+            raise AIError('invalid_response') from None
+        finally:
+            connection.close()
 
     def stream(self, messages, search=False):
         if not self.key:

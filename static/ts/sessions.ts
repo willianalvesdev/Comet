@@ -24,22 +24,25 @@
         const summary = requiredElement(container, 'summary', HTMLElement);
         summary.tabIndex = -1;
         summary.replaceChildren();
-        const heading = document.createElement(href ? 'a' : 'span');
-        heading.className = 'sessions__heading'; heading.textContent = label;
-        if (href && heading instanceof HTMLAnchorElement) heading.href = href;
-        const button = document.createElement('button'); button.type = 'button'; button.className = 'sessions__collapse';
-        button.setAttribute('aria-controls', id);
-        button.innerHTML = '<i class="sessions__chevron" aria-hidden="true"></i>';
-        summary.append(heading, button); requiredElement(container, '.sessions__list', HTMLElement).id = id;
+        const heading = document.createElement('button');
+        heading.type = 'button'; heading.className = 'sessions__heading';
+        const text = document.createElement('span'); text.textContent = label;
+        const chevron = document.createElement('i'); chevron.className = 'sessions__chevron'; chevron.setAttribute('aria-hidden', 'true');
+        heading.append(text, chevron); heading.setAttribute('aria-controls', id);
+        const visit = document.createElement('a'); visit.className = 'sessions__visit'; visit.href = href || '/recentes.html';
+        visit.setAttribute('aria-label', 'Abrir página de recentes'); visit.innerHTML = '<i aria-hidden="true"></i>';
+        const preferences = document.createElement('button'); preferences.type = 'button'; preferences.className = 'sessions__preferences';
+        preferences.setAttribute('aria-label', 'Preferências de ' + label.toLowerCase()); preferences.innerHTML = '<i aria-hidden="true"></i>';
+        summary.append(heading, visit, preferences); requiredElement(container, '.sessions__list', HTMLElement).id = id;
         container.open = open !== false;
         function sync() {
-            button.setAttribute('aria-expanded', String(container.open));
-            button.setAttribute('aria-label', (container.open ? 'Recolher ' : 'Expandir ') + label.toLowerCase());
+            heading.setAttribute('aria-expanded', String(container.open));
+            heading.setAttribute('aria-label', (container.open ? 'Recolher ' : 'Expandir ') + label.toLowerCase());
         }
         summary.addEventListener('click', event => {
             if (eventElement(event.target)?.closest('a')) return;
             event.preventDefault();
-            if (eventElement(event.target)?.closest('button')) { container.open = !container.open; sync(); }
+            if (eventElement(event.target)?.closest('.sessions__heading')) { container.open = !container.open; sync(); }
         });
         container.addEventListener('toggle', sync); sync();
     }
@@ -89,7 +92,7 @@
     const menu = document.createElement('div');
     menu.className = 'sessions-menu'; menu.id = 'sessions-menu'; menu.setAttribute('popover','auto');
     menu.setAttribute('aria-label','Opções da conversa');
-    menu.innerHTML = '<button type="button" data-action="pin"><i class="sessions-icon sessions-icon--pin" aria-hidden="true"></i><span>Fixar</span></button><button type="button" data-action="rename"><i class="sessions-icon sessions-icon--rename" aria-hidden="true"></i>Renomear</button><button type="button" class="sessions-menu__delete" data-action="delete"><i class="sessions-icon sessions-icon--delete" aria-hidden="true"></i>Excluir</button>';
+    menu.innerHTML = '<button type="button" data-action="pin"><i class="sessions-icon sessions-icon--pin" aria-hidden="true"></i><span>Fixar</span></button><button type="button" data-action="rename"><i class="sessions-icon sessions-icon--rename" aria-hidden="true"></i>Renomear</button><button type="button" class="sessions-menu__delete" data-action="delete"><i class="sessions-icon sessions-icon--delete" aria-hidden="true"></i>Apagar</button>';
     requiredElement(document, '.sidebar', HTMLElement).append(menu);
     const dialog = document.createElement('dialog');
     dialog.className = 'sessions-dialog';
@@ -113,9 +116,13 @@
         target = item; opener = options;
         requiredElement(menu, '[data-action="pin"] span', HTMLElement).textContent = pins[item.id] ? 'Desafixar' : 'Fixar';
         const rect = options.getBoundingClientRect();
-        menu.style.left = Math.max(8, Math.min(rect.left, innerWidth - 224)) + 'px';
-        menu.style.top = Math.max(8, Math.min(rect.bottom + 6, innerHeight - 156)) + 'px';
-        menu.showPopover(); options.setAttribute('aria-expanded','true'); requiredElement(menu, 'button', HTMLButtonElement).focus({preventScroll:true});
+        const sidebarBounds = requiredElement(document, '.sidebar', HTMLElement).getBoundingClientRect();
+        menu.style.width = Math.max(0, sidebarBounds.width - 20) + 'px';
+        menu.showPopover();
+        const bounds = menu.getBoundingClientRect();
+        menu.style.left = Math.max(8, Math.min(sidebarBounds.left + (sidebarBounds.width - bounds.width) / 2, innerWidth - bounds.width - 8)) + 'px';
+        menu.style.top = Math.max(8, Math.min(rect.bottom + 6, innerHeight - bounds.height - 8)) + 'px';
+        options.setAttribute('aria-expanded','true'); requiredElement(menu, 'button', HTMLButtonElement).focus({preventScroll:true});
     }
     function draw() {
         drawRecents();
@@ -204,6 +211,7 @@
     }
     function select(id: string | null,title?: string) {
         selected=id;
+        markSelected(requiredElement(document, '.sidebar__new-chat .sidebar__link', HTMLElement), inComputer() && !id);
         if(id&&!items.has(id)) { items.set(id,{id,title:title||'Conversa atual',created_at:'',updated_at:''}); draw(); return; }
         if(!drawn) { draw(); return; }
         elementList(present(nav), '.sessions__link', HTMLAnchorElement).forEach(link=>markSelected(link,inComputer()&&link.closest<HTMLElement>('.sessions__row')?.dataset.id===id));

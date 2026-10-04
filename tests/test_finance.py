@@ -61,10 +61,12 @@ class FinanceTests(unittest.TestCase):
             row,created=receive(7,self.payload(description="O'Reilly"))
             self.assertTrue(created)
             self.assertEqual(row['id'],'23')
-            sql,values=cursor.execute.call_args.args
+            sql,values=cursor.execute.call_args_list[0].args
             self.assertNotIn("O'Reilly",sql)
             self.assertEqual(values[0],7)
             self.assertIn("O'Reilly",values)
+            self.assertIn("finance_transaction_events", cursor.execute.call_args_list[1].args[0])
+            self.assertEqual(cursor.execute.call_args_list[1].args[1][3], "TRANSACTION_CREATED")
         with patch('ascenda.finance.db.cursor') as managed:
             cursor=managed.return_value.__enter__.return_value
             cursor.execute.side_effect=[IntegrityError(errno=1062),None]

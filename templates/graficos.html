@@ -27,6 +27,11 @@
     <script src="./static/js/graficos.js" defer></script>
     <script src="/static/js/finance-data.js" defer></script>
     <script src="/static/js/discovery-panel.js" defer></script>
+    <script src="/static/js/financial-parser.js" defer></script>
+    <script src="/static/js/financial-context.js" defer></script>
+    <script src="/static/js/financial-execution.js" defer></script>
+    <script src="/static/js/financial-ai.js" defer></script>
+    <script src="/static/js/financial-feedback.js" defer></script>
     <script src="./static/js/graph-composer.js" defer></script>
     <script src="./static/js/dictation.js" defer></script>
     <link rel="stylesheet" href="/static/css/sessions.css">
@@ -109,6 +114,9 @@
                 </div>
             </section>
             <div class="finance-composer" aria-label="Mensagem sobre o gráfico">
+                <section class="finance-response" aria-label="Resposta do assistente" hidden>
+                    <p class="finance-entry-status" tabindex="0" role="status" aria-live="polite" aria-atomic="true"></p>
+                </section>
 <form class="home__composer" aria-label="Escrever uma mensagem">
                     <p class="home__dictation-status" role="status" aria-live="polite" id="dictation-status"></p>
                     <textarea class="home__input" aria-label="Mensagem" placeholder="Pergunte qualquer coisa" rows="2" maxlength="8000"></textarea>

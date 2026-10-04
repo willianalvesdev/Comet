@@ -357,6 +357,7 @@
 .finance-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(280px, .43fr);
+    grid-template-rows: min-content 1fr;
     gap: 28px;
     align-items: stretch;
 }
@@ -599,6 +600,7 @@
 
 .finance-totals {
     grid-column: 1;
+    align-self: start;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
@@ -834,4 +836,27 @@
 .market-change[data-trend="neutral"] .market-direction__head {
     transform: scale(0);
     opacity: 0;
+}
+
+.finance-response {
+    width: min(100%, 320px);
+    margin-bottom: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-container);
+    background: var(--accent);
+    box-shadow: var(--panel-shadow);
+    font-family: var(--font-ui);
+}
+
+.finance-response[hidden] { display: none; }
+
+.finance-entry-status {
+    max-height: 3lh;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    color: var(--text-white);
+    font-size: var(--font-size-4);
+    line-height: 1.5;
 }

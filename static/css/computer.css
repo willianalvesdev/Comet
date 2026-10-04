@@ -174,7 +174,7 @@
     gap: 14px;
     margin: 0;
     font-family: var(--font-heading);
-    font-size: clamp(28px, 3.2vw, 44px);
+    font-size: clamp(1.875rem, 1.2rem + 2vw, 2.375rem);
     line-height: 1.2;
     font-weight: 400;
     text-align: center;
@@ -274,7 +274,34 @@
 }
 
 .computer-thinking {
+    --thinking-color: var(--text-secondary);
+    --thinking-shine: var(--text);
     color: var(--text-secondary);
+}
+
+.is-computer-response .computer-thinking.is-thinking {
+    --thinking-color: var(--accent);
+    --thinking-shine: color-mix(in srgb, var(--text) 80%, var(--accent));
+}
+
+.computer-thinking__logo {
+    display: none;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    color: inherit;
+}
+
+.is-computer-response .computer-thinking__logo {
+    display: block;
+}
+
+.is-computer-response .computer-thinking.is-thinking .computer-thinking__logo {
+    color: var(--thinking-color);
+}
+
+.computer-thinking:not(.is-thinking) .computer-thinking__logo .computer-eyes {
+    animation: none;
 }
 
 .computer-thinking__toggle {
@@ -339,12 +366,12 @@
 }
 
 .computer-thinking.is-thinking .computer-thinking__toggle > span {
-    background: linear-gradient(110deg, var(--text-secondary) 35%, var(--text) 50%, var(--text-secondary) 65%);
+    background: linear-gradient(110deg, var(--thinking-color) 35%, var(--thinking-shine) 50%, var(--thinking-color) 65%);
     background-size: 250% 100%;
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
-    animation: computer-thinking-shimmer 2.4s linear infinite;
+    animation: computer-thinking-shimmer 4s linear infinite;
 }
 
 @keyframes computer-thinking-shimmer {
@@ -361,7 +388,7 @@
     .computer-thinking.is-thinking .computer-thinking__toggle > span {
         animation: none;
         background: none;
-        color: var(--text-secondary);
+        color: var(--thinking-color);
     }
 
     .computer-thinking__arrow {
@@ -807,7 +834,7 @@
 .computer-message--user {
     border: 0;
     position: relative;
-    background: var(--accent);
+    background: var(--surface);
     color: var(--text);
 }
 
@@ -948,18 +975,10 @@
 }
 
 .computer-intro__animated-logo {
-    width: 42px;
-    height: 42px;
-    flex: 0 0 42px;
+    width: 1em;
+    height: 1em;
+    flex: 0 0 1em;
     color: var(--text);
-}
-
-@media(width<640px) {
-    .computer-intro__animated-logo {
-        width: 32px;
-        height: 32px;
-        flex-basis: 32px;
-    }
 }
 
 .computer-intro h1 {
@@ -1259,6 +1278,7 @@
     background: color-mix(in srgb, var(--text) 6%, var(--surface));
     border-color: var(--border);
 }
+
 
 .home__modes .attachment-toggle {
     background: transparent;
@@ -1964,7 +1984,7 @@
 .is-anonymous {
     --sidebar-width: 0px;
     --mobile-menu-offset: 0px;
-    background: var(--surface);
+    background: var(--text);
     padding: 0 var(--space-2) var(--space-2);
 }
 
@@ -1974,7 +1994,7 @@
     inset: var(--header-height) var(--space-2) var(--space-2);
     z-index: 95;
     border-radius: var(--radius-container);
-    box-shadow: 0 0 0 100vmax var(--surface);
+    box-shadow: 0 0 0 100vmax var(--text);
     pointer-events: none;
 }
 
@@ -1994,8 +2014,8 @@
     justify-content: space-between;
     height: var(--header-height);
     padding-inline: var(--space-4);
-    background: var(--surface);
-    color: var(--text);
+    background: var(--text);
+    color: var(--bg);
     font-family: var(--font-ui);
     font-size: var(--font-size-4);
 }
@@ -2006,7 +2026,7 @@
     gap: var(--space-3);
 }
 
-.anonymous-bar i {
+.anonymous-bar > span > i {
     width: 20px;
     height: 20px;
     background: currentColor;
@@ -2075,4 +2095,29 @@
 .workspace .computer-page .home__composer:focus-within:not(:has(.computer-provider[aria-pressed="true"])),
 .workspace .finance-composer .home__composer:focus-within {
     border-color: var(--border-focus);
+}
+
+.anonymous-close {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+}
+.anonymous-close .ui-icon-x {
+    width: 16px;
+    height: 16px;
+}
+@media (hover: hover) {
+    :is(.computer-page, .finance-composer) .home__microphone:not(:disabled):hover,
+    .composer-provider-group button:not(:disabled):hover,
+    .local-model-picker:not(:disabled):hover {
+        background: var(--surface-hover);
+        color: var(--text);
+    }
+}
+.composer-provider-group button, .local-model-picker {
+    border-radius: 999px;
+}
+.local-model-picker {
+    padding-inline: 8px;
 }

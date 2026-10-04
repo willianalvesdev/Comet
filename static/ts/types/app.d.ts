@@ -22,7 +22,7 @@ interface Attachment { id: string; name: string; size: number; kind: 'image' | '
 interface Conversation { id: string; title: string; created_at: string; updated_at: string; }
 interface ResearchSource { title: string; url: string; domain: string; snippet?: string; image?: string; excerpt?: string; published_at?: string; date_approximate?: boolean; }
 interface Research { error?: string; query?: string; sources?: ResearchSource[]; suggestions?: string; status?: string; state?: ResearchState; seconds?: number; queries?: string[]; engine?: string; }
-interface ResponseMetadata { research?: Research; thinking_seconds?: number | null; elapsed_seconds?: number; instant?: boolean; }
+interface ResponseMetadata { provider?: string; research?: Research; thinking_seconds?: number | null; elapsed_seconds?: number; instant?: boolean; }
 interface Turn { id: string | null; message: string; answer: string; thinking: string; status: 'running' | 'completed' | 'interrupted' | 'failed'; created_at: string; metadata?: ResponseMetadata; attachments?: Attachment[]; }
 interface ConversationList { conversations: Conversation[]; next_offset: number | null; }
 interface ConversationHistory { conversation: Conversation; turns: Turn[]; before: string | null; active: boolean; has_more?: boolean; }
@@ -52,6 +52,7 @@ interface Window {
 interface WindowEventMap {
     'attachments:changed': Event;
     'finance:changed': Event;
+    'finance:interpreted': CustomEvent<FinancialInterpretationMetadata>;
     'workspace:before-mount': Event;
     'workspace:navigated': Event;
     'news-preferences-change': Event;

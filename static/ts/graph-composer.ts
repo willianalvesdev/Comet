@@ -1,4 +1,4 @@
-window.WorkspaceNavigation.page('/static/js/graph-composer.js', ({scope, requestAnimationFrame, ResizeObserver, MutationObserver}) => {
+window.WorkspaceNavigation.page('/static/js/graph-composer.js', ({scope, fetch, requestAnimationFrame, ResizeObserver, MutationObserver}) => {
     const composer = optionalElement(document, '.finance-composer', HTMLElement);
     if (!composer) return;
     const column = requiredElement(document, '.finance-chart-column', HTMLElement);
@@ -34,8 +34,57 @@ window.WorkspaceNavigation.page('/static/js/graph-composer.js', ({scope, request
     }
     present(input).addEventListener('input', updateInput);
     updateInput();
-    requiredElement(composer, 'form', HTMLFormElement).addEventListener('submit', event => event.preventDefault());
+    const form = requiredElement(composer, 'form', HTMLFormElement);
+    const responseCard = requiredElement(composer, '.finance-response', HTMLElement);
+    const status = requiredElement(responseCard, '.finance-entry-status', HTMLElement);
+    let context: FinancialContext = {...createFinancialConversationState(),locale:'pt-BR',currency:'BRL',categories:[],transactions:[],deleted_transactions:[],transactions_complete:false,deleted_transactions_complete:false,recent_events:[]};
+    let busy = false;
+    let pending: {text:string; actions:readonly FinancialAction[]; operationId:string; context:FinancialContext; metadata:FinancialInterpretationMetadata; result?:FinancialExecutionResult} | null = null;
+    async function confirmPending() {
+        const operation = present(pending);
+        const result = operation.result ??= await executeFinancialActions(operation.actions, operation.operationId, fetch);
+        const refreshed = await refreshFinancialContext(operation.context, fetch);
+        if (!scope.active) return;
+        context = rememberFinancialExecution(refreshed, result);
+        pending = null;
+        status.textContent = financialExecutionFeedback(result, context);
+        window.dispatchEvent(new CustomEvent('finance:changed', {detail:operation.metadata}));
+    }
+    async function submit() {
+        const text = present(input).value.trim();
+        if (busy || !text) return;
+        busy = true; send.disabled = true; present(input).readOnly = true;
+        responseCard.hidden = false; status.textContent = 'Conferindo transações…';
+        try {
+            if (pending && pending.text !== text) {
+                await confirmPending();
+                if (!scope.active) return;
+            }
+            if (!pending) {
+                context = await refreshFinancialContext(context, fetch);
+                if (!scope.active) return;
+                const turn = await interpretFinancialInput(text, context, window.ComputerModels.selected(), fetch);
+                if (!scope.active) return;
+                window.dispatchEvent(new CustomEvent('finance:interpreted', {detail:turn.metadata}));
+                if (turn.result.status !== 'resolved') {
+                    context = turn.context;
+                    status.textContent = financialClarificationFeedback(turn.result, context);
+                    if (turn.result.status === 'needs_clarification') present(input).value = '';
+                    return;
+                }
+                pending = {text, actions:turn.result.actions, operationId:crypto.randomUUID(), context:turn.context, metadata:turn.metadata};
+            }
+            await confirmPending();
+            if (scope.active) present(input).value = '';
+        } catch (error) {
+            if (error instanceof FinancialExecutionRejected) pending = null;
+            if (scope.active) status.textContent = error instanceof FinancialExecutionRejected ? financialUserMessage(error.message, 'Não foi possível concluir o pedido. Confira os dados e tente novamente.') : 'Não consegui confirmar o pedido. Envie novamente para conferir, sem duplicar transações.';
+        } finally {
+            busy = false; send.disabled = false; present(input).readOnly = false; updateInput();
+        }
+    }
+    form.addEventListener('submit', event => {event.preventDefault();void submit();});
     present(input).addEventListener('keydown', event => {
-        if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) event.preventDefault();
+        if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {event.preventDefault();void submit();}
     });
 });

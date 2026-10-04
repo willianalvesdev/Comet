@@ -172,7 +172,7 @@ test('navegação mantém o mesmo documento e lateral entre todas as telas', asy
         }
         await p.waitForFunction(()=>!requiredElement(document, ".home__input", HTMLTextAreaElement).readOnly);
         assert(!await p.locator('.sources-panel-toggle').isVisible());
-        assert.equal(await p.locator('.sidebar__new-chat .sidebar__link').evaluate(e=>e.getBoundingClientRect().height),32);
+        assert.equal(await p.locator('.sidebar__new-chat .sidebar__link').evaluate(e=>e.getBoundingClientRect().height),40);
         assert.equal(await p.locator('.computer-intro h1').evaluate(e=>getComputedStyle(e).flexDirection),'row');
         await p.locator('.anonymous-toggle').click();
         assert.equal(await p.locator('.home__composer').evaluate(e=>getComputedStyle(e).borderTopStyle),'dashed');
@@ -470,21 +470,177 @@ test('preferências aplica tema e fonte e mantém após recarregar', async () =>
 });
 
 
-test('finanças não registra nem exclui transações pelo chat', async () => {
+test('chat financeiro usa IA só no fallback, valida lotes e preserva execução idempotente', async () => {
     const f=await fixture();const p=f.page;
     try {
-        const writes:string[]=[];
-        p.on('request',request=>{if(request.method()==='POST')writes.push(request.url());});
+        let rows:StoredTransaction[]=[], nextId=100, loseResponse=true, failRefreshAfterWrite=false, refreshFailed=false;
+        const committed=new Map<string,{operation_id:string;operations:{type:string;transaction_ids:string[]}[]}>();
+        const requests:{id:string;types:string[]}[]=[], otherWrites:string[]=[], interpretations:string[]=[], sources:string[]=[];
+        p.on('console',message=>{if(message.text().startsWith('financial-test-source:'))sources.push(message.text().slice('financial-test-source:'.length));});
+        await p.evaluate(()=>window.addEventListener('finance:interpreted',event=>console.debug('financial-test-source:'+event.detail.parserSource)));
+        let aiMode:'question'|'ready'|'invalid'='question';
+        const text=(value:unknown):string=>{if(typeof value!=='string')throw new Error('Expected string');return value;};
+        p.on('request',request=>{if(request.method()==='POST'&&!/\/api\/finance\/(?:actions|interpret)$/.test(request.url()))otherWrites.push(request.url());});
+        await p.route('**/api/finance/transactions*',route=>{
+            if(refreshFailed){refreshFailed=false;return route.fulfill({status:503,json:{error:'Temporariamente indisponível'}});}
+            const params=new URL(route.request().url()).searchParams;
+            const deleted=params.get('state')==='deleted', offset=Number(params.get('before')??0);
+            const filtered=rows.filter(row=>(row.deleted_at!==null)===deleted);
+            return route.fulfill({json:{transactions:filtered.slice(offset,offset+100),next_cursor:offset+100<filtered.length?String(offset+100):null}});
+        });
+        await p.route('**/api/finance/interpret',route=>{
+            const body=testObject(route.request().postDataJSON());
+            interpretations.push(text(body.input));
+            assert.equal(route.request().headers()['x-csrftoken'],'test-csrf');
+            assert.deepEqual(Object.keys(body).sort(),['conversation_context','input','pending_clarification','provider']);
+            assert.equal(typeof body.provider,'string');
+            const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo'}).format(new Date());
+            const action={type:'create',transactionId:null,fields:{kind:'expense',amount:'60.00',description:'Mercado',category:null,occurred_on:today}};
+            const interpretation=aiMode==='question' ? {status:'needs_clarification',actions:[],clarification:'Qual foi o valor final pago em reais?'} :
+                {status:'ready',actions:aiMode==='invalid'?[action,{...action,transactionId:'999999'}]:[action],clarification:null};
+            return route.fulfill({json:{interpretation,context:{currentDate:today,currentTime:new Date().toISOString(),timezone:'America/Sao_Paulo',availableCategories:[],recentTransactions:rows.filter(row=>row.deleted_at===null),recentDeletedTransactions:rows.filter(row=>row.deleted_at!==null)}}});
+        });
+        await p.route('**/api/finance/actions',async route=>{
+            const body=testObject(route.request().postDataJSON()), id=text(body.operation_id), actions=body.actions;
+            assert(Array.isArray(actions));assert.equal(route.request().headers()['x-csrftoken'],'test-csrf');
+            requests.push({id,types:actions.map(action=>text(testObject(action).type))});
+            const existing=committed.get(id);if(existing)return route.fulfill({json:existing});
+            const operations:{type:string;transaction_ids:string[]}[]=[];
+            for(const entry of actions){
+                const action=testObject(entry), type=text(action.type);
+                let ids:string[]=[];
+                if(type==='create'){
+                    const transaction=testObject(action.transaction),kind=transaction.kind;
+                    assert(kind==='expense'||kind==='income');
+                    const row:StoredTransaction={id:String(nextId++),kind,amount:text(transaction.amount),description:text(transaction.description),category:text(transaction.category),occurred_on:text(transaction.occurred_on),currency:'BRL',deleted_at:null};
+                    rows.push(row);ids=[row.id];
+                }else{
+                    assert(Array.isArray(action.transaction_ids));ids=action.transaction_ids.map(text);
+                    for(const identifier of ids){
+                        const row=rows.find(row=>row.id===identifier);assert(row);
+                        if(type==='update'){
+                            assert.equal(row.deleted_at,null);const changes=testObject(action.changes);
+                            if(changes.amount!==undefined)row.amount=text(changes.amount);
+                            if(changes.kind!==undefined){assert(changes.kind==='expense'||changes.kind==='income');row.kind=changes.kind;}
+                            if(changes.occurred_on!==undefined)row.occurred_on=text(changes.occurred_on);
+                        }else if(type==='delete')row.deleted_at=new Date().toISOString();
+                        else if(type==='restore'){assert(row.deleted_at);row.deleted_at=null;}
+                        else if(type==='permanent_delete'){assert.equal(action.confirmation,'explicit_permanent_delete');assert(row.deleted_at);rows=rows.filter(item=>item.id!==identifier);}
+                        else throw new Error('Unknown operation');
+                    }
+                }
+                operations.push({type,transaction_ids:ids});
+            }
+            const result={operation_id:id,operations};committed.set(id,result);
+            if(failRefreshAfterWrite){failRefreshAfterWrite=false;refreshFailed=true;}
+            if(loseResponse){loseResponse=false;return route.abort('failed');}
+            return route.fulfill({json:result});
+        });
         await p.evaluate(()=>window.WorkspaceNavigation.go('/graficos.html'));
         const input=p.locator('.finance-composer textarea');
-        for(const text of ['Gastei 67 reais no mercado ontem','Gastei sessenta reais','Apague todas as transações']) {
-            await input.fill(text);await input.press('Enter');
-            await p.locator('.finance-composer .home__send').click();
-            assert.equal(await input.inputValue(),text);
+        async function submit(value:string){await input.fill(value);await input.press('Enter');await p.waitForFunction(()=>!requiredElement(document,'.finance-composer textarea',HTMLTextAreaElement).readOnly);}
+        await submit('Gastei 67 no mercado ontem');
+        assert.equal(rows.length,1);assert.equal(await input.inputValue(),'Gastei 67 no mercado ontem');
+        await input.press('Enter');await p.waitForFunction(()=>!requiredElement(document,'.finance-composer textarea',HTMLTextAreaElement).readOnly);
+        assert.equal(await input.inputValue(),'');assert.equal(rows.length,1);assert.equal(requests[0].id,requests[1].id);
+        const feedback=()=>p.locator('.finance-entry-status').textContent();
+        assert.equal(await feedback(),'Adicionei R$ 67,00 — Mercado — ontem.');
+        const id=rows[0].id;
+        await submit('Na verdade foram 75');assert.equal(rows[0].amount,'75.00');
+        assert.equal(await feedback(),'Transação atualizada.');
+        await submit('Apaga a compra do mercado de ontem');assert(rows[0].deleted_at);
+        assert.equal(await feedback(),'Transação removida.');
+        await submit('Restaura aquela compra');assert.equal(rows[0].deleted_at,null);assert.equal(rows[0].id,id);
+        assert.equal(await feedback(),'Transação restaurada.');
+        const previousDate=rows[0].occurred_on;
+        await submit('E foi anteontem');assert.notEqual(rows[0].occurred_on,previousDate);
+        await submit('Apaga ela');assert(rows[0].deleted_at);
+        await submit('Desfaz');assert.equal(rows[0].deleted_at,null);assert.equal(rows[0].id,id);
+        await submit('Apaga ela');await submit('Apague definitivamente ela');assert.equal(rows.length,0);
+        for(const [phrase,amount,kind] of [['Recebi 1500 dia 5','1500.00','income'],['Perdi 200 em aposta e recebi 50 de volta','150.00','expense'],['Paguei 500 com 10% de juros','550.00','expense']]) {
+            await submit(phrase);assert.equal(rows.length,1);assert.equal(rows[0].amount,amount);assert.equal(rows[0].kind,kind);
+            assert.match(await feedback()??'',/^Adicionei R\$/);
+            await submit('Apaga ela');await submit('Apague definitivamente ela');assert.equal(rows.length,0);
         }
-        assert.deepEqual(writes,[]);
-        assert.equal(await p.locator('.finance-entry-status').count(),0);
-        assert.deepEqual(f.errors,[]);
+        await submit('Gastei 30 no almoço e 20 no ônibus');assert.equal(rows.length,2);
+        assert.equal(await feedback(),'Adicionei 2 transações.');
+        await submit('Apaga os dois');assert(rows.every(row=>row.deleted_at));
+        await submit('Desfaz');assert(rows.every(row=>row.deleted_at===null));
+        await submit('Gastei 50 no mercado ontem e 80 no mercado ontem');
+        const writesBefore=requests.length;
+        await submit('Apaga a compra do mercado de ontem');assert.equal(requests.length,writesBefore);
+        assert.equal(await feedback(),'Encontrei duas compras de Mercado ontem: R$ 50,00 e R$ 80,00. Qual delas você quer apagar?');
+        await submit('A de 80');assert.equal(rows.find(row=>row.description==='Mercado'&&row.amount==='80.00')?.deleted_at!==null,true);
+        assert.equal(rows.find(row=>row.description==='Mercado'&&row.amount==='50.00')?.deleted_at,null);
+        const writesAfter=requests.length;
+        assert.deepEqual(interpretations,[]);assert(sources.length>0&&sources.every(source=>source==='local'));
+        await submit('Talvez apague definitivamente ela');assert.equal(requests.length,writesAfter);assert.equal(interpretations.length,0);
+        await submit('Gastei 50 no mercado usando metade do vale');assert.equal(requests.length,writesAfter);
+        assert.match(await p.locator('.finance-entry-status').textContent()??'',/valor final pago/);
+        assert.equal(await input.inputValue(),'');
+        aiMode='ready';
+        await submit('Gastei sessenta reais no mercado');
+        assert.equal(requests.length,writesAfter+1);assert.equal(rows.at(-1)?.amount,'60.00');
+        assert.equal(await input.inputValue(),'');assert.equal(interpretations.length,2);
+        assert.equal(sources.at(-1),'ai');assert.equal(await feedback(),'Adicionei R$ 60,00 — Mercado — hoje.');
+        assert(!/parserSource|confidence|deletedAt|operation_id|transaction_id/.test(await feedback()??''));
+        aiMode='invalid';
+        const rowsBeforeInvalid=JSON.stringify(rows);
+        await submit('Gastei sessenta reais no mercado');
+        assert.equal(requests.length,writesAfter+1);assert.equal(JSON.stringify(rows),rowsBeforeInvalid);
+        assert.match(await p.locator('.finance-entry-status').textContent()??'',/validar a interpretação completa/);
+        const beforeLostResponse=requests.length, beforeRecoveryRows=rows.length;
+        loseResponse=true;
+        await submit('Gastei 42 na farmácia');
+        assert.equal(rows.length,beforeRecoveryRows+1);
+        await submit('Na verdade foram 45');
+        assert.equal(rows.length,beforeRecoveryRows+1);assert.equal(rows.at(-1)?.amount,'45.00');
+        assert.equal(requests[beforeLostResponse].id,requests[beforeLostResponse+1].id);
+        assert.deepEqual(requests[beforeLostResponse+2].types,['update']);
+        assert.equal(await feedback(),'Transação atualizada.');
+        failRefreshAfterWrite=true;
+        const beforeRefreshFailure=requests.length;
+        await submit('Gastei 15 no café');
+        const savedId=rows.at(-1)?.id;
+        assert.match(await feedback()??'',/Não consegui confirmar/);
+        await submit('Apaga ela');
+        assert.equal(requests.length,beforeRefreshFailure+2);
+        assert.equal(rows.find(row=>row.id===savedId)?.deleted_at!==null,true);
+        assert.equal(await feedback(),'Transação removida.');
+        for(let index=0;index<151;index++) rows.push({id:String(nextId++),kind:index%2?'income':'expense',amount:'10.00',description:'Registro '+index,category:'',occurred_on:'2025-01-01',currency:'BRL',deleted_at:null});
+        const activeIds=rows.filter(row=>row.deleted_at===null).map(row=>row.id);
+        const oldTrash=rows.filter(row=>row.deleted_at!==null).map(row=>({...row}));
+        const bulkStart=requests.length, aiBeforeBulk=interpretations.length;
+        await submit('apague todas as transações');
+        assert.equal(requests.length,bulkStart+1);assert.deepEqual(requests.at(-1)?.types,['delete']);
+        assert(rows.every(row=>row.deleted_at!==null));
+        assert.equal(await feedback(),`${activeIds.length} transações removidas.`);
+        assert.deepEqual(rows.filter(row=>oldTrash.some(old=>old.id===row.id)),oldTrash);
+        await submit('apague todas as transações');
+        assert.equal(requests.length,bulkStart+1);assert.equal(await feedback(),'Não há transações ativas para apagar.');
+        await submit('Desfaz');
+        assert.equal(requests.length,bulkStart+2);assert.deepEqual(requests.at(-1)?.types,['restore']);
+        assert.deepEqual(rows.filter(row=>row.deleted_at===null).map(row=>row.id),activeIds);
+        assert.deepEqual(rows.filter(row=>row.deleted_at!==null),oldTrash);
+        assert.equal(await feedback(),`${activeIds.length} transações restauradas.`);
+        assert.equal(interpretations.length,aiBeforeBulk);assert.equal(sources.at(-1),'local');
+        const beforeSnack=rows.length;
+        await submit('Comprei um salgado de 10 reais hoje');
+        assert.equal(rows.length,beforeSnack+1);assert.equal(rows.at(-1)?.amount,'10.00');assert.equal(rows.at(-1)?.description,'Salgado');
+        const snackId=rows.at(-1)?.id, snackDate=rows.at(-1)?.occurred_on;
+        await submit('Na verdade eu lucrei 12');
+        assert.equal(rows.length,beforeSnack+1);assert.equal(rows.at(-1)?.kind,'income');assert.equal(rows.at(-1)?.amount,'12.00');
+        await submit('Na verdade eu gastei');
+        assert.equal(rows.at(-1)?.kind,'expense');assert.equal(rows.at(-1)?.amount,'12.00');
+        const beforeDateQuestion=requests.length;
+        await submit('Na verdade foi semana passada');
+        assert.equal(requests.length,beforeDateQuestion);assert.match(await feedback()??'',/qual dia da semana passada/i);
+        await submit('quinta');
+        assert.equal(rows.at(-1)?.id,snackId);assert.notEqual(rows.at(-1)?.occurred_on,snackDate);
+        await submit('Na verdade foi de graça');assert(rows.at(-1)?.deleted_at);assert.equal(await feedback(),'Transação removida.');
+        await submit('Desfaz');assert.equal(rows.at(-1)?.deleted_at,null);assert.equal(rows.at(-1)?.id,snackId);
+        assert.equal(rows.length,beforeSnack+1);assert.equal(interpretations.length,aiBeforeBulk);
+        assert.deepEqual(otherWrites,[]);assert.deepEqual(f.errors,[]);
     } finally {await f.context.close();}
 });
 

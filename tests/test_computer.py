@@ -265,6 +265,7 @@ class ComputerRouteTests(unittest.TestCase):
             self.assertEqual(response.headers['Cache-Control'], 'no-store')
             events = [json.loads(line) for line in response.data.splitlines()]
             metadata = events[-1].pop('metadata')
+            self.assertEqual(metadata['provider'], 'qwen')
             self.assertFalse(metadata['instant'])
             self.assertIsNotNone(metadata['thinking_seconds'])
             self.assertEqual(events, [{'type': 'conversation', 'conversation_id': '1', 'turn_id': '1', 'created_at': None, 'attachments': [], 'provider': 'qwen'}, {'type': 'thinking', 'text': 'Analisando a pergunta.'}, {'type': 'delta', 'text': 'Olá, mundo'}, {'type': 'done'}])

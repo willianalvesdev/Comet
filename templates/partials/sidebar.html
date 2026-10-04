@@ -8,7 +8,7 @@
         </div>
 
         <div class="sidebar__new-chat">
-            <a class="sidebar__link" href="./computer.html?new=1" aria-label="Novo chat" title="Novo chat"><span class="sidebar__new-icon" aria-hidden="true"></span><span class="sidebar__label">Novo chat</span></a>
+            <a class="sidebar__link" href="./computer.html?new=1"{% if active_page == 'computer' and not request.args.get('conversation') %} aria-current="page"{% endif %} aria-label="Novo chat" title="Novo chat"><span class="sidebar__new-icon" aria-hidden="true"></span><span class="sidebar__label">Novo chat</span></a>
         </div>
 
         <nav class="sidebar__nav" id="sidebar-nav" aria-label="Navegação principal">
@@ -26,7 +26,6 @@
             <span class="sidebar__avatar" aria-hidden="true">{{ user.nome[0]|upper }}</span>
             <span class="sidebar__profile-info">
                 <span class="sidebar__profile-label" title="{{ user.nome }}">{{ user.nome }}</span>
-                <span class="sidebar__profile-email" title="{{ user.email }}">{{ user.email }}</span>
             </span>
             <span class="sidebar__profile-open" aria-hidden="true"></span>
         </button>

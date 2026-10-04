@@ -6,6 +6,7 @@ from urllib.parse import urlsplit
 
 from .errors import AIError
 from .local_context import fit_messages
+from .remote import read_structured_response, structured_json
 
 log = logging.getLogger(__name__)
 MAX_LINE = 65536
@@ -57,6 +58,49 @@ class OllamaProvider:
                 raise AIError('incompatible', 503)
             raise AIError('unavailable', 503)
         return response
+
+    def structured(self, system, data, schema):
+        connection = self._connect()
+        deadline = time.monotonic() + self.config.total_timeout
+        try:
+            with self._post(connection, '/api/show', {'model': self.config.model}) as response:
+                raw = response.read(2 * 1024 * 1024 + 1)
+            if len(raw) > 2 * 1024 * 1024:
+                raise AIError('invalid_response')
+            info = structured_json(raw)
+            if not isinstance(info, dict) or info.get('remote_model') or info.get('remote_host'):
+                raise AIError('incompatible', 503)
+            limits = [value for key, value in info.get('model_info', {}).items()
+                      if key.endswith('.context_length') and type(value) is int and value > 0]
+            context_limit = min(min(limits, default=4096), 16384)
+            messages = [{'role': 'system', 'content': system},
+                        {'role': 'user', 'content': json.dumps(data, ensure_ascii=False)}]
+            if sum(len(message['content']) for message in messages) > max(512, (context_limit - 1024) * 2):
+                raise AIError('context_size', 422)
+            payload = {'model': self.config.model, 'messages': messages, 'stream': False, 'format': schema,
+                       'options': {'temperature': 0, 'num_ctx': context_limit, 'num_predict': 8192}}
+            if not (self.config.model.startswith('gemma3:') or '-instruct-' in self.config.model):
+                payload['think'] = False
+            if time.monotonic() > deadline:
+                raise AIError('timeout', 504)
+            with self._post(connection, '/api/chat', payload) as response:
+                result = read_structured_response(response, deadline)
+            if not isinstance(result, dict) or result.get('done') is not True or result.get('done_reason') not in (None, 'stop') or result.get('error'):
+                raise AIError('invalid_response')
+            message = result.get('message')
+            if not isinstance(message, dict) or message.get('tool_calls') or not isinstance(message.get('content'), str):
+                raise AIError('invalid_response')
+            return structured_json(message['content'])
+        except AIError:
+            raise
+        except TimeoutError:
+            raise AIError('timeout', 504) from None
+        except (ConnectionError, OSError):
+            raise AIError('unavailable', 503) from None
+        except (ValueError, TypeError, AttributeError, http.client.HTTPException):
+            raise AIError('invalid_response') from None
+        finally:
+            connection.close()
 
     def stream(self, messages):
         connection = self._connect()

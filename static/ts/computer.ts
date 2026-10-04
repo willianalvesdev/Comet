@@ -214,10 +214,13 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
         summary.className = 'computer-thinking__toggle';
         const label = document.createElement('span');
         label.textContent = 'Pensando';
+        const logo = requiredElement(present(page), '.computer-intro__animated-logo', SVGElement).cloneNode(true);
+        if (!(logo instanceof SVGElement)) throw new Error('Invalid icon');
+        logo.classList.replace('computer-intro__animated-logo', 'computer-thinking__logo');
         const arrow = requiredElement(document, '[data-profile-submenu] > svg', SVGElement).cloneNode(true);
         if (!(arrow instanceof SVGElement)) throw new Error('Invalid icon');
         arrow.classList.add('computer-thinking__arrow');
-        summary.append(label, arrow);
+        summary.append(logo, label, arrow);
         const panel = document.createElement('div');
         panel.className = 'computer-thinking__content';
         panel.tabIndex = 0;
@@ -286,6 +289,7 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
         for (const turn of items) {
             const user = addMessage('user', turn.message); user.article.dataset.turn=turn.id ?? ''; messageTime(user.article,turn.created_at); messageAttachments(user.article,turn.attachments);
             const assistant = addMessage('assistant', turn.answer);
+            assistant.article.classList.toggle('is-computer-response', !!turn.metadata?.provider && turn.metadata.provider !== 'gemini');
             requiredElement(assistant.article, '.computer-message__actions', HTMLElement).hidden = turn.status === 'running';
             assistant.article.dataset.turn = turn.id ?? '';
             if (turn.thinking || turn.status === 'running') {
@@ -453,13 +457,14 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
         let sentAt = new Date().toISOString();messageTime(user.article,sentAt);
         const oldAssistant=rewriting&&present(conversation).querySelector(`.computer-message--assistant[data-turn="${rewriting.id}"]`);
         const assistant = addMessage('assistant', '');
+        assistant.article.classList.toggle('is-computer-response', payload.provider !== 'gemini');
         if(oldAssistant){oldAssistant.replaceWith(assistant.article);window.ComputerResponseDetails.reset();}
         const thinking = addThinking(assistant);
         showConversation(); note.textContent = '';
         if(!rewriting){present(input).value = ''; present(input).dispatchEvent(new Event('input', { bubbles: true }));}
         const controller = new AbortController(); active = controller;
         let timedOut = false, answer = '', persisted = false, savedTurnId: string | null = null;
-        let thoughtStart: number | null = null, thoughtSeconds: number | null = null, responseMeta: ResponseMetadata = {};
+        let thoughtStart: number | null = null, thoughtSeconds: number | null = null, responseMeta: ResponseMetadata = {provider:payload.provider};
         const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, 310000);
         controls(); scrollToLatest();
         try {
@@ -481,6 +486,7 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
                 persisted = !privateTurn;
                 window.ComputerAttachments?.clear();
                 if(metadata.provider)models.select(metadata.provider);
+                if(metadata.provider){responseMeta.provider=metadata.provider;assistant.article.classList.toggle('is-computer-response', metadata.provider !== 'gemini');}
                 savedTurnId = rewriting?.id || metadata.turn_id; user.article.dataset.turn=savedTurnId; sentAt=metadata.created_at||sentAt; messageTime(user.article,sentAt);
                 assistant.article.dataset.turn = savedTurnId;
                 const chatTitle = currentId === metadata.conversation_id
@@ -496,7 +502,7 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
                 window.ComputerResponseDetails.research(assistant.article, research);
             }, metadata => {
                 if(!currentRequest())return;
-                responseMeta = metadata;
+                responseMeta = {...metadata, provider:metadata.provider ?? responseMeta.provider};
                 window.ComputerResponseDetails.research(assistant.article, metadata.research, true);
                 
                 if (thinking.text.length) thinking.label.textContent = thoughtLabel(metadata.thinking_seconds ?? thoughtSeconds);

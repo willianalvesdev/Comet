@@ -1,0 +1,110 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "ready",
+        "needs_clarification",
+        "unknown"
+      ]
+    },
+    "actions": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "create",
+              "update",
+              "delete",
+              "restore",
+              "permanent_delete"
+            ]
+          },
+          "transactionId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 20
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "income",
+                  "expense",
+                  null
+                ]
+              },
+              "amount": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "maxLength": 15
+              },
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "maxLength": 200
+              },
+              "category": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "maxLength": 80
+              },
+              "occurred_on": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "maxLength": 10
+              }
+            },
+            "required": [
+              "kind",
+              "amount",
+              "description",
+              "category",
+              "occurred_on"
+            ]
+          }
+        },
+        "required": [
+          "type",
+          "transactionId",
+          "fields"
+        ]
+      }
+    },
+    "clarification": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 500
+    }
+  },
+  "required": [
+    "status",
+    "actions",
+    "clarification"
+  ]
+}
