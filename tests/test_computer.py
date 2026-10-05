@@ -6,12 +6,12 @@ from uuid import uuid4
 from mysql.connector import Error as DatabaseError
 from unittest.mock import MagicMock, patch
 
-from ascenda import create_app
-from ascenda.ai.config import AIConfig
-from ascenda.ai.errors import AIError
-from ascenda.ai.ollama import OllamaProvider
-from ascenda.ai.prompt import COMPUTER_PROMPT
-from ascenda.ai.service import ComputerService
+from comet import create_app
+from comet.ai.config import AIConfig
+from comet.ai.errors import AIError
+from comet.ai.ollama import OllamaProvider
+from comet.ai.prompt import COMPUTER_PROMPT
+from comet.ai.service import ComputerService
 
 
 CONFIG = AIConfig('http://localhost:11434', 'qwen3:4b-q4_K_M')
@@ -178,8 +178,16 @@ class SavedComputerServiceTests(unittest.TestCase):
         self.store.begin.return_value = {'conversation_id': '1', 'turn_id': '2',
                                         'request_id': str(uuid4()), 'messages': [{'role': 'user', 'content': 'Oi'}]}
 
+    def test_web_search_switch_bypasses_search_only_when_disabled(self):
+        with patch('comet.ai.service.with_web', side_effect=lambda *args: (event for event in [{'type': 'delta', 'text': 'Pesquisada'}])) as search:
+            events = list(self.service.stream_saved(7, {'web_search':False}, self.store))
+            search.assert_not_called()
+            self.assertTrue(any(event.get('text') == 'Resposta' for event in events))
+            list(self.service.stream_saved(7, {'web_search':True}, self.store))
+            search.assert_called_once()
+
     def test_commits_before_done_and_checkpoints_during_stream(self):
-        with patch('ascenda.ai.service.time.monotonic', side_effect=[0, 2, 2, 4, 4]):
+        with patch('comet.ai.service.time.monotonic', side_effect=[0, 2, 2, 4, 4]):
             stream = self.service.stream_saved(7, {}, self.store)
             self.assertEqual(next(stream)['type'], 'conversation')
             self.assertEqual(next(stream)['type'], 'thinking')
@@ -217,9 +225,9 @@ class ComputerRouteTests(unittest.TestCase):
         self.client = self.app.test_client()
         html = self.client.get('/').get_data(as_text=True)
         self.csrf = re.search(r'name="csrf_token" value="([^"]+)"', html).group(1)
-        self.service = self.app.extensions['ascenda_computer']
+        self.service = self.app.extensions['comet_computer']
         self.service.web_search = None
-        self.store = self.app.extensions['ascenda_conversations']
+        self.store = self.app.extensions['comet_conversations']
         self.service.personalization = None
         begin = patch.object(self.store, 'begin', side_effect=lambda user, payload, config: {
             'conversation_id': '1', 'turn_id': '1', 'request_id': payload['request_id'],
@@ -231,7 +239,7 @@ class ComputerRouteTests(unittest.TestCase):
         self.addCleanup(save.stop)
         manager = MagicMock()
         manager.__enter__.return_value.fetchone.return_value = USER
-        self.db = patch('ascenda.db.cursor', return_value=manager)
+        self.db = patch('comet.db.cursor', return_value=manager)
 
     def login(self):
         with self.client.session_transaction() as session:

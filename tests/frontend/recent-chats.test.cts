@@ -9,7 +9,7 @@ const python = process.env.PYTHON || path.join(root, process.platform === 'win32
 const pages:Record<string,string> = stringPages(JSON.parse(execFileSync(python, ['-c', `import json
 from jinja2 import Environment,FileSystemLoader,select_autoescape
 env=Environment(loader=FileSystemLoader('templates'),autoescape=select_autoescape(['html']))
-print(json.dumps({name:env.get_template(name).render(user={'id':7,'nome':'Teste','email':'teste@example.com'},csrf_token=lambda:'test-csrf') for name in ['recentes.html','computer.html','graficos.html','descobrir.html']}))`], {cwd:root, encoding:'utf8', env:{...process.env, PYTHONIOENCODING:'utf-8'}})));
+print(json.dumps({name:env.get_template(name).render(request={'args':{}},user={'id':7,'nome':'Teste','email':'teste@example.com'},csrf_token=lambda:'test-csrf') for name in ['recentes.html','computer.html','graficos.html','descobrir.html']}))`], {cwd:root, encoding:'utf8', env:{...process.env, PYTHONIOENCODING:'utf-8'}})));
 
 function testObject(value:unknown):Record<string,unknown> {
  if(typeof value!=='object'||value===null||Array.isArray(value))throw new Error('Invalid test data');
@@ -61,7 +61,7 @@ async function fixture(width = 1280) {
         return route.fulfill({status:404,body:''});
     });
     const page=await context.newPage();page.on('pageerror',error=>errors.push(error.message));
-    await page.goto('https://ascenda.test/recentes.html');
+    await page.goto('https://comet.test/recentes.html');
     await page.waitForFunction(()=>requiredElement(document, ".recent-chats__list", HTMLElement).getAttribute('aria-busy')==='false');
     return {page,context,errors,requests,failDeletion:()=>{failDelete=true;},allowDeletion:()=>{failDelete=false;}};
 }
@@ -106,8 +106,8 @@ test('recentes: busca, ordenação e opções existentes',async()=>{
         await p.locator('.recent-chats__row').hover();
         assert.equal(await p.locator('.recent-chats__pin').evaluate(e=>getComputedStyle(e).opacity),'0');
         await p.locator('.recent-chats__more').click();await p.locator('#sessions-menu [data-action="rename"]').click();
-        await p.locator('.sessions-dialog input[name="title"]').fill('Novo nome');await p.locator('.sessions-dialog [data-confirm]').click();
-        await p.waitForFunction(()=>!requiredElement(document, ".sessions-dialog:not(.recent-chats__confirm)", HTMLDialogElement).open);
+        await p.locator('.sessions-rename').fill('Novo nome');await p.locator('.sessions-rename').press('Enter');
+        await p.waitForFunction(()=>!document.querySelector('.sessions-rename'));
         await p.locator('#recent-chats-search').fill('Novo nome');
         await p.waitForFunction(()=>requiredElement(document, ".recent-chats__name", HTMLElement)?.textContent==='Novo nome');
         assert.deepEqual(f.errors,[]);
@@ -152,7 +152,7 @@ test('fixados: só a seta recolhe e a navegação preserva o estado da lateral',
         assert(!await pinned.evaluate(e=>e instanceof HTMLDetailsElement && e.open));
         await p.locator('.sessions__collapse[aria-controls="recent-chats"]').click();
         await p.locator('.sidebar__toggle').click();
-        await p.goto('https://ascenda.test/recentes.html?return=1');
+        await p.goto('https://comet.test/recentes.html?return=1');
         await p.waitForFunction(()=>window.ComputerSessions);
         assert(await p.locator('body').evaluate(e=>e.classList.contains('is-sidebar-collapsed')));
         assert(!await p.locator('#pinned-chats').evaluate(e=>present(e.closest('details')).open));
@@ -382,8 +382,8 @@ test('finanças anima valor e variação ao abrir e mudar período', async () =>
         await p.waitForFunction(()=>elementList(document, ".market-digit > span", HTMLElement).length===0);
         const result=await p.evaluate(()=>{
             const points=[{time:chartTimestamp(1700000000),open:100,high:120,low:90,close:110,volume:100},{time:chartTimestamp(1700100000),open:110,high:130,low:100,close:120,volume:120}];
-            window.AscendaChart.setData({points,currency:'BRL'});
-            window.AscendaChart.setData({points:points.map(p=>({...p,close:p.close+5})),currency:'BRL'});
+            window.CometChart.setData({points,currency:'BRL'});
+            window.CometChart.setData({points:points.map(p=>({...p,close:p.close+5})),currency:'BRL'});
             return {text:requiredElement(document, "#market-price", HTMLElement).textContent,animations:requiredElement(document, "#market-price", HTMLElement).getAnimations({subtree:true}).length};
         });
         assert.match(result.text,/125,00/);
@@ -686,4 +686,106 @@ test('chat restaura anexos e fontes com os campos da API',async()=>{
         assert.equal(await p.evaluate(()=>window.ComputerAttachments.files().length),0);
         assert.deepEqual(f.errors,[]);
     } finally {await f.context.close();}
+});
+
+
+test('respostas: versões preservam texto, fontes e horário ao recarregar', async () => {
+    const f = await fixture(), p = f.page;
+    try {
+        const research = {sources:[{url:'https://example.com/source', domain:'example.com', title:'Fonte antiga'}]};
+        await p.route('**/api/ai/conversations/1', route => route.fulfill({json:{conversation:{id:'1',title:'Versões',created_at:'2026-10-01',updated_at:'2026-10-04'},active:false,before:null,turns:[{id:'10',message:'Pergunta',answer:'Resposta nova',thinking:'',status:'completed',created_at:'2026-10-01T12:00:00Z',metadata:{answered_at:'2026-10-04T12:00:00Z',versions:[{answer:'Resposta antiga',thinking:'Pensamento anterior',metadata:{answered_at:'2026-10-01T12:00:00Z',research}}]}}]}}));
+        await p.goto('https://comet.test/computer.html?conversation=1');
+        const answer = p.locator('.computer-message--assistant .computer-message__text');
+        await p.waitForFunction(() => document.querySelector('.response-versions') !== null);
+        assert.equal(await answer.textContent(), 'Resposta nova');
+        await p.getByRole('button', {name:'Resposta anterior',exact:true}).click();
+        assert.equal(await answer.textContent(), 'Resposta antiga');
+        assert.equal(await p.locator('.response-time').getAttribute('datetime'), '2026-10-01T12:00:00.000Z');
+        assert(await p.locator('.computer-sources').isVisible());
+        await p.getByRole('button', {name:'Próxima resposta',exact:true}).click();
+        assert.equal(await answer.textContent(), 'Resposta nova');
+        await p.reload();
+        await p.waitForFunction(() => document.querySelector('.response-versions') !== null);
+        assert.equal(await p.locator('.response-versions > span').textContent(), '2 / 2');
+        assert.deepEqual(f.errors, []);
+    } finally { await f.context.close(); }
+});
+
+
+test('Comet: pesquisa web, fontes e histórico financeiro recolhível', async () => {
+    const f = await fixture(), p = f.page;
+    try {
+        await p.goto('https://comet.test/computer.html');
+        await p.waitForFunction(() => !requiredElement(document, '.home__input', HTMLTextAreaElement).readOnly);
+        await p.locator('.attachment-toggle').click();
+        const web = p.locator('.web-search-toggle');
+        assert.equal(await web.getAttribute('aria-pressed'), 'true');
+        await web.click(); assert.equal(await web.getAttribute('aria-pressed'), 'false');
+        assert.equal(await p.locator('.attachment-menu p').count(), 0);
+        assert.match(await web.locator('i').evaluate(e => getComputedStyle(e).maskImage), /web-links.svg/);
+        assert(!await p.evaluate(() => [...document.fonts].some(font => /Serrif|Geist/i.test(font.family))));
+        await p.goto('https://comet.test/graficos.html');
+        const toggle = p.locator('.finance-panel-toggle'), history = p.locator('#finance-history-panel');
+        await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
+        await p.locator('.chart-range[data-range="MAX"]').click();
+        assert.equal(await p.locator('.chart-statistics dd').count(), 6);
+        assert.match(await p.locator('[data-chart-stat="closing"]').innerText(), /120,00/);
+        assert.match(await p.locator('[data-chart-stat="volume"]').innerText(), /120,00/);
+        await p.locator('.chart-range[data-range="MAX"]').hover();
+        assert(!(await p.locator('#chart-tooltip').isVisible()));
+        const chart = p.locator('.finance-chart-column');
+        const width = await chart.evaluate(e => e.getBoundingClientRect().width);
+        await toggle.click(); assert(!(await history.isVisible()));
+        await p.waitForFunction(() => {
+            const chart = document.querySelector('.finance-chart-column')?.getBoundingClientRect();
+            const composer = document.querySelector('.finance-composer')?.getBoundingClientRect();
+            return chart && composer && Math.abs(chart.left - composer.left) < 1 && Math.abs(chart.width - composer.width) < 1;
+        });
+        assert(Math.abs(await chart.evaluate(e => e.getBoundingClientRect().width) - width) < 1);
+        await toggle.click(); assert(await history.isVisible());
+        await p.route('**/api/finance/transactions', route => route.fulfill({json:{transactions:[],next_cursor:null}}));
+        await p.reload();
+        await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
+        assert(!(await history.isVisible()));
+        assert(!(await toggle.isVisible()));
+        await p.unroute('**/api/finance/transactions');
+        await p.evaluate(() => window.dispatchEvent(new CustomEvent('finance:changed')));
+        await p.waitForFunction(() => {
+            const history = document.querySelector<HTMLElement>('#finance-history-panel');
+            const chart = document.querySelector('.finance-chart-column')?.getBoundingClientRect();
+            const composer = document.querySelector('.finance-composer')?.getBoundingClientRect();
+            return history && !history.hidden && chart && composer && Math.abs(chart.left - composer.left) < 1 && Math.abs(chart.width - composer.width) < 1;
+        });
+        assert.deepEqual(f.errors, []);
+    } finally { await f.context.close(); }
+});
+
+test('finanças: planilha usa dados reais, compartilha período e volta ao gráfico', async () => {
+    const f = await fixture(), p = f.page;
+    try {
+        await p.goto('https://comet.test/graficos.html');
+        await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
+        await p.locator('[data-range="MAX"]').click();
+        await p.getByRole('button', {name:'Planilha',exact:true}).click();
+        const rows = p.locator('.finance-sheet tbody tr');
+        assert.equal(await rows.count(), 2);
+        assert.match(await rows.first().locator('td').nth(3).innerText(), /120,00/);
+        assert.match(await rows.first().locator('td').nth(4).innerText(), /20,00/);
+        assert(!(await p.locator('.chart-stage').isVisible()));
+        await p.locator('[data-range="1D"]').click();
+        assert.equal(await rows.count(), 1);
+        await p.screenshot({path:join(root,'artifacts/finance-sheet-desktop.png')});
+        await p.setViewportSize({width:390,height:844});
+        assert(await p.locator('.finance-sheet').isVisible());
+        assert(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+        await p.screenshot({path:join(root,'artifacts/finance-sheet-mobile.png')});
+        await p.getByRole('button', {name:'Gráfico',exact:true}).click();
+        assert(await p.locator('.chart-stage').isVisible());
+        assert.equal(await p.locator('[data-range="1D"]').getAttribute('aria-pressed'), 'true');
+        await p.evaluate(() => window.CometChart.setData({kind:'balance',currency:'BRL',points:[],demo:false}));
+        await p.getByRole('button', {name:'Planilha',exact:true}).click();
+        assert.equal(await rows.count(), 0);
+        assert(await p.locator('.finance-sheet-empty').isVisible());
+        assert.deepEqual(f.errors, []);
+    } finally { await f.context.close(); }
 });

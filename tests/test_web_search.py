@@ -3,13 +3,13 @@ import json
 import unittest
 from unittest.mock import MagicMock, patch
 
-from ascenda.ai.config import AIConfig, LOCAL_MODELS
-from ascenda.ai.errors import AIError
-from ascenda.ai.ollama import OllamaProvider, ContextSizeError
-from ascenda.ai.remote import RemoteProvider
-from ascenda.ai.response_metadata import pack_response, unpack_response
-from ascenda.ai.service import ComputerService
-from ascenda.ai.web_search import WebSearch, grounding_metadata, requires_web, with_web
+from comet.ai.config import AIConfig, LOCAL_MODELS
+from comet.ai.errors import AIError
+from comet.ai.ollama import OllamaProvider, ContextSizeError
+from comet.ai.remote import RemoteProvider
+from comet.ai.response_metadata import pack_response, unpack_response
+from comet.ai.service import ComputerService
+from comet.ai.web_search import WebSearch, grounding_metadata, requires_web, with_web
 
 CONFIG = AIConfig("http://localhost:11434", LOCAL_MODELS[0])
 SOURCE = {"sources": [{"url": "https://example.com/news", "title": "Example", "domain": "example.com"}],
@@ -60,7 +60,7 @@ class WebSearchTests(unittest.TestCase):
         response.getheader = lambda *_: "text/event-stream"
         connection = MagicMock()
         connection.getresponse.return_value = response
-        with patch("ascenda.ai.remote.http.client.HTTPSConnection", return_value=connection):
+        with patch("comet.ai.remote.http.client.HTTPSConnection", return_value=connection):
             provider = RemoteProvider("gemini", "secret-test", "gemini-3.8-flash", CONFIG)
             events = list(provider.stream([{"role":"system","content":"test"},{"role":"user","content":"test"}], search=True))
         body = json.loads(connection.request.call_args.kwargs["body"])
@@ -100,7 +100,7 @@ class WebSearchTests(unittest.TestCase):
         remote = self.provider([])
         service = ComputerService(local, CONFIG)
         service.web_search = WebSearch(remote)
-        with patch("ascenda.ai.web_search.searxng_search", return_value=({**SOURCE,"engine":"SearXNG"}, "Fato")) as search:
+        with patch("comet.ai.web_search.searxng_search", return_value=({**SOURCE,"engine":"SearXNG"}, "Fato")) as search:
             events = list(with_web(service, [{"role":"user","content":"Uma pergunta factual"}], local, ""))
         search.assert_called_once_with("Uma pergunta factual")
         local.stream.assert_called_once()
@@ -113,7 +113,7 @@ class WebSearchTests(unittest.TestCase):
         local = self.provider([{"type":"delta","text":"Resposta sem pesquisa."}])
         service = ComputerService(local, CONFIG)
         service.web_search = WebSearch(self.provider([]))
-        with patch("ascenda.ai.web_search.searxng_search", side_effect=AIError('provider_missing',503)):
+        with patch("comet.ai.web_search.searxng_search", side_effect=AIError('provider_missing',503)):
             events = list(with_web(service,[{'role':'user','content':'Explique juros'}],local,''))
         self.assertTrue(any(e.get('state')=='failed' for e in events))
         self.assertEqual(events[-1]['text'],'Resposta sem pesquisa.')
@@ -171,7 +171,7 @@ class WebSearchTests(unittest.TestCase):
             service = ComputerService(local, CONFIG)
             store = MagicMock()
             store.begin.return_value = {"conversation_id":"1","turn_id":"2","messages":[{"role":"user","content":"Oi"}]}
-            with patch("ascenda.ai.service.time.perf_counter", side_effect=[0,elapsed]):
+            with patch("comet.ai.service.time.perf_counter", side_effect=[0,elapsed]):
                 events = list(service.stream_saved(1, {}, store))
             self.assertEqual(events[-1]["metadata"]["instant"], expected)
             self.assertEqual(store.save.call_args.args[-1], "completed")
@@ -182,7 +182,7 @@ class WebSearchTests(unittest.TestCase):
         service = ComputerService(local, CONFIG)
         store = MagicMock()
         store.begin.return_value = {"conversation_id":"1","turn_id":"2","messages":[{"role":"user","content":"Oi"}]}
-        with patch("ascenda.ai.service.time.perf_counter", side_effect=[0,.1,.2,.3]):
+        with patch("comet.ai.service.time.perf_counter", side_effect=[0,.1,.2,.3]):
             events=list(service.stream_saved(1,{},store))
         self.assertFalse(events[-1]["metadata"]["instant"])
 
@@ -198,7 +198,7 @@ class WebSearchTests(unittest.TestCase):
                 google = self.provider([])
                 service = ComputerService(local,CONFIG, {name:local,'gemini':google})
                 service.web_search = WebSearch(google)
-                with patch('ascenda.ai.web_search.searxng_search',return_value=({**SOURCE,'engine':'SearXNG'},'Fato')) as search:
+                with patch('comet.ai.web_search.searxng_search',return_value=({**SOURCE,'engine':'SearXNG'},'Fato')) as search:
                     events=list(with_web(service,[{'role':'user','content':'Pesquise notícias hoje'}],local,''))
                 search.assert_called_once()
                 google.stream.assert_not_called()
@@ -208,7 +208,7 @@ class WebSearchTests(unittest.TestCase):
         google = self.provider([{'type':'delta','text':'Fato'}, {'type':'grounding','data':SOURCE}])
         service = ComputerService(google,CONFIG)
         service.web_search = WebSearch(google)
-        with patch.dict('os.environ',{'SEARXNG_URL':'http://127.0.0.1:8888'}), patch('ascenda.ai.web_search.searxng_search') as local_search:
+        with patch.dict('os.environ',{'SEARXNG_URL':'http://127.0.0.1:8888'}), patch('comet.ai.web_search.searxng_search') as local_search:
 
             source=with_web(service,[{'role':'user','content':'Pesquise notícias hoje'}],google,'')
             try:
@@ -222,7 +222,7 @@ class WebSearchTests(unittest.TestCase):
     def test_google_quota_never_falls_back_to_searxng(self):
         google=self.provider([])
         google.stream.side_effect=AIError('provider_quota',429)
-        with patch('ascenda.ai.web_search.searxng_search') as local_search:
+        with patch('comet.ai.web_search.searxng_search') as local_search:
             events=list(WebSearch(google).run('notícias hoje',engine='google'))
         local_search.assert_not_called()
         self.assertEqual(events[-1]['state'],'failed')
@@ -230,7 +230,7 @@ class WebSearchTests(unittest.TestCase):
 
     def test_empty_local_results_never_call_google(self):
         google=self.provider([])
-        with patch('ascenda.ai.web_search.searxng_search',return_value=({'sources':[],'engine':'SearXNG'},'')):
+        with patch('comet.ai.web_search.searxng_search',return_value=({'sources':[],'engine':'SearXNG'},'')):
             events=list(WebSearch(google).run('notícias hoje',engine='searxng'))
         google.stream.assert_not_called()
         self.assertEqual(events[-1]['state'],'empty')
@@ -248,7 +248,7 @@ class WebSearchTests(unittest.TestCase):
         store=MagicMock()
         store.begin.return_value={'conversation_id':'1','turn_id':'2','has_attachments':True,
                                  'messages':[{'role':'user','content':'Pesquise notícias hoje'}]}
-        with patch('ascenda.ai.web_search.searxng_search') as sx:
+        with patch('comet.ai.web_search.searxng_search') as sx:
             events=list(service.stream_saved(1,{'provider':'qwen'},store))
         sx.assert_not_called()
         local.stream.assert_not_called()
@@ -265,7 +265,7 @@ class WebSearchTests(unittest.TestCase):
                 service.web_search=WebSearch(google)
                 def stream(messages):
                     yield {'type':'delta','text':'Resposta pesquisada'}
-                with patch.object(local,'stream',side_effect=stream), patch('ascenda.ai.web_search.searxng_search',return_value=({**SOURCE,'engine':'SearXNG'},'Fato')) as search:
+                with patch.object(local,'stream',side_effect=stream), patch('comet.ai.web_search.searxng_search',return_value=({**SOURCE,'engine':'SearXNG'},'Fato')) as search:
                     events=list(with_web(service,[{'role':'user','content':'Pesquise notícias hoje'}],local,''))
                 search.assert_called_once()
                 google.stream.assert_not_called()

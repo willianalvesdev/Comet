@@ -20,13 +20,15 @@ window.WorkspaceNavigation.page('/static/js/response-details.js', ({scope, setTi
     const workspace = requiredElement(document, '.workspace', HTMLElement);
     const chatPage=requiredElement(document, '.computer-page', HTMLElement), header=requiredElement(document, '.computer-header', HTMLElement);
     let tabs=optionalElement(document, '.chat-tabs', HTMLElement), linksPage=optionalElement(document, '.chat-links', HTMLElement);
-    if(!tabs){tabs=document.createElement('nav');tabs.className='chat-tabs';tabs.hidden=true;tabs.setAttribute('aria-label','Visualização da resposta');tabs.innerHTML='<button type="button" data-chat-view="answer" aria-current="page"><i class="chat-tab-logo" aria-hidden="true"></i>Resposta</button><button type="button" data-chat-view="links"><i class="chat-tab-links" aria-hidden="true"></i>Links</button>';header.append(tabs);}
+    if(!tabs){tabs=document.createElement('nav');tabs.className='chat-tabs';tabs.hidden=true;tabs.setAttribute('aria-label','Visualização da resposta');tabs.innerHTML='<button type="button" data-chat-view="answer" aria-current="page"><i class="chat-tab-logo" aria-hidden="true"></i>Resposta</button><button type="button" data-chat-view="links" hidden><i class="chat-tab-links" aria-hidden="true"></i>Links</button>';header.append(tabs);}
     if(!linksPage){linksPage=document.createElement('section');linksPage.className='chat-links';linksPage.hidden=true;linksPage.setAttribute('aria-label','Links pesquisados');chatPage.after(linksPage);}
     let answerScroll=0, activeResearch: Research | null=null;
     function renderLinks(value: Research | null){
         activeResearch=value;present(linksPage).replaceChildren();
         const title=document.createElement('p');title.className='chat-links__query';title.textContent=value?.query?'Resultados da pesquisa para: '+value.query:'Links consultados nesta resposta';present(linksPage).append(title);
         const sources=validSources(value?.sources);
+        requiredElement(present(tabs), '[data-chat-view="links"]', HTMLButtonElement).hidden = !sources.length;
+        if (!sources.length && workspace.classList.contains('showing-chat-links')) view('answer');
         if(!sources.length){const empty=document.createElement('p');empty.textContent='Esta resposta não tem links de pesquisa.';present(linksPage).append(empty);return;}
         for(const source of sources){
             const result=document.createElement('article');result.className='chat-links__result';
@@ -39,7 +41,8 @@ window.WorkspaceNavigation.page('/static/js/response-details.js', ({scope, setTi
         }
     }
     function view(name: string | undefined){
-        const links=name==='links';
+        const links=name==='links' && validSources(activeResearch?.sources).length > 0;
+        if (!links) name='answer';
         if(links){answerScroll=scroller.scrollTop;renderLinks(activeResearch);}
         chatPage.hidden=links;present(linksPage).hidden=!links;workspace.classList.toggle('showing-chat-links',links);
         elementList(present(tabs), 'button', HTMLButtonElement).forEach(button=>{if(button.dataset.chatView===name)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});

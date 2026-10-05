@@ -1,9 +1,8 @@
 window.WorkspaceNavigation.page('/static/js/weather.js', ({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}) => {
-    const locate = optionalElement(document, "#weather-locate", HTMLButtonElement);
     const status = requiredElement(document, "#weather-status", HTMLElement);
     const content = optionalElement(document, "#weather-content", HTMLElement);
     let version = 0, busy = false;
-    if (!locate || !content) return;
+    if (!content) return;
     const cacheKey = 'ascenda-weather-' + optionalElement(document, '[data-user-id]', HTMLElement)?.dataset.userId;
     let cached: {city:WeatherCity;data:ReturnType<typeof weatherData>;saved:number} | undefined;
     try { const saved=record(JSON.parse(localStorage.getItem(cacheKey) || 'null'));cached={city:weatherCity(saved.city),data:weatherData(saved.data),saved:numberValue(saved.saved)}; } catch {}
@@ -19,7 +18,7 @@ window.WorkspaceNavigation.page('/static/js/weather.js', ({scope, setTimeout, se
         if (code === 3) return ['cloud', 'Nublado'];
         if (code === 45 || code === 48) return ['cloud', 'Neblina'];
         if ([71, 73, 75, 77, 85, 86].includes(code)) return ['cloud', 'Neve'];
-        if (code >= 95) return ['rain', 'Trovoadas'];
+        if (code >= 95) return ['storm', 'Trovoadas'];
         if (code >= 51) return ['rain', 'Chuva'];
         return ['cloud', 'Condição indisponível'];
     }
@@ -68,7 +67,6 @@ window.WorkspaceNavigation.page('/static/js/weather.js', ({scope, setTimeout, se
             present(content).replaceChildren(now, meta, days);
             present(content).hidden = false;
             status.hidden = true;
-            present(locate).textContent = 'Atualizar localização';
             if (!restored) {
                 cached = {city, data, saved: Date.now()};
                 try { localStorage.setItem(cacheKey, JSON.stringify(cached)); } catch {}
@@ -87,7 +85,6 @@ window.WorkspaceNavigation.page('/static/js/weather.js', ({scope, setTimeout, se
             return;
         }
         busy = true;
-        present(locate).disabled = true;
         status.textContent = 'Permita sua localização para ver o clima da região.';
         try {
             const position = await new Promise<GeolocationPosition>((resolve, reject) => {
@@ -110,15 +107,15 @@ window.WorkspaceNavigation.page('/static/js/weather.js', ({scope, setTimeout, se
                 : 'Não foi possível obter sua localização. Verifique se ela está ativada e tente novamente.';
         } finally {
             busy = false;
-            present(locate).disabled = false;
         }
     }
-    locate.addEventListener('click', locateWeather);
     if (cached?.city && cached?.data) {
         forecast(cached.city, cached.data).then(() => {
             if (Date.now() - present(cached).saved > 1800000) forecast(present(cached).city);
         });
     }
+    if (!cached) void locateWeather();
+    setInterval(() => { void locateWeather(); }, 1800000);
     const toggle = optionalElement(document, '.weather-toggle', HTMLButtonElement);
     const layout = optionalElement(document, '.discovery-layout', HTMLElement);
     const widgets = optionalElement(document, '.discovery-widgets', HTMLElement);

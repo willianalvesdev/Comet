@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import Mock, patch, MagicMock
 
-from ascenda import create_app
-from ascenda.news import NewsError, NewsService, normalize_article, public_url, fetch_newsapi
+from comet import create_app
+from comet.news import NewsError, NewsService, normalize_article, public_url, fetch_newsapi
 from urllib.error import HTTPError
 
 
@@ -47,14 +47,14 @@ class NewsTests(unittest.TestCase):
     def test_provider_request_and_response(self):
         import json
         from urllib.parse import parse_qs, urlsplit
-        from ascenda.news import news_query
+        from comet.news import news_query
         self.assertLessEqual(len(news_query()), 500)
         response = MagicMock()
         response.__enter__.return_value.read.return_value = json.dumps(
             {'status': 'ok', 'totalResults': 1, 'articles': [article()]}).encode()
         opener = Mock()
         opener.open.return_value = response
-        with patch('ascenda.news.build_opener', return_value=opener):
+        with patch('comet.news.build_opener', return_value=opener):
             payload = fetch_newsapi('private-secret', 2)
         request = opener.open.call_args.args[0]
         query = parse_qs(urlsplit(request.full_url).query)
@@ -68,12 +68,12 @@ class NewsTests(unittest.TestCase):
         self.assertEqual(query['page'], ['2'])
         self.assertEqual(query['pageSize'], ['100'])
         self.assertEqual(len(payload['articles']), 2)
-        with patch('ascenda.news.build_opener', return_value=opener):
+        with patch('comet.news.build_opener', return_value=opener):
             fetch_newsapi('private-secret', 1, languages='all')
         self.assertNotIn('language', parse_qs(urlsplit(opener.open.call_args.args[0].full_url).query))
 
     def test_topics_and_cache_are_isolated(self):
-        from ascenda.news import news_query, topic_selection
+        from comet.news import news_query, topic_selection
         self.assertEqual(topic_selection('sports,business,sports'), ('business', 'sports'))
         with self.assertRaises(ValueError):
             topic_selection('unknown')
@@ -117,7 +117,7 @@ class NewsTests(unittest.TestCase):
         for status, expected in ((401, 'configuration'), (429, 'quota'), (500, 'unavailable')):
             opener = Mock()
             opener.open.side_effect = HTTPError('https://newsapi.org/v2/everything', status, 'secret', {}, None)
-            with patch('ascenda.news.build_opener', return_value=opener):
+            with patch('comet.news.build_opener', return_value=opener):
                 with self.assertRaises(NewsError) as caught:
                     fetch_newsapi('secret', 1)
             self.assertEqual(caught.exception.code, expected)
@@ -133,7 +133,7 @@ class NewsTests(unittest.TestCase):
             session['auth_token'] = 'test-token'
         manager = MagicMock()
         manager.__enter__.return_value.fetchone.return_value = {'id': 7, 'nome': 'Teste', 'email': 'teste@example.com'}
-        with patch('ascenda.db.cursor', return_value=manager):
+        with patch('comet.db.cursor', return_value=manager):
             self.assertEqual(client.get('/descobrir.html').status_code, 200)
             for page in ('0', '-1', '11', 'abc'):
                 self.assertEqual(client.get('/api/news?page=' + page).status_code, 400)
@@ -142,8 +142,8 @@ class NewsTests(unittest.TestCase):
             response = client.get('/api/news')
             self.assertEqual(response.status_code, 503)
             self.assertEqual(response.json['code'], 'configuration')
-            app.extensions['ascenda_news'].token = 'server-only'
-            app.extensions['ascenda_news'].fetcher = Mock(return_value={'articles': [article()], 'totalResults': 1})
+            app.extensions['comet_news'].token = 'server-only'
+            app.extensions['comet_news'].fetcher = Mock(return_value={'articles': [article()], 'totalResults': 1})
             response = client.get('/api/news')
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(response.json['articles']), 1)

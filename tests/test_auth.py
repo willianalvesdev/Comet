@@ -5,7 +5,7 @@ import uuid
 from mysql.connector import Error as DatabaseError
 from werkzeug.security import check_password_hash
 
-from ascenda import create_app, db
+from comet import create_app, db
 
 
 def csrf(client):
@@ -27,7 +27,7 @@ class PublicSecurityTests(unittest.TestCase):
     def test_csrf_and_private_files(self):
         for route in ('/api/auth/signup', '/api/auth/login', '/logout'):
             self.assertEqual(self.client.post(route).status_code, 400)
-        for route in ('/.env', '/requirements.txt', '/ascenda/__init__.py'):
+        for route in ('/.env', '/requirements.txt', '/comet/__init__.py'):
             self.assertEqual(self.client.get(route).status_code, 404)
 
     def test_validation_and_rate_limit(self):

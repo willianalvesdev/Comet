@@ -1,10 +1,10 @@
-# Ascenda
+# Comet
 
 > Plataforma de organização financeira pessoal com interface conversacional, gráficos e descoberta de notícias.
 
 ## Página pública
 
-- [Página inicial](/): apresentação da Ascenda e acesso ao cadastro e login.
+- [Página inicial](/): apresentação da Comet e acesso ao cadastro e login.
 
 ## Recursos
 

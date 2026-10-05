@@ -84,7 +84,37 @@ window.WorkspaceNavigation.page('/static/js/graficos.js', ({scope, setTimeout, s
     });
     const toolbar = requiredElement(document, ".chart-toolbar", HTMLElement);
     const plot = requiredElement(document, ".chart-plot", HTMLElement);
+    const sheet = requiredElement(document, '.finance-sheet', HTMLElement);
+    const sheetBody = requiredElement(sheet, 'tbody', HTMLTableSectionElement);
+    const viewButtons = elementList(document, '[data-finance-view]', HTMLButtonElement);
+    viewButtons.forEach(button => button.addEventListener('click', () => {
+        const showingSheet = button.dataset.financeView === 'sheet';
+        requiredElement(document, '.market-card', HTMLElement).classList.toggle('is-sheet-view', showingSheet);
+        sheet.hidden = !showingSheet;
+        requiredElement(document, '.chart-stage', HTMLElement).hidden = showingSheet;
+        viewButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+        chart.clearCrosshairPosition(); hideTooltip();
+        if (!showingSheet) requestAnimationFrame(reserveToolbarSpace);
+    }));
+    function renderSheet() {
+        const fragment = document.createDocumentFragment();
+        const points = model.points.length || model.intraday.length ? visiblePoints : [];
+        for (const point of [...points].reverse()) {
+            const row = document.createElement('tr');
+            const date = document.createElement('th'); date.scope = 'row';
+            date.textContent = shortDate.format(point.time * 1000) +
+                (['1D', '5D'].includes(selectedRange) && model.intraday.length ? ' · ' + shortTime.format(point.time * 1000) : '');
+            row.append(date);
+            for (const value of [point.open, point.high, point.low, point.close, point.close - point.open, point.volume]) {
+                const cell = document.createElement('td'); cell.textContent = money.format(value); row.append(cell);
+            }
+            fragment.append(row);
+        }
+        sheetBody.replaceChildren(fragment);
+        requiredElement(sheet, '.finance-sheet-empty', HTMLElement).hidden = points.length > 0;
+    }
     function reserveToolbarSpace() {
+        if (!present(host).clientHeight) return;
         const toolbarHeight = toolbar.getBoundingClientRect().height;
         const paneHeight = Math.max(1, present(host).clientHeight - chart.timeScale().height());
         const availableHeight = Math.max(0, paneHeight - toolbarHeight);
@@ -247,6 +277,20 @@ window.WorkspaceNavigation.page('/static/js/graficos.js', ({scope, setTimeout, s
         styles.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.chartStyle === selectedStyle)));
         hideTooltip();
     }
+    function updateStatistics() {
+        const first = visiblePoints[0], last = visiblePoints[visiblePoints.length - 1];
+        let high = first?.high ?? 0, low = first?.low ?? 0, volumeCents = 0;
+        for (const point of visiblePoints) {
+            high = Math.max(high, point.high); low = Math.min(low, point.low);
+            volumeCents += Math.round(point.volume * 100);
+        }
+        const opening = first?.open ?? 0, closing = last?.close ?? 0;
+        const stats = {opening, closing, change: closing - opening, high, low, volume: volumeCents / 100};
+        for (const [key, value] of Object.entries(stats)) {
+            requiredElement(document, `[data-chart-stat="${key}"]`, HTMLElement).textContent = money.format(value);
+        }
+    }
+    toolbar.addEventListener('pointerenter', () => { chart.clearCrosshairPosition(); hideTooltip(); });
     function setRange() {
         chart.priceScale('left').applyOptions({autoScale:true});
         volume.priceScale().applyOptions({autoScale:true});
@@ -260,6 +304,8 @@ window.WorkspaceNavigation.page('/static/js/graficos.js', ({scope, setTimeout, s
             visiblePoints = [Number.isFinite(start) && start < end ? start : end - day, end]
                 .map(time => ({ time:chartTimestamp(time), open: 0, high: 0, low: 0, close: 0, volume: 0 }));
         }
+        updateStatistics();
+        renderSheet();
         zeroChart = visiblePoints.length > 0 && visiblePoints.every(point =>
             point.open === 0 && point.high === 0 && point.low === 0 && point.close === 0);
         colorLine();
@@ -273,7 +319,7 @@ window.WorkspaceNavigation.page('/static/js/graficos.js', ({scope, setTimeout, s
         line.setData(visiblePoints.map((point) => ({ time: point.time, value: point.close })));
         candles.setData(visiblePoints.map(({ volume: ignored, ...point }) => point));
         volume.setData(visiblePoints.map((point) => point.volume === 0 ? { time: point.time } : {
-            time: point.time, value: point.volume, color: point.close >= point.open ? colors.green : colors.red
+            time: point.time, value: point.volume, color: (point.close >= point.open ? present(colors.green) : present(colors.red)).replace(/,\s*[\d.]+\)$/, ",0.8)")
         }));
         stateMessage.hidden = visiblePoints.length > 0;
         if (!visiblePoints.length) {
@@ -302,7 +348,7 @@ window.WorkspaceNavigation.page('/static/js/graficos.js', ({scope, setTimeout, s
     }
     chart.subscribeCrosshairMove((param) => {
         const point = byTime.get(typeof param.time === 'number' ? param.time : NaN);
-        if (!point || !param.point || param.point.x < 0 || param.point.y < 0 ||
+        if (!point || !param.point || param.point.x < 0 || param.point.y < toolbar.getBoundingClientRect().height ||
             param.point.x > host.clientWidth || param.point.y > host.clientHeight) {
             hideTooltip();
             return;
@@ -314,7 +360,7 @@ window.WorkspaceNavigation.page('/static/js/graficos.js', ({scope, setTimeout, s
         requiredElement(tooltip, "small", HTMLElement).textContent = "Volume: " + quantity.format(point.volume);
         tooltip.hidden = false;
         tooltip.style.left = Math.max(8, Math.min(param.point.x + 24, host.clientWidth - tooltip.offsetWidth - 8)) + "px";
-        tooltip.style.top = Math.max(8, Math.min(param.point.y - tooltip.offsetHeight - 12, host.clientHeight - tooltip.offsetHeight - 8)) + "px";
+        tooltip.style.top = Math.max(toolbar.getBoundingClientRect().height + 4, Math.min(param.point.y - tooltip.offsetHeight - 12, host.clientHeight - tooltip.offsetHeight - 8)) + "px";
     });
     ranges.forEach((button) => button.addEventListener("click", () => {
         if (selectedRange === button.dataset.range) return;
@@ -372,7 +418,7 @@ window.WorkspaceNavigation.page('/static/js/graficos.js', ({scope, setTimeout, s
         setStyle();
     }
     scope.cleanup(() => chart.remove());
-    window.AscendaChart = Object.freeze({ setData, rollNumber });
+    window.CometChart = Object.freeze({ setData, rollNumber });
     try {
         setData({ points: [], demo: false });
     } catch (error) {

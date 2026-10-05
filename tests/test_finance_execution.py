@@ -8,12 +8,12 @@ from unittest.mock import patch
 from uuid import uuid4
 
 from flask import g
-from ascenda import create_app
+from comet import create_app
 
 
 class FinanceExecutionIntegrationTests(unittest.TestCase):
     def setUp(self):
-        clock = patch('ascenda.finance.today_local', return_value=date(2026, 10, 2))
+        clock = patch('comet.finance.today_local', return_value=date(2026, 10, 2))
         clock.start()
         self.addCleanup(clock.stop)
         self.connection = sqlite3.connect(':memory:')
@@ -39,7 +39,7 @@ class FinanceExecutionIntegrationTests(unittest.TestCase):
         def signed_in():
             g.user = {'id': self.account} if self.account else None
         self.client = self.app.test_client()
-        self.patch = patch('ascenda.db.cursor', self.cursor)
+        self.patch = patch('comet.db.cursor', self.cursor)
         self.patch.start()
         self.addCleanup(self.patch.stop)
         self.addCleanup(self.connection.close)
@@ -271,7 +271,7 @@ class FinanceExecutionIntegrationTests(unittest.TestCase):
         self.assertEqual(self.events(), [])
 
     def test_audit_failure_rolls_back_data_and_idempotency_record(self):
-        with patch('ascenda.finance_execution.record_event', side_effect=RuntimeError('audit unavailable')):
+        with patch('comet.finance_execution.record_event', side_effect=RuntimeError('audit unavailable')):
             with self.assertRaises(RuntimeError):
                 self.create()
         self.assertEqual(self.listing(), [])
@@ -313,7 +313,7 @@ class FinanceExecutionIntegrationTests(unittest.TestCase):
         self.assertEqual({row['id'] for row in self.listing()}, {income, expense})
 
     def test_failure_after_second_write_rolls_back_entire_batch_and_all_audit_events(self):
-        from ascenda.finance_audit import record_event
+        from comet.finance_audit import record_event
         first = self.create()
         operation_id = str(uuid4())
         actions = [self.operation('update', first, changes={'amount': '90.00'}),
@@ -325,7 +325,7 @@ class FinanceExecutionIntegrationTests(unittest.TestCase):
             if calls == 2:
                 raise RuntimeError('simulated audit storage failure')
             return record_event(*args, **kwargs)
-        with patch('ascenda.finance_execution.record_event', side_effect=fail_second_event):
+        with patch('comet.finance_execution.record_event', side_effect=fail_second_event):
             with self.assertRaises(RuntimeError):
                 self.execute(actions, operation_id)
         self.assertEqual(calls, 2)

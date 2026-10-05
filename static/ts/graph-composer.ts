@@ -13,6 +13,7 @@ window.WorkspaceNavigation.page('/static/js/graph-composer.js', ({scope, fetch, 
     observer.observe(column);
     observer.observe(composer);
     scope.listen(window, 'resize', alignComposer);
+    new MutationObserver(alignComposer).observe(requiredElement(document, '.finance-layout', HTMLElement), { attributes: true, attributeFilter: ['class'] });
     let animationFrame = 0;
     function followSidebar() {
         cancelAnimationFrame(animationFrame);

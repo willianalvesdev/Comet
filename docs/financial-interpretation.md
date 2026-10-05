@@ -12,7 +12,7 @@ ativo e excluído é carregado por paginação antes da interpretação; o reló
 pelo chamador em America/Sao_Paulo. Esclarecimentos exibem candidatos reais e não executam ações.
 O estado conversacional pertence à página e não é persistido em localStorage.
 
-`ascenda/finance_execution.py` valida cada ação, usa a conta autenticada e executa o lote
+`comet/finance_execution.py` valida cada ação, usa a conta autenticada e executa o lote
 em uma transação MySQL. Antes de cada update/delete/restore/permanent_delete, faz
 SELECT por conta e ID com FOR UPDATE. Todos os alvos são conferidos e bloqueados em
 ordem de ID, e todas as alterações são validadas antes da primeira gravação financeira.
@@ -240,12 +240,12 @@ As seções abaixo registram as etapas anteriores à conexão da execução; ref
 - `setup_banco.sql` define `finance_transactions`: conta (`usuario_id`), ID bigint,
   chave externa, tipo, DECIMAL(14,2), descrição, categoria, data e criação.
   A chave externa é única por conta. Não há lixeira, revisão ou auditoria.
-- `ascenda/finance.py`: `validate_transaction` valida a entrada; `receive` cria
+- `comet/finance.py`: `validate_transaction` valida a entrada; `receive` cria
   com idempotência; `history` pagina; `summarize` e `dashboard` calculam os gráficos.
   `serialize` mantém dinheiro decimal em string e normaliza o título com
   `transaction_title`. Essa normalização existente não foi alterada.
   Não existem funções de alteração, exclusão, restauração ou exclusão permanente.
-- APIs existentes em `ascenda/__init__.py`: GET `/api/finance/dashboard`, GET
+- APIs existentes em `comet/__init__.py`: GET `/api/finance/dashboard`, GET
   `/api/finance/transactions` (`limit`, `before`, retorno `next_cursor`) e POST
   `/api/finance/transactions`. POST exige `external_id`, sessão e CSRF; retorna
   201/200 para criação/repetição, 409 para conflito e 422 para dados inválidos.

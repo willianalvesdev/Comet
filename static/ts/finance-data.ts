@@ -1,4 +1,20 @@
 window.WorkspaceNavigation.page('/static/js/finance-data.js', ({scope, fetch}) => {
+    const historyToggle = requiredElement(document, '.finance-panel-toggle', HTMLButtonElement);
+    const historyPanel = requiredElement(document, '#finance-history-panel', HTMLElement);
+    const layout = requiredElement(document, '.finance-layout', HTMLElement);
+    let historyCollapsed = false;
+    function updateHistoryVisibility(hasTransactions: boolean) {
+        historyToggle.hidden = !hasTransactions;
+        historyPanel.hidden = !hasTransactions || historyCollapsed;
+        layout.classList.toggle('is-history-collapsed', historyPanel.hidden);
+        historyToggle.setAttribute('aria-expanded', String(!historyPanel.hidden));
+        historyToggle.setAttribute('aria-label', historyPanel.hidden ? 'Expandir painel de recentes' : 'Recolher painel de recentes');
+    }
+    historyToggle.addEventListener('click', () => {
+        historyCollapsed = !historyCollapsed;
+        updateHistoryVisibility(true);
+    });
+
     const page = optionalElement(document, '.finance-page', HTMLElement);
     if (!page) return;
     const list = requiredElement(page, '.transfer-list', HTMLElement);
@@ -26,7 +42,7 @@ window.WorkspaceNavigation.page('/static/js/finance-data.js', ({scope, fetch}) =
         for (const [key, value] of Object.entries(data.summary)) {
             const card = present(page).querySelector(`[data-finance-total="${key}"]`);
             const total = requiredElement(present(card), '.finance-total__values p', HTMLElement);
-            if (animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) window.AscendaChart.rollNumber(total, money.format(Number(value.amount)));
+            if (animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) window.CometChart.rollNumber(total, money.format(Number(value.amount)));
             else { total.textContent = money.format(Number(value.amount)); total.dataset.number = total.textContent; }
             const change = requiredElement(present(card), '.finance-total__change', HTMLElement);
             change.replaceChildren();
@@ -44,7 +60,7 @@ window.WorkspaceNavigation.page('/static/js/finance-data.js', ({scope, fetch}) =
             requiredElement(present(card), '.finance-total__comparison', HTMLElement).textContent = (difference > 0 ? '+' : '') + money.format(Number(value.difference)) + ' vs. mês anterior';
             sparkline(present(card), value.series);
         }
-        window.AscendaChart.setData({...data.chart, as_of: data.as_of}, animate);
+        window.CometChart.setData({...data.chart, as_of: data.as_of}, animate);
     }
     function renderTransactions(data:FinanceHistory, append:boolean) {
         if (!append) list.replaceChildren();
@@ -60,6 +76,7 @@ window.WorkspaceNavigation.page('/static/js/finance-data.js', ({scope, fetch}) =
             const kind=document.createElement('span');kind.className='transfer-change transfer-change--'+item.kind;kind.textContent=item.kind==='expense'?'Despesa':'Receita';values.append(amount,kind);
             row.append(avatar,description,values);list.append(row);
         }
+        updateHistoryVisibility(list.children.length > 0);
         cursor=data.next_cursor;more.hidden=!cursor;
         status.textContent=list.children.length?'':'Nenhuma transação registrada.';
     }

@@ -282,11 +282,53 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
         sessions.select(id, title);
     }
 
+    const versionSelection = new Map<string, number>();
+    function addResponseInfo(article: HTMLElement, turn: Turn) {
+        const actions = requiredElement(article, '.computer-message__actions', HTMLElement);
+        const versions = turn.metadata?.versions || [];
+        const index = Math.min(versionSelection.get(turn.id || '') ?? versions.length, versions.length);
+        const metadata = index < versions.length ? versions[index].metadata : turn.metadata;
+        if (versions.length) {
+            const picker = document.createElement('span'); picker.className = 'response-versions';
+            for (const direction of [-1, 1]) {
+                if (direction === 1) { const count = document.createElement('span'); count.textContent = `${index + 1} / ${versions.length + 1}`; picker.append(count); }
+                const button = document.createElement('button'); button.type = 'button';
+                button.setAttribute('aria-label', direction < 0 ? 'Resposta anterior' : 'Próxima resposta');
+                button.disabled = direction < 0 ? index === 0 : index === versions.length;
+                const icon = document.createElement('i'); icon.className = direction < 0 ? 'response-version-previous' : 'response-version-next'; button.append(icon);
+                button.addEventListener('click', () => {
+                    if (active || loading) return;
+                    versionSelection.set(turn.id || '', index + direction);
+                    const top = scroller.scrollTop;
+                    window.ComputerResponseDetails.reset(); renderTurns(turns, true); scroller.scrollTop = top;
+                    const updated = present(conversation).querySelector<HTMLElement>(`.computer-message--assistant[data-turn="${turn.id}"]`);
+                    if (updated) window.ComputerResponseDetails.research(updated, (index + direction < versions.length ? versions[index + direction].metadata : turn.metadata)?.research, true);
+                });
+                picker.append(button);
+            }
+            actions.append(picker);
+        }
+        const date = new Date(metadata?.answered_at || turn.created_at);
+        if (Number.isFinite(date.getTime())) {
+            const time = document.createElement('time'); time.className = 'response-time'; time.dateTime = date.toISOString();
+            time.title = date.toLocaleString('pt-BR', {dateStyle:'medium', timeStyle:'short'});
+            actions.append(time); updateResponseTime(time);
+        }
+    }
+    function updateResponseTime(time: HTMLTimeElement) {
+        const minutes = Math.max(0, Math.floor((Date.now() - Date.parse(time.dateTime)) / 60000));
+        const relative = new Intl.RelativeTimeFormat('pt-BR', {numeric:'always'});
+        time.textContent = minutes < 1 ? 'agora' : minutes < 60 ? relative.format(-minutes, 'minute') : minutes < 1440 ? relative.format(-Math.floor(minutes / 60), 'hour') : relative.format(-Math.floor(minutes / 1440), 'day');
+    }
+    setInterval(() => elementList(present(conversation), '.response-time', HTMLTimeElement).forEach(updateResponseTime), 60000);
     function renderTurns(items: Turn[], preserveOpen = false) {
         const opened = preserveOpen ? new Set([...elementList(present(conversation), '[data-turn]', HTMLElement)]
             .filter(node => optionalElement(node, 'details', HTMLDetailsElement)?.open).map(node => node.dataset.turn)) : new Set();
         present(conversation).replaceChildren();
-        for (const turn of items) {
+        for (const original of items) {
+            const versions = original.metadata?.versions || [];
+            const selectedVersion = versions[versionSelection.get(original.id || '') ?? versions.length];
+            const turn = selectedVersion ? {...original, ...selectedVersion} : original;
             const user = addMessage('user', turn.message); user.article.dataset.turn=turn.id ?? ''; messageTime(user.article,turn.created_at); messageAttachments(user.article,turn.attachments);
             const assistant = addMessage('assistant', turn.answer);
             assistant.article.classList.toggle('is-computer-response', !!turn.metadata?.provider && turn.metadata.provider !== 'gemini');
@@ -302,6 +344,7 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
             }
             window.ComputerResponseDetails.research(assistant.article, turn.metadata?.research, turn.status !== 'running');
             
+            if (turn.status !== 'running') addResponseInfo(assistant.article, original);
             assistant.body.hidden = !turn.answer;
             if (turn.status === 'interrupted' || turn.status === 'failed') {
                 warning(assistant, 'Resposta interrompida. O conteúdo salvo não foi incluído no contexto das próximas mensagens.');
@@ -444,6 +487,7 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
         if(attached.length)models.select('gemini');
         if (models.error()) { note.textContent = models.error(); return; }
         const payload: ChatRequest = { conversation_id: currentId, message: text, request_id: crypto.randomUUID(), provider: models.selected() };
+        payload.web_search = optionalElement(document, '.web-search-toggle', HTMLButtonElement)?.getAttribute('aria-pressed') !== 'false';
         if(attached.length)payload.attachments=attached.map(file=>file.id);
         if(rewriting?.id && !privateTurn)payload.regenerate=rewriting.id;
         if(privateTurn){
@@ -518,7 +562,14 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
             requiredElement(assistant.article, '.computer-message__actions', HTMLElement).hidden = false;
             if (follow) scrollToLatest();
             const completed: Turn={ id:savedTurnId, message:text, answer, thinking:thinking.text.data, status:'completed', metadata:responseMeta, created_at:sentAt, attachments:attached };
+            if (rewriting && !responseMeta.versions) {
+                const {versions = [], ...previousMetadata} = rewriting.metadata || {};
+                responseMeta.versions = [...versions, {answer:rewriting.answer, thinking:rewriting.thinking, metadata:{...previousMetadata, answered_at:previousMetadata.answered_at || rewriting.created_at}}];
+            }
+            responseMeta.answered_at ||= new Date().toISOString();
+            versionSelection.delete(savedTurnId || '');
             if(rewriting)turns[turns.indexOf(rewriting)]=completed;else turns.push(completed);
+            addResponseInfo(assistant.article, completed);
             note.textContent = '';
         } catch (error) {
             if(!currentRequest())return;

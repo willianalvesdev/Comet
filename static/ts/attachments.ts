@@ -1,6 +1,9 @@
 window.WorkspaceNavigation.page('/static/js/attachments.js', ({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}) => {
     const picker=optionalElement(document, '#attachment-input', HTMLInputElement), menu=requiredElement(document, '#attachment-menu', HTMLElement), toggle=requiredElement(document, '.attachment-toggle', HTMLButtonElement);
     if(!picker)return;
+    const webToggle = optionalElement(menu, '.web-search-toggle', HTMLButtonElement);
+    webToggle?.addEventListener('click', () => webToggle.setAttribute('aria-pressed', String(webToggle.getAttribute('aria-pressed') !== 'true')));
+
     const composer=requiredElement(document, '.home__composer', HTMLFormElement), list=requiredElement(composer, '.attachment-list', HTMLElement), status=requiredElement(document, '.attachment-status', HTMLElement);
     const previews=new Map<string,string>();
     let files: Attachment[]=[], uploading=false, locked=false, version=0, controller: AbortController | null=null;

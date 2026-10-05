@@ -9,7 +9,7 @@ window.WorkspaceNavigation.page('/static/js/news.js', ({scope, setTimeout, setIn
     const storageKey = 'ascenda-news-likes-' + page.dataset.userId;
     let likes = new Set<string>();
     try {
-        const stored: unknown = JSON.parse(window.AscendaStorage.getItem(storageKey) || '[]');
+        const stored: unknown = JSON.parse(window.CometStorage.getItem(storageKey) || '[]');
         if (Array.isArray(stored)) likes = new Set(stored.filter((id:unknown):id is string => typeof id === 'string').slice(-500));
     } catch {}
     const seen = new Set<string>();
@@ -121,7 +121,7 @@ window.WorkspaceNavigation.page('/static/js/news.js', ({scope, setTimeout, setIn
         like.addEventListener('click', () => {
             if (likes.has(article.id)) likes.delete(article.id); else likes.add(article.id);
             updateLike();
-            try { window.AscendaStorage.setItem(storageKey, JSON.stringify([...likes].slice(-500))); } catch {}
+            try { window.CometStorage.setItem(storageKey, JSON.stringify([...likes].slice(-500))); } catch {}
         });
         const details = element('details', 'news-options');
         const summary = element('summary', 'news-icon-button');
@@ -178,7 +178,7 @@ window.WorkspaceNavigation.page('/static/js/news.js', ({scope, setTimeout, setIn
             const timer = setTimeout(() => controller.abort(), 15000);
             let response: Response, raw: unknown;
             try {
-                const preferences = window.AscendaNewsPreferences || { topics: ['business'], languages: 'pt-en' };
+                const preferences = window.CometNewsPreferences || { topics: ['business'], languages: 'pt-en' };
                 const topics = topic || preferences.topics.join(',');
                 const query = new URLSearchParams({ page: String(currentPage + 1), topics, mode: mode === 'topic' ? 'for-you' : mode, languages: preferences.languages });
                 response = await fetch('/api/news?' + query, { signal: controller.signal });

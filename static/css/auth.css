@@ -5,7 +5,7 @@
     padding: 76px 48px 64px;
     overflow-y: auto;
     border: 1px solid var(--border);
-    border-radius: var(--radius-medium);
+    border-radius: var(--radius-container);
     background: var(--bg);
     color: var(--text);
     text-align: center;
@@ -124,7 +124,7 @@ html:has(.auth[open]) {
     height: 45px;
     padding: var(--space-3) 28px;
     border: 1px solid var(--border);
-    border-radius: var(--radius-medium);
+    border-radius: var(--radius-control);
     background: var(--surface);
     font-size: var(--font-size-3);
 }
@@ -153,7 +153,7 @@ html:has(.auth[open]) {
     min-height: 50px;
     padding: var(--space-3) var(--space-5);
     border: 0;
-    border-radius: var(--radius-medium);
+    border-radius: var(--radius-control);
     background: var(--text);
     color: var(--bg);
     font-size: var(--font-size-3);

@@ -6,12 +6,12 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from flask import g
-from ascenda import create_app
-from ascenda.ai.config import AIConfig
-from ascenda.ai.errors import AIError
-from ascenda.ai.ollama import OllamaProvider
-from ascenda.ai.remote import RemoteProvider, structured_json, read_structured_response
-from ascenda.finance_interpretation import SCHEMA, SYSTEM, prepare_interpretation, request_data, validate_interpretation
+from comet import create_app
+from comet.ai.config import AIConfig
+from comet.ai.errors import AIError
+from comet.ai.ollama import OllamaProvider
+from comet.ai.remote import RemoteProvider, structured_json, read_structured_response
+from comet.finance_interpretation import SCHEMA, SYSTEM, prepare_interpretation, request_data, validate_interpretation
 
 
 def ready():
@@ -32,7 +32,7 @@ class FinancialInterpretationTests(unittest.TestCase):
 
     def test_context_uses_only_owned_database_rows_and_server_clock(self):
         payload = self.payload(conversation_context={'last_mentioned_transaction_ids': ['3', '999']})
-        with patch('ascenda.finance_interpretation.db.cursor') as managed:
+        with patch('comet.finance_interpretation.db.cursor') as managed:
             cursor = managed.return_value.__enter__.return_value
             cursor.fetchall.side_effect = [[transaction(1)], [transaction(2, datetime(2026, 10, 1))],
                                            [transaction(3)], [{'category': 'Alimentação'}]]
@@ -64,7 +64,7 @@ class FinancialInterpretationTests(unittest.TestCase):
                    'candidates': [{'id': '999', 'description': 'Injected transaction'}],
                    'intent': {'type': 'delete', 'target': {'reference': 'mercado', 'candidate_ids': ['2', '999']}},
                    'reference': {'type': 'focus', 'ids': ['2', '999'], 'count': 'one'}}
-        with patch('ascenda.finance_interpretation.db.cursor') as managed:
+        with patch('comet.finance_interpretation.db.cursor') as managed:
             cursor = managed.return_value.__enter__.return_value
             cursor.fetchall.side_effect = [[], [], [transaction(2)], []]
             _, data, _ = prepare_interpretation(7, self.payload(input=injection, pending_clarification=pending), {'qwen': object()})
@@ -135,7 +135,7 @@ class FinancialInterpretationTests(unittest.TestCase):
                  ('2024-03-01T02:59:59+00:00', '2024-02-29'),
                  ('2026-03-01T03:00:00+00:00', '2026-03-01')]
         for instant, expected in cases:
-            with self.subTest(instant=instant), patch('ascenda.finance_interpretation.datetime') as clock, patch('ascenda.finance_interpretation.db.cursor') as managed:
+            with self.subTest(instant=instant), patch('comet.finance_interpretation.datetime') as clock, patch('comet.finance_interpretation.db.cursor') as managed:
                 clock.now.side_effect = lambda tz: datetime.fromisoformat(instant).astimezone(tz)
                 managed.return_value.__enter__.return_value.fetchall.return_value = []
                 _, data, context = prepare_interpretation(7, self.payload(), {'qwen': object()})
@@ -187,7 +187,7 @@ class FinancialInterpretationRouteTests(unittest.TestCase):
         self.assertEqual(self.client.post('/api/finance/interpret', json={}).status_code, 400)
 
     def test_authenticated_read_only_route_returns_unknown_for_client_validation(self):
-        with patch('ascenda.finance_interpretation.db.cursor') as managed, patch.object(OllamaProvider, 'structured', return_value=ready()) as provider, patch('ascenda.finance_execution.execute_financial_actions') as execute:
+        with patch('comet.finance_interpretation.db.cursor') as managed, patch.object(OllamaProvider, 'structured', return_value=ready()) as provider, patch('comet.finance_execution.execute_financial_actions') as execute:
             cursor = managed.return_value.__enter__.return_value
             cursor.fetchall.side_effect = [[transaction(1)], [], [{'category':'Alimentação'}]]
             response = self.client.post('/api/finance/interpret', json={'input':'Paguei metade de 160', 'provider':'qwen'})
@@ -205,20 +205,20 @@ class FinancialInterpretationRouteTests(unittest.TestCase):
             self.assertTrue(call.args[0].startswith('SELECT'))
 
     def test_interpretation_reuses_chat_concurrency_guard_and_releases_slot(self):
-        service = self.app.extensions['ascenda_computer']
+        service = self.app.extensions['comet_computer']
         with service.slot(7), patch.object(OllamaProvider, 'structured') as provider:
             response = self.client.post('/api/finance/interpret', json={'input':'metade de 160', 'provider':'qwen'})
             self.assertEqual(response.status_code, 429)
             self.assertEqual(response.json['code'], 'busy')
             provider.assert_not_called()
-        with patch('ascenda.finance_interpretation.db.cursor') as managed, patch.object(OllamaProvider, 'structured', side_effect=AIError('timeout', 504)):
+        with patch('comet.finance_interpretation.db.cursor') as managed, patch.object(OllamaProvider, 'structured', side_effect=AIError('timeout', 504)):
             managed.return_value.__enter__.return_value.fetchall.return_value = []
             self.assertEqual(self.client.post('/api/finance/interpret', json={'input':'metade de 160', 'provider':'qwen'}).status_code, 504)
         self.assertEqual(service._active, set())
 
     def test_invalid_response_and_provider_failure_never_execute(self):
         for result, status in [({}, 502), (AIError('timeout', 504), 504), (AIError('provider_missing', 503), 503)]:
-            with self.subTest(result=result), patch('ascenda.finance_interpretation.db.cursor') as managed, patch.object(OllamaProvider, 'structured') as provider, patch('ascenda.finance_execution.execute_financial_actions') as execute:
+            with self.subTest(result=result), patch('comet.finance_interpretation.db.cursor') as managed, patch.object(OllamaProvider, 'structured') as provider, patch('comet.finance_execution.execute_financial_actions') as execute:
                 managed.return_value.__enter__.return_value.fetchall.return_value = []
                 if isinstance(result, Exception): provider.side_effect = result
                 else: provider.return_value = result
@@ -233,26 +233,26 @@ class FinancialInterpretationRouteTests(unittest.TestCase):
                  {'input': 'oi', 'provider': 'qwen', 'conversation_context': {'last_mentioned_transaction_ids': ['1 OR 1=1']}},
                  {'input': 'oi', 'provider': 'qwen', 'CURRENT_DATE': '2099-01-01'}]
         for payload in cases:
-            with self.subTest(payload=payload), patch('ascenda.finance_interpretation.db.cursor') as database, patch.object(OllamaProvider, 'structured') as provider:
+            with self.subTest(payload=payload), patch('comet.finance_interpretation.db.cursor') as database, patch.object(OllamaProvider, 'structured') as provider:
                 response = self.client.post('/api/finance/interpret', json=payload)
                 self.assertEqual(response.status_code, 422)
                 database.assert_not_called()
                 provider.assert_not_called()
-                self.assertEqual(self.app.extensions['ascenda_computer']._active, set())
+                self.assertEqual(self.app.extensions['comet_computer']._active, set())
 
     def test_repeated_malformed_model_results_fail_closed_and_release_slot(self):
         malformed = [None, True, [], {'status': [], 'actions': [], 'clarification': None},
                      {**ready(), 'actions': [ready()['actions'][0], {'type': 'create'}]},
                      {**ready(), 'status': 'needs_clarification', 'clarification': 'Qual valor?'}]
         for value in malformed:
-            with self.subTest(value=value), patch('ascenda.finance_interpretation.db.cursor') as managed, patch.object(OllamaProvider, 'structured', return_value=value), patch('ascenda.finance_execution.execute_financial_actions') as execute:
+            with self.subTest(value=value), patch('comet.finance_interpretation.db.cursor') as managed, patch.object(OllamaProvider, 'structured', return_value=value), patch('comet.finance_execution.execute_financial_actions') as execute:
                 managed.return_value.__enter__.return_value.fetchall.return_value = []
                 response = self.client.post('/api/finance/interpret', json={'input': 'metade de 160', 'provider': 'qwen'})
                 self.assertEqual(response.status_code, 502)
                 self.assertEqual(response.json['code'], 'invalid_response')
                 self.assertNotIn('interpretation', response.json)
                 execute.assert_not_called()
-                self.assertEqual(self.app.extensions['ascenda_computer']._active, set())
+                self.assertEqual(self.app.extensions['comet_computer']._active, set())
 
 
 class StructuredFinancialProviderTests(unittest.TestCase):
@@ -273,7 +273,7 @@ class StructuredFinancialProviderTests(unittest.TestCase):
 
     def test_gemini_schema_fixed_role_no_tools_and_secret_only_in_header(self):
         connection = self.connection(self.envelope())
-        with patch('ascenda.ai.remote.http.client.HTTPSConnection', return_value=connection):
+        with patch('comet.ai.remote.http.client.HTTPSConnection', return_value=connection):
             self.assertEqual(self.gemini().structured(SYSTEM, self.data, SCHEMA), ready())
         request = connection.request.call_args
         self.assertEqual(request.args[1], '/v1beta/models/gemini-3.8-flash:generateContent')
@@ -294,14 +294,14 @@ class StructuredFinancialProviderTests(unittest.TestCase):
                  {'promptFeedback':{'blockReason':'SAFETY'}}, {'candidates':[]}]
         for value in cases:
             connection = self.connection(value)
-            with self.subTest(value=value), patch('ascenda.ai.remote.http.client.HTTPSConnection', return_value=connection), self.assertRaises(AIError):
+            with self.subTest(value=value), patch('comet.ai.remote.http.client.HTTPSConnection', return_value=connection), self.assertRaises(AIError):
                 self.gemini().structured(SYSTEM, self.data, SCHEMA)
             connection.close.assert_called_once()
         for status in [401, 403, 429, 500]:
-            with patch('ascenda.ai.remote.http.client.HTTPSConnection', return_value=self.connection({'private-test-key':'secret'}, status)), self.assertRaises(AIError) as error:
+            with patch('comet.ai.remote.http.client.HTTPSConnection', return_value=self.connection({'private-test-key':'secret'}, status)), self.assertRaises(AIError) as error:
                 self.gemini().structured(SYSTEM, self.data, SCHEMA)
             self.assertNotIn('private-test-key', str(error.exception))
-        with patch('ascenda.ai.remote.http.client.HTTPSConnection') as network, self.assertRaises(AIError):
+        with patch('comet.ai.remote.http.client.HTTPSConnection') as network, self.assertRaises(AIError):
             self.gemini('').structured(SYSTEM, self.data, SCHEMA)
         network.assert_not_called()
 
@@ -343,7 +343,7 @@ class StructuredFinancialProviderTests(unittest.TestCase):
         with self.assertRaises(AIError) as error: read_structured_response(io.BytesIO(b'{}'), 0)
         self.assertEqual(error.exception.code, 'timeout')
         connection = MagicMock(); connection.getresponse.side_effect = TimeoutError
-        with patch('ascenda.ai.remote.http.client.HTTPSConnection', return_value=connection), self.assertRaises(AIError) as error:
+        with patch('comet.ai.remote.http.client.HTTPSConnection', return_value=connection), self.assertRaises(AIError) as error:
             self.gemini().structured(SYSTEM, self.data, SCHEMA)
         self.assertEqual(error.exception.code, 'timeout'); connection.close.assert_called_once()
         provider = OllamaProvider(self.config)
@@ -356,7 +356,7 @@ class StructuredFinancialProviderTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             structured_json(nested)
         connection = self.connection(self.envelope(content=nested))
-        with patch('ascenda.ai.remote.http.client.HTTPSConnection', return_value=connection), self.assertRaises(AIError) as error:
+        with patch('comet.ai.remote.http.client.HTTPSConnection', return_value=connection), self.assertRaises(AIError) as error:
             self.gemini().structured(SYSTEM, self.data, SCHEMA)
         self.assertEqual(error.exception.code, 'invalid_response')
         connection.close.assert_called_once()

@@ -10,7 +10,7 @@ Texto → normalização → parser local e contexto → avaliação de confian�
 - `financial-context.ts`: referências e perguntas pendentes; IDs vêm dos registros persistidos. Não é uma segunda base de transações.
 - `financial-ai.ts`: fallback Gemini/Ollama por uma rota do servidor. Resposta entra como unknown, passa pelo contrato runtime estrito e pelas regras de negócio. O modelo recebe dados delimitados, sem ferramentas ou acesso direto ao banco.
 - `financial-execution.ts`: valida todas as ações antes de enviar; confere tipo, quantidade e IDs de todas as operações confirmadas pelo servidor.
-- `ascenda/finance_execution.py`: autenticação pela rota, autorização por conta, releitura/bloqueio dos alvos, transação MySQL, rollback e idempotência por UUID. A auditoria participa da mesma transação, mas não dos cálculos financeiros.
+- `comet/finance_execution.py`: autenticação pela rota, autorização por conta, releitura/bloqueio dos alvos, transação MySQL, rollback e idempotência por UUID. A auditoria participa da mesma transação, mas não dos cálculos financeiros.
 - `graph-composer.ts` e `financial-feedback.ts`: coordenam envio, recuperação de confirmação, contexto e mensagens simples. Metadados internos não aparecem no cartão de resposta.
 - Exclusão comum preenche `deleted_at`; restauração limpa a marca e mantém o ID. Consultas financeiras excluem registros da lixeira. Exclusão definitiva exige pedido explícito e registro já excluído.
 
@@ -88,7 +88,7 @@ Modificados:
 - `static/ts/financial-ai.ts`
 - `static/ts/financial-execution.ts`
 - `static/ts/graph-composer.ts`
-- `ascenda/ai/remote.py`
+- `comet/ai/remote.py`
 - `tests/frontend/financial-parser.test.cts`
 - `tests/frontend/financial-context.test.cts`
 - `tests/frontend/financial-ai.test.cts`

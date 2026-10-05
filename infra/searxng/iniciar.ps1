@@ -28,4 +28,4 @@ if (-not (Test-Path -LiteralPath $configFile)) {
 }
 & $dockerExecutable compose -f (Join-Path $PSScriptRoot 'compose.yaml') up -d
 if ($LASTEXITCODE -ne 0) { throw 'Não foi possível iniciar o SearXNG.' }
-Write-Host 'SearXNG iniciado. Configure SEARXNG_URL=http://127.0.0.1:8888 no .env do Ascenda e reinicie o site.'
+Write-Host 'SearXNG iniciado. Configure SEARXNG_URL=http://127.0.0.1:8888 no .env do Comet e reinicie o site.'

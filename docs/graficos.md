@@ -19,7 +19,7 @@ na interface. A moeda da demonstração é BRL.
 Substitua a demonstração por dados próprios antes de carregar `graficos.js`:
 
 ```js
-window.AscendaChartData = {
+window.CometChartData = {
     currency: "BRL",
     demo: false,
     points: [
@@ -30,7 +30,7 @@ window.AscendaChartData = {
 ```
 
 Também é possível atualizar a página já carregada com
-`window.AscendaChart.setData(dados)`.
+`window.CometChart.setData(dados)`.
 `time` é um timestamp UTC em segundos. Os valores devem ser números finitos;
 o volume deve ser não negativo e high/low devem conter open/close.
 Os pontos são ordenados e timestamps repetidos ficam com o último registro.

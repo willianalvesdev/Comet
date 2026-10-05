@@ -20,7 +20,6 @@
     <script src="./static/js/profile-menu.js" defer></script>
     <script src="./static/js/news.js" defer></script>
     <script src="/static/js/weather.js" defer></script>
-    <script src="/static/js/discovery-panel.js" defer></script>
     <link rel="stylesheet" href="/static/css/sessions.css">
     <link rel="stylesheet" href="/static/css/chat-search.css">
     <script src="/static/js/chat-search.js" defer></script>
@@ -39,7 +38,6 @@
                 <button type="button" data-news-mode="for-you" aria-current="page">Para Você</button>
                 <button type="button" data-news-mode="top">Top</button>
             <details class="discovery-topics"><summary><span id="topic-label">Tópicos</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><div class="discovery-dropdown"><button type="button" data-discovery-topic="technology" aria-pressed="false"><i class="discovery-icon icon-technology" aria-hidden="true"></i><span>Tecnologia & Ciência</span><i class="topic-check" aria-hidden="true"></i></button><button type="button" data-discovery-topic="business" aria-pressed="false"><i class="discovery-icon icon-business" aria-hidden="true"></i><span>Negócios</span><i class="topic-check" aria-hidden="true"></i></button><button type="button" data-discovery-topic="culture" aria-pressed="false"><i class="discovery-icon icon-culture" aria-hidden="true"></i><span>Arte & Cultura</span><i class="topic-check" aria-hidden="true"></i></button><button type="button" data-discovery-topic="sports" aria-pressed="false"><i class="discovery-icon icon-sports" aria-hidden="true"></i><span>Esportes</span><i class="topic-check" aria-hidden="true"></i></button><button type="button" data-discovery-topic="entertainment" aria-pressed="false"><i class="discovery-icon icon-entertainment" aria-hidden="true"></i><span>Entretenimento</span><i class="topic-check" aria-hidden="true"></i></button></div></details></nav>
-{% include 'partials/discovery-toggle.html' %}
         </header>
 
         <section class="news-page" aria-label="Descobrir notícias" data-user-id="{{ user.id }}">
@@ -56,13 +54,11 @@
                         <p id="weather-status" role="status">Permita sua localização para ver o clima da região.</p>
                         <div id="weather-content" hidden></div>
                     </section>
-                    <button id="weather-locate" type="button">Atualizar localização</button>
                 </aside>
             </div>
             <noscript><p>Ative o JavaScript para carregar as notícias.</p></noscript>
         </section>
     </main>
-{% include 'partials/discovery-panel.html' %}
 </div>
 {% include 'partials/settings.html' %}
 <script src="/static/js/tooltips.js" defer></script>

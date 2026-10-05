@@ -1,8 +1,8 @@
-# Ascenda
+# Comet
 
 Site com Python, Flask, MySQL e Waitress, seguindo a estrutura do Rota Financeira.
-O frontend usa HTML, CSS e TypeScript, compilado para scripts JavaScript clássicos. O banco `ascenda_db` e a conta
-`ascenda_app` são exclusivos deste projeto.
+O frontend usa HTML, CSS e TypeScript, compilado para scripts JavaScript clássicos. O banco `comet_db` e a conta
+`comet_app` são exclusivos deste projeto.
 
 ## Iniciar no Windows
 
@@ -52,7 +52,7 @@ JavaScript anteriores. Nenhuma ferramenta é instalada globalmente.
 
 ## Estrutura do projeto
 
-- `ascenda/`: aplicação Flask, banco e serviços de IA.
+- `comet/`: aplicação Flask, banco e serviços de IA.
 - `templates/`: páginas Jinja; `partials/` contém lateral e configurações compartilhadas.
 - `static/ts/`: fontes TypeScript; `static/js/`: saída gerada e biblioteca vendorizada.
 - `static/`: também contém CSS, fontes e imagens.
@@ -165,11 +165,11 @@ rolar. Durante a geração, o botão de envio permite interromper. O navegador l
 indica uma mensagem por vez e centraliza a mensagem selecionada na tela.
 
 As mensagens aceitam até 8 mil caracteres; limites de contexto, resposta e tempo
-estão em `ascenda/ai/config.py`. Sessão e CSRF continuam obrigatórios. Os textos
+estão em `comet/ai/config.py`. Sessão e CSRF continuam obrigatórios. Os textos
 são renderizados sem executar HTML ou scripts enviados pelo usuário/modelo.
 
-`ascenda/ai/conversations.py` controla propriedade, paginação, deduplicação,
-regeneração e checkpoints. `ascenda/db.py` centraliza commit, rollback e liberação
+`comet/ai/conversations.py` controla propriedade, paginação, deduplicação,
+regeneração e checkpoints. `comet/db.py` centraliza commit, rollback e liberação
 de cursores. As conexões são fechadas também nos caminhos de falha. Interrupções
 não deixam o estado da conversa preso em geração quando o stream é finalizado.
 
@@ -179,7 +179,7 @@ não deixam o estado da conversa preso em geração quando o stream é finalizad
 Em instalações existentes, execute `configurar_banco.bat` uma vez com o administrador
 MySQL e depois reinicie pelo `iniciar.bat`. Nenhuma tabela existente é apagada.
 O site usa apenas SELECT/INSERT/UPDATE/DELETE; a conta de execução não precisa de CREATE.
-`ascenda/ai/conversations.py` controla propriedade, paginação, deduplicação e gravação.
+`comet/ai/conversations.py` controla propriedade, paginação, deduplicação e gravação.
 GET `/api/ai/conversations` lista somente conversas da conta autenticada; GET
 `/api/ai/conversations/<id>` recupera seus envios. POST `/api/ai/chat` recebe somente
 `conversation_id`, `message`, um UUID `request_id` e `provider` (`qwen` ou `gemini`, padrão `qwen`); o navegador não fornece o histórico.
@@ -316,3 +316,5 @@ exclusão, restauração e exclusão definitiva na mesma transação da gravaç�
 Atualizações preservam somente os campos alterados antes/depois; reenvios não duplicam
 eventos. Os eventos são apenas auditoria/debug/apoio à recuperação, sem participar dos
 saldos ou gráficos. Detalhes em [interpretação financeira](docs/financial-interpretation.md).
+
+A marca e o pacote Python agora são Comet (`comet`). Instalações existentes continuam usando os valores de banco do `.env`; chaves antigas de sessão, preferências e formatos de anexos/respostas são mantidas para compatibilidade. Serrif e Geist foram removidas; Kalice permanece para títulos e respostas serifadas, e Saans para interface e números.

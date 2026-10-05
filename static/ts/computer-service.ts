@@ -1,5 +1,5 @@
 window.WorkspaceNavigation.page('/static/js/computer-service.js', ({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}) => {
-    const connectionError = 'Não foi possível conectar à Computer. Confira se o Ascenda está aberto e tente novamente.';
+    const connectionError = 'Não foi possível conectar à Computer. Confira se o Comet está aberto e tente novamente.';
     class ComputerService {
         async get(path: string): Promise<unknown> {
             const response = await fetch(path, { credentials: 'same-origin', cache: 'no-store' }).catch(() => { throw new Error(connectionError); });
@@ -14,7 +14,7 @@ window.WorkspaceNavigation.page('/static/js/computer-service.js', ({scope, setTi
         async chat(payload:ChatRequest, onDelta:(text:string)=>void, signal:AbortSignal, onThinking?: (text:string)=>void, onConversation?:(event:ConversationEvent)=>void, onResearch?:(event:SearchEvent)=>void, onDone?:(metadata:ResponseMetadata)=>void) {
             const regenerating = !!payload.regenerate && !payload.anonymous;
             const endpoint = regenerating ? `/api/ai/conversations/${encodeURIComponent(present(payload.conversation_id))}/messages/${encodeURIComponent(present(payload.regenerate))}/regenerate` : '/api/ai/chat';
-            const body = regenerating ? {request_id:payload.request_id,provider:payload.provider} : payload;
+            const body = regenerating ? {request_id:payload.request_id,provider:payload.provider,web_search:payload.web_search} : payload;
             const response = await fetch(endpoint, {
                 method: 'POST', credentials: 'same-origin', signal,
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/x-ndjson',

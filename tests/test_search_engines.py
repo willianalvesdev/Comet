@@ -6,13 +6,13 @@ from datetime import datetime,timedelta,timezone
 from email.utils import format_datetime
 from unittest.mock import MagicMock,patch
 from urllib.parse import parse_qs,urlsplit
-from ascenda.ai.search_engines import diversified,news_search,searxng_search,brave_search,result_date
-from ascenda.ai.local_context import fit_messages,LOCAL_PROMPT
-from ascenda.ai.web_search import WebSearch,search_query
-from ascenda.ai.ollama import OllamaProvider
-from ascenda.ai.service import ComputerService
-from ascenda.ai.config import AIConfig
-from ascenda.ai.errors import AIError
+from comet.ai.search_engines import diversified,news_search,searxng_search,brave_search,result_date
+from comet.ai.local_context import fit_messages,LOCAL_PROMPT
+from comet.ai.web_search import WebSearch,search_query
+from comet.ai.ollama import OllamaProvider
+from comet.ai.service import ComputerService
+from comet.ai.config import AIConfig
+from comet.ai.errors import AIError
 
 class SearchEngineTests(unittest.TestCase):
     def test_search_query_excludes_output_instructions(self):
@@ -28,7 +28,7 @@ class SearchEngineTests(unittest.TestCase):
         def item(name,date):
             return f'<item><title>{name}</title><link>https://news.google.com/{name}</link><source url="https://{name}.com">{name}</source><pubDate>{date}</pubDate></item>'
         raw=('<rss><channel>'+item('fresh',format_datetime(now-timedelta(hours=1)))+item('old',format_datetime(now-timedelta(days=10)))+item('unknown','')+'</channel></rss>').encode()
-        with patch('ascenda.ai.search_engines.read',return_value=raw) as read:
+        with patch('comet.ai.search_engines.read',return_value=raw) as read:
             result,notes=news_search('notícias hoje')
         self.assertEqual(len(result['sources']),1)
         self.assertEqual(result['sources'][0]['domain'],'fresh.com')
@@ -41,7 +41,7 @@ class SearchEngineTests(unittest.TestCase):
                          {'url':'https://b.com/1','title':'Velha','publishedDate':(now-timedelta(days=50)).isoformat()}]}
         response=io.BytesIO(json.dumps(data).encode()); response.status=200
         conn=MagicMock(); conn.getresponse.return_value=response
-        with patch.dict(os.environ,{'SEARXNG_URL':'http://127.0.0.1:8888'}), patch('ascenda.ai.search_engines.http.client.HTTPConnection',return_value=conn):
+        with patch.dict(os.environ,{'SEARXNG_URL':'http://127.0.0.1:8888'}), patch('comet.ai.search_engines.http.client.HTTPConnection',return_value=conn):
             result,notes=searxng_search('notícias hoje')
         params=parse_qs(urlsplit(conn.request.call_args.args[1]).query)
         self.assertEqual(params['format'],['json'])
@@ -50,7 +50,7 @@ class SearchEngineTests(unittest.TestCase):
         self.assertEqual(len(result['sources']),1)
 
     def test_brave_sets_date_filter_and_does_not_put_key_in_url(self):
-        with patch.dict(os.environ,{'BRAVE_SEARCH_API_KEY':'secret'}), patch('ascenda.ai.search_engines.read',return_value=b'{"web":{"results":[]}}') as read:
+        with patch.dict(os.environ,{'BRAVE_SEARCH_API_KEY':'secret'}), patch('comet.ai.search_engines.read',return_value=b'{"web":{"results":[]}}') as read:
             brave_search('notícias hoje')
         self.assertIn('freshness=pd',read.call_args.args[1])
         self.assertNotIn('secret',read.call_args.args[1])
@@ -79,7 +79,7 @@ class SearchEngineTests(unittest.TestCase):
 
     def test_searxng_failure_never_falls_back_to_google(self):
         provider=MagicMock(); provider.key='configured'
-        with patch('ascenda.ai.web_search.searxng_search',side_effect=AIError('provider_unavailable')) as sx:
+        with patch('comet.ai.web_search.searxng_search',side_effect=AIError('provider_unavailable')) as sx:
             events=list(WebSearch(provider).run('notícias hoje',engine='searxng'))
         sx.assert_called_once()
         provider.stream.assert_not_called()

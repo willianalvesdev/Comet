@@ -7,17 +7,17 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 import mysql.connector
-from ascenda import create_app, db
+from comet import create_app, db
 
 
 def main():
     app = create_app()
     config = app.config
     name, user = config['DB_NAME'], config['DB_USER']
-    if not re.fullmatch(r'ascenda_[A-Za-z0-9_]{1,40}', name):
-        raise SystemExit('DB_NAME deve começar com ascenda_. O banco do Rota Financeira não será usado.')
-    if not re.fullmatch(r'ascenda_[A-Za-z0-9_]{1,24}', user):
-        raise SystemExit('DB_USER deve começar com ascenda_. Use uma conta própria da aplicação.')
+    if not re.fullmatch(r'(?:comet|ascenda)_[A-Za-z0-9_]{1,40}', name):
+        raise SystemExit('DB_NAME deve começar com comet_. O banco do Rota Financeira não será usado.')
+    if not re.fullmatch(r'(?:comet|ascenda)_[A-Za-z0-9_]{1,24}', user):
+        raise SystemExit('DB_USER deve começar com comet_. Use uma conta própria da aplicação.')
     if config['DB_HOST'] not in ('localhost', '127.0.0.1'):
         raise SystemExit('Este configurador é exclusivo para MySQL local.')
     if len(config['DB_PASSWORD']) < 16:
@@ -32,7 +32,7 @@ def main():
     stage = 'conectar como administrador'
     try:
         with mysql.connector.connect(**options) as connection:
-            stage = 'criar as tabelas do Ascenda'
+            stage = 'criar as tabelas do Comet'
             with connection.cursor(buffered=True) as cur:
                 cur.execute(f'CREATE DATABASE IF NOT EXISTS `{name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci')
                 cur.execute(f'USE `{name}`')

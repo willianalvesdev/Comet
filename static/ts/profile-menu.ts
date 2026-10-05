@@ -3,7 +3,7 @@
     const trigger = requiredElement(document, ".sidebar__profile", HTMLButtonElement);
     elementList(menu, '[data-profile-submenu="news"], [aria-controls="profile-news"], #profile-news', HTMLElement).forEach(element => element.remove());
     const triggers = [...elementList(menu, "[data-profile-submenu]", HTMLElement)];
-    window.AscendaNewsPreferences = {topics:['business'], languages:'pt-en'};
+    window.CometNewsPreferences = {topics:['business'], languages:'pt-en'};
     let active: HTMLElement | null = null;
     function closeSubmenu(focus = false) {
         elementList(menu, ".profile-menu__submenu", HTMLElement).forEach(panel => panel.hidden = true);

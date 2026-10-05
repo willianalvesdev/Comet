@@ -6,9 +6,9 @@ from uuid import uuid4
 
 from mysql.connector import Error as DatabaseError
 
-from ascenda import create_app
-from ascenda.ai.config import AIConfig
-from ascenda.ai.ephemeral import EphemeralStore
+from comet import create_app
+from comet.ai.config import AIConfig
+from comet.ai.ephemeral import EphemeralStore
 
 
 class RouteContractTests(unittest.TestCase):
@@ -25,7 +25,7 @@ class RouteContractTests(unittest.TestCase):
         self.connection = MagicMock()
         self.cursor = self.connection.cursor.return_value
         self.cursor.fetchone.return_value = self.user
-        self.connect_patch = patch('ascenda.db.mysql.connector.connect', return_value=self.connection)
+        self.connect_patch = patch('comet.db.mysql.connector.connect', return_value=self.connection)
         self.connect = self.connect_patch.start()
         self.addCleanup(self.connect_patch.stop)
 
@@ -70,7 +70,7 @@ class RouteContractTests(unittest.TestCase):
 
     def test_authentication_connection_closes_before_news_service_runs(self):
         self.sign_in()
-        news_service = self.app.extensions['ascenda_news']
+        news_service = self.app.extensions['comet_news']
 
         def read_news(*args):
             self.connection.close.assert_called_once()
@@ -113,8 +113,8 @@ class RouteContractTests(unittest.TestCase):
 
     def test_regenerate_keeps_identifiers_and_closes_abandoned_stream(self):
         self.sign_in()
-        service = self.app.extensions['ascenda_computer']
-        store = self.app.extensions['ascenda_conversations']
+        service = self.app.extensions['comet_computer']
+        store = self.app.extensions['comet_conversations']
         request_id = str(uuid4())
         closed = []
 
@@ -143,8 +143,8 @@ class RouteContractTests(unittest.TestCase):
 
     def test_anonymous_chat_never_selects_persistent_store(self):
         self.sign_in()
-        service = self.app.extensions['ascenda_computer']
-        persistent_store = self.app.extensions['ascenda_conversations']
+        service = self.app.extensions['comet_computer']
+        persistent_store = self.app.extensions['comet_conversations']
 
         def stream(user_id, payload, selected_store):
             self.assertIsInstance(selected_store, EphemeralStore)

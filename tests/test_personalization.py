@@ -4,8 +4,8 @@ import re
 import unittest
 from uuid import uuid4
 from unittest.mock import patch
-from ascenda import create_app, db
-from ascenda.ai.personalization import learn
+from comet import create_app, db
+from comet.ai.personalization import learn
 
 
 class PersonalizationTests(unittest.TestCase):
@@ -26,8 +26,8 @@ class PersonalizationTests(unittest.TestCase):
                 cur.execute('INSERT INTO sessoes (token_hash,usuario_id,expira_em) VALUES (%s,%s,UTC_TIMESTAMP()+INTERVAL 1 HOUR)',(hashlib.sha256(token.encode()).hexdigest(),uid))
             with client.session_transaction() as session:session['auth_token']=token
             self.clients.append(client)
-        self.store=self.app.extensions['ascenda_personalization']
-        self.service=self.app.extensions['ascenda_computer']
+        self.store=self.app.extensions['comet_personalization']
+        self.service=self.app.extensions['comet_computer']
 
     def cleanup(self):
         with self.app.app_context(),db.cursor(write=True) as cur:

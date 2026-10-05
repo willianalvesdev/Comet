@@ -368,3 +368,7 @@
 
 .home__input {
 }
+
+.home__composer:has(.home__input:not(:placeholder-shown)):not(.is-dictating) .home__microphone {
+    display: none;
+}

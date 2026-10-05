@@ -11,14 +11,14 @@ async function fixture(html: string, scripts: string[], source: string, routes: 
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce' });
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
-  await page.route('http://ascenda.test/**', async route => {
+  await page.route('http://comet.test/**', async route => {
     const url = new URL(route.request().url());
     if (url.pathname === '/') return route.fulfill({ contentType: 'text/html', body: html });
     const handler = routes[url.pathname];
     if (handler) return handler(route);
     return route.fulfill({ status: 404, body: '{}' });
   });
-  await page.goto('http://ascenda.test/');
+  await page.goto('http://comet.test/');
   await page.evaluate(() => {
     window.measurements = { creates: 0, titleQueries: 0, previewQueries: 0, currentWrites: 0, disabledWrites: 0 };
     const create = Document.prototype.createElement;

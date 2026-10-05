@@ -174,21 +174,13 @@
     font-display: swap;
 }
 
-@font-face {
-    font-family: "Serrif";
-    src: url("../fonts/Serrif/SerrifCollectionVF-TRIAL.ttf") format("truetype");
-    font-weight: 100 900;
-    font-style: normal;
-    font-display: swap;
-}
-
 :root {
     --font-body: "Saans", sans-serif;
-    --font-heading: "Kalice", "Serrif", Georgia, serif;
+    --font-heading: "Kalice", Georgia, serif;
     --font-ui: var(--font-body);
     --font-prose: var(--font-heading);
     --font-mono: "Cascadia Code", Consolas, monospace;
-    --font-numbers: "Geist", var(--font-body);
+    --font-numbers: var(--font-body);
     --font-size-0: 18px;
     --font-size-1: 72px;
     --font-size-2: 24px;
@@ -196,18 +188,48 @@
     --font-size-4: 14px;
     --font-size-5: 12px;
     --font-size-6: 10px;
+
+    --color-white-0: #fff;
+    --color-white-100: #fdfbfb;
+    --color-white-200: #faf8f5;
+    --color-white-300: #f3f0ec;
+    --color-white-400: #ece9e4;
+    --color-white-500: #e5e2dc;
+    --color-white-600: #dedbd4;
+    --color-white-700: #d8d4cd;
+
+    --color-black-0: #000000;
+    --color-black-50: #121212;
+    --color-black-100: #161616;
+    --color-black-200: #1d1d1d;
+    --color-black-300: #232323;
+    --color-black-400: #292929;
+    --color-black-500: #2f2f2f;
+    --color-black-600: #353535;
+    --color-black-700: #3b3b3b;
+
+    --color-turquoise-100: #DEF7F9;
+    --color-turquoise-200: #92DCE2;
+    --color-turquoise-300: #35BDC8;
+    --color-turquoise-400: #2CA0AB;
+    --color-turquoise-600: #1A6872;
+    --color-turquoise-700: #114F56;
+    --color-turquoise-800: #0B363C;
+    --color-turquoise-900: #081F22;
+
     --new-dark: #121212;
     --color-ink: #161616;
     --bg: var(--color-ink);
     --surface: #1d1d1d;
-    --surface-hover: color-mix(in srgb, var(--text) 5%, transparent);
-    --surface-hover-strong: color-mix(in srgb, var(--text) 6%, transparent);
-    --surface-selected: color-mix(in srgb, var(--text) 7%, transparent);
+    --surface-hover: #232323;
+    --surface-hover-strong: #292929;
+    --surface-selected: #2f2f2f;
     --accent: #20808d;
     --border: rgb(from var(--text) r g b / .1);
     --border-focus: rgb(from var(--text) r g b / .2);
     --text: #dedede;
     --text-secondary: rgb(from var(--text) r g b / .65);
+    --text-tertiary: rgb(from var(--text) r g b / .5);
     --text-white: #ffffff;
     --green: #539E55;
     --red: #DC6973;
@@ -219,12 +241,11 @@
     --space-6: 24px;
     --space-8: 32px;
     --space-panel: var(--space-4);
-    --radius-small: 6px;
+    --radius-small: 4px;
     --radius-control: 8px;
-    --radius-medium: 10px;
     --radius-large: 12px;
     --radius-panel: 16px;
-    --radius-container: 20px;
+    --radius-container: 18px;
     --radius-pill: 999px;
     --radius-circle: 50%;
     --icon-small: 16px;
@@ -288,8 +309,7 @@ html {
 }
 
 ::selection {
-    background-color: color-mix(in srgb, var(--accent) 10%, transparent);
-    color: var(--accent);
+    background-color: color-mix(in srgb, var(--accent) 60%, transparent);
 }
 
 body {
@@ -448,7 +468,7 @@ button:not(:disabled) {
     justify-self: end;
     padding: var(--space-2) calc(var(--gap) / 2);
     border: 1px solid var(--border);
-    border-radius: var(--radius-panel);
+    border-radius: var(--radius-control);
     background-color: var(--text);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);

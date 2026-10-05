@@ -32,7 +32,6 @@
     <script src="./static/js/dictation.js" defer></script>
     <script src="./static/js/sidebar.js" defer></script>
     <script src="./static/js/profile-menu.js" defer></script>
-    <script src="/static/js/discovery-panel.js" defer></script>
 </head>
 <body class="workspace">
 {% with active_page='computer' %}{% include 'partials/sidebar.html' %}{% endwith %}
@@ -48,9 +47,8 @@
     <main class="workspace__content" aria-label="Área de trabalho">
         <header class="workspace__header computer-header">
 {% include 'partials/mobile-menu.html' %}
-            <nav class="chat-tabs" aria-label="Visualização da resposta" hidden><button type="button" data-chat-view="answer" aria-current="page"><i class="chat-tab-logo" aria-hidden="true"></i>Resposta</button><button type="button" data-chat-view="links"><i class="chat-tab-links" aria-hidden="true"></i>Links</button></nav>
+            <nav class="chat-tabs" aria-label="Visualização da resposta" hidden><button type="button" data-chat-view="answer" aria-current="page"><i class="chat-tab-logo" aria-hidden="true"></i>Resposta</button><button type="button" data-chat-view="links" hidden><i class="chat-tab-links" aria-hidden="true"></i>Links</button></nav>
             <button class="workspace__header-button anonymous-toggle" type="button" aria-label="Ativar modo anônimo" aria-pressed="false"><i aria-hidden="true"></i></button>
-{% include 'partials/discovery-toggle.html' %}
         </header>
 
         <section class="computer-page" aria-labelledby="computer-title">
@@ -119,7 +117,6 @@
         </section>
         <section class="chat-links" aria-label="Links pesquisados" hidden></section>
     </main>
-{% include 'partials/discovery-panel.html' %}
 </div>
 {% include 'partials/settings.html' %}
 <script src="/static/js/message-navigator.js" defer></script>

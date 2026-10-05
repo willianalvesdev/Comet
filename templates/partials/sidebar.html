@@ -1,7 +1,6 @@
     <aside class="sidebar" id="sidebar" aria-label="Menu lateral">
         <div class="sidebar__top">
-            <a class="sidebar__logo" href="./principal.html" aria-label="Ascensão — tela principal"></a>
-            <button class="sidebar__notification" type="button" aria-label="Notificações" title="Notificações"><span aria-hidden="true"></span></button>
+            <a class="sidebar__logo" href="./principal.html" aria-label="Comet — tela principal"></a>
             <button class="sidebar__toggle" type="button" aria-label="Recolher menu" aria-expanded="true" aria-controls="sidebar-nav" title="Recolher menu">
                 <span class="sidebar__toggle-icon" aria-hidden="true"></span>
             </button>
@@ -9,17 +8,15 @@
 
         <div class="sidebar__new-chat">
             <a class="sidebar__link" href="./computer.html?new=1"{% if active_page == 'computer' and not request.args.get('conversation') %} aria-current="page"{% endif %} aria-label="Novo chat" title="Novo chat"><span class="sidebar__new-icon" aria-hidden="true"></span><span class="sidebar__label">Novo chat</span></a>
-        </div>
-
-        <nav class="sidebar__nav" id="sidebar-nav" aria-label="Navegação principal">
-
 
             <a class="sidebar__link" href="./graficos.html"{% if active_page == 'graficos' %} aria-current="page"{% endif %} aria-label="Finanças" title="Finanças"><span class="sidebar__icon sidebar__finance-icon" aria-hidden="true"></span>
                 <span class="sidebar__label">Finanças</span>
             </a>
             <a class="sidebar__link" href="./descobrir.html"{% if active_page == 'descobrir' %} aria-current="page"{% endif %} aria-label="Descobrir" title="Descobrir"><span class="sidebar__icon sidebar__discover-icon" aria-hidden="true"></span><span class="sidebar__label">Descobrir</span></a>
 
-        </nav>
+        </div>
+
+        <nav class="sidebar__nav" id="sidebar-nav" aria-label="Conversas"></nav>
 
         <div class="sidebar__footer">
 <button class="sidebar__profile" type="button" popovertarget="profile-menu" aria-expanded="false" aria-controls="profile-menu" aria-label="Abrir menu do perfil">
@@ -29,6 +26,7 @@
             </span>
             <span class="sidebar__profile-open" aria-hidden="true"></span>
         </button>
+            <button class="sidebar__notification" type="button" aria-label="Notificações" title="Notificações"><span aria-hidden="true"></span></button>
 
         </div>
 

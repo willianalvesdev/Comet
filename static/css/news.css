@@ -1,7 +1,7 @@
 .news-page {
     max-width: 1120px;
     margin: 0 auto;
-    padding: 36px 48px 60px;
+    padding: var(--page-gutter) var(--page-gutter) var(--space-8);
 }
 
 .news-page__title {
@@ -30,7 +30,7 @@
     display: block;
     aspect-ratio: 1.5;
     overflow: hidden;
-    border-radius: 15px 15px 0 0;
+    border-radius: calc(var(--radius-panel) - 1px) calc(var(--radius-panel) - 1px) 0 0;
     background: color-mix(in srgb, var(--accent) 12%, var(--surface));
 }
 
@@ -241,7 +241,7 @@
     overflow-y: auto;
     padding: 6px;
     border: 1px solid var(--border);
-    border-radius: var(--radius-large);
+    border-radius: var(--radius-panel);
     background: var(--surface);
     box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
 }
@@ -251,7 +251,7 @@
     width: 100%;
     padding: 9px;
     border: 0;
-    border-radius: var(--radius-small);
+    border-radius: var(--radius-control);
     background: transparent;
     text-align: left;
     font-size: var(--font-size-5);
@@ -296,7 +296,7 @@
 #news-more, #news-retry {
     padding: 10px 18px;
     border: 1px solid var(--border);
-    border-radius: var(--radius-medium);
+    border-radius: var(--radius-control);
     background: var(--surface);
     color: var(--text);
     font-size: var(--font-size-4);
@@ -323,7 +323,7 @@
 
 @media (width < 640px) {
     .news-page {
-        padding: var(--space-6) var(--space-4) 40px;
+        padding: var(--page-gutter) var(--page-gutter) var(--space-6);
     }
 
     .news-feed {
@@ -482,7 +482,7 @@
 }
 
 .icon-cloud {
-    --discovery-icon: url('../img/icons/weather-cloud.svg');
+    --discovery-icon: url('../img/icons/weather-clouds.svg');
 }
 
 .icon-rain {
@@ -587,7 +587,7 @@
 
 #edit-interests {
     border: 1px solid var(--border);
-    border-radius: var(--radius-medium);
+    border-radius: var(--radius-control);
     padding: var(--space-3);
     background: var(--surface);
     color: var(--text);
@@ -596,28 +596,6 @@
 
 .weather-panel {
     font-size: var(--font-size-5);
-}
-
-#weather-locate {
-    display: block;
-    width: 100%;
-    margin-bottom: var(--space-4);
-    padding: 10px var(--space-3);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-control);
-    background: transparent;
-    color: var(--text);
-    font-size: var(--font-size-5);
-    cursor: pointer;
-}
-
-#weather-locate:hover {
-    background: var(--surface-hover);
-}
-
-#weather-locate:disabled {
-    opacity: .6;
-    cursor: wait;
 }
 
 #weather-status {
@@ -899,13 +877,11 @@
 }
 
 @media (max-width: 639px) {
-    .workspace__header:has(.discovery-nav) .workspace__mobile-brand,
-    .workspace__header:has(.discovery-nav) .mobile-discover-toggle {
-        display: none;
-    }
-
     .workspace__header .discovery-nav {
-        max-width: calc(100% - 16px);
+        position: static;
+        transform: none;
+        margin-left: auto;
+        max-width: calc(100% - 64px);
         gap: var(--space-2);
     }
 }
@@ -923,7 +899,7 @@
 .news-skeleton .skeleton-line {
     height: 18px;
     margin-bottom: var(--space-3);
-    border-radius: 5px;
+    border-radius: var(--radius-small);
 }
 
 .news-skeleton .skeleton-line--short {
@@ -965,3 +941,5 @@
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+.icon-storm { --discovery-icon: url('../img/icons/weather-storm.svg'); }

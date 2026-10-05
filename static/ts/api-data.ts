@@ -38,9 +38,9 @@ function researchData(value: unknown): Research {
     return {error:optionalString(data.error),queries:data.queries==null?undefined:arrayValue(data.queries,stringValue),query:optionalString(data.query),state:researchState(data.state),engine:optionalString(data.engine),suggestions:optionalString(data.suggestions),seconds:data.seconds==null?undefined:numberValue(data.seconds),
         sources:data.sources==null?[]:arrayValue(data.sources,value=>{const source=record(value);return {title:stringValue(source.title),url:stringValue(source.url),domain:stringValue(source.domain ?? ''),excerpt:optionalString(source.excerpt),published_at:optionalString(source.published_at),date_approximate:source.date_approximate==null?undefined:booleanValue(source.date_approximate),snippet:optionalString(source.snippet),image:optionalString(source.image)};})};
 }
-function metadataData(value:unknown):ResponseMetadata {
+function metadataData(value:unknown, includeVersions = true):ResponseMetadata {
     const data=record(value ?? {});
-    return {provider:optionalString(data.provider),research:data.research==null?undefined:researchData(data.research),thinking_seconds:data.thinking_seconds==null?data.thinking_seconds:numberValue(data.thinking_seconds),elapsed_seconds:data.elapsed_seconds==null?undefined:numberValue(data.elapsed_seconds),instant:data.instant==null?undefined:booleanValue(data.instant)};
+    return {answered_at:optionalString(data.answered_at),versions:includeVersions && data.versions!=null?arrayValue(data.versions,value=>{const version=record(value);return {answer:stringValue(version.answer),thinking:stringValue(version.thinking),metadata:metadataData(version.metadata,false)};}):undefined,provider:optionalString(data.provider),research:data.research==null?undefined:researchData(data.research),thinking_seconds:data.thinking_seconds==null?data.thinking_seconds:numberValue(data.thinking_seconds),elapsed_seconds:data.elapsed_seconds==null?undefined:numberValue(data.elapsed_seconds),instant:data.instant==null?undefined:booleanValue(data.instant)};
 }
 function turnData(value:unknown):Turn {
     const data=record(value);

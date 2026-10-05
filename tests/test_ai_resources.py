@@ -8,10 +8,10 @@ from pathlib import Path
 from PIL import Image, ImageOps
 from werkzeug.datastructures import FileStorage
 
-from ascenda.ai.attachments import AttachmentStore
-from ascenda.ai.config import AIConfig
-from ascenda.ai.errors import AIError
-from ascenda.ai.service import ComputerService
+from comet.ai.attachments import AttachmentStore
+from comet.ai.config import AIConfig
+from comet.ai.errors import AIError
+from comet.ai.service import ComputerService
 
 
 class AIResourceTests(unittest.TestCase):
@@ -22,7 +22,7 @@ class AIResourceTests(unittest.TestCase):
         provider = MagicMock()
         provider.stream.return_value = (event for event in ())
         service = ComputerService(provider, self.config)
-        with patch('ascenda.ai.service.current_context', return_value='CURRENT CONTEXT') as clock:
+        with patch('comet.ai.service.current_context', return_value='CURRENT CONTEXT') as clock:
             list(service.generate([{'role': 'user', 'content': 'Oi'}]))
         clock.assert_called_once_with()
         system_message = provider.stream.call_args.args[0][0]['content']
@@ -43,7 +43,7 @@ class AIResourceTests(unittest.TestCase):
             finally:
                 raise RuntimeError('close failed')
 
-        with patch('ascenda.ai.service.with_web', return_value=failing_close()):
+        with patch('comet.ai.service.with_web', return_value=failing_close()):
             stream = service.stream_saved(7, {}, store)
             self.assertEqual(next(stream)['type'], 'conversation')
             self.assertEqual(next(stream)['type'], 'thinking')
@@ -73,9 +73,9 @@ class AIResourceTests(unittest.TestCase):
                     output.write(b'normalized jpeg')
 
                 normalized_image.save.side_effect = save_image
-                with patch('ascenda.ai.attachments.io.BytesIO', side_effect=create_buffer), \
-                        patch('ascenda.ai.attachments.Image.open', return_value=original_image), \
-                        patch('ascenda.ai.attachments.ImageOps.exif_transpose', return_value=oriented_image):
+                with patch('comet.ai.attachments.io.BytesIO', side_effect=create_buffer), \
+                        patch('comet.ai.attachments.Image.open', return_value=original_image), \
+                        patch('comet.ai.attachments.ImageOps.exif_transpose', return_value=oriented_image):
                     store = AttachmentStore(directory)
                     if encoding_error:
                         with self.assertRaises(AIError) as caught:

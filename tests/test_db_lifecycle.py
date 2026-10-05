@@ -3,10 +3,10 @@ from unittest.mock import Mock, patch
 
 from flask import Flask, g
 
-from ascenda import db
-from ascenda.ai.conversations import ConversationStore, conversation_id
-from ascenda.ai.errors import AIError
-from ascenda.ai.personalization import learn
+from comet import db
+from comet.ai.conversations import ConversationStore, conversation_id
+from comet.ai.errors import AIError
+from comet.ai.personalization import learn
 
 
 class DatabaseLifecycleTests(unittest.TestCase):
@@ -17,7 +17,7 @@ class DatabaseLifecycleTests(unittest.TestCase):
         self.store.options = {}
 
     def test_conversation_transaction_commits_and_closes_resources(self):
-        with patch('ascenda.ai.conversations.mysql.connector.connect', return_value=self.connection):
+        with patch('comet.ai.conversations.mysql.connector.connect', return_value=self.connection):
             with self.store.cursor() as database_cursor:
                 self.assertIs(database_cursor, self.database_cursor)
         self.connection.commit.assert_called_once_with()
@@ -27,7 +27,7 @@ class DatabaseLifecycleTests(unittest.TestCase):
 
     def test_conversation_cursor_creation_failure_still_closes_connection(self):
         self.connection.cursor.side_effect = RuntimeError('cursor unavailable')
-        with patch('ascenda.ai.conversations.mysql.connector.connect', return_value=self.connection):
+        with patch('comet.ai.conversations.mysql.connector.connect', return_value=self.connection):
             with self.assertRaisesRegex(RuntimeError, 'cursor unavailable'):
                 with self.store.cursor():
                     self.fail('Cursor creation should fail before entering the transaction')
@@ -37,7 +37,7 @@ class DatabaseLifecycleTests(unittest.TestCase):
 
     def test_conversation_cursor_close_failure_still_closes_connection(self):
         self.database_cursor.close.side_effect = RuntimeError('cursor close failed')
-        with patch('ascenda.ai.conversations.mysql.connector.connect', return_value=self.connection):
+        with patch('comet.ai.conversations.mysql.connector.connect', return_value=self.connection):
             with self.assertRaisesRegex(RuntimeError, 'cursor close failed'):
                 with self.store.cursor():
                     pass
@@ -45,7 +45,7 @@ class DatabaseLifecycleTests(unittest.TestCase):
 
     def test_commit_failure_rolls_back_and_closes_resources(self):
         self.connection.commit.side_effect = RuntimeError('commit failed')
-        with patch('ascenda.ai.conversations.mysql.connector.connect', return_value=self.connection):
+        with patch('comet.ai.conversations.mysql.connector.connect', return_value=self.connection):
             with self.assertRaisesRegex(RuntimeError, 'commit failed'):
                 with self.store.cursor():
                     pass
@@ -55,7 +55,7 @@ class DatabaseLifecycleTests(unittest.TestCase):
 
     def test_rollback_failure_still_closes_cursor_and_connection(self):
         self.connection.rollback.side_effect = RuntimeError('rollback failed')
-        with patch('ascenda.ai.conversations.mysql.connector.connect', return_value=self.connection):
+        with patch('comet.ai.conversations.mysql.connector.connect', return_value=self.connection):
             with self.assertRaisesRegex(RuntimeError, 'rollback failed'):
                 with self.store.cursor():
                     raise ValueError('statement failed')
@@ -63,7 +63,7 @@ class DatabaseLifecycleTests(unittest.TestCase):
         self.connection.close.assert_called_once_with()
 
     def test_interrupted_write_rolls_back_and_releases_cursor(self):
-        with patch('ascenda.db.get_db', return_value=self.connection):
+        with patch('comet.db.get_db', return_value=self.connection):
             with self.assertRaises(GeneratorExit):
                 with db.cursor(write=True):
                     raise GeneratorExit()
@@ -72,7 +72,7 @@ class DatabaseLifecycleTests(unittest.TestCase):
         self.database_cursor.close.assert_called_once_with()
 
     def test_read_cursor_does_not_commit_the_shared_connection(self):
-        with patch('ascenda.db.get_db', return_value=self.connection):
+        with patch('comet.db.get_db', return_value=self.connection):
             with db.cursor() as database_cursor:
                 self.assertIs(database_cursor, self.database_cursor)
         self.connection.commit.assert_not_called()
@@ -83,7 +83,7 @@ class DatabaseLifecycleTests(unittest.TestCase):
     def test_request_connection_is_reused_and_removed_during_teardown(self):
         app = Flask(__name__)
         app.teardown_appcontext(db.close_db)
-        with patch('ascenda.db.options', return_value={}), patch('ascenda.db.mysql.connector.connect', return_value=self.connection) as connect:
+        with patch('comet.db.options', return_value={}), patch('comet.db.mysql.connector.connect', return_value=self.connection) as connect:
             with app.app_context():
                 self.assertIs(db.get_db(), self.connection)
                 self.assertIs(db.get_db(), self.connection)
@@ -94,7 +94,7 @@ class DatabaseLifecycleTests(unittest.TestCase):
     def test_search_keeps_sql_metacharacters_in_parameters(self):
         self.database_cursor.fetchall.return_value = []
         query = "%' OR 1=1 --"
-        with patch('ascenda.ai.conversations.mysql.connector.connect', return_value=self.connection):
+        with patch('comet.ai.conversations.mysql.connector.connect', return_value=self.connection):
             self.store.list(7, query=query)
         statement, parameters = self.database_cursor.execute.call_args.args
         self.assertNotIn(query, statement)
@@ -103,7 +103,7 @@ class DatabaseLifecycleTests(unittest.TestCase):
 
     def test_invalid_offset_is_rejected_before_opening_a_connection(self):
         for offset in (-1, True, '0'):
-            with self.subTest(offset=offset), patch('ascenda.ai.conversations.mysql.connector.connect') as connect:
+            with self.subTest(offset=offset), patch('comet.ai.conversations.mysql.connector.connect') as connect:
                 with self.assertRaises(AIError) as failure:
                     self.store.list(7, offset=offset)
                 self.assertEqual(failure.exception.code, 'invalid_request')

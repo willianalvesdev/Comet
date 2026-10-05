@@ -55,7 +55,7 @@
 }
 
 .recent-chats {
-    padding: var(--space-3) var(--space-4) var(--space-8);
+    padding: var(--page-gutter) var(--page-gutter) var(--space-8);
     font-family: var(--font-ui);
     font-size: var(--font-size-4);
 }
@@ -74,7 +74,7 @@
     min-height: 26px;
     padding: var(--space-1) var(--space-2);
     border: 1px solid var(--border);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: transparent;
     color: var(--text-secondary);
     font: inherit;
@@ -137,7 +137,7 @@
     flex: 0 0 var(--icon-small);
     margin: 0;
     border: 1px solid var(--border);
-    border-radius: var(--space-1);
+    border-radius: var(--radius-small);
     background: transparent;
     cursor: pointer;
 }

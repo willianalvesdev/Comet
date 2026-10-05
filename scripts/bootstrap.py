@@ -23,7 +23,7 @@ def main():
         with env.open('x', encoding='utf-8') as output:
             output.write(
                 f'SECRET_KEY={secrets.token_urlsafe(48)}\n'
-                'DB_HOST=127.0.0.1\nDB_PORT=3306\nDB_NAME=ascenda_db\nDB_USER=ascenda_app\n'
+                'DB_HOST=127.0.0.1\nDB_PORT=3306\nDB_NAME=comet_db\nDB_USER=comet_app\n'
                 f'DB_PASSWORD={secrets.token_urlsafe(32)}\n'
                 'APP_HOST=127.0.0.1\nAPP_PORT=5001\nSESSION_COOKIE_SECURE=false\n'
                 'RATELIMIT_STORAGE_URI=memory://\n'

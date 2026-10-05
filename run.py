@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 import mysql.connector
 from waitress import create_server
 
-from ascenda import create_app, db
+from comet import create_app, db
 
 app = create_app()
 
@@ -26,11 +26,11 @@ if __name__ == '__main__':
     server = create_server(app, host=host, port=port, threads=16)
 
     try:
-        app.extensions['ascenda_conversations'].recover_interrupted(started_at)
+        app.extensions['comet_conversations'].recover_interrupted(started_at)
     except Exception:
         server.close()
         raise
-    print(f'Ascenda disponível em http://{host}:{port}', flush=True)
+    print(f'Comet disponível em http://{host}:{port}', flush=True)
     print('Mantenha esta janela aberta. Para encerrar, pressione Ctrl+C.', flush=True)
     if '--open-browser' in sys.argv:
         browser_host = '127.0.0.1' if host in ('0.0.0.0', '::') else host

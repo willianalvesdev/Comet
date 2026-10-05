@@ -22,11 +22,12 @@ interface Attachment { id: string; name: string; size: number; kind: 'image' | '
 interface Conversation { id: string; title: string; created_at: string; updated_at: string; }
 interface ResearchSource { title: string; url: string; domain: string; snippet?: string; image?: string; excerpt?: string; published_at?: string; date_approximate?: boolean; }
 interface Research { error?: string; query?: string; sources?: ResearchSource[]; suggestions?: string; status?: string; state?: ResearchState; seconds?: number; queries?: string[]; engine?: string; }
-interface ResponseMetadata { provider?: string; research?: Research; thinking_seconds?: number | null; elapsed_seconds?: number; instant?: boolean; }
+interface ResponseVersion { answer: string; thinking: string; metadata: ResponseMetadata; }
+interface ResponseMetadata { answered_at?: string; versions?: ResponseVersion[]; provider?: string; research?: Research; thinking_seconds?: number | null; elapsed_seconds?: number; instant?: boolean; }
 interface Turn { id: string | null; message: string; answer: string; thinking: string; status: 'running' | 'completed' | 'interrupted' | 'failed'; created_at: string; metadata?: ResponseMetadata; attachments?: Attachment[]; }
 interface ConversationList { conversations: Conversation[]; next_offset: number | null; }
 interface ConversationHistory { conversation: Conversation; turns: Turn[]; before: string | null; active: boolean; has_more?: boolean; }
-interface ChatRequest { history?: {role:'user'|'assistant';content:string}[]; messages?: {role:'user'|'assistant';content:string}[]; message?: string; conversation_id: string | null; request_id: string; provider: ModelProvider; anonymous?: boolean; attachments?: string[]; regenerate?: string; }
+interface ChatRequest { web_search?: boolean; history?: {role:'user'|'assistant';content:string}[]; messages?: {role:'user'|'assistant';content:string}[]; message?: string; conversation_id: string | null; request_id: string; provider: ModelProvider; anonymous?: boolean; attachments?: string[]; regenerate?: string; }
 interface ConversationEvent { type: 'conversation'; conversation_id: string | null; turn_id: string; title?: string; created_at?: string; attachments?: Attachment[]; provider?: string; }
 interface SearchEvent extends Research { type: 'search'; }
 type ChatEvent = {type:'delta'|'thinking';text:string} | {type:'error';error:string} | {type:'done';metadata?:ResponseMetadata} | ConversationEvent | SearchEvent;
@@ -38,16 +39,16 @@ interface ComputerServiceApi {
 }
 interface Window {
     WorkspaceNavigation: {page(url:string,factory:PageFactory):void;go(destination:string|URL,replace?:boolean):Promise<void>};
-    AscendaStorage: {getItem(name:string):string|null;setItem(name:string,value:string):void};
+    CometStorage: {getItem(name:string):string|null;setItem(name:string,value:string):void};
     ComputerService: new () => ComputerServiceApi;
     ComputerModels: {selected():ModelProvider;select(value:string):void;error():string;setBusy(value:boolean):void};
     ComputerAttachments: {files():Attachment[];busy():boolean;clear():void;restore(items:Attachment[]):void;setBusy(value:boolean):void};
     ComputerAttachmentCard: (file:Attachment,onRemove?:()=>void)=>HTMLDivElement;
     ComputerSessions: {render(items:Conversation[],append?:boolean,hasMore?:boolean):void;select(id:string|null,title?:string):void;setBusy(value:boolean):void;openOptions(item:Conversation,button:HTMLElement):void;request(path:string,method?:string,body?:unknown):Promise<unknown>;isPinned(id:string):boolean};
     ComputerResponseDetails: {research(article:HTMLElement,value?:Research,complete?:boolean):void;reset():void};
-    AscendaChart: {setData(data:ChartData,animate?:boolean):void;rollNumber(element:HTMLElement,text:string):void};
+    CometChart: {setData(data:ChartData,animate?:boolean):void;rollNumber(element:HTMLElement,text:string):void};
     LightweightCharts: typeof import('lightweight-charts');
-    AscendaNewsPreferences?: {topics:string[];languages:string};
+    CometNewsPreferences?: {topics:string[];languages:string};
 }
 interface WindowEventMap {
     'attachments:changed': Event;

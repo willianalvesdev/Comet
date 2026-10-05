@@ -10,7 +10,7 @@
 #settings-dialog {
     padding: 0;
     border: 1px solid var(--border);
-    border-radius: 30px;
+    border-radius: var(--radius-container);
     background: var(--bg);
     color: var(--text);
     width: min(1000px, calc(100vw - 48px));
@@ -46,7 +46,7 @@
     gap: 10px;
     padding: var(--space-3);
     border: 1px solid var(--border);
-    border-radius: 11px;
+    border-radius: var(--radius-control);
     background: var(--surface);
 }
 
@@ -78,7 +78,7 @@
     text-align: left;
     background: none;
     border: 0;
-    border-radius: 11px;
+    border-radius: var(--radius-control);
     padding: 11px 14px;
     color: inherit;
     font: inherit;
@@ -94,7 +94,7 @@
 }
 
 .settings-content {
-    padding: 42px 40px;
+    padding: var(--space-8);
     overflow: auto;
     scrollbar-width: thin;
 }
@@ -134,7 +134,7 @@
 
 .settings-card {
     border: 1px solid var(--border);
-    border-radius: 17px;
+    border-radius: var(--radius-panel);
     padding: 0 var(--space-5);
     background: var(--surface);
 }
@@ -162,7 +162,7 @@
     max-width: 50%;
     box-sizing: border-box;
     border: 1px solid var(--border);
-    border-radius: 11px;
+    border-radius: var(--radius-control);
     background: transparent;
     color: var(--text);
     font: inherit;
@@ -195,7 +195,7 @@
 .settings-content button:not(.memory-switch) {
     font: inherit;
     border: 1px solid var(--border);
-    border-radius: 11px;
+    border-radius: var(--radius-control);
     padding: 10px var(--space-4);
     background: transparent;
     color: var(--text);
@@ -237,7 +237,7 @@
     width: 36px;
     height: 20px;
     border: 0;
-    border-radius: var(--radius-container);
+    border-radius: var(--radius-pill);
     padding: 3px;
     background: #777;
     cursor: pointer;
@@ -272,7 +272,7 @@
     margin-top: var(--space-4);
     min-height: 220px;
     border: 1px solid var(--border);
-    border-radius: var(--radius-medium);
+    border-radius: var(--radius-control);
     background: transparent;
     color: inherit;
     font: inherit;
@@ -379,7 +379,7 @@
 @media (min-width: 761px) {
     #settings-dialog {
         box-sizing: border-box;
-        border-radius: 24px;
+        border-radius: var(--radius-container);
         font-size: 14px;
     }
 
@@ -393,18 +393,18 @@
     }
 
     .settings-sidebar {
-        padding: var(--space-4) 9px;
+        padding: var(--space-4) var(--space-3);
     }
 
     .settings-search {
         gap: var(--space-2);
         padding: 10px;
-        border-radius: 9px;
+        border-radius: var(--radius-control);
     }
 
     .settings-sidebar > p {
         font-size: 12px;
-        margin: 35px 11px 13px;
+        margin: var(--space-8) var(--space-3) var(--space-3);
     }
 
     .settings-sidebar nav {
@@ -413,17 +413,17 @@
 
     .settings-sidebar nav button {
         gap: var(--space-2);
-        padding: 9px 11px;
-        border-radius: 9px;
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-control);
     }
 
     .settings-content {
-        padding: 34px var(--space-8);
+        padding: var(--space-8);
     }
 
     .settings-content h1 {
         font-size: 20px;
-        margin: 0 36px 27px var(--space-4);
+        margin: 0 var(--space-8) var(--space-6) var(--space-4);
     }
 
     .settings-content h2 {
@@ -440,7 +440,7 @@
     }
 
     .settings-card {
-        border-radius: 14px;
+        border-radius: var(--radius-panel);
         padding: 0 var(--space-4);
     }
 
@@ -456,7 +456,7 @@
 
     .settings-row :is(input, select, textarea) {
         width: 224px;
-        border-radius: 9px;
+        border-radius: var(--radius-control);
         padding: var(--space-2) 10px;
     }
 
@@ -474,7 +474,7 @@
     }
 
     .settings-content button:not(.memory-switch) {
-        border-radius: 9px;
+        border-radius: var(--radius-control);
         padding: var(--space-2) 13px;
     }
 
@@ -529,10 +529,10 @@
 .appearance-row > div:first-child { flex: 1 1 160px; }
 .appearance-row .settings-hint { margin: var(--space-1) 0 0; }
 .appearance-options { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: flex-end; }
-.appearance-choice { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); padding: var(--space-2); border: 0; border-radius: var(--radius-medium); background: transparent; color: var(--text-secondary); font: inherit; font-size: var(--font-size-5); cursor: pointer; }
+.appearance-choice { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); padding: var(--space-2); border: 0; border-radius: var(--radius-control); background: transparent; color: var(--text-secondary); font: inherit; font-size: var(--font-size-5); cursor: pointer; }
 .appearance-choice:hover, .appearance-choice[aria-pressed="true"] { background: var(--surface-hover); color: var(--text); }
 .appearance-choice[aria-pressed="true"] > span:last-child::before { content: ''; display: inline-block; width: 16px; height: 16px; margin-right: 4px; vertical-align: -3px; background: currentColor; mask: url('../img/icons/check.svg') center/contain no-repeat; }
-.appearance-choice img, .appearance-font { width: 112px; height: 80px; border-radius: 6px; }
+.appearance-choice img, .appearance-font { width: 112px; height: 80px; border-radius: var(--radius-small); }
 .appearance-font { display: grid; place-items: center; border: 1px solid var(--border); font-size: 42px; color: var(--text); }
 .appearance-font--serif { font-family: var(--font-heading); }
 .appearance-font--sans { font-family: var(--font-body); }

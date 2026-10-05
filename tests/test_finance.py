@@ -5,8 +5,8 @@ from unittest.mock import patch
 
 from mysql.connector import IntegrityError
 
-from ascenda import create_app
-from ascenda.finance import history, receive, summarize, validate_transaction
+from comet import create_app
+from comet.finance import history, receive, summarize, validate_transaction
 
 
 class FinanceTests(unittest.TestCase):
@@ -55,7 +55,7 @@ class FinanceTests(unittest.TestCase):
         self.assertEqual(data['summary']['expense']['difference'],'-4.25')
 
     def test_receive_is_parameterized_and_idempotent(self):
-        with patch('ascenda.finance.db.cursor') as managed:
+        with patch('comet.finance.db.cursor') as managed:
             cursor=managed.return_value.__enter__.return_value
             cursor.lastrowid=23
             row,created=receive(7,self.payload(description="O'Reilly"))
@@ -67,7 +67,7 @@ class FinanceTests(unittest.TestCase):
             self.assertIn("O'Reilly",values)
             self.assertIn("finance_transaction_events", cursor.execute.call_args_list[1].args[0])
             self.assertEqual(cursor.execute.call_args_list[1].args[1][3], "TRANSACTION_CREATED")
-        with patch('ascenda.finance.db.cursor') as managed:
+        with patch('comet.finance.db.cursor') as managed:
             cursor=managed.return_value.__enter__.return_value
             cursor.execute.side_effect=[IntegrityError(errno=1062),None]
             cursor.fetchone.return_value={'id':23,**validate_transaction(self.payload())}
@@ -75,14 +75,14 @@ class FinanceTests(unittest.TestCase):
             self.assertFalse(created)
             self.assertEqual(row['id'],'23')
             self.assertEqual(cursor.execute.call_args.args[1],(7,'bank-001'))
-        with patch('ascenda.finance.db.cursor') as managed:
+        with patch('comet.finance.db.cursor') as managed:
             cursor=managed.return_value.__enter__.return_value
             cursor.execute.side_effect=[IntegrityError(errno=1062),None]
             cursor.fetchone.return_value={'id':23,**validate_transaction(self.payload(amount='99.00'))}
             self.assertEqual(receive(7,self.payload()),(None,False))
 
     def test_history_cursor_is_owned_and_stable(self):
-        with patch('ascenda.finance.db.cursor') as managed:
+        with patch('comet.finance.db.cursor') as managed:
             cursor=managed.return_value.__enter__.return_value
             values=validate_transaction(self.payload())
             cursor.fetchall.return_value=[{'id':2,**values},{'id':1,**values}]
@@ -111,7 +111,7 @@ class FinanceRouteTests(unittest.TestCase):
 
     def test_user_is_taken_from_session_and_response_is_private(self):
         self.sign_in()
-        with patch('ascenda.db.mysql.connector.connect') as connect, patch('ascenda.finance.dashboard',return_value={'summary':{}}) as dashboard:
+        with patch('comet.db.mysql.connector.connect') as connect, patch('comet.finance.dashboard',return_value={'summary':{}}) as dashboard:
             connect.return_value.cursor.return_value.fetchone.return_value={'id':7,'nome':'Teste','email':'t@example.com'}
             response=self.client.get('/api/finance/dashboard?usuario_id=99')
             self.assertEqual(response.status_code,200)
@@ -126,7 +126,7 @@ class FinanceRouteTests(unittest.TestCase):
 
     def test_ingestion_statuses(self):
         self.sign_in()
-        with patch('ascenda.db.mysql.connector.connect') as connect, patch('ascenda.finance.receive') as receive_mock:
+        with patch('comet.db.mysql.connector.connect') as connect, patch('comet.finance.receive') as receive_mock:
             connect.return_value.cursor.return_value.fetchone.return_value={'id':7,'nome':'Teste','email':'t@example.com'}
             for result,code in [(({'id':'1'},True),201),(({'id':'1'},False),200),((None,False),409)]:
                 receive_mock.return_value=result
@@ -137,6 +137,6 @@ class FinanceRouteTests(unittest.TestCase):
 
 class FinanceTitleTests(unittest.TestCase):
     def test_titles_keep_location_and_details_without_sentence(self):
-        from ascenda.finance import transaction_title
+        from comet.finance import transaction_title
         for source,expected in [('Gastei 67 reais no mercado ontem','Mercado'),('gastei 200 reais no presente do ravi','Presente do Ravi'),('farmácia','Farmácia'),('ganhei 200 reais','Ganhei'),('ganhei 200 reais ontem','Ganhei'),('Presente do Ravi','Presente do Ravi'),('Compra no iFood','Compra no iFood')]:
             with self.subTest(source=source):self.assertEqual(transaction_title(source),expected)

@@ -6,16 +6,16 @@ from uuid import uuid4
 from unittest.mock import patch
 
 from mysql.connector import Error as DatabaseError
-from ascenda import create_app, db
-from ascenda.ai.conversations import ConversationStore
-from ascenda.ai.errors import AIError
+from comet import create_app, db
+from comet.ai.conversations import ConversationStore
+from comet.ai.errors import AIError
 
 
 class ConversationPersistenceTests(unittest.TestCase):
     def setUp(self):
         self.app = create_app({'TESTING': True, 'RATELIMIT_ENABLED': False})
-        self.service = self.app.extensions['ascenda_computer']
-        self.store = self.app.extensions['ascenda_conversations']
+        self.service = self.app.extensions['comet_computer']
+        self.store = self.app.extensions['comet_conversations']
         self.ids = []
         try:
             with self.app.app_context(), db.cursor() as cur:
@@ -104,6 +104,9 @@ class ConversationPersistenceTests(unittest.TestCase):
         restored=self.store.get(self.ids[0],cid)['turns']
         self.assertEqual([t['answer'] for t in restored], ['Nova resposta','Próxima resposta'])
         self.assertEqual(restored[0]['id'],tid)
+        self.assertEqual(restored[0]['metadata']['versions'][0]['answer'], 'Resposta original')
+        self.assertEqual(restored[0]['metadata']['versions'][0]['thinking'], 'Pensamento original')
+        self.assertIn('answered_at', restored[0]['metadata'])
         self.assertEqual(self.post({**payload,'request_id':str(uuid4())},actor=1).status_code,404)
         with patch.object(self.service.provider,'stream',side_effect=AIError('unavailable',503)):
             self.post({**payload,'request_id':str(uuid4())}).get_data()
@@ -327,7 +330,7 @@ class ConversationPersistenceTests(unittest.TestCase):
         import io
         import tempfile
         from pathlib import Path
-        from ascenda.ai.attachments import AttachmentStore
+        from comet.ai.attachments import AttachmentStore
         with tempfile.TemporaryDirectory() as directory:
 
             original_root=self.store.attachments.root

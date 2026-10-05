@@ -1,13 +1,13 @@
 import unittest
 from unittest.mock import patch,MagicMock
 from datetime import datetime,timezone
-from ascenda.ai.response_policy import current_context,without_source_list
-from ascenda.ai.config import AIConfig,LOCAL_MODELS
-from ascenda.ai.service import ComputerService
+from comet.ai.response_policy import current_context,without_source_list
+from comet.ai.config import AIConfig,LOCAL_MODELS
+from comet.ai.service import ComputerService
 
 class ResponsePolicyTests(unittest.TestCase):
     def test_current_date_is_dynamic_and_explicit(self):
-        with patch('ascenda.ai.response_policy.datetime') as clock:
+        with patch('comet.ai.response_policy.datetime') as clock:
             clock.now.return_value=datetime(2028,2,4,12,tzinfo=timezone.utc)
             context=current_context()
         self.assertIn('04/02/2028',context)

@@ -4,12 +4,12 @@
     const system = matchMedia("(prefers-color-scheme: dark)");
     let preference = "system";
     try {
-        const saved = window.AscendaStorage.getItem(storageKey);
+        const saved = window.CometStorage.getItem(storageKey);
         if (["light", "dark", "system"].includes(saved ?? '')) preference = saved ?? 'system';
     } catch {}
     let responseFont = 'serif';
     try {
-        const saved = window.AscendaStorage.getItem('ascensao-response-font');
+        const saved = window.CometStorage.getItem('ascensao-response-font');
         if (['serif', 'sans'].includes(saved ?? '')) responseFont = saved ?? 'serif';
     } catch {}
     function applyFont() {
@@ -38,12 +38,12 @@
         applyFont();
         elementList(document, '[data-response-font]', HTMLElement).forEach(button => button.addEventListener('click', () => {
             responseFont = button.dataset.responseFont ?? 'serif';
-            try { window.AscendaStorage.setItem('ascensao-response-font', responseFont); } catch {}
+            try { window.CometStorage.setItem('ascensao-response-font', responseFont); } catch {}
             applyFont();
         }));
         elementList(document, "[data-theme-choice]", HTMLButtonElement).forEach(button => button.addEventListener("click", () => {
             preference = button.dataset.themeChoice ?? 'system';
-            try { window.AscendaStorage.setItem(storageKey, preference); } catch {}
+            try { window.CometStorage.setItem(storageKey, preference); } catch {}
             applyTheme();
         }));
     });

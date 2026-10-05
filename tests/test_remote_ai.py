@@ -2,10 +2,10 @@ import io
 import json
 import unittest
 from unittest.mock import patch, MagicMock
-from ascenda.ai.config import AIConfig
-from ascenda.ai.remote import RemoteProvider, sse
-from ascenda.ai.errors import AIError
-from ascenda.ai.conversations import ConversationStore
+from comet.ai.config import AIConfig
+from comet.ai.remote import RemoteProvider, sse
+from comet.ai.errors import AIError
+from comet.ai.conversations import ConversationStore
 
 CONFIG = AIConfig('http://localhost:11434', 'test')
 MESSAGES = [{'role': 'system', 'content': 'Computer'}, {'role': 'user', 'content': 'Olá'},
@@ -32,7 +32,7 @@ class RemoteTests(unittest.TestCase):
         raw = b': keepalive\n\n' + frame({'candidates': [{'content': {'parts': [{'thought': True, 'text': 'Resumo'}]}}]})
         raw += frame({'candidates': [{'content': {'parts': [{'text': 'Olá!'}]}, 'finishReason': 'STOP'}]})
         connection = self.connection(raw)
-        with patch('ascenda.ai.remote.http.client.HTTPSConnection', return_value=connection) as transport:
+        with patch('comet.ai.remote.http.client.HTTPSConnection', return_value=connection) as transport:
             self.assertEqual(list(self.provider().stream(MESSAGES)), [{'type': 'thinking', 'text': 'Resumo'}, {'type': 'delta', 'text': 'Olá!'}])
         transport.assert_called_once_with('generativelanguage.googleapis.com', timeout=120)
         args, kwargs = connection.request.call_args
@@ -57,7 +57,7 @@ class RemoteTests(unittest.TestCase):
                     {'role': 'user', 'content': '<arquivo nome="contas.txt">Receita: 3500</arquivo>'}]
         original = copy.deepcopy(messages)
         connection = self.connection(frame({'candidates': [{'content': {'parts': [{'text': 'Analisado'}]}, 'finishReason': 'STOP'}]}))
-        with patch('ascenda.ai.remote.http.client.HTTPSConnection', return_value=connection):
+        with patch('comet.ai.remote.http.client.HTTPSConnection', return_value=connection):
             self.assertEqual(list(self.provider().stream(messages)), [{'type': 'delta', 'text': 'Analisado'}])
         payload = json.loads(connection.request.call_args.kwargs['body'])
         self.assertEqual(payload['contents'][0]['parts'][1],
@@ -71,7 +71,7 @@ class RemoteTests(unittest.TestCase):
         for status, code in [(401,'provider_auth'),(403,'provider_auth'),(402,'provider_quota'),(429,'provider_quota'),(404,'provider_model'),(500,'provider_unavailable'),(302,'provider_unavailable')]:
             with self.subTest(status=status):
                 connection = self.connection(b'private-test-key',status)
-                with patch('ascenda.ai.remote.http.client.HTTPSConnection', return_value=connection), self.assertRaises(AIError) as error:
+                with patch('comet.ai.remote.http.client.HTTPSConnection', return_value=connection), self.assertRaises(AIError) as error:
                     list(self.provider().stream(MESSAGES))
                 self.assertEqual(error.exception.code,code)
                 self.assertNotIn('private-test-key',str(error.exception))
@@ -79,7 +79,7 @@ class RemoteTests(unittest.TestCase):
                 connection.close.assert_called_once()
 
     def test_missing_key_never_connects(self):
-        with patch('ascenda.ai.remote.http.client.HTTPSConnection') as transport, self.assertRaises(AIError) as error:
+        with patch('comet.ai.remote.http.client.HTTPSConnection') as transport, self.assertRaises(AIError) as error:
             list(self.provider(key='').stream(MESSAGES))
         self.assertEqual(error.exception.code,'provider_missing')
         transport.assert_not_called()
@@ -92,12 +92,12 @@ class RemoteTests(unittest.TestCase):
                  ('gemini', frame({'candidates': [{'content': {'parts': [{'text': 1}]}}]})),
                  ('gemini',frame({'candidates':[{'content':{'parts':[{'text':'x'*16001}]}}]}))]
         for name, raw in cases:
-            with self.subTest(name=name), patch('ascenda.ai.remote.http.client.HTTPSConnection', return_value=self.connection(raw)), self.assertRaises(AIError):
+            with self.subTest(name=name), patch('comet.ai.remote.http.client.HTTPSConnection', return_value=self.connection(raw)), self.assertRaises(AIError):
                 list(self.provider(name).stream(MESSAGES))
 
     def test_cancel_closes_connection(self):
         connection = self.connection(frame({'candidates':[{'content':{'parts':[{'text':'partial'}]}}]}))
-        with patch('ascenda.ai.remote.http.client.HTTPSConnection',return_value=connection):
+        with patch('comet.ai.remote.http.client.HTTPSConnection',return_value=connection):
             stream = self.provider().stream(MESSAGES)
             next(stream)
             stream.close()
@@ -106,7 +106,7 @@ class RemoteTests(unittest.TestCase):
     def test_timeout_closes_connection(self):
         connection = self.connection(b'')
         connection.getresponse.side_effect = TimeoutError
-        with patch('ascenda.ai.remote.http.client.HTTPSConnection',return_value=connection), self.assertRaises(AIError) as error:
+        with patch('comet.ai.remote.http.client.HTTPSConnection',return_value=connection), self.assertRaises(AIError) as error:
             list(self.provider().stream(MESSAGES))
         self.assertEqual(error.exception.code,'timeout')
         connection.close.assert_called_once()

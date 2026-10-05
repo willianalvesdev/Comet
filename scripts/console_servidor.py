@@ -37,7 +37,7 @@ def acquire_instance():
     kernel.CreateMutexW.restype = wintypes.HANDLE
     kernel.CloseHandle.argtypes = (wintypes.HANDLE,)
     kernel.CloseHandle.restype = wintypes.BOOL
-    name = 'Local\\Ascenda-' + str(uuid.uuid5(uuid.NAMESPACE_URL, str(ROOT).casefold()))
+    name = 'Local\\Comet-' + str(uuid.uuid5(uuid.NAMESPACE_URL, str(ROOT).casefold()))
     handle = kernel.CreateMutexW(None, False, name)
     error = ctypes.get_last_error()
     if not handle:
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     if os.name == 'nt':
         instance = acquire_instance()
         if instance is None:
-            print('O Ascenda já está aberto. Use a janela existente para reiniciar ou encerrar.', flush=True)
+            print('O Comet já está aberto. Use a janela existente para reiniciar ou encerrar.', flush=True)
         else:
             kernel, handle = instance
             try:

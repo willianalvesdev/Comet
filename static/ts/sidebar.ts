@@ -7,7 +7,15 @@
     const backdrop = requiredElement(document, ".sidebar-backdrop", HTMLElement);
     const content = () => requiredElement(document, ".workspace__content", HTMLElement);
     const nav = requiredElement(document, '.sidebar__nav', HTMLElement);
-    nav.addEventListener('scroll', () => sidebar.classList.toggle('is-nav-scrolled', nav.scrollTop > 0), {passive:true});
+    function updateScrollFades() {
+        sidebar.classList.toggle('is-nav-scrolled', nav.scrollTop > 0);
+        sidebar.classList.toggle('has-nav-overflow', nav.scrollHeight - nav.clientHeight - nav.scrollTop > 1);
+    }
+    nav.addEventListener('scroll', updateScrollFades, {passive:true});
+    nav.addEventListener('toggle', () => requestAnimationFrame(updateScrollFades), true);
+    new ResizeObserver(updateScrollFades).observe(nav);
+    new MutationObserver(updateScrollFades).observe(nav, {childList:true, subtree:true, characterData:true});
+    updateScrollFades();
     const smallScreen = window.matchMedia("(width < 640px)");
     const storageKey = "ascensao-sidebar-collapsed";
     let initialCollapsed = smallScreen.matches;
@@ -15,7 +23,7 @@
     try {
         const account = optionalElement(document, '[data-user-id]', HTMLElement)?.dataset.userId;
         const layout = record(JSON.parse(sessionStorage.getItem('ascenda-sidebar-' + account) || '{}'));
-        const savedState = typeof layout.collapsed === 'boolean' ? String(layout.collapsed) : window.AscendaStorage.getItem(storageKey);
+        const savedState = typeof layout.collapsed === 'boolean' ? String(layout.collapsed) : window.CometStorage.getItem(storageKey);
         if (!smallScreen.matches && (savedState === "true" || savedState === "false")) {
             initialCollapsed = savedState === "true";
         }
@@ -34,7 +42,7 @@
         content().inert = smallScreen.matches && !collapsed;
         backdrop.hidden = !smallScreen.matches || collapsed;
         try {
-            window.AscendaStorage.setItem(storageKey, String(collapsed));
+            window.CometStorage.setItem(storageKey, String(collapsed));
         } catch {
         }
     }

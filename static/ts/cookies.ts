@@ -4,7 +4,7 @@
     try { choice = localStorage.getItem(key); } catch {}
     const memory = new Map<string, string>();
     const optional = (name: string) => name === 'ascensao-theme' || name === 'ascensao-sidebar-collapsed' || name.startsWith('ascenda-news-');
-    window.AscendaStorage = {
+    window.CometStorage = {
         getItem(name) {
             if (memory.has(name)) return memory.get(name) ?? null;
             if (choice !== 'accepted') return null;
@@ -32,7 +32,7 @@
         const notice = document.createElement('section');
         notice.className = 'cookie-notice';
         notice.setAttribute('aria-labelledby', 'cookie-title');
-        notice.innerHTML = `<h2 id="cookie-title"><span class="cookie-notice__icon" aria-hidden="true"></span>Política de Cookies</h2><p>Na Ascenda, sua privacidade faz parte da experiência, inclusive ao usar recursos de inteligência artificial. Usamos cookies essenciais para manter seu acesso e proteger sua conta. Com sua permissão, também armazenamos preferências neste navegador, como aparência, interesses e curtidas, para personalizar sua experiência. Ao selecionar “Entendi”, você permite esse armazenamento opcional. Você pode recusá-lo e continuar usando o site.</p><div class="cookie-actions"><button type="button" data-cookie-choice="rejected">Recusar opcionais</button><button type="button" data-cookie-choice="accepted">Entendi</button></div>`;
+        notice.innerHTML = `<h2 id="cookie-title"><span class="cookie-notice__icon" aria-hidden="true"></span>Política de Cookies</h2><p>Na Comet, sua privacidade faz parte da experiência, inclusive ao usar recursos de inteligência artificial. Usamos cookies essenciais para manter seu acesso e proteger sua conta. Com sua permissão, também armazenamos preferências neste navegador, como aparência, interesses e curtidas, para personalizar sua experiência. Ao selecionar “Entendi”, você permite esse armazenamento opcional. Você pode recusá-lo e continuar usando o site.</p><div class="cookie-actions"><button type="button" data-cookie-choice="rejected">Recusar opcionais</button><button type="button" data-cookie-choice="accepted">Entendi</button></div>`;
         function show(visible: boolean) { notice.hidden = !visible; }
         elementList(notice, '[data-cookie-choice]', HTMLElement).forEach(button => button.addEventListener('click', () => {
             save(button.dataset.cookieChoice ?? 'rejected'); show(false);
