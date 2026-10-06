@@ -90,7 +90,7 @@
     margin-top: var(--space-3);
 }
 
-.workspace :is(.computer-page, .finance-composer) .home__composer {
+.workspace :is(.computer-page, .finance-composer, .study-page) .home__composer {
     position: relative;
     inset: auto;
     width: 100%;
@@ -136,16 +136,16 @@
     display: flex;
 }
 
-.workspace :is(.computer-page, .finance-composer) .home__composer {
+.workspace :is(.computer-page, .finance-composer, .study-page) .home__composer {
     padding: 14px var(--space-4) var(--space-3);
 }
 
-:is(.computer-page, .finance-composer) .home__input {
+:is(.computer-page, .finance-composer, .study-page) .home__input {
     min-height: 38px;
     height: 38px;
 }
 
-:is(.computer-page, .finance-composer) .home__toolbar {
+:is(.computer-page, .finance-composer, .study-page) .home__toolbar {
     margin-top: var(--space-2);
 }
 
@@ -263,12 +263,12 @@
     font-size: var(--font-size-5);
 }
 
-:is(.computer-page, .finance-composer) .home__composer.is-responding .home__send .ui-arrow {
+:is(.computer-page, .finance-composer, .study-page) .home__composer.is-responding .home__send .ui-arrow {
     mask-image: url('../img/icons/pause.svg');
     -webkit-mask-image: url('../img/icons/pause.svg');
 }
 
-:is(.computer-page, .finance-composer) .home__microphone:disabled {
+:is(.computer-page, .finance-composer, .study-page) .home__microphone:disabled {
     opacity: .4;
     cursor: default;
 }
@@ -543,12 +543,12 @@
 }
 
 @media (width < 480px) {
-    :is(.computer-page, .finance-composer) .home__toolbar {
+    :is(.computer-page, .finance-composer, .study-page) .home__toolbar {
         flex-wrap: wrap;
         gap: var(--space-2);
     }
 
-    :is(.computer-page, .finance-composer) .home__actions {
+    :is(.computer-page, .finance-composer, .study-page) .home__actions {
         margin-left: auto;
         gap: 6px;
     }
@@ -635,7 +635,7 @@
     font-size: var(--font-size-3);
 }
 
-:is(.computer-page, .finance-composer) .home__send .ui-arrow {
+:is(.computer-page, .finance-composer, .study-page) .home__send .ui-arrow {
     width: var(--icon-small);
     height: var(--icon-small);
     flex-basis: var(--icon-small);
@@ -1136,15 +1136,15 @@
 }
 
 @media(width<640px) {
-    :is(.computer-page, .finance-composer) .home__actions {
+    :is(.computer-page, .finance-composer, .study-page) .home__actions {
         gap: var(--space-2);
     }
 
-    :is(.computer-page, .finance-composer) .home__toolbar {
+    :is(.computer-page, .finance-composer, .study-page) .home__toolbar {
         gap: var(--space-2);
     }
 
-    :is(.computer-page, .finance-composer) .home__mode {
+    :is(.computer-page, .finance-composer, .study-page) .home__mode {
         padding-inline: var(--space-2);
         gap: 5px;
     }
@@ -1447,14 +1447,14 @@
     }
 }
 
-:is(.computer-page, .finance-composer) .home__input {
+:is(.computer-page, .finance-composer, .study-page) .home__input {
     min-height: 38px;
     max-height: calc(var(--composer-max-lines) * 1.5em);
     font-family: var(--font-ui);
     overflow-y: hidden;
 }
 
-:is(.computer-page, .finance-composer) .home__send.is-empty {
+:is(.computer-page, .finance-composer, .study-page) .home__send.is-empty {
     opacity: var(--opacity-disabled);
 }
 
@@ -1662,7 +1662,7 @@
     border-bottom-color: transparent;
 }
 
-:is(.computer-page, .finance-composer) .home__input:focus {
+:is(.computer-page, .finance-composer, .study-page) .home__input:focus {
     outline: none;
 }
 
@@ -2081,7 +2081,7 @@
 
 .chat-is-loading .sessions button:disabled:not(.sessions__more),
 .chat-is-loading .model-picker:disabled,
-.chat-is-loading :is(.computer-page, .finance-composer) .home__microphone:disabled,
+.chat-is-loading :is(.computer-page, .finance-composer, .study-page) .home__microphone:disabled,
 .chat-is-loading .computer-rewrite:disabled {
     opacity: 1;
 }
@@ -2102,7 +2102,7 @@
     height: 16px;
 }
 @media (hover: hover) {
-    :is(.computer-page, .finance-composer) .home__microphone:not(:disabled):hover,
+    :is(.computer-page, .finance-composer, .study-page) .home__microphone:not(:disabled):hover,
     .composer-provider-group button:not(:disabled):hover,
     .local-model-picker:not(:disabled):hover {
         background: var(--surface-hover);
@@ -2144,8 +2144,33 @@
 .computer-message--assistant:hover .response-time,
 .computer-message--assistant:focus-within .response-time { opacity: 1; }
 .attachment-menu .web-search-toggle { border-top: 0; margin-top: var(--space-1); }
-.attachment-menu .web-search-toggle > i { mask: url('../img/icons/web-links.svg') center / contain no-repeat; }
+.attachment-menu .web-search-toggle > i { mask: url('../img/icons/settings-settings-search.svg') center / contain no-repeat; }
 .web-search-check { width: 16px; height: 16px; margin-left: auto; background: var(--accent); mask: url('../img/icons/check.svg') center / contain no-repeat; }
 .web-search-toggle[aria-pressed="false"] .web-search-check { visibility: hidden; }
 
 .computer-composer :is(.computer-note, .anonymous-note) { display: none; }
+
+.computer-page.has-conversation .home__input { min-height: 1.5em; height: 1.5em; }
+
+:root[data-theme="light"] .workspace :is(.computer-page, .finance-composer, .study-page) .home__composer {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: 0 1px 2px rgb(39 37 30 / .04);
+}
+:root[data-theme="light"] .workspace :is(.computer-page, .finance-composer, .study-page) .home__composer:focus-within {
+    border-color: var(--border-focus);
+}
+:root[data-theme="light"] .home__send {
+    background: var(--text);
+    color: var(--surface);
+}
+
+.message-navigator__mark:not([aria-current="true"]):not(:hover):is(:first-child, :last-child)::before {
+    opacity: .06;
+}
+.message-navigator__mark:not([aria-current="true"]):not(:hover):is(:nth-child(2), :nth-last-child(2))::before {
+    opacity: .13;
+}
+.message-navigator__mark:not([aria-current="true"]):not(:hover):is(:nth-child(3), :nth-last-child(3))::before {
+    opacity: .2;
+}

@@ -126,7 +126,7 @@ class FinancialInterpretationTests(unittest.TestCase):
         self.assertFalse(actions['items']['additionalProperties'])
         fields = actions['items']['properties']['fields']
         self.assertFalse(fields['additionalProperties'])
-        self.assertEqual(set(fields['required']), {'kind', 'amount', 'description', 'category', 'occurred_on'})
+        self.assertEqual(set(fields['required']), {'kind', 'amount', 'description', 'category', 'occurred_on', 'occurred_time'})
 
 
     def test_dynamic_local_clock_handles_midnight_month_year_and_leap_boundaries(self):

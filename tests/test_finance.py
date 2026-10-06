@@ -1,5 +1,5 @@
 import unittest
-from datetime import date
+from datetime import date, datetime, timezone, timedelta
 from decimal import Decimal
 from unittest.mock import patch
 
@@ -22,6 +22,30 @@ class FinanceTests(unittest.TestCase):
         for fields in [{'occurred_on':'2999-01-01'}, {'occurred_on':'2026-02-30'}, {'occurred_on':'20260115'}, {'kind':'transfer'}, {'usuario_id':9}, {'external_id':''}]:
             with self.subTest(fields=fields), self.assertRaises(ValueError):
                 validate_transaction(self.payload(**fields))
+
+    def test_time_defaults_to_current_local_clock_and_preserves_explicit_clock(self):
+        instant = datetime(2026, 10, 5, 23, 58, 17, tzinfo=timezone(timedelta(hours=-3)))
+        with patch('comet.finance.now_local', return_value=instant):
+            self.assertEqual(validate_transaction(self.payload())['occurred_time'], '23:58:17')
+            self.assertEqual(validate_transaction(self.payload(occurred_time='09:15'))['occurred_time'], '09:15:00')
+            self.assertEqual(validate_transaction(self.payload(occurred_time='00:00:01'))['occurred_time'], '00:00:01')
+            self.assertIsNone(validate_transaction(self.payload(), default_time=False)['occurred_time'])
+        for clock in ['24:00', '09:60', '12:00:60', 'abc', 930, '', '9:00']:
+            with self.subTest(clock=clock), self.assertRaises(ValueError):
+                validate_transaction(self.payload(occurred_time=clock))
+
+    def test_movements_follow_local_time_with_stable_order_and_no_midnight_date_shift(self):
+        day = date(2026, 10, 1)
+        rows = [
+            {'id': 3, 'kind': 'expense', 'amount': Decimal('20'), 'occurred_on': day, 'occurred_time': '23:30:00'},
+            {'id': 1, 'kind': 'expense', 'amount': Decimal('100'), 'occurred_on': day, 'occurred_time': '08:00:00'},
+            {'id': 2, 'kind': 'income', 'amount': Decimal('30'), 'occurred_on': day, 'occurred_time': '08:00:00'}]
+        movements = summarize(rows, day)['chart']['movements']
+        self.assertEqual([point['close'] for point in movements], [-100, -70, -90])
+        self.assertEqual(movements[0]['time'], movements[1]['time'])
+        self.assertEqual(movements[-1]['occurred_on'], '2026-10-01')
+        self.assertEqual(movements[-1]['occurred_time'], '23:30:00')
+        self.assertEqual(datetime.fromtimestamp(movements[-1]['time'], timezone.utc).day, 2)
 
     def test_summary_balance_expenses_comparison_and_daily_carry(self):
         rows = [
@@ -53,6 +77,23 @@ class FinanceTests(unittest.TestCase):
         self.assertEqual(data['summary']['balance']['amount'],'-4.25')
         self.assertEqual(data['summary']['balance']['difference'],'0.00')
         self.assertEqual(data['summary']['expense']['difference'],'-4.25')
+
+    def test_each_transaction_keeps_its_movement_even_while_balance_is_negative(self):
+        day = date(2026, 10, 1)
+        rows = [{'kind': kind, 'amount': Decimal(amount), 'occurred_on': day}
+                for kind, amount in [('expense', '100.00'), ('income', '30.00'), ('expense', '20.00'), ('income', '50.00')]]
+        rows += [{'kind': 'income', 'amount': Decimal('999.00'), 'occurred_on': day, 'deleted_at': day},
+                 {'kind': 'income', 'amount': Decimal('999.00'), 'occurred_on': date(2026, 10, 3)}]
+        data = summarize(rows, date(2026, 10, 2))
+        movements = data['chart']['movements']
+        self.assertEqual([point['open'] for point in movements], [0, -100, -70, -90])
+        self.assertEqual([point['close'] for point in movements], [-100, -70, -90, -40])
+        self.assertEqual([point['volume'] for point in movements], [100, 30, 20, 50])
+        self.assertEqual(len({point['time'] for point in movements}), 1)
+        self.assertEqual([point['close'] for point in data['chart']['points']], [-40, -40])
+        self.assertEqual(data['chart']['points'][0]['volume'], 200)
+        self.assertEqual(data['summary']['balance']['amount'], '-40.00')
+        self.assertEqual(summarize([], day)['chart']['movements'], [])
 
     def test_receive_is_parameterized_and_idempotent(self):
         with patch('comet.finance.db.cursor') as managed:

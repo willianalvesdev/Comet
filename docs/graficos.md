@@ -1,41 +1,22 @@
-# Página de gráficos
+# Gráfico financeiro
 
-Abra `graficos.html` ou o item **Gráficos** no menu lateral.
+A página Finanças usa Lightweight Charts 5.0.9, incluído em `static/js/vendor/`.
+Os dados reais vêm de `/api/finance/dashboard` e são entregues a `CometChart.setData`.
 
-## Renderização
-A implementação usa TradingView Lightweight Charts 5.0.9, incluída localmente em
-`static/js/vendor/`, com licença e NOTICE. Documentação:
-https://tradingview.github.io/lightweight-charts/
+- `points` contém os resumos diários OHLC e a movimentação total de cada dia. Alimenta a planilha e o resumo do período.
+- `movements` contém um ponto por transação ativa, ordenado por data, hora e ID. Inclui o saldo anterior, saldo resultante, valor movimentado, `occurred_on` e `occurred_time`.
+- O gráfico acrescenta um ponto com o saldo antes da primeira transação. Nenhum lançamento com data ou horário igual é descartado.
+- A posição horizontal segue a ordem das transações. As coordenadas ordinais usadas pela biblioteca não representam horários; os rótulos vêm dos dados reais.
+- A data aparece ao mudar o dia; dentro do mesmo dia, o horário aparece apenas quando muda. O hover sempre identifica o registro consultado.
+- A linha usa segmentos retos para não criar aumentos ou quedas inexistentes. As cores continuam comparando o saldo com a abertura do período.
+- A seleção compara os saldos dos registros, em ordem cronológica, mesmo ao arrastar da direita para a esquerda.
+- O zoom altera a janela horizontal. A escala lateral considera todos os valores do período selecionado, mantendo os números estáveis durante o zoom. Mudar o período ou os dados recalcula a escala.
+- Sem transações no período, o gráfico usa os saldos diários disponíveis. Sem dados, mostra o estado vazio previsto pela página.
 
-A biblioteca interna da página https://www.perplexity.ai/finance/BTCUSD não pôde
-ser confirmada: a inspeção pública foi bloqueada. Esta implementação reproduz
-o visual da referência; não afirma usar a mesma biblioteca da Perplexity.
+## Horários
 
-## Dados do site
-Não há API financeira, banco de dados nem chamadas de rede para dados.
-`static/js/chart-demo.js` fornece uma série fictícia determinística, identificada
-na interface. A moeda da demonstração é BRL.
+Novas transações sem hora explícita recebem a hora do servidor em São Paulo, no momento da gravação. A data informada é preservada. Horários explícitos usam `HH:MM` ou `HH:MM:SS` e são persistidos como `occurred_time`.
 
-Substitua a demonstração por dados próprios antes de carregar `graficos.js`:
+Alterar apenas o valor, a descrição ou a data preserva o horário existente. Repetir uma criação com o mesmo identificador não substitui o horário original. Registros antigos sem hora permanecem com `occurred_time = NULL`.
 
-```js
-window.CometChartData = {
-    currency: "BRL",
-    demo: false,
-    points: [
-        { time: 1789948800, open: 100, high: 125, low: 90, close: 120, volume: 15 }
-    ],
-    intraday: [] // opcional, mesma estrutura; usado em 1D e 5D
-};
-```
-
-Também é possível atualizar a página já carregada com
-`window.CometChart.setData(dados)`.
-`time` é um timestamp UTC em segundos. Os valores devem ser números finitos;
-o volume deve ser não negativo e high/low devem conter open/close.
-Os pontos são ordenados e timestamps repetidos ficam com o último registro.
-O intervalo é calculado em relação ao último ponto recebido, não à data do dispositivo.
-Sem intraday, 1D e 5D usam os pontos disponíveis; não são inventadas amostras.
-
-Tema e fontes são lidos das variáveis CSS existentes.
-A página inclui somente Visão geral, períodos, linha/velas e volume.
+Em uma instalação existente, um administrador MySQL deve executar `atualizar_horarios.bat` uma vez. O script adiciona somente a coluna opcional `occurred_time TIME`; não altera dados existentes nem salva a senha. Instalações novas incluem a coluna em `setup_banco.sql`.

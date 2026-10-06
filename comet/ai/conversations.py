@@ -104,7 +104,8 @@ class ConversationStore:
     @staticmethod
     def serialize_conversation(row):
         return {'id': str(row['id']), 'title': row['titulo'],
-                'updated_at': row['atualizado_em'].isoformat() + 'Z'}
+                'updated_at': row['atualizado_em'].isoformat() + 'Z',
+                'last_response_at': row['last_response_at'].isoformat() + 'Z' if row.get('last_response_at') else None}
 
     def list(self, user_id, offset=0, query=''):
         if type(offset) is not int or offset < 0:
@@ -114,7 +115,8 @@ class ConversationStore:
         query = query.strip()
         pattern = '%' + query.replace('!', '!!').replace('%', '!%').replace('_', '!_') + '%'
         with self.cursor() as database_cursor:
-            database_cursor.execute('SELECT id,titulo,atualizado_em FROM computer_conversas '
+            database_cursor.execute("SELECT id,titulo,atualizado_em,(SELECT MAX(m.atualizado_em) FROM computer_mensagens m "
+                        "WHERE m.conversa_id=computer_conversas.id AND m.estado='completed') AS last_response_at FROM computer_conversas "
                         'WHERE usuario_id=%s' + (" AND titulo LIKE %s ESCAPE '!'" if query else '') +
                         ' ORDER BY atualizado_em DESC,id DESC LIMIT 51 OFFSET %s',
                         (user_id, pattern, offset) if query else (user_id, offset))
@@ -141,6 +143,8 @@ class ConversationStore:
             conversation_id(before)
         with self.cursor() as database_cursor:
             conversation = self.owned(database_cursor, user_id, conversation_key)
+            database_cursor.execute("SELECT MAX(atualizado_em) AS last_response_at FROM computer_mensagens WHERE conversa_id=%s AND estado='completed'", (conversation_key,))
+            conversation['last_response_at'] = database_cursor.fetchone()['last_response_at']
             database_cursor.execute('SELECT id,pergunta,resposta,pensamento,estado,criado_em FROM computer_mensagens '
                         'WHERE conversa_id=%s' + (' AND id<%s' if before else '') +
                         ' ORDER BY id DESC LIMIT 31', (conversation_key, before) if before else (conversation_key,))

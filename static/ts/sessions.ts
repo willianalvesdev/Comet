@@ -4,6 +4,7 @@
     const inComputer = () => !!optionalElement(document, '.computer-page', HTMLElement);
     const items = new Map<string,Conversation>();
     let drawn = false;
+    let hasMoreChats = false;
     let selected = new URL(location.href).searchParams.get('conversation'), busy = false, nextOffset: number | null = null, target: Conversation | null = null, opener: HTMLElement | null = null;
     const section = document.createElement('details');
     section.className = 'sessions'; section.open = true;
@@ -12,6 +13,25 @@
     const stateKey = 'ascenda-sidebar-' + optionalElement(document, '[data-user-id]', HTMLElement)?.dataset.userId;
     let savedState: Record<string,unknown> = {};
     try { savedState = record(JSON.parse(sessionStorage.getItem(stateKey) || '{}')); } catch {}
+    const readKey = stateKey + '-read';
+    let readResponses: Record<string,unknown> = {};
+    try { readResponses = record(JSON.parse(localStorage.getItem(readKey) || '{}')); } catch {}
+    function isUnread(chat: Conversation) {
+        const seen = readResponses[chat.id];
+        return !!chat.last_response_at && (typeof seen !== 'string' || chat.last_response_at > seen);
+    }
+    function markRead(id: string, version?: string | null) {
+        const stamp = version ?? items.get(id)?.last_response_at ?? pins[id]?.last_response_at;
+        if (!stamp || (typeof readResponses[id] === 'string' && String(readResponses[id]) >= stamp)) return;
+        readResponses[id] = stamp;
+        try { localStorage.setItem(readKey, JSON.stringify(readResponses)); } catch {}
+        draw(); window.dispatchEvent(new Event('sessions:read'));
+    }
+    window.addEventListener('storage', event => {
+        if (event.key !== readKey) return;
+        try { readResponses = record(JSON.parse(event.newValue || '{}')); } catch { return; }
+        draw(); window.dispatchEvent(new Event('sessions:read'));
+    });
     let pins: Record<string,Conversation> = {};
     try { pins = Object.fromEntries(Object.entries(record(JSON.parse(localStorage.getItem(pinKey) || '{}'))).map(([id,item])=>[id,conversationData(item)])); } catch {}
     const pinned = document.createElement('details');
@@ -153,7 +173,7 @@
     const menu = document.createElement('div');
     menu.className = 'sessions-menu'; menu.id = 'sessions-menu'; menu.setAttribute('popover','auto');
     menu.setAttribute('aria-label','Opções da conversa');
-    menu.innerHTML = '<button type="button" data-action="pin"><i class="sessions-icon sessions-icon--pin" aria-hidden="true"></i><span>Fixar</span></button><button type="button" data-action="rename"><i class="sessions-icon sessions-icon--rename" aria-hidden="true"></i>Renomear</button><button type="button" class="sessions-menu__delete" data-action="delete"><i class="sessions-icon sessions-icon--delete" aria-hidden="true"></i>Apagar</button>';
+    menu.innerHTML = '<button type="button" data-action="pin"><i class="sessions-icon sessions-icon--pin" aria-hidden="true"></i><span>Fixar</span></button><button type="button" data-action="rename"><i class="sessions-icon sessions-icon--rename" aria-hidden="true"></i>Renomear</button><button type="button" data-action="read"><i class="sessions-icon sessions-icon--read" aria-hidden="true"></i>Marcar como lida</button><button type="button" class="sessions-menu__delete" data-action="delete"><i class="sessions-icon sessions-icon--delete" aria-hidden="true"></i>Apagar</button>';
     requiredElement(document, '.sidebar', HTMLElement).append(menu);
     const dialog = document.createElement('dialog');
     dialog.className = 'sessions-dialog';
@@ -230,7 +250,10 @@
         const recentRows = document.createDocumentFragment(), pinnedRows = document.createDocumentFragment();
         const combined = new Map([...Object.values(pins).map(item => [item.id, item] satisfies [string,Conversation]), ...items]);
         const chats = [...combined.values()];
-        for (const item of [...chats.filter(chat => pins[chat.id]), ...sortedRecent(chats.filter(chat => !pins[chat.id]))]) {
+        const recentChats = sortedRecent(chats.filter(chat => !pins[chat.id]));
+        more.textContent = recentChats.length >= 20 ? 'Ver Tudo' : 'Mais chats';
+        more.hidden = recentChats.length < 20 && !hasMoreChats;
+        for (const item of [...chats.filter(chat => pins[chat.id]), ...recentChats.slice(0, 20)]) {
             const row = document.createElement('div'); row.className = 'sessions__row'; row.dataset.id = item.id;
             const link = document.createElement('a'); link.className = 'sessions__link'; link.href = `/computer.html?conversation=${encodeURIComponent(item.id)}`;
             link.title = item.title;
@@ -261,6 +284,7 @@
             options.innerHTML = '<i class="sessions-icon sessions-icon--more" aria-hidden="true"></i>';
             options.setAttribute('aria-label', `Opções de ${item.title}`); options.setAttribute('aria-expanded','false'); options.setAttribute('aria-controls',menu.id); options.disabled = busy;
             options.addEventListener('click', () => openOptions(item, options));
+            if (isUnread(item)) { const dot = document.createElement('span'); dot.className = 'sessions__unread'; dot.setAttribute('role','img'); dot.setAttribute('aria-label','Resposta não lida'); row.append(dot); }
             row.append(link,options); (pins[item.id] ? pinnedRows : recentRows).append(row);
             if (pins[item.id]) pins[item.id] = item;
         }
@@ -275,6 +299,7 @@
     menu.addEventListener('click', event => {
         const button = eventElement(event.target)?.closest('button'); if (!button || !target) return;
         action = button.dataset.action; menu.hidePopover();
+        if (action === 'read') { markRead(target.id, target.last_response_at); return; }
         if (action === 'pin') {
             if (pins[target.id]) delete pins[target.id]; else pins[target.id] = target;
             savePins(); draw(); emit('pins'); return;
@@ -314,6 +339,7 @@
     requiredElement(section, '.sessions__tools', HTMLElement).addEventListener('click', async event => {
         const button = eventElement(event.target)?.closest('button'); if (!button || busy) return;
         const command=button.dataset.action;
+        if (command === 'more' && list.children.length >= 20) { window.WorkspaceNavigation.go('/recentes.html'); return; }
         if (inComputer()) { emit(command); if (command==='new') closeMobile(); }
         else if(command==='new') window.WorkspaceNavigation.go('/computer.html?new=1');
         else await load(command==='more');
@@ -322,7 +348,7 @@
         const unchanged = !append && JSON.stringify([...items.values()]) === JSON.stringify(data);
         if (!append) items.clear(); data.forEach(item=>items.set(item.id,item));
         requiredElement(section, '[data-action="refresh"]', HTMLElement).hidden=true;
-        more.hidden=!hasMore; if (!unchanged || !drawn) draw();
+        hasMoreChats = hasMore; more.hidden = list.children.length < 20 && !hasMore; if (!unchanged || !drawn) draw();
     }
     function markSelected(link: HTMLElement, active: boolean) {
         if(active===link.hasAttribute('aria-current'))return;
@@ -343,7 +369,7 @@
         catch(failure) { status.textContent='Não foi possível carregar os chats.'; requiredElement(section, '[data-action="refresh"]', HTMLElement).hidden=false; }
         finally { setBusy(false); }
     }
-    window.ComputerSessions={render,select,setBusy,openOptions,request,isPinned:id=>!!pins[id]};
+    window.ComputerSessions={isUnread,markRead,render,select,setBusy,openOptions,request,isPinned:id=>!!pins[id]};
     if (Array.isArray(savedState.chats)) {
         nextOffset = typeof savedState.nextOffset === 'number' ? savedState.nextOffset : null;
         render(arrayValue(savedState.chats,conversationData), false, nextOffset !== null);
@@ -370,7 +396,7 @@
         if (!event.detail.deleted) return;
         items.delete(event.detail.id); delete pins[event.detail.id]; savePins(); draw();
     });
-    window.addEventListener('workspace:navigated', () => { select(new URL(location.href).searchParams.get('conversation')); if (!inComputer() && !items.size) load(); });
+    window.addEventListener('workspace:navigated', () => { select(new URL(location.href).searchParams.get('conversation')); if (!inComputer() && !busy) load(); });
     if (!inComputer()) {
         load();
         window.addEventListener('online',()=>{if(!busy)load();});

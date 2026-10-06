@@ -76,6 +76,13 @@
                   "null"
                 ],
                 "maxLength": 10
+              },
+              "occurred_time": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "maxLength": 8
               }
             },
             "required": [
@@ -83,7 +90,8 @@
               "amount",
               "description",
               "category",
-              "occurred_on"
+              "occurred_on",
+              "occurred_time"
             ]
           }
         },

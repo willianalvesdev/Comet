@@ -8,6 +8,7 @@ from unittest.mock import patch
 from uuid import uuid4
 
 from flask import g
+from mysql.connector import IntegrityError
 from comet import create_app
 
 
@@ -22,7 +23,7 @@ class FinanceExecutionIntegrationTests(unittest.TestCase):
             CREATE TABLE finance_transactions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT, usuario_id INTEGER NOT NULL,
                 external_id TEXT NOT NULL, kind TEXT NOT NULL, amount TEXT NOT NULL,
-                description TEXT NOT NULL, category TEXT NOT NULL, occurred_on TEXT NOT NULL,
+                description TEXT NOT NULL, category TEXT NOT NULL, occurred_on TEXT NOT NULL, occurred_time TEXT NULL,
                 deleted_at TEXT NULL, UNIQUE(usuario_id, external_id));
             CREATE TABLE finance_operations (usuario_id INTEGER, operation_id TEXT,
                 request_hash TEXT, result TEXT NULL, PRIMARY KEY(usuario_id, operation_id));
@@ -52,7 +53,12 @@ class FinanceExecutionIntegrationTests(unittest.TestCase):
                 statements.append((sql, values))
                 translated = sql.replace('%s', '?').replace(' FOR UPDATE', '').replace('UTC_TIMESTAMP(6)', "'2026-10-01 12:00:00.000001'")
                 translated = translated.replace('ON DUPLICATE KEY UPDATE operation_id=VALUES(operation_id)', 'ON CONFLICT(usuario_id,operation_id) DO NOTHING')
-                self.current = connection.execute(translated, tuple(str(v) if isinstance(v, (Decimal, date)) else v for v in values))
+                try:
+                    self.current = connection.execute(translated, tuple(str(v) if isinstance(v, (Decimal, date)) else v for v in values))
+                except sqlite3.IntegrityError as error:
+                    if 'UNIQUE constraint failed' in str(error):
+                        raise IntegrityError(errno=1062) from error
+                    raise
                 self.lastrowid = self.current.lastrowid
             def convert(self, row):
                 if row is None:
@@ -223,7 +229,7 @@ class FinanceExecutionIntegrationTests(unittest.TestCase):
         created = self.events()[0]
         self.assertEqual(created['event'], 'TRANSACTION_CREATED')
         self.assertIsNone(created['before'])
-        self.assertEqual(created['after'], self.transaction())
+        self.assertEqual(created['after'], {**self.transaction(), 'occurred_time': self.listing()[0]['occurred_time']})
         response = self.execute([self.operation('update', identifier, changes={'amount':'95.00', 'category':'Mercado', 'description':'Mercado'})])
         self.assertEqual(response.status_code, 200)
         updated = self.events()[-1]
@@ -290,6 +296,27 @@ class FinanceExecutionIntegrationTests(unittest.TestCase):
         self.assertEqual(self.client.get('/api/finance/dashboard').json, before)
         self.assertEqual(self.listing()[0]['amount'], '80.00')
 
+    def test_transaction_time_survives_edits_retries_and_restore(self):
+        with patch('comet.finance.now_local', return_value=datetime.fromisoformat('2026-10-02T09:45:17-03:00')):
+            identifier = self.create()
+        self.assertEqual(self.listing()[0]['occurred_time'], '09:45:17')
+        response = self.execute([self.operation('update', identifier, changes={'amount':'90.00'})])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.listing()[0]['occurred_time'], '09:45:17')
+        self.assertEqual(self.execute([self.operation('update', identifier, changes={'occurred_time':'07:20'})]).status_code, 200)
+        self.assertEqual(self.listing()[0]['occurred_time'], '07:20:00')
+        self.assertEqual(self.execute([self.operation('delete', identifier)]).status_code, 200)
+        self.assertEqual(self.execute([{'type':'restore','transaction_ids':[identifier]}]).status_code, 200)
+        self.assertEqual(self.listing()[0]['occurred_time'], '07:20:00')
+        payload = {**self.transaction(), 'external_id':'clock-retry'}
+        with patch('comet.finance.now_local', return_value=datetime.fromisoformat('2026-10-02T10:00:00-03:00')):
+            created = self.client.post('/api/finance/transactions', json=payload)
+        with patch('comet.finance.now_local', return_value=datetime.fromisoformat('2026-10-02T11:00:00-03:00')):
+            retried = self.client.post('/api/finance/transactions', json=payload)
+        self.assertEqual(created.status_code, 201)
+        self.assertEqual(retried.status_code, 200)
+        self.assertEqual(created.json['transaction']['occurred_time'], retried.json['transaction']['occurred_time'])
+
     def test_income_expense_trash_and_restore_recompute_the_same_month_and_chart(self):
         income = self.create(kind='income', amount='1500.00', occurred_on='2026-10-01')
         expense = self.create(amount='67.25', occurred_on='2026-10-01')
@@ -298,16 +325,19 @@ class FinanceExecutionIntegrationTests(unittest.TestCase):
         self.assertEqual(original['summary']['income']['amount'], '1500.00')
         self.assertEqual(original['summary']['expense']['amount'], '67.25')
         self.assertEqual(original['chart']['points'][-1]['close'], 1432.75)
+        self.assertEqual([point['close'] for point in original['chart']['movements']], [1500.0, 1432.75])
         self.assertEqual(self.execute([self.operation('delete', expense)]).status_code, 200)
         without_expense = self.client.get('/api/finance/dashboard').json
         self.assertEqual(without_expense['summary']['balance']['amount'], '1500.00')
         self.assertEqual(without_expense['summary']['expense']['amount'], '0.00')
         self.assertEqual(without_expense['chart']['points'][-1]['close'], 1500.0)
+        self.assertEqual([point['close'] for point in without_expense['chart']['movements']], [1500.0])
         self.assertEqual(self.execute([self.operation('delete', income)]).status_code, 200)
         empty = self.client.get('/api/finance/dashboard').json
         self.assertEqual(empty['summary']['balance']['amount'], '0.00')
         self.assertEqual(empty['summary']['income']['amount'], '0.00')
         self.assertEqual(empty['chart']['points'], [])
+        self.assertEqual(empty['chart']['movements'], [])
         self.assertEqual(self.execute([{'type': 'restore', 'transaction_ids': [income, expense]}]).status_code, 200)
         self.assertEqual(self.client.get('/api/finance/dashboard').json, original)
         self.assertEqual({row['id'] for row in self.listing()}, {income, expense})

@@ -1,4 +1,4 @@
-type FinancialAIFields = {[K in keyof TransactionFields]: TransactionFields[K] | null};
+type FinancialAIFields = {[K in keyof TransactionFields]-?: Exclude<TransactionFields[K], undefined> | null};
 interface FinancialAIAction {
     type: FinancialAction['type'];
     transactionId: string | null;
@@ -39,11 +39,12 @@ function financialAIResponse(value: unknown): FinancialAIResponse {
         const action = financialExactRecord(value, ['type','transactionId','fields']);
         const type = action.type;
         if (type !== 'create' && type !== 'update' && type !== 'delete' && type !== 'restore' && type !== 'permanent_delete') throw new Error('Operação de interpretação inválida.');
-        const fields = financialExactRecord(action.fields, ['kind','amount','description','category','occurred_on']);
+        const rawFields = record(action.fields);
+        const fields = financialExactRecord(rawFields, ['kind','amount','description','category','occurred_on', ...(Object.hasOwn(rawFields,'occurred_time') ? ['occurred_time'] : [])]);
         if (fields.kind !== null && fields.kind !== 'income' && fields.kind !== 'expense') throw new Error('Tipo de transação inválido.');
         return {type, transactionId:financialNullableText(action.transactionId,20), fields:{
             kind:fields.kind, amount:financialNullableText(fields.amount,15), description:financialNullableText(fields.description,200),
-            category:financialNullableText(fields.category,80), occurred_on:financialNullableText(fields.occurred_on,10)
+            category:financialNullableText(fields.category,80), occurred_on:financialNullableText(fields.occurred_on,10), occurred_time:financialNullableText(fields.occurred_time ?? null,8)
         }};
     });
     const clarification = financialNullableText(data.clarification,500);
@@ -73,6 +74,7 @@ function financialAISnapshot(value: unknown): FinancialAISnapshot {
 }
 
 function financialHasAmountEvidence(text: string, today: string): boolean {
+    text = text.replace(financialClockPattern, ' ');
     const dated = extractFinancialDate(normalizeFinancialInput(text), today);
     const value = dated?.text ?? text.replace(/\bdia\s+\d+|\b\d{1,2}\/\d{1,2}(?:\/\d{2,4})?|\b\d{4}-\d{2}-\d{2}\b/gi, '');
     const words = /\b(?:dois|duas|tr[eê]s|quatro|cinco|seis|sete|oito|nove|dez|onze|doze|treze|catorze|quatorze|quinze|dezesseis|dezessete|dezoito|dezenove|vinte|trinta|quarenta|cinquenta|sessenta|setenta|oitenta|noventa|cem|cento|duzentos|trezentos|quatrocentos|quinhentos|seiscentos|setecentos|oitocentos|novecentos|mil|milh[aã]o|milh[oõ]es)\b|\b(?:um|uma)\s+(?:real|conto|centavo)\b/i;
@@ -117,12 +119,13 @@ function financialAIActions(response: FinancialAIResponse, snapshot: FinancialAI
             if (!/^\d{1,12}\.\d{2}$/.test(fields.amount) || financialCents(fields.amount) <= 0n || !financialHasAmountEvidence(source,snapshot.currentDate)) throw new Error('Qual foi o valor exato em reais?');
         }
         if (fields.occurred_on !== null && (!financialValidDate(fields.occurred_on) || fields.occurred_on > snapshot.currentDate)) throw new Error('Qual foi a data válida dessa transação?');
+        if (fields.occurred_time !== null && !/^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(fields.occurred_time)) throw new Error('Qual foi o horário da transação?');
         if (fields.category !== null && fields.category !== '' && !snapshot.availableCategories.includes(fields.category)) throw new Error('Informe uma categoria existente ou deixe sem categoria.');
         if (fields.description !== null && !fields.description.trim()) throw new Error('Qual é a descrição da transação?');
         if (type === 'create') {
             if (transactionId !== null) throw new Error('Uma criação não pode escolher um ID.');
             if (fields.kind === null || fields.amount === null || fields.description === null || fields.occurred_on === null) throw new Error('Informe o tipo, valor, descrição e data necessários para registrar a transação.');
-            return {type, transaction:{kind:fields.kind,amount:fields.amount,description:fields.description,category:fields.category ?? '',occurred_on:fields.occurred_on}};
+            return {type, transaction:{kind:fields.kind,amount:fields.amount,description:fields.description,category:fields.category ?? '',occurred_on:fields.occurred_on,...(fields.occurred_time !== null ? {occurred_time:fields.occurred_time} : {})}};
         }
         if (transactionId === null || ids.has(transactionId)) throw new Error('Selecione uma transação real, sem repetir o mesmo registro.');
         ids.add(transactionId);
@@ -141,8 +144,10 @@ function financialAIActions(response: FinancialAIResponse, snapshot: FinancialAI
             if (fields.description !== null) changes.description = fields.description;
             if (fields.category !== null) changes.category = fields.category;
             if (fields.occurred_on !== null) changes.occurred_on = fields.occurred_on;
+            if (fields.occurred_time !== null) changes.occurred_time = fields.occurred_time;
             if (changes.amount !== undefined) return {type,transaction_ids,changes:{...changes,amount:changes.amount}};
             if (changes.occurred_on !== undefined) return {type,transaction_ids,changes:{...changes,occurred_on:changes.occurred_on}};
+            if (changes.occurred_time !== undefined) return {type,transaction_ids,changes:{...changes,occurred_time:changes.occurred_time}};
             if (changes.description !== undefined) return {type,transaction_ids,changes:{...changes,description:changes.description}};
             if (changes.kind !== undefined) return {type,transaction_ids,changes:{...changes,kind:changes.kind}};
             if (changes.category !== undefined) return {type,transaction_ids,changes:{...changes,category:changes.category}};

@@ -1,6 +1,6 @@
 (() => {
     const factories = new Map<string, PageFactory>(), disposers: (() => void)[] = [], scripts = new Map<string, Promise<void>>();
-    const routes = new Set(['/computer.html', '/graficos.html', '/descobrir.html', '/recentes.html', '/principal.html']);
+    const routes = new Set(['/computer.html', '/graficos.html', '/descobrir.html', '/aprender.html', '/recentes.html', '/principal.html']);
     let navigating = false, navigation: AbortController | null = null;
     function mount(factory: PageFactory) {
         const controller = new AbortController(), cleanups: (()=>void)[] = [], nodes: (HTMLElement | SVGElement)[] = [], timers = new Set<number>(), frames = new Set<number>();
@@ -84,7 +84,7 @@
             if (controller.signal.aborted) return;
             const desiredStyles = new Set(styles.map(link => new URL(link.getAttribute('href') ?? '', url).href));
             elementList(document, 'link[rel="stylesheet"]', HTMLLinkElement).forEach(link => {
-                if (/\/(home|computer|graficos|news|recent-chats)\.css$/.test(new URL(link.href).pathname)) link.disabled = !desiredStyles.has(link.href);
+                if (/\/(home|computer|graficos|news|recent-chats|aprender)\.css$/.test(new URL(link.href).pathname)) link.disabled = !desiredStyles.has(link.href);
             });
             while (disposers.length) disposers.pop()?.();
             await Promise.resolve();

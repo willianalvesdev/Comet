@@ -142,7 +142,8 @@ function resolveFinancialClarification(input: string, context: FinancialContext)
         if (change && 'amount' in change && change.amount && draft.kind && draft.description && draft.description.length <= 200 &&
             typeof draft.category === 'string' && draft.occurred_on && financialValidDate(draft.occurred_on) && today && draft.occurred_on <= today) {
             return {status: 'resolved', actions: [{type: 'create', transaction: {
-                kind: draft.kind, amount: change.amount, description: draft.description, category: draft.category, occurred_on: draft.occurred_on
+                kind: draft.kind, amount: change.amount, description: draft.description, category: draft.category, occurred_on: draft.occurred_on,
+                ...(draft.occurred_time ? {occurred_time:draft.occurred_time} : {})
             }}]};
         }
         return {status: 'needs_clarification', clarification: {...pending, question: 'Qual foi o valor exato em reais? Se houver vários valores, reformule o pedido completo.'}};

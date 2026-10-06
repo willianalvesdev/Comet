@@ -28,6 +28,8 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
         note.textContent = errorMessage(error); recover = action; scheduleRecovery();
     }
 
+    const studyQuestion = new URL(location.href).searchParams.has('study') ? window.CometStudyQuestion : undefined;
+    let studyQuestionSent = false;
     const sessions = window.ComputerSessions;
     const models = window.ComputerModels;
     const olderButton = requiredElement(page, '.computer-history__older', HTMLButtonElement);
@@ -268,6 +270,7 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
     function showConversation() {
         present(conversation).hidden = !present(conversation).childElementCount;
         present(page).classList.toggle('has-conversation', !present(conversation).hidden);
+        resizeInput();
     }
     function remember(id: string | null, title?: string) {
         if (leaving) return;
@@ -372,6 +375,7 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
                 turns = [...turns.filter(turn => !updatedIds.has(turn.id)), ...result.turns];
                 remoteActive = result.active;
                 renderTurns(turns, true);
+                if (!document.hidden) sessions.markRead(id, result.conversation.last_response_at);
                 note.textContent = remoteActive ? 'Resposta em andamento…' : '';
             } catch (error) {
                 if (currentId !== id || revision !== version || leaving) return;
@@ -399,6 +403,7 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
             olderButton.hidden = !before;
             remoteActive = result.active;
             renderTurns(turns);
+            if (!document.hidden) sessions.markRead(id, result.conversation.last_response_at);
             ready = true;
             resetRecovery();
             present(input).value = '';
@@ -442,6 +447,17 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
         } catch (error) {
             recovery(error);
         } finally { loading = false; controls(); }
+        if (ready && !leaving && studyQuestion && !studyQuestionSent && !currentId) {
+            studyQuestionSent = true;
+            delete window.CometStudyQuestion;
+            models.select(studyQuestion.provider);
+            window.ComputerAttachments.restore(studyQuestion.attachments);
+            const webToggle = optionalElement(document, '.web-search-toggle', HTMLButtonElement);
+            webToggle?.setAttribute('aria-pressed', 'true');
+            present(input).value = studyQuestion.message;
+            present(input).dispatchEvent(new Event('input', {bubbles:true}));
+            void submitMessage();
+        }
     }
     scope.listen(window, 'attachments:changed',controls);
     scope.listen(window, 'sessions:open', event => { if (!loading && !active) loadConversation(event.detail.id); });
@@ -589,7 +605,7 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
         } finally {
             clearTimeout(timeout); if(active===controller)active = null; controls();
             if (currentRequest()) {
-                try { await listConversations(); } catch (error) { recovery(error); }
+                try { await listConversations(); if (!document.hidden && currentId) sessions.markRead(currentId); } catch (error) { recovery(error); }
                 present(input).focus({ preventScroll: true });
             }
         }
@@ -626,6 +642,7 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
                 if (JSON.stringify(merged) !== JSON.stringify(turns)) {
                     const follow = followingLatest; turns = merged; renderTurns(turns, true); if (follow) scrollToLatest();
                 }
+                if (!document.hidden) sessions.markRead(id, result.conversation.last_response_at);
                 remoteActive = result.active; controls(); schedulePoll();
             }
             if (recover === syncHistory) note.textContent = '';
@@ -636,12 +653,14 @@ window.WorkspaceNavigation.page('/static/js/computer.js', ({scope, setTimeout, s
     scope.listen(window, 'online', syncHistory);
     scope.listen(document, 'visibilitychange', syncHistory);
     function resizeInput() {
+        const started = present(page).classList.contains('has-conversation');
+        present(input).rows = started ? 1 : 2;
         const style = getComputedStyle(present(input));
         const line = parseFloat(style.lineHeight) || 24;
         const rows = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--composer-max-lines')) || 10;
         const limit = line * rows + parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
         present(input).style.height = 'auto';
-        present(input).style.height = Math.max(38, Math.min(present(input).scrollHeight, limit)) + 'px';
+        present(input).style.height = Math.max(started ? line + parseFloat(style.paddingTop) + parseFloat(style.paddingBottom) : 38, Math.min(present(input).scrollHeight, limit)) + 'px';
         present(input).style.overflowY = present(input).scrollHeight > limit ? 'auto' : 'hidden';
         controls();
     }

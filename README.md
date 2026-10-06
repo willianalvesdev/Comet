@@ -318,3 +318,17 @@ eventos. Os eventos são apenas auditoria/debug/apoio à recuperação, sem part
 saldos ou gráficos. Detalhes em [interpretação financeira](docs/financial-interpretation.md).
 
 A marca e o pacote Python agora são Comet (`comet`). Instalações existentes continuam usando os valores de banco do `.env`; chaves antigas de sessão, preferências e formatos de anexos/respostas são mantidas para compatibilidade. Serrif e Geist foram removidas; Kalice permanece para títulos e respostas serifadas, e Saans para interface e números.
+
+### Troca automática do Gemini
+
+Quando o Gemini retorna HTTP 429 antes de começar a resposta, o Comet tenta
+`gemini-2.5-flash` e depois `gemini-2.5-flash-lite`, mantendo a pergunta, o histórico,
+os anexos e a pesquisa. A mesma regra vale para a interpretação financeira.
+`GEMINI_FALLBACK_MODELS` permite configurar a ordem (separada por vírgulas);
+um valor vazio desativa a troca. O padrão funciona sem editar o `.env`.
+Cada modelo é tentado uma vez por pedido, dentro do prazo total existente.
+Não há troca após começar a transmitir, nem para falhas de autenticação,
+bloqueios de segurança ou respostas inválidas. Se todos atingirem o limite,
+o erro de cota é mantido. Reinicie o Comet para carregar mudanças no servidor.
+As cotas continuam sendo as do projeto Google; a troca não renova cotas nem
+altera faturamento. Projetos pagos seguem os preços da própria conta.

@@ -4,7 +4,7 @@ import re
 from uuid import UUID
 
 from . import db
-from .finance import validate_transaction
+from .finance import transaction_time, validate_transaction
 from .finance_audit import record_event, utc_now
 
 
@@ -48,7 +48,7 @@ def validate_actions(payload):
         seen.update(ids)
         if kind == 'update':
             changes = action['changes']
-            if not isinstance(changes, dict) or not changes or set(changes) - {'kind', 'amount', 'description', 'category', 'occurred_on'}:
+            if not isinstance(changes, dict) or not changes or set(changes) - {'kind', 'amount', 'description', 'category', 'occurred_on', 'occurred_time'}:
                 raise ValueError('Alterações inválidas.')
     if not bulk_lifecycle and len(seen) > 100:
         raise ValueError('Limite de 100 transações por pedido.')
@@ -77,6 +77,7 @@ def execute_financial_actions(user_id, payload):
             row = cursor.fetchone()
             if row is None:
                 raise FinancialConflict('A transação não está mais disponível nesta conta. Atualize os dados.')
+            row['occurred_time'] = transaction_time(row)
             deleted = row['deleted_at'] is not None
             if kind in ('update', 'delete') and deleted:
                 raise FinancialConflict('Esta transação está na lixeira. Restaure antes de alterá-la.')
@@ -85,15 +86,15 @@ def execute_financial_actions(user_id, payload):
             targets[identifier] = row
             if kind == 'update':
                 current = {**row, 'amount': format(row['amount'], '.2f'), 'occurred_on': row['occurred_on'].isoformat()}
-                updates[identifier] = validate_transaction({**{key: current[key] for key in ('external_id', 'kind', 'amount', 'description', 'category', 'occurred_on')}, **action['changes']})
+                updates[identifier] = validate_transaction({**{key: current[key] for key in ('external_id', 'kind', 'amount', 'description', 'category', 'occurred_on', 'occurred_time')}, **action['changes']}, default_time=False)
         operations = []
         for index, action in enumerate(actions):
             kind = action['type']
             ids = []
             if kind == 'create':
                 values = validate_transaction({**action['transaction'], 'external_id': f'{operation_id}:{index}'})
-                cursor.execute('INSERT INTO finance_transactions (usuario_id, external_id, kind, amount, description, category, occurred_on) VALUES (%s,%s,%s,%s,%s,%s,%s)',
-                               (user_id, *(values[field] for field in ('external_id', 'kind', 'amount', 'description', 'category', 'occurred_on'))))
+                cursor.execute('INSERT INTO finance_transactions (usuario_id, external_id, kind, amount, description, category, occurred_on, occurred_time) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)',
+                               (user_id, *(values[field] for field in ('external_id', 'kind', 'amount', 'description', 'category', 'occurred_on', 'occurred_time'))))
                 identifier = str(cursor.lastrowid)
                 record_event(cursor, user_id, operation_id, identifier, 'TRANSACTION_CREATED', None,
                              {key: value for key, value in values.items() if key != 'external_id'})
@@ -105,8 +106,8 @@ def execute_financial_actions(user_id, payload):
                     before, after = None, None
                     if kind == 'update':
                         values = updates[identifier]
-                        cursor.execute('UPDATE finance_transactions SET kind=%s, amount=%s, description=%s, category=%s, occurred_on=%s WHERE usuario_id=%s AND id=%s',
-                                       (*(values[field] for field in ('kind', 'amount', 'description', 'category', 'occurred_on')), user_id, identifier))
+                        cursor.execute('UPDATE finance_transactions SET kind=%s, amount=%s, description=%s, category=%s, occurred_on=%s, occurred_time=%s WHERE usuario_id=%s AND id=%s',
+                                       (*(values[field] for field in ('kind', 'amount', 'description', 'category', 'occurred_on', 'occurred_time')), user_id, identifier))
                         changed = [key for key in values if key != 'external_id' and row[key] != values[key]]
                         before = {key: row[key] for key in changed}
                         after = {key: values[key] for key in changed}

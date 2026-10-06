@@ -1,0 +1,41 @@
+.study-page { width: min(1200px, 75%); height: calc(100svh - var(--header-height)); margin: 0 auto; padding: 24px 0; display: grid; grid-template-rows: minmax(80px, 1fr) auto auto auto; gap: 28px; }
+.study-title { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 0; font-size: clamp(30px, 5.8svh, 52px); font-weight: 400; line-height: 1.2; color: var(--text); }
+.study-logo { width: 3.9em; height: .9em; background: var(--text); mask: url('../img/logos/comet-wordmark.svg') center/contain no-repeat; flex-shrink: 0; }
+.workspace .study-page .study-composer { padding: 20px 16px 14px; }
+.study-page .home__input { resize: none; min-height: 70px; }
+.study-page .home__send:disabled { opacity: .4; cursor: default; }
+.study-page .attachment-status:empty { display: none; }
+.study-page .attachment-status:not(:empty) { display: block; color: var(--text-secondary); font-size: var(--font-size-4); margin-bottom: 8px; }
+.study-categories { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 0; }
+.study-categories > span { display: flex; justify-content: center; align-items: center; gap: 8px; height: 40px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; font-size: var(--font-size-4); }
+.study-topics-heading { display: flex; align-items: center; justify-content: space-between; min-height: 34px; margin-bottom: 18px; }
+.study-topics h2 { font-size: var(--font-size-3); font-weight: 400; }
+.study-carousel { position: relative; }
+.study-list-controls { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.study-list-controls button { position: absolute; top: 50%; transform: translateY(-50%); pointer-events: auto; display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 50%; background: var(--surface); color: var(--text); opacity: 1; visibility: visible; transition: opacity 300ms ease, visibility 0s; }
+.study-list-controls [data-topic-direction="-1"] { left: -20px; }
+.study-list-controls [data-topic-direction="1"] { right: -20px; }
+.study-list-controls button:disabled { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 300ms ease, visibility 0s 300ms; }
+.study-topic-list { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; list-style: none; padding: 0; margin: 0; }
+.study-topic-list::-webkit-scrollbar { display: none; }
+.study-topic-list li { display: flex; align-items: flex-end; flex: 0 0 calc((100% - 24px) / 3); min-height: 0; height: clamp(140px, 27svh, 250px); padding: 22px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); scroll-snap-align: start; font-size: var(--font-size-3); }
+.study-page :is(button, .study-topic-list):focus-visible { outline: 2px solid var(--border-focus); outline-offset: 3px; }
+@media (min-width: 900px) and (max-height: 800px) {
+    .study-page { padding: 16px 0; gap: 20px; }
+    .workspace .study-page .study-composer { padding: 12px 16px; }
+    .study-page .home__input { min-height: 38px; }
+    .study-categories > span { height: 32px; padding-block: 4px; }
+    .study-topics-heading { min-height: 28px; margin-bottom: 12px; }
+}
+@media (width < 900px) { .study-page { width: calc(100% - 48px); height: auto; display: block; padding: 40px 0; } .study-title { margin-bottom: 32px; } .study-categories { margin: 24px 0 32px; } .study-topic-list li { flex-basis: calc((100% - 12px) / 2); } .study-categories { grid-template-columns: repeat(3, 1fr); } }
+@media (width < 640px) { .study-page { width: calc(100% - 32px); padding: 24px 0; } .study-title { gap: 10px; margin: 0; font-size: 30px; } .study-logo { width: 126px; height: 30px; } .study-categories { grid-template-columns: repeat(2, 1fr); margin: 20px 0 28px; } .study-topic-list li { flex-basis: 85%; min-height: 150px; } }
+
+@media (width < 640px) {
+    .study-list-controls button { width: 32px; height: 32px; }
+    .study-list-controls [data-topic-direction="-1"] { left: -12px; }
+    .study-list-controls [data-topic-direction="1"] { right: -12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .study-list-controls button, .study-list-controls button:disabled { transition: none; }
+}

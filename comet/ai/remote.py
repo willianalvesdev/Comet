@@ -67,16 +67,21 @@ def read_structured_response(response, deadline):
 
 
 class RemoteProvider:
-    def __init__(self, name, key, model, config):
+    def __init__(self, name, key, model, config, fallback_models=()):
         if name not in ('gemini',) or not re.fullmatch(r'[A-Za-z0-9._-]{1,100}', model):
             raise ValueError('Configure um identificador de modelo válido para Gemini.')
         self.name, self.key, self.model, self.config = name, key.strip(), model, config
         self.label = 'Gemini'
+        self.fallback_models = tuple(dict.fromkeys(item for item in fallback_models if item != model))
+        if len(self.fallback_models) > 5 or any(not re.fullmatch(r'[A-Za-z0-9._-]{1,100}', item) for item in self.fallback_models):
+            raise ValueError('Configure identificadores válidos para os modelos alternativos do Gemini.')
 
     @classmethod
     def from_env(cls, name, config):
         return cls(name, os.getenv('GEMINI_API_KEY', ''),
-                   os.getenv('GEMINI_MODEL', 'gemini-3.8-flash'), config)
+                   os.getenv('GEMINI_MODEL', 'gemini-3.8-flash'), config,
+                   tuple(item.strip() for item in os.getenv('GEMINI_FALLBACK_MODELS',
+                         'gemini-2.5-flash,gemini-2.5-flash-lite').split(',') if item.strip()))
 
     def request(self, messages, search=False):
         identity = f'\nModelo desta resposta: {self.model}. Provedor: {self.label}. Processamento via API externa.'
@@ -101,7 +106,25 @@ class RemoteProvider:
         return ('generativelanguage.googleapis.com',
                 f'/v1beta/models/{self.model}:streamGenerateContent?alt=sse', headers, payload)
 
+    def attempts(self):
+        yield self
+        for model in self.fallback_models:
+            yield RemoteProvider(self.name, self.key, model, self.config)
+
     def structured(self, system, data, schema):
+        deadline = time.monotonic() + self.config.total_timeout
+        for provider in self.attempts():
+            if time.monotonic() >= deadline:
+                raise AIError('timeout', 504)
+            try:
+                return provider._structured(system, data, schema, deadline)
+            except AIError as error:
+                if error.code != 'provider_quota' or error.status != 429:
+                    raise
+                last_error = error
+        raise last_error
+
+    def _structured(self, system, data, schema, deadline):
         if not self.key:
             raise AIError('provider_missing', 503)
         payload = {'systemInstruction': {'parts': [{'text': system}]},
@@ -109,7 +132,6 @@ class RemoteProvider:
                    'generationConfig': {'temperature': 0, 'maxOutputTokens': 8192,
                                         'responseMimeType': 'application/json', 'responseJsonSchema': schema}}
         connection = http.client.HTTPSConnection('generativelanguage.googleapis.com', timeout=self.config.timeout)
-        deadline = time.monotonic() + self.config.total_timeout
         try:
             connection.request('POST', f'/v1beta/models/{self.model}:generateContent',
                                body=json.dumps(payload, ensure_ascii=False).encode(),
@@ -143,11 +165,30 @@ class RemoteProvider:
             connection.close()
 
     def stream(self, messages, search=False):
+        deadline = time.monotonic() + self.config.total_timeout
+        for provider in self.attempts():
+            if time.monotonic() >= deadline:
+                raise AIError('timeout', 504)
+            emitted = False
+            source = provider._stream(messages, search, deadline)
+            try:
+                for event in source:
+                    emitted = True
+                    yield event
+                return
+            except AIError as error:
+                if emitted or error.code != 'provider_quota' or error.status != 429:
+                    raise
+                last_error = error
+            finally:
+                source.close()
+        raise last_error
+
+    def _stream(self, messages, search, deadline):
         if not self.key:
             raise AIError('provider_missing', 503)
         host, path, headers, payload = self.request(messages, search=search)
         connection = http.client.HTTPSConnection(host, timeout=self.config.timeout)
-        deadline = time.monotonic() + self.config.total_timeout
         answer = thinking = 0
         complete = False
         try:

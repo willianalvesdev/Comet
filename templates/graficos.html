@@ -93,7 +93,6 @@
                             <span class="chart-style__icon chart-style__icon--candles" aria-hidden="true"></span>
                         </button>
                     </div>
-                    <span class="chart-wordmark" role="img" aria-label="Comet"></span>
                 </div>
                 <div class="finance-sheet" hidden tabindex="0" role="region" aria-label="Resumos financeiros por data">
                     <table>
@@ -108,9 +107,21 @@
                     <p class="chart-empty" id="chart-state" role="status">Carregando gráfico…</p>
                 </div>
                     <div class="chart-tooltip" id="chart-tooltip" hidden aria-hidden="true">
-                        <time></time><strong></strong><small></small>
+                        <time></time>
+                        <dl class="chart-tooltip-values">
+                            <dt>Fechar</dt><dd data-tooltip-value="close"></dd>
+                            <dt>Abrir</dt><dd data-tooltip-value="open"></dd>
+                            <dt>Máxima</dt><dd data-tooltip-value="high"></dd>
+                            <dt>Mínima</dt><dd data-tooltip-value="low"></dd>
+                            <dt>Volume</dt><dd data-tooltip-value="volume"></dd>
+                        </dl>
                     </div>
                 </div>
+                <nav class="finance-sheet-pagination" aria-label="Páginas da planilha">
+                    <div><button type="button" data-sheet-page="first" aria-label="Primeira página"><i class="sheet-first" aria-hidden="true"></i></button><button type="button" data-sheet-page="previous"><i class="sheet-previous" aria-hidden="true"></i>Anterior</button></div>
+                    <span class="finance-sheet-page-label" role="status">Página 1 de 1</span>
+                    <button type="button" data-sheet-page="next">Próximo<i class="sheet-next" aria-hidden="true"></i></button>
+                </nav>
                 <dl class="chart-statistics" aria-label="Resumo do período selecionado">
                     {% for key, label in [('opening', 'Saldo inicial'), ('closing', 'Saldo final'), ('change', 'Variação'), ('high', 'Maior saldo'), ('low', 'Menor saldo'), ('volume', 'Movimentação')] %}
                     <div><dt>{{ label }}</dt><dd data-chart-stat="{{ key }}">R$ 0,00</dd></div>

@@ -1,6 +1,6 @@
 type TransactionFields = Omit<Transaction, 'external_id'>;
 type TransactionChanges = {
-    [K in keyof TransactionFields]: Pick<TransactionFields, K> & Partial<Omit<TransactionFields, K>>
+    [K in keyof TransactionFields]-?: Required<Pick<TransactionFields, K>> & Partial<Omit<TransactionFields, K>>
 }[keyof TransactionFields];
 type TransactionIds = readonly [StoredTransaction['id'], ...StoredTransaction['id'][]];
 

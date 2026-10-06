@@ -339,3 +339,11 @@
     width: 32px;
     padding: 0;
 }
+
+.recent-chats__kind { display: flex; align-items: center; gap: 10px; }
+.recent-chats__row.is-unread .recent-chats__name { font-weight: 600; }
+
+.recent-chats__row.is-unread:not(:hover):not(:focus-within):not(.has-selection *) > .recent-chats__checkbox:not(:checked) {
+    mask: none;
+    background: radial-gradient(circle, #4fa5b3 0 3.5px, transparent 4px);
+}

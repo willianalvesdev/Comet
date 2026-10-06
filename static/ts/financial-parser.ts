@@ -45,10 +45,24 @@ function extractFinancialDescription(text: string, fallback: string): string {
     return description ? description.charAt(0).toLocaleUpperCase('pt-BR') + description.slice(1) : fallback;
 }
 
+const financialClockPattern = /(?<![\p{L}\d])(?:(?:às|as|pelas)\s+)?(\d{1,2})(?::(\d{2})(?::(\d{2}))?|h(\d{2})?|\s+horas?)(?![\p{L}\d])/giu;
+
+function extractFinancialTime(input: string): {text: string; occurred_time?: string} | null {
+    const matches = [...input.matchAll(financialClockPattern)];
+    if (!matches.length) return {text:input};
+    if (matches.length !== 1) return null;
+    const match = matches[0], hours = Number(match[1]), minutes = Number(match[2] || match[4] || 0), seconds = Number(match[3] || 0);
+    if (hours > 23 || minutes > 59 || seconds > 59) return null;
+    return {text:input.replace(financialClockPattern, ' ').replace(/\s+/g,' ').trim(),
+        occurred_time:[hours,minutes,seconds].map(value => String(value).padStart(2,'0')).join(':')};
+}
+
 function parseSingleFinancialInput(input: string, context: FinancialContext, defaultDate?: string): LocalFinancialResult {
     const reject = (reason: string, issues: readonly FinancialConfidenceIssue[] = ['intent']): LocalFinancialResult => ({status: 'unrecognized', reason, issues});
     if (input.length > 1000) return reject('Descreva uma única transação simples.');
-    const text = normalizeFinancialInput(input);
+    const timed = extractFinancialTime(normalizeFinancialInput(input));
+    if (!timed) return reject('Informe um horário válido para cada transação.', ['date']);
+    const text = timed.text;
     if (context.currency && context.currency !== 'BRL') return reject('Somente valores em reais são suportados.');
     const today = financialCurrentDate(context);
     if (!today) return financialClarification(input, 'occurred_on', 'Informe uma data atual válida e o fuso horário.');
@@ -75,7 +89,7 @@ function parseSingleFinancialInput(input: string, context: FinancialContext, def
     if (candidates.length !== 1) {
         return {status: 'needs_clarification', clarification: {
             id: `financial-input:${text}`, original_text: input,
-            intent: {type: 'create', transaction: values.length === 0 ? {kind, category: '', occurred_on: dates.text === text ? defaultDate ?? dates.date : dates.date, description: extractFinancialDescription(body, kind === 'income' ? 'Recebimento' : 'Gasto')} : {kind}}, reason: 'missing_fields',
+            intent: {type: 'create', transaction: values.length === 0 ? {kind, category: '', occurred_on: dates.text === text ? defaultDate ?? dates.date : dates.date, ...(timed.occurred_time ? {occurred_time:timed.occurred_time} : {}), description: extractFinancialDescription(body, kind === 'income' ? 'Recebimento' : 'Gasto')} : {kind}}, reason: 'missing_fields',
             question: 'Qual foi o valor total em reais?', missing_fields: ['amount'], candidate_ids: []
         }};
     }
@@ -92,7 +106,8 @@ function parseSingleFinancialInput(input: string, context: FinancialContext, def
     const description = extractFinancialDescription(after || quantityPrefix.replace(verb === 'comprei' ? /^(?:um|uma|1)\s+/i : /^$/, ''), fallback);
     if (description.length > 200) return reject('Descrição muito longa.', ['description']);
     return {status: 'resolved', actions: [{type: 'create', transaction: {
-        kind, amount: money.amount, description, category: '', occurred_on: dates.text === text ? defaultDate ?? dates.date : dates.date
+        kind, amount: money.amount, description, category: '', occurred_on: dates.text === text ? defaultDate ?? dates.date : dates.date,
+        ...(timed.occurred_time ? {occurred_time:timed.occurred_time} : {})
     } }]};
 }
 
@@ -422,7 +437,7 @@ function assessFinancialConfidence(input: string, context: FinancialContext, res
 
 function parseFinancialInput(input: string, context: FinancialContext): ParserResult {
     const local = parseLocally(input, context);
-    const confidence = assessFinancialConfidence(input, context, local);
+    const confidence = assessFinancialConfidence(input.replace(financialClockPattern, ' '), context, local);
     if (local.status === 'resolved' && confidence.canExecuteLocally) return {status:'resolved',actions:local.actions,confidence};
     if (local.status === 'needs_clarification') return {status:'needs_clarification',clarification:local.clarification,confidence};
     const reason = local.status === 'unrecognized' ? local.reason : 'A relação entre os dados exige interpretação adicional. Reformule o pedido com valores e eventos separados.';

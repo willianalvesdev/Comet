@@ -549,13 +549,13 @@
 }
 .sessions__visit { margin-left: auto; }
 .sessions__visit i { mask: url('../img/icons/arrow.svg') center/contain no-repeat; transform: rotate(-45deg); }
-.sessions__preferences i { mask: url('../img/icons/settings-preferences.svg') center/contain no-repeat; }
+.sessions__preferences i { mask: url('../img/icons/sort.svg') center/contain no-repeat; }
 .sessions__chevron, .sessions__visit { opacity: 0; }
-.sessions__preferences { opacity: 1; }
+.sessions__preferences { opacity: 0; }
 .sidebar:hover :is(.sessions__chevron, .sessions__visit, .sessions__preferences),
 .sessions:has(:focus-visible) :is(.sessions__chevron, .sessions__visit, .sessions__preferences) { opacity: 1; }
 @media (hover: none) {
-    .sessions__chevron, .sessions__visit, .sessions__preferences { opacity: 1; }
+    .sessions__chevron, .sessions__visit, .sessions__preferences { opacity: 0; }
 }
 
 .sidebar .sessions__row,
@@ -577,22 +577,9 @@
 }
 :is(#recent-chats, #pinned-chats) :is(.sessions__link, .sessions-rename) {
     position: relative;
-    padding-left: calc(var(--space-2) + var(--icon-large) + 7px);
+    padding-left: var(--space-2);
 }
-:is(#recent-chats, #pinned-chats) .sessions__link::before,
-.sessions__row.is-renaming::before {
-    content: '';
-    position: absolute;
-    left: calc(var(--space-2) + (var(--icon-large) - 6px) / 2);
-    top: 50%;
-    width: 6px;
-    height: 6px;
-    box-sizing: border-box;
-    border: 1px solid var(--text-secondary);
-    border-radius: var(--radius-circle);
-    opacity: .5;
-    transform: translateY(-50%);
-}
+
 
 .sessions__more .sessions-icon--more { transform: rotate(90deg); }
 
@@ -684,5 +671,30 @@
 
 .is-renaming { background: var(--surface-selected); }
 .sessions-rename { min-width: 0; flex: 1; width: 100%; height: 40px; border: 0; outline: 0; padding: 0 12px; background: transparent; color: var(--text); font: inherit; }
-.sessions__row.is-renaming::before { pointer-events: none; z-index: 1; }
 .is-renaming .sessions__more, .is-renaming .recent-chats__row-actions { display: none; }
+
+.sessions-icon--read { mask: url('../img/icons/mark-read.svg') center/contain no-repeat; }
+.sessions__unread { position: absolute; z-index: 1; right: calc(var(--space-1) + 12px); top: calc(var(--space-1) + 12px); translate: 50% -50%; width: 7px; height: 7px; border-radius: 50%; background: #4fa5b3; box-shadow: 0 0 0 8px var(--sidebar-unread-shadow, var(--bg)), 0 0 12px 12px var(--sidebar-unread-shadow, var(--bg)); pointer-events: none; }
+.sessions__row:hover .sessions__unread,
+.sessions__row:has(:focus-visible) .sessions__unread,
+.sessions__row:has(.sessions__more[aria-expanded="true"]) .sessions__unread { visibility: hidden; }
+@media (hover: none) {
+    .sessions__row:has(.sessions__unread):not(:hover):not(:has(:focus-visible)):not(:has(.sessions__more[aria-expanded="true"])) .sessions__more { opacity: 0; }
+}
+.sessions__row:has(.sessions__unread) .sessions__title { padding-right: 40px; }
+
+:root[data-theme="light"] .sessions__unread { --sidebar-unread-shadow: #f1f0ec; }
+
+.sessions__row:has(.sessions__unread) .sessions__link {
+    mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent calc(100% - 28px));
+}
+
+.sessions__tools [data-action="more"] {
+    height: 32px;
+    padding: 0 var(--space-2);
+    font-size: var(--font-size-4);
+    line-height: 32px;
+}
+.sessions__tools [data-action="more"]:hover {
+    color: var(--text);
+}

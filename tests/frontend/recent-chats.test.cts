@@ -9,7 +9,7 @@ const python = process.env.PYTHON || path.join(root, process.platform === 'win32
 const pages:Record<string,string> = stringPages(JSON.parse(execFileSync(python, ['-c', `import json
 from jinja2 import Environment,FileSystemLoader,select_autoescape
 env=Environment(loader=FileSystemLoader('templates'),autoescape=select_autoescape(['html']))
-print(json.dumps({name:env.get_template(name).render(request={'args':{}},user={'id':7,'nome':'Teste','email':'teste@example.com'},csrf_token=lambda:'test-csrf') for name in ['recentes.html','computer.html','graficos.html','descobrir.html']}))`], {cwd:root, encoding:'utf8', env:{...process.env, PYTHONIOENCODING:'utf-8'}})));
+print(json.dumps({name:env.get_template(name).render(request={'args':{}},user={'id':7,'nome':'Teste','email':'teste@example.com'},csrf_token=lambda:'test-csrf') for name in ['recentes.html','computer.html','graficos.html','descobrir.html','aprender.html']}))`], {cwd:root, encoding:'utf8', env:{...process.env, PYTHONIOENCODING:'utf-8'}})));
 
 function testObject(value:unknown):Record<string,unknown> {
  if(typeof value!=='object'||value===null||Array.isArray(value))throw new Error('Invalid test data');
@@ -772,13 +772,22 @@ test('finanças: planilha usa dados reais, compartilha período e volta ao gráf
         assert.match(await rows.first().locator('td').nth(3).innerText(), /120,00/);
         assert.match(await rows.first().locator('td').nth(4).innerText(), /20,00/);
         assert(!(await p.locator('.chart-stage').isVisible()));
+        assert(!(await p.locator('.market-summary').isVisible()));
+        assert(!(await p.locator('.chart-statistics').isVisible()));
+        assert.equal(await p.locator('.finance-sheet-page-label').innerText(), 'Página 1 de 1');
+        assert(await p.locator('[data-sheet-page="next"]').isDisabled());
         await p.locator('[data-range="1D"]').click();
         assert.equal(await rows.count(), 1);
-        await p.screenshot({path:join(root,'artifacts/finance-sheet-desktop.png')});
+        await p.screenshot({path:path.join(root,'artifacts/finance-sheet-desktop.png')});
         await p.setViewportSize({width:390,height:844});
         assert(await p.locator('.finance-sheet').isVisible());
         assert(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-        await p.screenshot({path:join(root,'artifacts/finance-sheet-mobile.png')});
+        await p.locator('.finance-sheet').evaluate(sheet => {
+            const scroller = document.querySelector('.workspace__content');
+            if (scroller) scroller.scrollTop += sheet.getBoundingClientRect().top - 180;
+        });
+        await p.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+        await p.screenshot({path:path.join(root,'artifacts/finance-sheet-mobile.png')});
         await p.getByRole('button', {name:'Gráfico',exact:true}).click();
         assert(await p.locator('.chart-stage').isVisible());
         assert.equal(await p.locator('[data-range="1D"]').getAttribute('aria-pressed'), 'true');
@@ -786,6 +795,360 @@ test('finanças: planilha usa dados reais, compartilha período e volta ao gráf
         await p.getByRole('button', {name:'Planilha',exact:true}).click();
         assert.equal(await rows.count(), 0);
         assert(await p.locator('.finance-sheet-empty').isVisible());
+        await p.evaluate(() => window.CometChart.setData({kind:'balance', currency:'BRL', points:Array.from({length:25}, (_, index) => ({time:(1700000000 + index * 86400) as import('lightweight-charts').UTCTimestamp,open:index,high:index+1,low:index,close:index+1,volume:1})),demo:false}));
+        await p.locator('[data-range="MAX"]').click();
+        assert.equal(await rows.count(), 10);
+        assert(!(await p.locator('.chart-wordmark').isVisible()));
+        assert(await p.locator('.finance-sheet').evaluate(el => el.scrollWidth <= el.clientWidth + 1));
+        await p.locator('.finance-sheet').evaluate(sheet => {
+            const scroller = document.querySelector('.workspace__content');
+            if (scroller) scroller.scrollTop += sheet.getBoundingClientRect().top + 80;
+        });
+        await p.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+        const sticky = await p.evaluate(() => ({
+            header: document.querySelector('.workspace__header')?.getBoundingClientRect().bottom ?? 0,
+            toolbar: document.querySelector('.chart-toolbar')?.getBoundingClientRect().top ?? 0,
+            toolbarBottom: document.querySelector('.chart-toolbar')?.getBoundingClientRect().bottom ?? 0,
+            columns: document.querySelector('.finance-sheet thead th')?.getBoundingClientRect().top ?? 0
+        }));
+        assert(Math.abs(sticky.toolbar - sticky.header) < 2, JSON.stringify(sticky));
+        assert(Math.abs(sticky.columns - sticky.toolbarBottom) < 2);
+        await p.screenshot({path:path.join(root,'artifacts/finance-sheet-sticky-mobile.png')});
+
+        assert.equal(await p.locator('.finance-sheet-page-label').innerText(), 'Página 1 de 3');
+        await p.locator('[data-sheet-page="next"]').click();
+        assert.equal(await p.locator('.finance-sheet-page-label').innerText(), 'Página 2 de 3');
+        await p.locator('[data-sheet-page="next"]').click();
+        assert.equal(await rows.count(), 5);
+        assert(await p.locator('[data-sheet-page="next"]').isDisabled());
+        await p.locator('[data-sheet-page="previous"]').click();
+        assert.equal(await p.locator('.finance-sheet-page-label').innerText(), 'Página 2 de 3');
+        await p.locator('[data-sheet-page="first"]').click();
+        assert.equal(await p.locator('.finance-sheet-page-label').innerText(), 'Página 1 de 3');
+        await p.locator('[data-sheet-page="next"]').click();
+        await p.locator('[data-range="1D"]').click();
+        assert.equal(await p.locator('.finance-sheet-page-label').innerText(), 'Página 1 de 1');
         assert.deepEqual(f.errors, []);
+    } finally { await f.context.close(); }
+});
+
+test('gráfico: hover livre por minuto e cartão abaixo do cursor', async () => {
+    const f = await fixture(), p = f.page;
+    try {
+        await p.goto('https://comet.test/graficos.html');
+        await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
+        await p.evaluate(() => window.CometChart.setData({currency:'BRL',kind:'balance',points:Array.from({length:4}, (_,i) => ({time:(1700000000+i*86400) as import('lightweight-charts').UTCTimestamp,open:i,close:i+1,low:i,high:i+1,volume:10}))}));
+        await p.locator('[data-range="MAX"]').click();
+        await p.locator('#market-chart').scrollIntoViewIfNeeded();
+        const box = await p.locator('#market-chart').boundingBox(); assert(box);
+        const x = box.x + box.width * .4, y = box.y + 100;
+        await p.mouse.move(x,y);
+        const tooltip = p.locator('#chart-tooltip');
+        await tooltip.waitFor({state:'visible'});
+        assert.deepEqual(await tooltip.locator('dt').allTextContents(), ['Fechar','Abrir','Máxima','Mínima','Volume']);
+        assert.equal(await tooltip.locator('dd').count(), 5);
+        assert(!(await p.locator('.chart-selection-result').isVisible()));
+        const closing = await tooltip.locator('[data-tooltip-value="close"]').innerText();
+        const first = await tooltip.locator('time').innerText();
+        const firstLine = await p.locator('.chart-hover-line').evaluate(el => el.getBoundingClientRect().left);
+        await p.mouse.move(x+2,y);
+        assert.notEqual(await tooltip.locator('time').innerText(), first);
+        assert.equal(await tooltip.locator('[data-tooltip-value="close"]').innerText(), closing);
+        const secondLine = await p.locator('.chart-hover-line').evaluate(el => el.getBoundingClientRect().left);
+        assert(Math.abs(secondLine-firstLine-2)<1);
+        const tip = await tooltip.boundingBox(); assert(tip);
+        assert(tip.x > x && tip.y > y);
+        await p.mouse.wheel(0, -100);
+        await p.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+        await p.mouse.move(box.x + 4, box.y + 20);
+        const axisClip = {x:box.x, y:box.y + 80, width:50, height:200};
+        const axisBefore = await p.screenshot({clip:axisClip});
+        await p.mouse.move(x, y);
+        await p.mouse.down();
+        await p.mouse.move(x, y+80, {steps:5});
+        await p.mouse.up();
+        await p.mouse.move(box.x + 4, box.y + 20);
+        await p.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+        assert.deepEqual(await p.screenshot({clip:axisClip}), axisBefore);
+
+        await p.locator('[data-range="MAX"]').hover();
+        assert(!(await tooltip.isVisible()));
+        assert(!(await p.locator('.chart-hover-line').isVisible()));
+        assert.deepEqual(f.errors, []);
+    } finally { await f.context.close(); }
+});
+
+test('gráfico: horários não se repetem e zoom preserva a escala lateral', async () => {
+    const f = await fixture(), p = f.page;
+    try {
+        await p.addInitScript(() => {
+            let frame = 0;
+            const tick = () => { frame++; requestAnimationFrame(tick); }; requestAnimationFrame(tick);
+            const draw = CanvasRenderingContext2D.prototype.fillText;
+            CanvasRenderingContext2D.prototype.fillText = function(text, x, y, maxWidth) {
+                const labels: string[] = this.canvas.dataset.frame === String(frame) ? JSON.parse(this.canvas.dataset.labels || '[]') : [];
+                labels.push(text); this.canvas.dataset.frame = String(frame); this.canvas.dataset.labels = JSON.stringify(labels);
+                if (maxWidth === undefined) draw.call(this,text,x,y); else draw.call(this,text,x,y,maxWidth);
+            };
+        });
+        await p.goto('https://comet.test/graficos.html');
+        await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
+        await p.evaluate(() => {
+            const clocks = ['08:00:00','08:00:00','09:15:00','09:15:00','00:05:00'];
+            const movements = [-100,-70,-90,-40,-20].map((close,i,values) => {
+                const open = i ? values[i-1] : 0, occurred_on = i === 4 ? '2026-10-02' : '2026-10-01';
+                return {time:chartTimestamp(Date.parse(occurred_on+'T'+clocks[i]+'-03:00')/1000),occurred_on,occurred_time:clocks[i],open,close,low:Math.min(open,close),high:Math.max(open,close),volume:Math.abs(close-open)};
+            });
+            window.CometChart.setData({kind:'balance',points:[{time:chartTimestamp(Date.UTC(2026,9,1)/1000),open:0,high:0,low:-100,close:-40,volume:200},{time:chartTimestamp(Date.UTC(2026,9,2)/1000),open:-40,high:-20,low:-40,close:-20,volume:20}],movements});
+        });
+        await p.locator('[data-range="MAX"]').click();
+        const host = p.locator('#market-chart'); await host.scrollIntoViewIfNeeded();
+        const box = await host.boundingBox(); assert(box);
+        assert(box.height < 325);
+        await p.mouse.move(box.x+2,box.y+5);
+        await p.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+        const labels = await p.locator('#market-chart tr:last-child canvas').evaluateAll(canvases => canvases.flatMap(canvas => JSON.parse(canvas.getAttribute('data-labels') || '[]')) as string[]);
+        const nonempty = labels.filter(label => label.trim());
+        assert(nonempty.some(label => label.includes('08:00')), JSON.stringify(nonempty));
+        assert.equal(new Set(nonempty).size,nonempty.length,JSON.stringify(nonempty));
+        assert(!nonempty.some(label => label.includes('1970')));
+        const clip = {x:box.x,y:box.y+60,width:50,height:box.height-95};
+        const before = await p.screenshot({clip});
+        await p.mouse.move(box.x+box.width*.7,box.y+130); await p.mouse.wheel(0,-300);
+        await p.mouse.move(box.x+2,box.y+5);
+        await p.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+        assert.deepEqual(await p.screenshot({clip}),before);
+        await p.screenshot({path:path.join(root,'artifacts/finance-clock-zoom.png')});
+        assert.deepEqual(f.errors,[]);
+    } finally { await f.context.close(); }
+});
+
+test('gráfico: seleção compara saldos e escala evita intervalos mínimos', async () => {
+    const f = await fixture(), p = f.page;
+    try {
+        await p.addInitScript(() => {
+            const draw = CanvasRenderingContext2D.prototype.fillText;
+            CanvasRenderingContext2D.prototype.fillText = function(text, x, y, maxWidth) {
+                const labels: string[] = JSON.parse(this.canvas.dataset.testLabels || '[]');
+                labels.push(text); this.canvas.dataset.testLabels = JSON.stringify(labels.slice(-100));
+                if (maxWidth === undefined) draw.call(this, text, x, y); else draw.call(this, text, x, y, maxWidth);
+            };
+        });
+        await p.goto('https://comet.test/graficos.html');
+        await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
+        const setValues = async (values: number[]) => {
+            await p.evaluate(values => window.CometChart.setData({currency:'BRL',kind:'balance',points:values.map((value,i) => ({time:(1700000000+i*86400) as import('lightweight-charts').UTCTimestamp,open:value,close:value,low:value,high:value,volume:10}))}), values);
+            await p.locator('[data-range="MAX"]').click();
+            await p.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+        };
+        await setValues([100,110,90,130]);
+        await p.locator('#market-chart').scrollIntoViewIfNeeded();
+        const box = await p.locator('#market-chart').boundingBox(); assert(box);
+        const left = box.x+95, right=box.x+box.width-10, y=box.y+120;
+        const result = p.locator('.chart-selection-result');
+        const drag = async (from:number,to:number) => { await p.mouse.move(from,y); await p.mouse.down(); await p.mouse.move(to,y,{steps:8}); };
+        await drag(left,right);
+        assert.match(await result.innerText(), /Ganho:.*30,00.*30%/);
+        assert.equal(await p.locator('.chart-hover-line').evaluate(e => getComputedStyle(e).borderLeftColor), await result.evaluate(e => getComputedStyle(e).color));
+        assert(await p.locator('.chart-selection-band').isVisible());
+        await p.screenshot({path:path.join(root,'artifacts/finance-selection.png')});
+        await p.mouse.up();
+        await drag(right,left);
+        assert.match(await result.innerText(), /Ganho:.*30,00.*30%/);
+        await p.mouse.up();
+        await setValues([100,90,80,70]);
+        await drag(left,right);
+        assert.match(await result.innerText(), /Perda:.*30,00.*-30%/);
+        await p.mouse.up();
+        await setValues([0,10,30,50]);
+        await drag(left,right);
+        assert.match(await result.innerText(), /Ganho:.*50,00/);
+        assert(!/NaN|Infinity|%/.test(await result.innerText()));
+        await p.mouse.up();
+        await setValues([-1010,-1010,-1010,-1010]);
+        await drag(left,right);
+        assert.match(await result.innerText(), /Sem variação/);
+        await p.mouse.up();
+        const labels = await p.locator('#market-chart canvas').evaluateAll(canvases => canvases.flatMap(canvas => JSON.parse(canvas.getAttribute('data-test-labels') || '[]')));
+        const prices = labels.filter((label:unknown):label is string => typeof label === 'string').map(label => Number(label.replaceAll('.','').replace(',','.'))).filter(value => value < -900 && value > -1100);
+        assert(prices.length > 2);
+        assert(Math.max(...prices)-Math.min(...prices) >= 10);
+        await p.mouse.move((left+right)/2,y); await p.mouse.wheel(0,-150);
+        await p.locator('[data-range="MAX"]').hover();
+        assert(!(await result.isVisible()));
+        assert.deepEqual(f.errors, []);
+    } finally { await f.context.close(); }
+});
+
+
+test('gráfico: cada transação aparece mesmo no mesmo dia e com saldo negativo', async () => {
+    const f = await fixture(), p = f.page;
+    try {
+        const day = Date.UTC(2026,9,1)/1000;
+        const movements = [-100,-70,-90,-40].map((close,i,values) => {
+            const open = i ? values[i-1] : 0;
+            return {time:day,open,close,high:Math.max(open,close),low:Math.min(open,close),volume:Math.abs(close-open)};
+        });
+        const points = [{time:day,open:0,close:-40,high:0,low:-100,volume:200}, {time:day+86400,open:-40,close:-40,high:-40,low:-40,volume:0}];
+        await p.route('**/api/finance/dashboard', route => route.fulfill({json:{as_of:'2026-10-02',summary:Object.fromEntries(['balance','income','expense'].map(key => [key,{amount:key==='balance'?'-40.00':key==='income'?'80.00':'120.00',difference:'0.00',percentage:null,series:[0,-40]}])),chart:{currency:'BRL',kind:'balance',points,movements,intraday:[]}}}));
+        await p.goto('https://comet.test/graficos.html');
+        await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
+        await p.locator('[data-range="MAX"]').click();
+        const host = p.locator('#market-chart');
+        await host.scrollIntoViewIfNeeded();
+        await host.focus();
+        await host.press('Home');
+        assert.match(await p.locator('#market-price').innerText(), /0,00/);
+        for (const value of ['100,00','70,00','90,00','40,00']) {
+            await host.press('ArrowRight');
+            assert.match(await p.locator('#market-price').innerText(), new RegExp('-R\\$.*'+value));
+        }
+        const box = await host.boundingBox(); assert(box);
+        const y = box.y+100;
+        const positions = new Map<number,number>();
+        for (let x=box.x+70; x<box.x+box.width-5; x+=12) {
+            await p.mouse.move(x,y);
+            const label = await p.locator('#chart-tooltip time').innerText();
+            const match = label.match(/Movimentação (\d+)/);
+            if (match && !positions.has(Number(match[1]))) positions.set(Number(match[1]),x);
+        }
+        assert.deepEqual([...positions.keys()], [1,2,3,4]);
+        assert(!/UTC|1970/.test(await p.locator('#chart-tooltip time').innerText()));
+        const drag = async (from:number,to:number) => {
+            const fromX = positions.get(from), toX = positions.get(to);
+            assert(fromX !== undefined && toX !== undefined);
+            await p.mouse.move(fromX,y); await p.mouse.down();
+            await p.mouse.move(toX,y);
+            assert.match(await p.locator('.chart-selection-result').innerText(), /Ganho:.*30,00.*30%/);
+            await p.mouse.up();
+        };
+        await drag(1,2); await drag(2,1);
+        await p.mouse.move(box.x+4,box.y+10);
+        await p.screenshot({path:path.join(root,'artifacts/finance-transactions.png')});
+        await p.locator('[data-finance-view="sheet"]').click();
+        assert.equal(await p.locator('.finance-sheet tbody tr').count(),2);
+        assert.match(await p.locator('.finance-sheet tbody tr').last().innerText(), /200,00/);
+        await p.locator('[data-range="1D"]').click();
+        assert.equal(await p.locator('.finance-sheet tbody tr').count(),2);
+        assert.deepEqual(f.errors, []);
+    } finally { await f.context.close(); }
+});
+
+for (const width of [1920, 1280, 390]) test(`aprender: lista e envio com pesquisa e anexo (${width})`, async () => {
+    const f = await fixture(width), p = f.page;
+    try {
+        await p.goto('https://comet.test/aprender.html');
+        await p.waitForFunction(() => !!window.ComputerAttachments);
+        if (width < 640) {
+            await p.evaluate(() => document.body.classList.add('is-sidebar-collapsed'));
+            await p.waitForTimeout(500);
+        }
+        assert.equal(await p.locator('.study-title').innerText(), 'acadêmico');
+        assert.equal(await p.locator('.study-page .web-search-toggle, .study-topic-list img').count(), 0);
+        assert.equal(await p.locator('.study-topic-list li').count(), 6);
+        assert.equal(await p.locator('.study-page .home__microphone').isVisible(), true);
+        assert.equal(await p.locator('.study-page .model-picker').isVisible(), true);
+        await p.locator('.study-page .computer-provider').click();
+        assert.equal(await p.locator('.study-page .local-model-picker').isVisible(), true);
+        if (width === 1920) {
+            const composer = await p.locator('.study-composer').boundingBox();
+            assert.ok(composer && Math.abs(composer.width - 1200) < 2 && composer.height >= 100 && composer.height <= 155, JSON.stringify(composer));
+        }
+        await p.locator('[data-topic-direction="1"]').click();
+        await p.waitForFunction(() => requiredElement(document, '.study-topic-list', HTMLElement).scrollLeft > 10);
+        await p.waitForFunction(() => !requiredElement(document, '[data-topic-direction="-1"]', HTMLButtonElement).disabled);
+        await p.screenshot({path:`artifacts/aprender-${width}.png`});
+        assert.equal(await p.evaluate(() => {
+            const list = requiredElement(document, '.study-topic-list', HTMLElement).getBoundingClientRect();
+            return elementList(document, '[data-topic-direction]', HTMLButtonElement).every(button => {
+                const rect = button.getBoundingClientRect();
+                return rect.left >= 0 && rect.right <= innerWidth && Math.abs(rect.top + rect.height / 2 - (list.top + list.height / 2)) < 1;
+            });
+        }), true);
+        await p.route('**/api/ai/attachments', route => route.fulfill({json:{id:'study-file', name:'aula.txt', size:12, kind:'file'}}));
+        await p.locator('#attachment-input').setInputFiles({name:'aula.txt', mimeType:'text/plain', buffer:Buffer.from('Notas de aula')});
+        await p.waitForFunction(() => window.ComputerAttachments.files().length === 1 && !window.ComputerAttachments.busy());
+        const requests: Record<string,unknown>[] = [];
+        await p.route('**/api/ai/chat', route => {
+            requests.push(testObject(route.request().postDataJSON()));
+            return route.fulfill({contentType:'application/x-ndjson', body:[{type:'delta',text:'Resposta de estudo.'},{type:'done',metadata:{}}].map(value => JSON.stringify(value)).join('\n')+'\n'});
+        });
+        await p.locator('.study-composer textarea').fill('Como funciona a fotossíntese?');
+        await p.locator('.study-composer textarea').press('Enter');
+        await p.waitForFunction(() => document.querySelector('.computer-message--assistant')?.textContent?.includes('Resposta de estudo.'));
+        assert.equal(requests.length, 1);
+        assert.equal(requests[0].conversation_id, null);
+        assert.equal(requests[0].message, 'Como funciona a fotossíntese?');
+        assert.equal(requests[0].web_search, true);
+        assert.deepEqual(requests[0].attachments, ['study-file']);
+        assert.deepEqual(f.errors, []);
+    } finally { await f.context.close(); }
+});
+
+test('aprender: modelo Computer é mantido no novo chat', async () => {
+    const f = await fixture(), p = f.page;
+    try {
+        await p.locator('.sidebar__link[href="./aprender.html"]').click();
+        await p.locator('.computer-provider').click();
+        await p.locator('.local-model-picker').click();
+        await p.locator('[data-provider="qwen3:4b"]').click();
+        const request = p.waitForRequest('**/api/ai/chat');
+        await p.route('**/api/ai/chat', route => route.fulfill({contentType:'application/x-ndjson',body:'{"type":"delta","text":"Estudo"}\n{"type":"done","metadata":{}}\n'}));
+        await p.locator('.study-composer textarea').fill('Explique a gravidade');
+        await p.locator('.study-composer textarea').press('Enter');
+        const payload = testObject((await request).postDataJSON());
+        assert.equal(payload.provider, 'qwen3:4b');
+        assert.equal(payload.web_search, true);
+        assert.equal(payload.conversation_id, null);
+        assert.deepEqual(f.errors, []);
+    } finally { await f.context.close(); }
+});
+
+for (const viewport of [{width:1920,height:925},{width:1536,height:738},{width:1280,height:720},{width:1366,height:768}]) test(`aprender: proporções sem corte ${viewport.width}x${viewport.height}`, async () => {
+    const f = await fixture(viewport.width), p = f.page;
+    try {
+        await p.setViewportSize(viewport);
+        await p.goto('https://comet.test/aprender.html');
+        await p.waitForFunction(() => !!window.ComputerAttachments);
+        await p.evaluate(() => document.fonts.ready);
+        const bounds = await p.evaluate(() => {
+            const main = requiredElement(document, '.workspace__content', HTMLElement);
+            const content = requiredElement(document, '.study-page', HTMLElement).getBoundingClientRect();
+            const container = main.getBoundingClientRect();
+            const list = requiredElement(document, '.study-topic-list', HTMLElement).getBoundingClientRect();
+            return {overflow:main.scrollHeight-main.clientHeight, ratio:content.width/container.width, left:content.left-container.left, right:container.right-content.right, bottom:list.bottom, height:innerHeight};
+        });
+        assert.ok(bounds.overflow <= 1, JSON.stringify(bounds));
+        assert.ok(bounds.ratio <= .76 && bounds.ratio >= .69, JSON.stringify(bounds));
+        assert.ok(Math.abs(bounds.left-bounds.right) < 2, JSON.stringify(bounds));
+        assert.ok(bounds.bottom <= bounds.height - 12, JSON.stringify(bounds));
+        await p.screenshot({path:`artifacts/aprender-fit-${viewport.width}.png`});
+        assert.deepEqual(f.errors, []);
+    } finally { await f.context.close(); }
+});
+
+test('respostas não lidas: indicador, menu, persistência e nova resposta', async () => {
+    const f = await fixture(), p = f.page;
+    let stamp = '2026-10-06T12:00:00.000000Z';
+    try {
+        await p.route('**/api/ai/conversations?*', route => route.fulfill({json:{conversations:[{id:'1',title:'Resposta nova',updated_at:'2026-10-06T12:00:00Z',last_response_at:stamp}],next_offset:null}}));
+        await p.reload();
+        await p.waitForSelector('.sessions__unread');
+        assert.equal(await p.locator('.recent-chats__row.is-unread').count(),1);
+        await p.locator('.recent-chats__more').click();
+        await p.locator('[data-action="read"]').click();
+        assert.equal(await p.locator('.sessions__unread').count(),0);
+        assert.equal(await p.locator('.recent-chats__row.is-unread').count(),0);
+        await p.reload();
+        await p.waitForFunction(() => document.querySelector('.recent-chats__list')?.getAttribute('aria-busy') === 'false');
+        assert.equal(await p.locator('.recent-chats__row.is-unread').count(),0);
+        stamp = '2026-10-06T13:00:00.000000Z';
+        await p.reload();
+        await p.waitForSelector('.sessions__unread');
+        assert.equal(await p.locator('.recent-chats__row.is-unread').count(),1);
+        await p.route('**/api/ai/conversations/1', route => route.fulfill({json:{conversation:{id:'1',title:'Resposta nova',updated_at:stamp,last_response_at:stamp},turns:[{id:'1',message:'Olá',answer:'Resposta',thinking:'',status:'completed',created_at:stamp}],active:false,before:null}}));
+        await p.locator('.recent-chats__link').click();
+        await p.waitForFunction(() => !document.querySelector('.sessions__unread'));
+        assert.deepEqual(f.errors,[]);
     } finally { await f.context.close(); }
 });

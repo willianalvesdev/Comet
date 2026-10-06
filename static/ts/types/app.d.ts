@@ -19,7 +19,7 @@ interface PageContext {
 }
 type PageFactory = (context: PageContext) => void;
 interface Attachment { id: string; name: string; size: number; kind: 'image' | 'file'; }
-interface Conversation { id: string; title: string; created_at: string; updated_at: string; }
+interface Conversation { last_response_at?: string | null; id: string; title: string; created_at: string; updated_at: string; }
 interface ResearchSource { title: string; url: string; domain: string; snippet?: string; image?: string; excerpt?: string; published_at?: string; date_approximate?: boolean; }
 interface Research { error?: string; query?: string; sources?: ResearchSource[]; suggestions?: string; status?: string; state?: ResearchState; seconds?: number; queries?: string[]; engine?: string; }
 interface ResponseVersion { answer: string; thinking: string; metadata: ResponseMetadata; }
@@ -38,13 +38,14 @@ interface ComputerServiceApi {
     chat(payload: ChatRequest, onDelta: (text:string)=>void, signal: AbortSignal, onThinking?: (text:string)=>void, onConversation?: (event:ConversationEvent)=>void, onResearch?: (event:SearchEvent)=>void, onDone?: (metadata:ResponseMetadata)=>void): Promise<void>;
 }
 interface Window {
+    CometStudyQuestion?: {message:string;attachments:Attachment[];provider:ModelProvider};
     WorkspaceNavigation: {page(url:string,factory:PageFactory):void;go(destination:string|URL,replace?:boolean):Promise<void>};
     CometStorage: {getItem(name:string):string|null;setItem(name:string,value:string):void};
     ComputerService: new () => ComputerServiceApi;
     ComputerModels: {selected():ModelProvider;select(value:string):void;error():string;setBusy(value:boolean):void};
     ComputerAttachments: {files():Attachment[];busy():boolean;clear():void;restore(items:Attachment[]):void;setBusy(value:boolean):void};
     ComputerAttachmentCard: (file:Attachment,onRemove?:()=>void)=>HTMLDivElement;
-    ComputerSessions: {render(items:Conversation[],append?:boolean,hasMore?:boolean):void;select(id:string|null,title?:string):void;setBusy(value:boolean):void;openOptions(item:Conversation,button:HTMLElement):void;request(path:string,method?:string,body?:unknown):Promise<unknown>;isPinned(id:string):boolean};
+    ComputerSessions: {isUnread(chat:Conversation):boolean;markRead(id:string,version?:string|null):void;render(items:Conversation[],append?:boolean,hasMore?:boolean):void;select(id:string|null,title?:string):void;setBusy(value:boolean):void;openOptions(item:Conversation,button:HTMLElement):void;request(path:string,method?:string,body?:unknown):Promise<unknown>;isPinned(id:string):boolean};
     ComputerResponseDetails: {research(article:HTMLElement,value?:Research,complete?:boolean):void;reset():void};
     CometChart: {setData(data:ChartData,animate?:boolean):void;rollNumber(element:HTMLElement,text:string):void};
     LightweightCharts: typeof import('lightweight-charts');
@@ -63,6 +64,7 @@ interface WindowEventMap {
     'sessions:new': Event; 'sessions:refresh': Event;
     'sessions:more': Event;
     'sessions:pins': Event;
+    'sessions:read': Event;
 }
 
 interface SpeechRecognitionSession {
@@ -78,6 +80,7 @@ interface SpeechRecognitionSession {
  abort():void;
 }
 interface Window {
+    CometStudyQuestion?: {message:string;attachments:Attachment[];provider:ModelProvider};
  SpeechRecognition?:new()=>SpeechRecognitionSession;
  webkitSpeechRecognition?:new()=>SpeechRecognitionSession;
 }

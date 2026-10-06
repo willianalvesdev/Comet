@@ -410,6 +410,11 @@ def create_app(test_config=None):
     def manifest():
         return send_from_directory(ROOT, 'manifest.webmanifest')
 
+    @app.get('/aprender.html')
+    @protected
+    def aprender():
+        return render_template('aprender.html', user=g.user)
+
     @app.get('/descobrir.html')
     @protected
     def descobrir():

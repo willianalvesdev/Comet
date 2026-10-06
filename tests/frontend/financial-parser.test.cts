@@ -433,3 +433,13 @@ test('ganho por extenso continua exigindo fallback sem perder o restante do lote
     assert.equal(result.clarification.intent,null);
     assert.deepEqual(transactions('Perdi 200 em aposta e ganhei 50 de volta').map(row=>[row.kind,row.amount]),[['expense','150.00']]);
 });
+
+
+test('horário explícito não vira valor monetário e ausência de hora fica para o servidor', () => {
+    for (const [input,clock] of [['Gastei 50 no mercado às 14:30','14:30:00'],['Recebi 100 ontem às 09h15','09:15:00'],['Paguei 20 às 00:00:01','00:00:01']]) {
+        const row = transaction(input);
+        assert.equal(row.occurred_time,clock);
+    }
+    assert.equal(transaction('Gastei 50 no mercado').occurred_time,undefined);
+    for (const input of ['Gastei 50 às 25:00','Gastei 50 às 12:90','Gastei às 14:30']) assert.notEqual(parse(input,context).status,'resolved');
+});

@@ -43,12 +43,12 @@ window.WorkspaceNavigation.page('/static/js/recent-chats.js', ({scope, setTimeou
             (Date.parse(a.updated_at) - Date.parse(b.updated_at)) * (sort.value === 'oldest' ? 1 : -1));
         const fragment = document.createDocumentFragment();
         for (const chat of visible) {
-            const row = document.createElement('div'); row.className = 'recent-chats__row'; row.dataset.id = chat.id;
+            const row = document.createElement('div'); row.className = 'recent-chats__row'; row.dataset.id = chat.id; row.classList.toggle('is-unread', sessions.isUnread(chat));
             const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.className = 'recent-chats__checkbox';
             checkbox.setAttribute('aria-label', `Selecionar ${chat.title}`); checkbox.disabled = !loaded;
             checkbox.addEventListener('change', () => { if (checkbox.checked) selected.add(chat.id); else selected.delete(chat.id); updateSelection(); });
             const link = document.createElement('a'); link.className = 'recent-chats__link'; link.href = '/computer.html?conversation=' + encodeURIComponent(chat.id);
-            const kind = document.createElement('span'); kind.className = 'recent-chats__kind'; kind.textContent = 'Chat';
+            const kind = document.createElement('span'); kind.className = 'recent-chats__kind'; kind.textContent = 'Chat'; if (sessions.isUnread(chat)) kind.setAttribute('aria-label', 'Resposta não lida');
             const name = document.createElement('span'); name.className = 'recent-chats__name'; name.textContent = chat.title; name.title = chat.title;
             const time = document.createElement('time'); time.dateTime = chat.updated_at; time.textContent = timeLabel(chat.updated_at);
             link.append(kind, name, time);
@@ -132,5 +132,6 @@ window.WorkspaceNavigation.page('/static/js/recent-chats.js', ({scope, setTimeou
         render();
     });
     scope.listen(window, 'sessions:pins', render);
+    scope.listen(window, 'sessions:read', render);
     load();
 });

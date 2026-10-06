@@ -27,7 +27,7 @@ function attachmentData(value: unknown): Attachment {
 }
 function conversationData(value: unknown): Conversation {
     const data=record(value);
-    return {id:stringValue(data.id),title:stringValue(data.title),created_at:stringValue(data.created_at ?? ''),updated_at:stringValue(data.updated_at ?? '')};
+    return {last_response_at:optionalString(data.last_response_at),id:stringValue(data.id),title:stringValue(data.title),created_at:stringValue(data.created_at ?? ''),updated_at:stringValue(data.updated_at ?? '')};
 }
 function conversationsData(value: unknown): ConversationList {
     const data=record(value);
@@ -65,7 +65,7 @@ function chatEventData(value:unknown):ChatEvent {
 }
 function chartPointData(value:unknown):ChartPoint {
     const data=record(value);
-    return {time:chartTimestamp(numberValue(data.time)),open:numberValue(data.open),high:numberValue(data.high),low:numberValue(data.low),close:numberValue(data.close),volume:numberValue(data.volume)};
+    return {time:chartTimestamp(numberValue(data.time)),open:numberValue(data.open),high:numberValue(data.high),low:numberValue(data.low),close:numberValue(data.close),volume:numberValue(data.volume),occurred_on:optionalString(data.occurred_on),occurred_time:data.occurred_time == null ? null : stringValue(data.occurred_time)};
 }
 function financeCardData(value:unknown):FinanceCard {
     const data=record(value);
@@ -73,11 +73,11 @@ function financeCardData(value:unknown):FinanceCard {
 }
 function financeDashboardData(value:unknown):FinanceDashboard {
     const data=record(value),summary=record(data.summary),chart=record(data.chart);
-    return {as_of:stringValue(data.as_of ?? ''),summary:{balance:financeCardData(summary.balance),income:financeCardData(summary.income),expense:financeCardData(summary.expense)},chart:{currency:optionalString(chart.currency),kind:optionalString(chart.kind),points:arrayValue(chart.points,chartPointData),intraday:arrayValue(chart.intraday ?? [],chartPointData)}};
+    return {as_of:stringValue(data.as_of ?? ''),summary:{balance:financeCardData(summary.balance),income:financeCardData(summary.income),expense:financeCardData(summary.expense)},chart:{currency:optionalString(chart.currency),kind:optionalString(chart.kind),points:arrayValue(chart.points,chartPointData),intraday:arrayValue(chart.intraday ?? [],chartPointData),movements:arrayValue(chart.movements ?? [],chartPointData)}};
 }
 function financeHistoryData(value:unknown):FinanceHistory {
     const data=record(value);
-    return {next_cursor:data.next_cursor==null?null:stringValue(data.next_cursor),transactions:arrayValue(data.transactions,value=>{const item=record(value);if(item.kind!=='income'&&item.kind!=='expense')throw new Error('Transação inválida.');return {id:stringValue(item.id),kind:item.kind,amount:stringValue(item.amount),description:stringValue(item.description),category:stringValue(item.category),occurred_on:stringValue(item.occurred_on),currency:stringValue(item.currency ?? 'BRL'),deleted_at:item.deleted_at == null ? null : stringValue(item.deleted_at)};})};
+    return {next_cursor:data.next_cursor==null?null:stringValue(data.next_cursor),transactions:arrayValue(data.transactions,value=>{const item=record(value);if(item.kind!=='income'&&item.kind!=='expense')throw new Error('Transação inválida.');return {id:stringValue(item.id),kind:item.kind,amount:stringValue(item.amount),description:stringValue(item.description),category:stringValue(item.category),occurred_on:stringValue(item.occurred_on),occurred_time:item.occurred_time == null ? null : stringValue(item.occurred_time),currency:stringValue(item.currency ?? 'BRL'),deleted_at:item.deleted_at == null ? null : stringValue(item.deleted_at)};})};
 }
 
 function chartTimestamp(value:number):import('lightweight-charts').UTCTimestamp {

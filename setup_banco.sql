@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS finance_transactions (
     description VARCHAR(200) NOT NULL,
     category VARCHAR(80) NOT NULL DEFAULT '',
     occurred_on DATE NOT NULL,
+    occurred_time TIME NULL DEFAULT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY finance_external (usuario_id, external_id),
     deleted_at DATETIME(6) NULL DEFAULT NULL,

@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 import re
 
@@ -12,8 +12,17 @@ def today_local():
     return datetime.now(timezone(timedelta(hours=-3))).date()
 
 
-def validate_transaction(payload):
-    fields = {'external_id', 'kind', 'amount', 'description', 'category', 'occurred_on'}
+def transaction_time(row):
+    value = row.get('occurred_time')
+    return str(value).zfill(8) if value is not None else None
+
+
+def now_local():
+    return datetime.now(timezone(timedelta(hours=-3)))
+
+
+def validate_transaction(payload, *, default_time=True):
+    fields = {'external_id', 'kind', 'amount', 'description', 'category', 'occurred_on', 'occurred_time'}
     if not isinstance(payload, dict) or set(payload) - fields:
         raise ValueError('Envie apenas os campos da transação.')
     result = {}
@@ -45,6 +54,14 @@ def validate_transaction(payload):
     if not date(1970, 1, 1) <= occurred_on <= today_local():
         raise ValueError('Informe uma data passada ou atual, a partir de 1970.')
     result['occurred_on'] = occurred_on
+    clock = payload.get('occurred_time')
+    if clock is None and default_time:
+        clock = now_local().strftime('%H:%M:%S')
+    if clock is not None:
+        if not isinstance(clock, str) or not re.fullmatch(r'(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?', clock):
+            raise ValueError('Informe um horário válido, como 14:30.')
+        clock = clock if len(clock) == 8 else clock + ':00'
+    result['occurred_time'] = clock
     return result
 
 
@@ -63,6 +80,7 @@ def serialize(row):
     return {**{field: row[field] for field in ('external_id', 'kind', 'description', 'category')},
             'description': transaction_title(row['description']), 'id': str(row['id']), 'amount': format(row['amount'], '.2f'), 'currency': 'BRL',
             'occurred_on': row['occurred_on'].isoformat(),
+            'occurred_time': transaction_time(row),
             'deleted_at': row['deleted_at'].isoformat() + 'Z' if row.get('deleted_at') else None}
 
 
@@ -70,8 +88,8 @@ def receive(user_id, payload):
     values = validate_transaction(payload)
     try:
         with db.cursor(write=True) as cursor:
-            cursor.execute('INSERT INTO finance_transactions (usuario_id, external_id, kind, amount, description, category, occurred_on) VALUES (%s,%s,%s,%s,%s,%s,%s)',
-                           (user_id, *(values[field] for field in ('external_id', 'kind', 'amount', 'description', 'category', 'occurred_on'))))
+            cursor.execute('INSERT INTO finance_transactions (usuario_id, external_id, kind, amount, description, category, occurred_on, occurred_time) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)',
+                           (user_id, *(values[field] for field in ('external_id', 'kind', 'amount', 'description', 'category', 'occurred_on', 'occurred_time'))))
             identifier = cursor.lastrowid
             record_event(cursor, user_id, None, identifier, 'TRANSACTION_CREATED', None,
                          {key: value for key, value in values.items() if key != 'external_id'})
@@ -82,7 +100,10 @@ def receive(user_id, payload):
         with db.cursor() as cursor:
             cursor.execute('SELECT * FROM finance_transactions WHERE usuario_id=%s AND external_id=%s', (user_id, values['external_id']))
             existing = cursor.fetchone()
-        if not existing or any(existing[field] != value for field, value in values.items()):
+        if existing:
+            existing['occurred_time'] = transaction_time(existing)
+        if not existing or any(existing[field] != value for field, value in values.items()
+                               if field != 'occurred_time' or payload.get('occurred_time') is not None):
             return None, False
         return serialize(existing), False
 
@@ -121,12 +142,19 @@ def summarize(rows, today=None):
     balance = Decimal(0)
     previous_balance = Decimal(0)
     daily = {}
-    for row in rows:
+    movements = []
+    for row in sorted(rows, key=lambda row: (row['occurred_on'], transaction_time(row) or '', int(row.get('id', 0)))):
         day, amount = row['occurred_on'], row['amount']
         if day > today or row.get('deleted_at') is not None:
             continue
         point = daily.setdefault(day, {'open': balance, 'high': balance, 'low': balance, 'close': balance, 'volume': Decimal(0), 'income': Decimal(0), 'expense': Decimal(0)})
+        opening = balance
         balance += amount if row['kind'] == 'income' else -amount
+        clock = transaction_time(row)
+        instant = datetime.combine(day, time.fromisoformat(clock) if clock else time.min, timezone(timedelta(hours=-3)))
+        movements.append({'time': int(instant.timestamp()), 'occurred_on': day.isoformat(), 'occurred_time': clock,
+                          **{key: float(value) for key, value in {'open': opening, 'high': max(opening, balance),
+                              'low': min(opening, balance), 'close': balance, 'volume': amount}.items()}})
         point.update(high=max(point['high'], balance), low=min(point['low'], balance), close=balance, volume=point['volume'] + amount)
         point[row['kind']] += amount
         if day < month_start:
@@ -155,11 +183,11 @@ def summarize(rows, today=None):
                 'percentage': format(difference / abs(old) * 100, '.2f') if old else None, 'series': sparks[key]}
     return {'currency': 'BRL', 'as_of': today.isoformat(), 'month': today.strftime('%Y-%m'),
             'summary': {'balance': card(balance, previous_balance, 'balance'), 'income': card(current['income'], previous['income'], 'income'), 'expense': card(current['expense'], previous['expense'], 'expense')},
-            'chart': {'currency': 'BRL', 'kind': 'balance', 'points': points, 'intraday': []}}
+            'chart': {'currency': 'BRL', 'kind': 'balance', 'points': points, 'movements': movements, 'intraday': []}}
 
 
 def dashboard(user_id):
     with db.cursor() as cursor:
-        cursor.execute('SELECT id, kind, amount, occurred_on FROM finance_transactions WHERE usuario_id=%s AND deleted_at IS NULL AND occurred_on<=%s ORDER BY occurred_on, id', (user_id, today_local()))
+        cursor.execute('SELECT * FROM finance_transactions WHERE usuario_id=%s AND deleted_at IS NULL AND occurred_on<=%s ORDER BY occurred_on, id', (user_id, today_local()))
         rows = cursor.fetchall()
     return summarize(rows)

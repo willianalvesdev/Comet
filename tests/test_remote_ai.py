@@ -28,6 +28,67 @@ class RemoteTests(unittest.TestCase):
     def provider(self, name='gemini', key='private-test-key'):
         return RemoteProvider(name, key, 'gemini-3.8-flash', CONFIG)
 
+    def test_fallback_defaults_and_opt_out(self):
+        with patch.dict('os.environ', {'GEMINI_API_KEY':'test'}, clear=True):
+            self.assertEqual(RemoteProvider.from_env('gemini', CONFIG).fallback_models,
+                             ('gemini-2.5-flash', 'gemini-2.5-flash-lite'))
+        with patch.dict('os.environ', {'GEMINI_FALLBACK_MODELS':''}):
+            self.assertEqual(RemoteProvider.from_env('gemini', CONFIG).fallback_models, ())
+
+    def test_quota_switch_preserves_search_context_images_and_identity(self):
+        provider = RemoteProvider('gemini', 'secret', 'gemini-3.8-flash', CONFIG,
+                                  ('gemini-2.5-flash', 'gemini-2.5-flash-lite'))
+        messages = [MESSAGES[0], {'role':'user', 'content':'Arquivo', 'images':['image-data']}]
+        connections = [self.connection(b'', 429), self.connection(b'', 429),
+                       self.connection(frame({'candidates':[{'content':{'parts':[{'text':'Resposta'}]}, 'finishReason':'STOP'}]}))]
+        with patch('comet.ai.remote.http.client.HTTPSConnection', side_effect=connections):
+            self.assertEqual(list(provider.stream(messages, search=True)), [{'type':'delta','text':'Resposta'}])
+        for connection, model in zip(connections, ('gemini-3.8-flash','gemini-2.5-flash','gemini-2.5-flash-lite')):
+            args = connection.request.call_args
+            self.assertIn(model + ':streamGenerateContent', args.args[1])
+            payload = json.loads(args.kwargs['body'])
+            self.assertEqual(payload['contents'][0]['parts'][1]['inlineData']['data'], 'image-data')
+            self.assertEqual(payload['tools'], [{'google_search':{}}])
+            self.assertIn('Modelo desta resposta: ' + model, payload['systemInstruction']['parts'][0]['text'])
+            connection.close.assert_called_once()
+        self.assertEqual(provider.model, 'gemini-3.8-flash')
+
+    def test_fallback_exhaustion_is_bounded(self):
+        provider = RemoteProvider('gemini', 'secret', 'first', CONFIG, ('second', 'second', 'first', 'third'))
+        connections = [self.connection(b'', 429) for _ in range(3)]
+        with patch('comet.ai.remote.http.client.HTTPSConnection', side_effect=connections) as transport, self.assertRaises(AIError) as error:
+            list(provider.stream(MESSAGES))
+        self.assertEqual(error.exception.code, 'provider_quota')
+        self.assertEqual(transport.call_count, 3)
+
+    def test_fallback_does_not_retry_other_errors_or_partial_output(self):
+        provider = RemoteProvider('gemini', 'secret', 'first', CONFIG, ('second',))
+        for status in (400, 401, 403, 402, 404, 500):
+            with self.subTest(status=status), patch('comet.ai.remote.http.client.HTTPSConnection', return_value=self.connection(b'', status)) as transport, self.assertRaises(AIError):
+                list(provider.stream(MESSAGES))
+            self.assertEqual(transport.call_count, 1)
+        def partial(*args):
+            yield {'type':'delta', 'text':'Já começou'}
+            raise AIError('provider_quota', 429)
+        with patch.object(RemoteProvider, '_stream', side_effect=partial) as stream:
+            source = provider.stream(MESSAGES)
+            self.assertEqual(next(source)['text'], 'Já começou')
+            with self.assertRaises(AIError):
+                next(source)
+            self.assertEqual(stream.call_count, 1)
+
+    def test_structured_fallback_preserves_schema(self):
+        provider = RemoteProvider('gemini', 'secret', 'first', CONFIG, ('second',))
+        schema = {'type':'object', 'properties':{'ok':{'type':'boolean'}}}
+        raw = json.dumps({'candidates':[{'content':{'parts':[{'text':'{"ok":true}'}]},'finishReason':'STOP'}]}).encode()
+        connections = [self.connection(b'', 429), self.connection(raw)]
+        with patch('comet.ai.remote.http.client.HTTPSConnection', side_effect=connections):
+            self.assertEqual(provider.structured('System', {'input':'data'}, schema), {'ok':True})
+        payloads = [json.loads(connection.request.call_args.kwargs['body']) for connection in connections]
+        self.assertEqual(payloads[0], payloads[1])
+        self.assertEqual(payloads[1]['generationConfig']['responseJsonSchema'], schema)
+        self.assertIn('/second:generateContent', connections[1].request.call_args.args[1])
+
     def test_gemini_stream_context_and_private_header(self):
         raw = b': keepalive\n\n' + frame({'candidates': [{'content': {'parts': [{'thought': True, 'text': 'Resumo'}]}}]})
         raw += frame({'candidates': [{'content': {'parts': [{'text': 'Olá!'}]}, 'finishReason': 'STOP'}]})

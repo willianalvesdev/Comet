@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <script src="/static/js/dom.js"></script>
+    <script src="/static/js/api-data.js"></script>
+    <script src="/static/js/workspace-navigation.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Aprender — Comet</title>
+    <link rel="icon" type="image/png" href="/static/img/icons/widget-dark.png">
+    <script src="/static/js/cookies.js"></script>
+    <script src="/static/js/theme.js"></script>
+    {% for stylesheet in ['globals', 'principal', 'cookies', 'sessions', 'chat-search', 'home', 'computer', 'aprender'] %}
+    <link rel="stylesheet" href="/static/css/{{ stylesheet }}.css">
+    {% endfor %}
+    {% for script in ['sidebar', 'profile-menu', 'chat-search', 'sessions', 'tooltips', 'computer-service', 'model-menu', 'attachments', 'aprender', 'dictation'] %}
+    <script src="/static/js/{{ script }}.js" defer></script>
+    {% endfor %}
+</head>
+<body class="workspace">
+{% with active_page='aprender' %}{% include 'partials/sidebar.html' %}{% endwith %}
+{% include 'partials/sidebar-backdrop.html' %}
+<div id="workspace-page">
+    <main class="workspace__content" aria-label="Aprender">
+        <header class="workspace__header">
+{% include 'partials/mobile-menu.html' %}
+            <span class="workspace__title">Aprender</span>
+        </header>
+        <section class="study-page" aria-labelledby="study-title">
+            <h1 id="study-title" class="study-title"><span class="study-logo" role="img" aria-label="Comet"></span><span>acadêmico</span></h1>
+{% with composer_class='study-composer', composer_placeholder='Explore artigos acadêmicos, pesquisas e muito mais', composer_web_search=false %}
+{% include 'partials/chat-composer.html' %}
+{% endwith %}
+            <div class="study-categories" aria-label="Áreas de estudo">
+                {% for category in ['Saúde', 'Direito', 'Tecnologia', 'Ciência', 'Humanidades'] %}
+                <span><i class="chat-search__icon" aria-hidden="true"></i>{{ category }}</span>
+                {% endfor %}
+            </div>
+            <section class="study-topics" aria-labelledby="study-topics-title">
+                <div class="study-topics-heading"><h2 id="study-topics-title">Tópicos</h2></div>
+                <div class="study-carousel">
+                <div class="study-list-controls"><button type="button" data-topic-direction="-1" aria-label="Tópicos anteriores" aria-controls="study-topic-list"><i class="ui-arrow ui-arrow--left" aria-hidden="true"></i></button><button type="button" data-topic-direction="1" aria-label="Próximos tópicos" aria-controls="study-topic-list"><i class="ui-arrow ui-arrow--right" aria-hidden="true"></i></button></div>
+                <ul id="study-topic-list" class="study-topic-list" tabindex="0" aria-label="Lista de tópicos">
+                    {% for topic in ['Tecnologia e ciência da computação', 'Ciência política e economia', 'Finanças', 'Saúde e medicina', 'Ciências naturais', 'História e filosofia'] %}
+                    <li>{{ topic }}</li>
+                    {% endfor %}
+                </ul>
+                </div>
+            </section>
+        </section>
+    </main>
+</div>
+{% include 'partials/settings.html' %}
+</body>
+</html>

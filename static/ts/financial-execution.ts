@@ -14,6 +14,7 @@ function validateFinancialActions(actions: readonly FinancialAction[]): void {
             if (values.category !== undefined && values.category.length > 80) throw new Error('Informe uma categoria com até 80 caracteres.');
             if (values.amount !== undefined && (!/^\d{1,12}\.\d{2}$/.test(values.amount) || financialCents(values.amount) <= 0n)) throw new Error('Valor inválido.');
             if (values.occurred_on !== undefined && !financialValidDate(values.occurred_on)) throw new Error('Data inválida.');
+            if (values.occurred_time != null && !/^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(values.occurred_time)) throw new Error('Horário inválido.');
         }
         if (action.type === 'create') continue;
         if (!action.transaction_ids.length) throw new Error('Selecione uma transação.');

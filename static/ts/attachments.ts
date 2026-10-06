@@ -50,7 +50,7 @@ window.WorkspaceNavigation.page('/static/js/attachments.js', ({scope, setTimeout
                 const response=await fetch('/api/ai/attachments',{method:'POST',credentials:'same-origin',signal:controller.signal,headers:{'X-CSRFToken':requiredElement(document, 'meta[name="csrf-token"]', HTMLMetaElement).content},body});
                 const raw:unknown=await response.json();if(!response.ok)throw new Error(apiError(raw,'Não foi possível anexar o arquivo.'));const data=attachmentData(raw);if(expected!==version)return;
                 if(data.kind==='image')previews.set(data.id,URL.createObjectURL(file));
-                files.push(data);window.ComputerModels.select('gemini');render();
+                files.push(data);window.ComputerModels?.select('gemini');render();
             }
             status.textContent='';
         }catch(error){if(expected===version&&(error instanceof Error ? error.name : '')!=='AbortError')status.textContent=errorMessage(error);}
@@ -72,7 +72,7 @@ window.WorkspaceNavigation.page('/static/js/attachments.js', ({scope, setTimeout
     window.ComputerAttachments={
         files:()=>files.map(file=>({...file})),busy:()=>uploading,
         clear:()=>{version++;controller?.abort();controller=null;files=[];uploading=false;status.textContent='';render();},
-        restore:items=>{files=items.map(file=>({...file}));if(files.length)window.ComputerModels.select('gemini');render();},
+        restore:items=>{files=items.map(file=>({...file}));if(files.length)window.ComputerModels?.select('gemini');render();},
         setBusy:value=>{locked=value;toggle.disabled=locked||uploading;elementList(list, 'button', HTMLButtonElement).forEach(button=>button.disabled=locked||uploading);}
     };
     render();
