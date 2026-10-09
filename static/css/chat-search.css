@@ -1,12 +1,12 @@
 .sidebar__search {
-    flex: 0 0 32px;
+    flex: 0 0 var(--input-md);
     display: grid;
     place-items: center;
-    width: 32px;
-    height: 32px;
+    width: var(--input-md);
+    height: var(--input-md);
     padding: 0;
     border: 0;
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     background: transparent;
     color: var(--text-secondary);
     cursor: pointer;
@@ -39,10 +39,10 @@
     margin: 0 auto;
     padding: 0;
     border: 1px solid var(--border);
-    border-radius: var(--radius-container);
+    border-radius: var(--radius-16);
     background: var(--surface);
     color: var(--text);
-    box-shadow: 0 20px 45px rgb(0 0 0 / .3);
+    box-shadow: var(--shadow-dialog);
     overflow: hidden;
 }
 
@@ -58,9 +58,9 @@
 .chat-search__field {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--spacing-3);
     flex: 0 0 56px;
-    padding: 0 var(--space-5);
+    padding: 0 var(--spacing-5);
     border-bottom: 1px solid var(--border);
     color: var(--text-secondary);
 }
@@ -89,17 +89,17 @@
 .chat-search__body {
     flex: 1;
     min-height: 0;
-    padding: var(--space-3);
+    padding: var(--spacing-3);
     overflow-y: auto;
     scrollbar-width: thin;
 }
 
 .chat-search h2 {
-    margin: 0 15px var(--space-2);
+    margin: 0 15px var(--spacing-2);
     color: var(--text-secondary);
     font: inherit;
     font-size: var(--font-size-5);
-    font-weight: 400;
+    font-weight: var(--font-weight-regular);
 }
 
 .chat-search__results {
@@ -110,10 +110,10 @@
 .chat-search__result {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--spacing-3);
     min-width: 0;
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-control);
+    padding: var(--spacing-2) var(--spacing-3);
+    border-radius: var(--radius-8);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -128,7 +128,7 @@
 }
 
 .chat-search__status {
-    margin: var(--space-3) 15px;
+    margin: var(--spacing-3) 15px;
     font-size: var(--font-size-5);
     color: var(--text-secondary);
 }
@@ -139,10 +139,10 @@
 
 .chat-search__more {
     display: block;
-    margin: var(--space-3) auto 0;
-    padding: var(--space-2) 14px;
+    margin: var(--spacing-3) auto 0;
+    padding: var(--spacing-2) 14px;
     border: 1px solid var(--border);
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     background: transparent;
     color: var(--text-secondary);
     font: inherit;

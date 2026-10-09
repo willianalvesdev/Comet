@@ -83,11 +83,11 @@ Criados:
 
 Modificados:
 
-- `static/ts/financial-parser.ts`
-- `static/ts/financial-context.ts`
-- `static/ts/financial-ai.ts`
-- `static/ts/financial-execution.ts`
-- `static/ts/graph-composer.ts`
+- `frontend/controllers/financial-parser.ts`
+- `frontend/controllers/financial-context.ts`
+- `frontend/controllers/financial-ai.ts`
+- `frontend/controllers/financial-execution.ts`
+- `frontend/controllers/graph-composer.ts`
 - `comet/ai/remote.py`
 - `tests/frontend/financial-parser.test.cts`
 - `tests/frontend/financial-context.test.cts`

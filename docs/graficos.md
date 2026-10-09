@@ -1,6 +1,6 @@
 # Gráfico financeiro
 
-A página Finanças usa Lightweight Charts 5.0.9, incluído em `static/js/vendor/`.
+A página Finanças usa Lightweight Charts 5.0.9, instalado pelo npm e empacotado pelo Next.js.
 Os dados reais vêm de `/api/finance/dashboard` e são entregues a `CometChart.setData`.
 
 - `points` contém os resumos diários OHLC e a movimentação total de cada dia. Alimenta a planilha e o resumo do período.

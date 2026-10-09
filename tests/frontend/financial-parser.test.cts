@@ -5,7 +5,7 @@ import assert = require('node:assert/strict');
 import {test} from 'node:test';
 
 let parse: FinancialParser = () => {throw new Error('Parser não carregado');};
-runInNewContext(['financial-parser','financial-context'].map(name=>readFileSync(resolve(__dirname, '../../static/js/'+name+'.js'), 'utf8')).join('\n') + '\ncapture(parseFinancialInput);', {
+runInNewContext(['financial-parser','financial-context'].map(name=>readFileSync(resolve(__dirname, '../../artifacts/test-runtime/'+name+'.js'), 'utf8')).join('\n') + '\ncapture(parseFinancialInput);', {
     capture: (parser: FinancialParser) => {parse = parser;}
 });
 const context: FinancialContext = {

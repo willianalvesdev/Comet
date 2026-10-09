@@ -176,9 +176,9 @@ class RemoteTests(unittest.TestCase):
         from uuid import uuid4
         payload = {'conversation_id':None,'message':'Hi','request_id':str(uuid4())}
         self.assertEqual(ConversationStore.validate(payload)['provider'],'qwen')
-        for name in ['qwen','gemini']:
+        for name in ['qwen','gemini','gemma','ollama','qwen3:4b']:
             self.assertEqual(ConversationStore.validate({**payload,'provider':name})['provider'],name)
-        for bad in ['gemma','ollama','https://attacker.invalid',None,{},1]:
+        for bad in ['https://attacker.invalid','http://localhost:11434','qwen:cloud','',None,{},1]:
             with self.assertRaises(AIError):
                 ConversationStore.validate({**payload,'provider':bad})
         with self.assertRaises(ValueError):

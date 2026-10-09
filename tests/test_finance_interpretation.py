@@ -169,6 +169,9 @@ class FinancialInterpretationTests(unittest.TestCase):
 
 class FinancialInterpretationRouteTests(unittest.TestCase):
     def setUp(self):
+        models = patch('comet.ai.ollama.OllamaProvider.models', return_value=['qwen3:4b-q4_K_M'])
+        models.start()
+        self.addCleanup(models.stop)
         self.app = create_app({'TESTING': True, 'SECRET_KEY': 'financial-fallback-tests-' * 3,
                                'WTF_CSRF_ENABLED': False, 'RATELIMIT_ENABLED': False})
         self.account = 7

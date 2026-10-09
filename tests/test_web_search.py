@@ -3,7 +3,9 @@ import json
 import unittest
 from unittest.mock import MagicMock, patch
 
-from comet.ai.config import AIConfig, LOCAL_MODELS
+from comet.ai.config import AIConfig
+
+LOCAL_MODELS = ('qwen3:1.7b', 'qwen3:4b', 'qwen3:8b', 'qwen3:4b-instruct-2507-q4_K_M')
 from comet.ai.errors import AIError
 from comet.ai.ollama import OllamaProvider, ContextSizeError
 from comet.ai.remote import RemoteProvider
@@ -270,6 +272,3 @@ class WebSearchTests(unittest.TestCase):
                 search.assert_called_once()
                 google.stream.assert_not_called()
                 self.assertTrue(any(e['type']=='search' for e in events))
-
-    def test_local_model_catalog_contains_only_qwen(self):
-        self.assertEqual(LOCAL_MODELS,('qwen3:1.7b','qwen3:4b','qwen3:8b','qwen3:4b-instruct-2507-q4_K_M'))

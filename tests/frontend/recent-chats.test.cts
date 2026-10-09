@@ -7,9 +7,9 @@ import {chromium,type Browser} from 'playwright';
 const root = path.resolve(__dirname, '../..');
 const python = process.env.PYTHON || path.join(root, process.platform === 'win32' ? 'venv/Scripts/python.exe' : 'venv/bin/python');
 const pages:Record<string,string> = stringPages(JSON.parse(execFileSync(python, ['-c', `import json
-from jinja2 import Environment,FileSystemLoader,select_autoescape
-env=Environment(loader=FileSystemLoader('templates'),autoescape=select_autoescape(['html']))
-print(json.dumps({name:env.get_template(name).render(request={'args':{}},user={'id':7,'nome':'Teste','email':'teste@example.com'},csrf_token=lambda:'test-csrf') for name in ['recentes.html','computer.html','graficos.html','descobrir.html','aprender.html']}))`], {cwd:root, encoding:'utf8', env:{...process.env, PYTHONIOENCODING:'utf-8'}})));
+from pathlib import Path
+from comet import next_page_html
+print(json.dumps({name+'.html':next_page_html(Path('out'),name,{'page':name,'user':None if name=='index' else {'id':7,'nome':'Teste','email':'teste@example.com'},'csrfToken':'test-csrf','currentYear':2026}) for name in ['recentes','computer','graficos','descobrir','aprender','index']}))`], {cwd:root, encoding:'utf8', env:{...process.env, PYTHONIOENCODING:'utf-8'}})));
 
 function testObject(value:unknown):Record<string,unknown> {
  if(typeof value!=='object'||value===null||Array.isArray(value))throw new Error('Invalid test data');
@@ -23,6 +23,8 @@ before(async () => { browser = await chromium.launch({executablePath:process.env
 after(async () => browser.close());
 async function fixture(width = 1280) {
     const context = await browser.newContext({viewport:{width,height:800}, reducedMotion:'reduce'});
+    await context.addInitScript({content:fs.readFileSync(path.join(root,'artifacts/test-runtime/dom.js'),'utf8')+';Object.assign(window,{requiredElement,optionalElement,elementList,eventElement,errorMessage,isRecord,present,formField});'});
+    await context.addInitScript({path:path.join(root,'artifacts/test-runtime/api-data.js')});
     await context.addInitScript(() => {localStorage.setItem('ascenda-cookie-choice-v1','accepted');if(!localStorage.getItem('ascensao-theme'))localStorage.setItem('ascensao-theme','dark');});
     let chats = [
         {id:'1',title:'Primeira conversa',updated_at:'2026-09-28T12:00:00Z'},
@@ -32,7 +34,13 @@ async function fixture(width = 1280) {
     const errors:string[]=[], requests:{id:string;csrf:string}[]=[]; let failDelete = false;
     await context.route('**/*', async route => {
         const request=route.request(), url=new URL(request.url());
-        if(url.pathname.endsWith('.html')) return route.fulfill({contentType:'text/html; charset=utf-8',body:pages[url.pathname.slice(1)] || pages['recentes.html']});
+        if(url.pathname === '/api/bootstrap') return route.fulfill({json:{page:url.searchParams.get('page')||'computer',user:url.searchParams.get('page')==='index'?null:{id:7,nome:'Teste',email:'teste@example.com'},csrfToken:'test-csrf',currentYear:2026}});
+        if(url.searchParams.has('_rsc') || url.pathname.endsWith('.txt')) {
+            const relative=decodeURIComponent(url.pathname).replace(/^\//,'')||'index';
+            const exported=path.join(root,'out',relative.endsWith('.txt')?relative:relative+'.txt');
+            if(fs.existsSync(exported))return route.fulfill({contentType:'text/x-component',body:fs.readFileSync(exported)});
+        }
+        if(url.pathname==='/' || url.pathname.endsWith('.html')) return route.fulfill({contentType:'text/html; charset=utf-8',body:pages[url.pathname.slice(1)||'index.html'] || pages['recentes.html']});
         if(url.pathname === '/api/ai/conversations') {
             const offset=Number(url.searchParams.get('offset') || 0);
             return route.fulfill({json:{conversations:chats.slice(offset,offset+2),next_offset:offset+2<chats.length?offset+2:null}});
@@ -51,9 +59,9 @@ async function fixture(width = 1280) {
         if(url.pathname==='/api/finance/dashboard') return route.fulfill({json:{summary:Object.fromEntries(['balance','income','expense'].map(key=>[key,{amount:key==='expense'?'20.00':'100.00',difference:'10.00',percentage:'10.00',series:[0,50,100]}])),chart:{currency:'BRL',kind:'balance',points:[{time:1670000000,open:0,high:100,low:0,close:100,volume:100},{time:1700100000,open:100,high:120,low:100,close:120,volume:20}],intraday:[]}}});
         if(url.pathname==='/api/finance/transactions')return route.fulfill({json:{transactions:[{id:'1',description:'Salário real',kind:'income',amount:'100.00',occurred_on:'2026-09-01',category:'Trabalho'}],next_cursor:null}});
         if(url.pathname==='/api/news')return route.fulfill({json:{articles:[],has_more:false,page:1}});
-        if(url.pathname==='/api/ai/models')return route.fulfill({json:{models:[{id:'gemini',configured:true},{id:'qwen3:4b-instruct-2507-q4_K_M',configured:true}]}});
+        if(url.pathname==='/api/ai/models')return route.fulfill({json:{models:[{id:'gemini',configured:true},{id:'qwen3:1.7b',configured:true},{id:'qwen3:4b',configured:true},{id:'qwen3:8b',configured:true},{id:'qwen3:4b-instruct-2507-q4_K_M',configured:true}]}});
         if(url.pathname.startsWith('/api/')) return route.fulfill({json:{}});
-        const file=path.join(root,decodeURIComponent(url.pathname));
+        const file=path.join(root,url.pathname.startsWith('/_next/')?'out':'',decodeURIComponent(url.pathname));
         if(fs.existsSync(file) && fs.statSync(file).isFile()) {
             const types:Record<string,string>={'.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.woff2':'font/woff2','.otf':'font/otf'};
             return route.fulfill({contentType:types[path.extname(file)]||'application/octet-stream',body:fs.readFileSync(file)});
@@ -61,27 +69,31 @@ async function fixture(width = 1280) {
         return route.fulfill({status:404,body:''});
     });
     const page=await context.newPage();page.on('pageerror',error=>errors.push(error.message));
+    const goto=page.goto.bind(page), reload=page.reload.bind(page);
+    const mounted=()=>page.waitForFunction(()=>document.querySelector('#workspace-page, .auth'));
+    page.goto=async (...args)=>{const response=await goto(...args);await mounted();return response;};
+    page.reload=async (...args)=>{const response=await reload(...args);await mounted();return response;};
     await page.goto('https://comet.test/recentes.html');
     await page.waitForFunction(()=>requiredElement(document, ".recent-chats__list", HTMLElement).getAttribute('aria-busy')==='false');
     return {page,context,errors,requests,failDeletion:()=>{failDelete=true;},allowDeletion:()=>{failDelete=false;}};
 }
-test('recentes: seta recolhe, texto navega e seleção parcial/total usa os SVGs corretos',async()=>{
+test('recentes: cabeçalho recolhe, atalho navega e seleção usa os SVGs corretos',async()=>{
     const f=await fixture();const p=f.page;
     try {
         assert.equal(await p.locator('.recent-chats__row').count(),3);
         if(process.env.QA_DESKTOP)await p.screenshot({path:process.env.QA_DESKTOP});
-        await p.locator('.sessions__collapse[aria-controls="recent-chats"]').click();
-        await p.waitForFunction(()=>requiredElement(document, ".sessions__collapse[aria-controls=\"recent-chats\"]", HTMLButtonElement).getAttribute('aria-expanded')==='false');
-        assert.equal(await p.locator('.sessions__collapse[aria-controls="recent-chats"]').getAttribute('aria-expanded'),'false');
-        assert.equal(await p.locator('a.sessions__heading').getAttribute('href'),'/recentes.html');
-        await p.locator('a.sessions__heading').click();
+        await p.locator('.sessions__heading[aria-controls="recent-chats"]').click();
+        await p.waitForFunction(()=>requiredElement(document, ".sessions__heading[aria-controls=\"recent-chats\"]", HTMLButtonElement).getAttribute('aria-expanded')==='false');
+        assert.equal(await p.locator('.sessions__heading[aria-controls="recent-chats"]').getAttribute('aria-expanded'),'false');
+        assert.equal(await p.locator('a.sessions__visit').getAttribute('href'),'/recentes.html');
+        await p.locator('a.sessions__visit').click();
         await p.waitForFunction(()=>optionalElement(document, ".recent-chats__row", HTMLElement));
         await p.locator('.recent-chats__row input').first().check();
         assert(await p.locator('#select-all-chats').evaluate(e=>e instanceof HTMLInputElement && e.indeterminate));
-        assert.match(await p.locator('#select-all-chats').evaluate(e=>getComputedStyle(e,'::before').maskImage),/selected-partial.svg/);
+        assert.match(await p.locator('#select-all-chats').evaluate(e=>getComputedStyle(e,'::before').maskImage),/selected-partial(?:\.[\w-]+)?\.svg/);
         await p.locator('#select-all-chats').check();
         assert.equal(await p.locator('#recent-chats-title').textContent(),'3 selecionado(s)');
-        assert.match(await p.locator('#select-all-chats').evaluate(e=>getComputedStyle(e,'::before').maskImage),/check.svg/);
+        assert.match(await p.locator('#select-all-chats').evaluate(e=>getComputedStyle(e,'::before').maskImage),/check(?:\.[\w-]+)?\.svg/);
         await p.locator('.recent-chats__cancel').click();
         await p.locator('[popovertarget="chat-selection-menu"]').click();
         await p.locator('[data-select="all"]').click();
@@ -93,7 +105,8 @@ test('recentes: busca, ordenação e opções existentes',async()=>{
     const f=await fixture();const p=f.page;
     try {
         assert.equal(await p.locator('.recent-chats__name').first().textContent(),'Outra conversa');
-        await p.locator('.recent-chats__sort select').selectOption('oldest');
+        await p.locator('.recent-chats__sort').click();
+        await p.locator('#chat-sort-menu [data-sort=oldest]').click();
         assert.equal(await p.locator('.recent-chats__name').first().textContent(),'Conversa antiga');
         await p.locator('.recent-chats__search-toggle').click();await p.locator('#recent-chats-search').fill('Primeira');
         assert.equal(await p.locator('.recent-chats__row').count(),1);
@@ -101,7 +114,7 @@ test('recentes: busca, ordenação e opções existentes',async()=>{
         assert.equal(await p.locator('.recent-chats__filter').count(),0);
         await p.mouse.move(800,400);
         assert.equal(await p.locator('.recent-chats__pin').evaluate(e=>getComputedStyle(e).opacity),'1');
-        assert.match(await p.locator('.recent-chats__pin').evaluate(e=>getComputedStyle(e).maskImage),/pinned-filled.svg/);
+        assert.match(await p.locator('.recent-chats__pin').evaluate(e=>getComputedStyle(e).maskImage),/pinned-filled(?:\.[\w-]+)?\.svg/);
         assert.equal(await p.locator('.recent-chats__row').count(),1);
         await p.locator('.recent-chats__row').hover();
         assert.equal(await p.locator('.recent-chats__pin').evaluate(e=>getComputedStyle(e).opacity),'0');
@@ -139,18 +152,17 @@ test('recentes: celular sem transbordamento, busca e seleção utilizáveis',asy
     } finally {await f.context.close();}
 });
 
-test('fixados: só a seta recolhe e a navegação preserva o estado da lateral', async () => {
+test('fixados: cabeçalho recolhe e navegação preserva o estado da lateral', async () => {
     const f = await fixture(); const p = f.page;
     try {
         await p.locator('.recent-chats__row').first().hover();
         await p.locator('.recent-chats__more').first().click();
         await p.locator('#sessions-menu [data-action="pin"]').click();
         const pinned = p.locator('.sessions').filter({has:p.locator('#pinned-chats')});
-        await pinned.locator('.sessions__heading').click();
         assert(await pinned.evaluate(e=>e instanceof HTMLDetailsElement && e.open));
-        await pinned.locator('.sessions__collapse').click();
+        await pinned.locator('.sessions__heading').click();
         assert(!await pinned.evaluate(e=>e instanceof HTMLDetailsElement && e.open));
-        await p.locator('.sessions__collapse[aria-controls="recent-chats"]').click();
+        await p.locator('.sessions__heading[aria-controls="recent-chats"]').click();
         await p.locator('.sidebar__toggle').click();
         await p.goto('https://comet.test/recentes.html?return=1');
         await p.waitForFunction(()=>window.ComputerSessions);
@@ -172,7 +184,7 @@ test('navegação mantém o mesmo documento e lateral entre todas as telas', asy
         }
         await p.waitForFunction(()=>!requiredElement(document, ".home__input", HTMLTextAreaElement).readOnly);
         assert(!await p.locator('.sources-panel-toggle').isVisible());
-        assert.equal(await p.locator('.sidebar__new-chat .sidebar__link').evaluate(e=>e.getBoundingClientRect().height),40);
+        assert.equal(await p.locator('.sidebar__new-chat .sidebar__link').first().evaluate(e=>e.getBoundingClientRect().height),40);
         assert.equal(await p.locator('.computer-intro h1').evaluate(e=>getComputedStyle(e).flexDirection),'row');
         await p.locator('.anonymous-toggle').click();
         assert.equal(await p.locator('.home__composer').evaluate(e=>getComputedStyle(e).borderTopStyle),'dashed');
@@ -314,7 +326,7 @@ test('carregar histórico não esmaece os controles ao entrar no chat', async ()
         await p.route('**/api/ai/conversations?offset=0',async route=>{await pending;await route.fulfill({json:{conversations:[],next_offset:null}});});
         await p.evaluate(()=>window.WorkspaceNavigation.go('/computer.html?new=1'));
         assert(await p.locator('.model-picker').isDisabled());
-        for(const selector of ['.model-picker','.home__microphone','.sessions__collapse']) {
+        for(const selector of ['.model-picker','.home__microphone','.sessions__heading']) {
             assert.equal(await p.locator(selector).first().evaluate(e=>getComputedStyle(e).opacity),'1');
         }
         release();
@@ -675,8 +687,14 @@ test('chat restaura anexos e fontes com os campos da API',async()=>{
         assert.equal(await p.locator('.attachment-chip__name').textContent(),'documento.txt');
         assert.equal(await p.locator('.computer-message--assistant .computer-message__text').textContent(),'Resposta salva');
         await p.locator('.computer-sources').click();
-        assert.match(await p.locator('.sources-card__source').textContent() ?? '',/Trecho da fonte/);
-        assert.match(await p.locator('.sources-card__source small').textContent() ?? '',/aprox/);
+        assert.equal(await p.locator('.sources-card__title').textContent(),'Fonte de teste');
+        assert.equal(await p.locator('.sources-card__source p, .sources-card__source small').count(),0);
+        const source=p.locator('.sources-card__source');
+        assert.equal(await source.evaluate(e=>e.getBoundingClientRect().height),52);
+        assert.equal(await source.evaluate(e=>getComputedStyle(e).padding),'8px');
+        assert.equal(await p.locator('.sources-card__list').evaluate(e=>getComputedStyle(e).gap),'4px');
+        await source.hover();
+        assert.equal(await p.locator('.sources-card__title').evaluate(e=>getComputedStyle(e).textDecorationLine),'none');
         await p.route('**/api/ai/attachments',route=>route.fulfill({json:{id:'file-2',name:'novo.txt',kind:'file',size:5}}));
         await p.locator('#attachment-input').setInputFiles({name:'novo.txt',mimeType:'text/plain',buffer:Buffer.from('anexo')});
         await p.waitForFunction(()=>window.ComputerAttachments.files().length===1);
@@ -722,7 +740,7 @@ test('Comet: pesquisa web, fontes e histórico financeiro recolhível', async ()
         assert.equal(await web.getAttribute('aria-pressed'), 'true');
         await web.click(); assert.equal(await web.getAttribute('aria-pressed'), 'false');
         assert.equal(await p.locator('.attachment-menu p').count(), 0);
-        assert.match(await web.locator('i').evaluate(e => getComputedStyle(e).maskImage), /web-links.svg/);
+        assert.match(await web.locator('i').evaluate(e => getComputedStyle(e).maskImage), /settings-settings-search(?:\.[\w-]+)?\.svg/);
         assert(!await p.evaluate(() => [...document.fonts].some(font => /Serrif|Geist/i.test(font.family))));
         await p.goto('https://comet.test/graficos.html');
         const toggle = p.locator('.finance-panel-toggle'), history = p.locator('#finance-history-panel');
@@ -1151,4 +1169,282 @@ test('respostas não lidas: indicador, menu, persistência e nova resposta', asy
         await p.waitForFunction(() => !document.querySelector('.sessions__unread'));
         assert.deepEqual(f.errors,[]);
     } finally { await f.context.close(); }
+});
+
+ test('Ollama: catálogo instalado atualiza sem lista fixa', async () => {
+    const f = await fixture();
+    try {
+        let models = ['qwen3:1.7b-turbo', 'qwen3:4b'];
+        await f.context.route('**/api/ai/models', route => route.fulfill({json:{models:[{id:'gemini',configured:true}, ...models.map(id=>({id,configured:true}))]}}));
+        await f.page.goto('https://comet.test/aprender.html');
+        await f.page.locator('.computer-provider').click();
+        await f.page.locator('.local-model-picker').click();
+        assert.deepEqual(await f.page.locator('.model-menu [data-provider]').evaluateAll(nodes=>nodes.map(n=>(n as HTMLElement).dataset.provider)), models);
+        await f.page.locator('[data-provider="qwen3:1.7b-turbo"]').click();
+        models = ['qwen3:4b'];
+        await f.page.locator('.local-model-picker').click();
+        await f.page.waitForFunction(()=>document.querySelectorAll('.model-menu [data-provider]').length===1);
+        assert.equal(await f.page.locator('.local-model-name').textContent(), '4b');
+        assert.deepEqual(f.errors, []);
+    } finally { await f.context.close(); }
+});
+
+test('ordenar: teclado compartilhado e alinhamento do chat', async () => {
+    const f = await fixture(1600);
+    try {
+        const p = f.page;
+        await p.locator('.recent-chats__sort').click();
+        await p.waitForFunction(()=>document.activeElement?.getAttribute('data-sort')==='recent');
+        await p.keyboard.press('ArrowDown');
+        assert.equal(await p.locator(':focus').getAttribute('data-sort'), 'oldest');
+        await p.keyboard.press('Escape');
+        await p.waitForFunction(()=>document.querySelector('.recent-chats__sort')?.getAttribute('aria-expanded')==='false');
+        await p.locator('.sidebar').hover();
+        await p.locator('.sessions__preferences').click();
+        await p.waitForFunction(()=>document.activeElement?.hasAttribute('data-order'));
+        await p.keyboard.press('End');
+        assert.equal(await p.locator(':focus').getAttribute('data-order'), 'activity');
+        await p.keyboard.press('Escape');
+        await p.goto('https://comet.test/computer.html');
+        await p.addStyleTag({content:'*,*::before,*::after {transition:none!important;animation:none!important}'});
+        await p.locator('.computer-page').evaluate(el=>el.classList.add('has-conversation'));
+        await p.waitForFunction(()=>document.querySelector('.computer-composer')?.getBoundingClientRect().width===680);
+        const layout=await p.evaluate(()=>{
+            const page=requiredElement(document,'.computer-page',HTMLElement), box=page.getBoundingClientRect(), style=getComputedStyle(page);
+            const composer=requiredElement(document,'.computer-composer',HTMLElement).getBoundingClientRect();
+            return {width:box.width-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight),left:box.left+parseFloat(style.paddingLeft),composerLeft:composer.left};
+        });
+        assert.equal(layout.width,680);
+        assert.ok(Math.abs(layout.left-layout.composerLeft)<1);
+        assert.deepEqual(f.errors,[]);
+    } finally {await f.context.close();}
+});
+
+ test('saudação respeita o tamanho definido no CSS', async () => {
+    const f=await fixture(1600);const p=f.page;
+    try {
+        await p.goto('https://comet.test/computer.html?new=1');
+        await p.waitForFunction(()=>!!document.querySelector<HTMLElement>('[data-chat-greeting]')?.style.fontSize);
+        for (const width of [1600, 1100, 390]) {
+            await p.setViewportSize({width,height:900});
+            await p.evaluate(async()=>{await document.fonts.ready;await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));});
+            const sizes=await p.locator('[data-chat-greeting]').evaluate(label=>({text:parseFloat(getComputedStyle(label).fontSize),heading:parseFloat(getComputedStyle(label.parentElement!).fontSize)}));
+            assert(sizes.text<=sizes.heading,JSON.stringify({width,...sizes}));
+        }
+        assert.deepEqual(f.errors,[]);
+    } finally {await f.context.close();}
+});
+
+
+test('site: páginas principais cabem no celular e desktop nos dois temas', async () => {
+    const f=await fixture();const p=f.page;
+    try {
+        for (const theme of ['dark','light']) {
+            await p.evaluate(theme=>localStorage.setItem('ascensao-theme',theme),theme);
+            for (const width of [390,1280]) {
+                await p.setViewportSize({width,height:900});
+                for (const name of ['index','computer','aprender','descobrir','recentes','graficos']) {
+                    await p.goto('https://comet.test/'+name+'.html');
+                    await p.evaluate(()=>document.fonts.ready);
+                    const overflow=await p.evaluate(()=>{
+                        const main=document.querySelector<HTMLElement>('.workspace__content');
+                        return {page:document.documentElement.scrollWidth-innerWidth,main:main ? main.scrollWidth-main.clientWidth : 0};
+                    });
+                    assert(overflow.page<=1 && overflow.main<=1,JSON.stringify({theme,width,name,overflow}));
+                }
+            }
+        }
+        assert.deepEqual(f.errors,[]);
+    } finally {await f.context.close();}
+});
+
+test('descobrir: cards responsivos, clima noturno e unidades persistentes', async () => {
+    const f=await fixture(1920);const p=f.page;let weatherRequests=0;
+    const data={current:{temperature_2m:20,weather_code:0},daily:{time:['2026-10-08','2026-10-09','2026-10-10','2026-10-11','2026-10-12'],weather_code:[0,2,3,61,95],temperature_2m_max:[24,25,26,27,28],temperature_2m_min:[15,16,17,18,19]}};
+    try {
+        await p.evaluate(data=>localStorage.setItem('ascenda-weather-7',JSON.stringify({city:{name:'Monte Mor',latitude:-22.9,longitude:-47.3},data,saved:Date.now()})),data);
+        await f.context.route('https://api.open-meteo.com/**',route=>{weatherRequests++;return route.fulfill({json:{...data,current:{...data.current,is_day:0}}});});
+        await f.context.route('**/audit-cover.svg',route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="600" height="400" fill="#22808c"/></svg>'}));
+        await f.context.route('**/api/news?*',route=>route.fulfill({json:{page:1,has_more:false,articles:Array.from({length:4},(_,i)=>({id:String(i),title:'Águias e grandes projetos: notícias de tecnologia e ciência',description:'Pesquisas e descobertas para entender o mundo.',url:'https://example.com/'+i,image:'https://comet.test/audit-cover.svg',published_at:'2026-10-08T10:00:00Z',source:'Exemplo',sources:[{name:'Exemplo',url:'https://example.com'}]}))}}));
+        await p.goto('https://comet.test/descobrir.html');
+        await p.waitForFunction(()=>document.querySelectorAll('.news-card:not(.news-skeleton)').length===4 && document.querySelector('.weather-temp .icon-night'));
+        const weatherPadding=await p.locator('.weather-panel').evaluate(e=>{
+            const style=getComputedStyle(e);
+            return [style.paddingTop,style.paddingRight,style.paddingBottom,style.paddingLeft];
+        });
+        assert.deepEqual(weatherPadding,['20px','20px','20px','20px']);
+        await p.locator('.weather-panel').screenshot({path:path.join(root,'artifacts/weather-padding-fixed.png')});
+        assert.equal(weatherRequests,1);
+        assert.equal(await p.locator('.news-card__time').count(),1);
+        await p.getByRole('button',{name:'Fahrenheit',exact:true}).click();
+        assert.match(await p.locator('.weather-temp').textContent() || '',/68°/);
+        for (const width of [1920,1280,1279,768,767,390]) {
+            await p.setViewportSize({width,height:900});
+            const layout=await p.evaluate(()=>{
+                const css=(selector:string)=>getComputedStyle(requiredElement(document,selector,HTMLElement));
+                const like=requiredElement(document,'.news-card:not(.news-card--featured) .news-icon-button',HTMLElement).getBoundingClientRect();
+                const more=requiredElement(document,'.news-card:not(.news-card--featured) .news-options',HTMLElement).getBoundingClientRect();
+                return {columns:css('.news-feed').gridTemplateColumns.split(' ').length,weather:css('.discovery-widgets').display,smallBorder:css('.news-card:not(.news-card--featured)').borderTopWidth,bigBorder:css('.news-card--featured').borderTopWidth,gap:more.left-like.right,width:requiredElement(document,'.discovery-layout',HTMLElement).getBoundingClientRect().width};
+            });
+            assert.equal(layout.columns,width<768?1:3);
+            assert.equal(layout.weather==='none',width<1280);
+            assert.equal(layout.smallBorder,width<768?'0px':'1px');
+            assert.equal(layout.bigBorder,'0px');assert(Math.abs(layout.gap)<1);assert(layout.width<=1080);
+            if(width===1920 || width===390)await p.screenshot({path:'artifacts/audit-discover-'+width+'.png'});
+        }
+        await p.reload();
+        await p.waitForFunction(()=>document.querySelector('.weather-temp')?.textContent?.includes('68°'));
+        assert.equal(weatherRequests,1);
+        assert.deepEqual(f.errors,[]);
+    } finally {await f.context.close();}
+});
+
+
+test('fontes: topo fixo, scroll interno discreto e brilho do ditado dentro da caixa',async()=>{
+    const f=await fixture(1600);const p=f.page;
+    try {
+        const research={state:'complete',query:'consulta',sources:Array.from({length:20},(_,i)=>({title:'Fonte de pesquisa '+i,url:'https://example.com/report/'+i,domain:'example.com',excerpt:'Trecho detalhado da fonte para consultar as informações que foram usadas na resposta.'}))};
+        await p.route('**/api/ai/conversations/1',route=>route.fulfill({json:{conversation:{id:'1',title:'Histórico',created_at:'2026-09-30',updated_at:'2026-09-30'},active:false,before:null,turns:[{id:'turn-1',message:'Analise',answer:'Resposta salva',thinking:'',created_at:'2026-09-30T12:00:00Z',status:'completed',metadata:{research}}]}}));
+        await p.goto('https://comet.test/computer.html?conversation=1');
+        await p.locator('.computer-sources').click();
+        const list=p.locator('.sources-card__list'), heading=p.locator('.sources-card > summary');
+        const top=await heading.evaluate(e=>e.getBoundingClientRect().top);
+        assert.equal(await p.locator('.computer-sources-panel').evaluate(e=>e.getBoundingClientRect().height),384);
+        assert.equal(await heading.evaluate(e=>getComputedStyle(e).padding),'16px 8px');
+        assert(await list.evaluate(e=>e.scrollHeight>e.clientHeight));
+        await list.evaluate(e=>e.scrollTop=200);
+        await p.waitForFunction(()=>document.querySelector('.sources-card__list')?.classList.contains('is-scrolled'));
+        assert.equal(await heading.evaluate(e=>e.getBoundingClientRect().top),top);
+        assert.equal(await p.locator('.computer-sources-panel').evaluate(e=>e.scrollTop),0);
+        assert.equal(await list.evaluate(e=>getComputedStyle(e,'::-webkit-scrollbar').width),'4px');
+        assert.equal(await list.evaluate(e=>getComputedStyle(e).getPropertyValue('--sources-fade-top').trim()),'2rem');
+        assert(await p.locator('.computer-sources-panel').evaluate(e=>e.getBoundingClientRect().bottom<=innerHeight));
+        await p.waitForFunction(()=>{
+            const page=requiredElement(document,'.computer-page',HTMLElement), composer=requiredElement(document,'.computer-composer',HTMLElement);
+            return Math.abs(page.getBoundingClientRect().left+parseFloat(getComputedStyle(page).paddingLeft)-composer.getBoundingClientRect().left)<1;
+        });
+        await p.screenshot({path:'artifacts/sources-fixed-header.png'});
+        await heading.click();assert(!await list.isVisible());await heading.click();assert(await list.isVisible());
+        for(const width of [1600,390]) {
+            await p.setViewportSize({width,height:800});
+            assert(await p.locator('.computer-sources-panel').evaluate(e=>e.getBoundingClientRect().right<=innerWidth && e.getBoundingClientRect().bottom<=innerHeight));
+        }
+        await p.locator('.home__composer').evaluate(e=>e.classList.add('is-dictating'));
+        const inset=await p.locator('.home__composer').evaluate(e=>getComputedStyle(e,'::after').inset);
+        assert.equal(inset,'1px');
+        assert.deepEqual(f.errors,[]);
+    } finally {await f.context.close();}
+});
+
+
+test('fontes: últimas fontes automáticas e painel oculto no novo chat',async()=>{
+    const f=await fixture(1600);const p=f.page;
+    try {
+        await p.goto('https://comet.test/computer.html?new=1');
+        const panel=p.locator('.computer-sources-panel'),toggle=p.locator('.sources-panel-toggle');
+        assert(!await toggle.isVisible());assert(!await panel.isVisible());
+        await p.route('**/api/ai/conversations/1',route=>route.fulfill({json:{conversation:{id:'1',title:'Histórico',created_at:'2026-09-30',updated_at:'2026-09-30'},active:false,before:null,turns:[1,2].map(i=>({id:'turn-'+i,message:'Analise '+i,answer:'Resposta '+i,thinking:'',created_at:'2026-09-30T12:00:00Z',status:'completed',metadata:{research:{state:'complete',sources:[{title:'Fonte '+i,url:'https://example.com/'+i,domain:'example.com',excerpt:'Trecho '+i}]}}}))}}));
+        await p.goto('https://comet.test/computer.html?conversation=1');
+        await p.waitForFunction(()=>document.querySelector('.sources-card__title')?.textContent==='Fonte 2');
+        assert(await panel.isVisible());
+        assert.equal(await p.locator('.chat-links__title').textContent(),'Fonte 2');
+        await p.evaluate(()=>{
+            const article=document.querySelectorAll<HTMLElement>('.computer-message--assistant')[1];
+            window.ComputerResponseDetails.research(article,{state:'empty',sources:[]},true);
+        });
+        assert.equal(await p.locator('.sources-card__title').textContent(),'Fonte 2');
+        assert.equal(await p.locator('.chat-links__title').textContent(),'Fonte 2');
+        await p.reload();
+        await p.waitForFunction(()=>document.querySelector('.sources-card__title')?.textContent==='Fonte 2');
+        assert(await panel.isVisible());assert.equal(await panel.evaluate(e=>e.getBoundingClientRect().height),384);
+        await p.locator('[data-chat-view="links"]').click();assert(await toggle.isVisible());
+        await toggle.click();assert(!await panel.isVisible());await toggle.click();assert(await panel.isVisible());
+        await p.goto('https://comet.test/computer.html?new=1');
+        await p.waitForFunction(()=>document.querySelector('.sources-card--empty'));
+        assert(!await panel.isVisible());assert(!await toggle.isVisible());assert.equal(await p.locator('.sources-card__source').count(),0);
+        assert.deepEqual(f.errors,[]);
+    } finally {await f.context.close();}
+});
+
+
+test('aprender: altura acompanha largura e fontes sem precisar digitar', async () => {
+    const f=await fixture(1600),p=f.page;
+    try {
+        await p.goto('https://comet.test/aprender.html');
+        const input=p.locator('.study-page textarea');
+        await input.fill('Uma pergunta de estudo com várias palavras para verificar a quebra de linha. '.repeat(4));
+        await p.setViewportSize({width:950,height:900});
+        await p.waitForTimeout(350);
+        const before=await input.evaluate(e=>e.getBoundingClientRect().height);
+        await input.dispatchEvent('input');
+        assert.equal(await input.evaluate(e=>e.getBoundingClientRect().height),before);
+        await p.evaluate(()=>{
+            const input=requiredElement(document,'.study-page textarea',HTMLTextAreaElement);
+            input.style.height='1px';
+            document.fonts.dispatchEvent(new Event('loadingdone'));
+        });
+        assert.equal(await input.evaluate(e=>e.getBoundingClientRect().height),before);
+        assert.deepEqual(f.errors,[]);
+    } finally {await f.context.close();}
+});
+
+
+test('Next: navegação usa o build de produção e descarta eventos da página anterior', async () => {
+    const f=await fixture(1280),p=f.page;
+    try {
+        const scripts=await p.locator('script[src]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('src')));
+        assert(scripts.some(src=>src?.startsWith('/_next/')));
+        assert(!scripts.some(src=>src?.startsWith('/static/js/')));
+        await p.locator('.sidebar').evaluate(e=>{(e as HTMLElement).dataset.navigationMarker='preserved';});
+        for(let i=0;i<3;i++) {
+            await p.evaluate(()=>window.WorkspaceNavigation.go('/computer.html?new=1'));
+            assert.equal(await p.locator('.sources-panel-toggle').count(),1);
+            await p.evaluate(()=>window.WorkspaceNavigation.go('/aprender.html'));
+            assert.equal(await p.locator('.sources-panel-toggle').count(),0);
+            assert.equal(await p.locator('.sidebar').getAttribute('data-navigation-marker'),'preserved');
+        }
+        let sent=0;
+        await p.route('**/api/ai/chat',route=>{sent++;return route.fulfill({contentType:'application/x-ndjson',body:'{"type":"delta","text":"Resposta"}\n{"type":"done","metadata":{}}\n'});});
+        await p.locator('.study-composer textarea').fill('Uma pergunta de teste');
+        await p.locator('.study-composer textarea').press('Enter');
+        await p.waitForFunction(()=>document.querySelector('.computer-message--assistant .computer-message__text')?.textContent==='Resposta');
+        assert.equal(sent,1);
+        assert.deepEqual(f.errors,[]);
+    } finally {await f.context.close();}
+});
+
+test('Next: cadastro mantém idade e CSRF no formulário', async () => {
+    const f=await fixture(),p=f.page;
+    try {
+        await p.goto('https://comet.test/index.html');
+        await p.locator('[data-auth-open="signup"]').click();
+        assert.deepEqual(f.errors,[]);
+        const form=p.locator('[data-auth-panel=signup] form');
+        assert(await form.isVisible());
+        assert.equal(await form.locator('[name="csrf_token"]').inputValue(),'test-csrf');
+        assert.equal(await form.locator('[name="age"]').count(),1);
+        assert.equal(await p.locator('.auth__form--login [name="age"]').count(),0);
+        await p.locator('.auth__close').click();
+        assert(!await p.locator('.auth').isVisible());
+        assert.deepEqual(f.errors,[]);
+    } finally {await f.context.close();}
+});
+
+test('Next: logo e novo chat repetido preservam navegação e sessão', async () => {
+    const f=await fixture(),p=f.page;
+    try {
+        await p.locator('.sidebar').evaluate(e=>{(e as HTMLElement).dataset.navigationMarker='preserved';});
+        await p.locator('.sidebar__logo').click();
+        await p.waitForFunction(()=>document.querySelector('.computer-page') && !document.querySelector<HTMLTextAreaElement>('.home__input')?.readOnly);
+        assert.equal(new URL(p.url()).pathname,'/computer.html');
+        for(let i=0;i<2;i++) {
+            await p.evaluate(()=>window.WorkspaceNavigation.go('/computer.html?new=1'));
+            await p.waitForFunction(()=>!document.querySelector<HTMLTextAreaElement>('.home__input')?.readOnly);
+        }
+        await p.evaluate(()=>window.WorkspaceNavigation.go('/aprender.html'));
+        await p.goBack();
+        await p.locator('.computer-page').waitFor();
+        assert.equal(await p.locator('.sidebar').getAttribute('data-navigation-marker'),'preserved');
+        assert.deepEqual(f.errors,[]);
+    } finally {await f.context.close();}
 });

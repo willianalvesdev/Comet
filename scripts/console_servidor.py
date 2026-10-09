@@ -56,7 +56,7 @@ def build_frontend():
     try:
         digest = hashlib.sha256((ROOT / 'package-lock.json').read_bytes()).hexdigest()
         stamp = ROOT / 'node_modules' / '.ascenda-lock.sha256'
-        if not stamp.exists() or stamp.read_text() != digest or not (ROOT / 'node_modules/typescript/bin/tsc').is_file():
+        if not stamp.exists() or stamp.read_text() != digest or not all((ROOT / path).is_file() for path in ('node_modules/typescript/bin/tsc', 'node_modules/next/dist/bin/next', 'node_modules/tailwindcss/package.json', 'node_modules/@tailwindcss/postcss/package.json', 'node_modules/react/package.json')):
             if subprocess.run([npm, 'ci', '--no-audit', '--no-fund'], cwd=ROOT).returncode:
                 return False
             stamp.write_text(digest)

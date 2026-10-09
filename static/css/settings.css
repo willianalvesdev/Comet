@@ -10,7 +10,7 @@
 #settings-dialog {
     padding: 0;
     border: 1px solid var(--border);
-    border-radius: var(--radius-container);
+    border-radius: var(--radius-16);
     background: var(--bg);
     color: var(--text);
     width: min(1000px, calc(100vw - 48px));
@@ -35,7 +35,7 @@
 }
 
 .settings-sidebar {
-    padding: var(--space-5) var(--space-3);
+    padding: var(--spacing-5) var(--spacing-3);
     border-right: 1px solid var(--border);
     overflow: auto;
 }
@@ -43,10 +43,10 @@
 .settings-search {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: var(--space-3);
+    gap: var(--spacing-2-5);
+    padding: var(--spacing-3);
     border: 1px solid var(--border);
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     background: var(--surface);
 }
 
@@ -63,22 +63,22 @@
 .settings-sidebar>p {
     color: var(--text-secondary);
     font-size: 14px;
-    margin: 44px 14px var(--space-4);
+    margin: var(--spacing-11) 14px var(--spacing-4);
 }
 
 .settings-sidebar nav {
     display: grid;
-    gap: var(--space-1);
+    gap: var(--spacing-1);
 }
 
 .settings-sidebar nav button {
     display: flex;
-    gap: 10px;
+    gap: var(--spacing-2-5);
     align-items: center;
     text-align: left;
     background: none;
     border: 0;
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     padding: 11px 14px;
     color: inherit;
     font: inherit;
@@ -94,22 +94,22 @@
 }
 
 .settings-content {
-    padding: var(--space-8);
+    padding: var(--spacing-8);
     overflow: auto;
     scrollbar-width: thin;
 }
 
 .settings-content h1 {
     font-size: 24px;
-    font-weight: 400;
-    margin: 0 45px 34px var(--space-5);
+    font-weight: var(--font-weight-regular);
+    margin: 0 45px 34px var(--spacing-5);
 }
 
 .settings-content h2 {
     font-size: 17px;
-    font-weight: 400;
+    font-weight: var(--font-weight-regular);
     color: var(--text-secondary);
-    margin: 30px var(--space-5) 14px;
+    margin: 30px var(--spacing-5) 14px;
 }
 
 .settings-close {
@@ -119,9 +119,9 @@
     border: 1px solid var(--border);
     background: var(--bg);
     color: var(--text);
-    border-radius: var(--radius-circle);
-    width: 40px;
-    height: 40px;
+    border-radius: var(--radius-full);
+    width: var(--input-lg);
+    height: var(--input-lg);
     font-size: 27px;
     cursor: pointer;
 }
@@ -134,8 +134,8 @@
 
 .settings-card {
     border: 1px solid var(--border);
-    border-radius: var(--radius-panel);
-    padding: 0 var(--space-5);
+    border-radius: var(--radius-16);
+    padding: 0 var(--spacing-5);
     background: var(--surface);
 }
 
@@ -143,9 +143,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-6);
+    gap: var(--spacing-6);
     min-height: 76px;
-    padding: var(--space-4) 0;
+    padding: var(--spacing-4) 0;
     border-bottom: 1px solid var(--border);
 }
 
@@ -154,7 +154,7 @@
 }
 
 .settings-card.settings-row {
-    padding: 18px var(--space-5);
+    padding: 18px var(--spacing-5);
 }
 
 .settings-row :is(input,select,textarea) {
@@ -162,11 +162,11 @@
     max-width: 50%;
     box-sizing: border-box;
     border: 1px solid var(--border);
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     background: transparent;
     color: var(--text);
     font: inherit;
-    padding: 10px var(--space-3);
+    padding: var(--spacing-2-5) var(--spacing-3);
     color-scheme: inherit;
 }
 
@@ -185,18 +185,18 @@
     font-size: 14px;
     color: var(--text-secondary);
     line-height: 1.5;
-    margin: var(--space-1) 0;
+    margin: var(--spacing-1) 0;
 }
 
 .settings-content>form h2+.settings-hint {
-    margin: -6px var(--space-5) var(--space-4);
+    margin: -6px var(--spacing-5) var(--spacing-4);
 }
 
 .settings-content button:not(.memory-switch) {
     font: inherit;
     border: 1px solid var(--border);
-    border-radius: var(--radius-control);
-    padding: 10px var(--space-4);
+    border-radius: var(--radius-8);
+    padding: var(--spacing-2-5) var(--spacing-4);
     background: transparent;
     color: var(--text);
     cursor: pointer;
@@ -205,7 +205,7 @@
 .settings-actions {
     display: flex;
     justify-content: flex-end;
-    margin-top: var(--space-6);
+    margin-top: var(--spacing-6);
 }
 
 .settings-actions button {
@@ -237,17 +237,17 @@
     width: 36px;
     height: 20px;
     border: 0;
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
     padding: 3px;
-    background: #777;
+    background: var(--text-secondary);
     cursor: pointer;
 }
 
 .memory-switch span {
     display: block;
-    width: 14px;
-    height: 14px;
-    border-radius: var(--radius-circle);
+    width: var(--input-2xs);
+    height: var(--input-2xs);
+    border-radius: var(--radius-full);
     background: var(--text-white);
     transition: transform var(--duration-press);
 }
@@ -261,22 +261,22 @@
 }
 
 [data-settings-panel=memory] .settings-card+.settings-card {
-    padding: var(--space-5);
-    margin-top: var(--space-6);
+    padding: var(--spacing-5);
+    margin-top: var(--spacing-6);
 }
 
 #settings-summary {
     display: block;
     width: 100%;
     box-sizing: border-box;
-    margin-top: var(--space-4);
+    margin-top: var(--spacing-4);
     min-height: 220px;
     border: 1px solid var(--border);
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     background: transparent;
     color: inherit;
     font: inherit;
-    padding: var(--space-3);
+    padding: var(--spacing-3);
     resize: none;
 }
 
@@ -284,7 +284,7 @@
     #settings-dialog {
         width: calc(100vw - 16px);
         height: calc(100dvh - 16px);
-        border-radius: var(--radius-container);
+        border-radius: var(--radius-16);
     }
 
     .settings-layout {
@@ -293,14 +293,14 @@
     }
 
     .settings-sidebar {
-        padding: var(--space-3);
+        padding: var(--spacing-3);
         border-right: 0;
         border-bottom: 1px solid var(--border);
         overflow: hidden;
     }
 
     .settings-search {
-        margin-right: 48px;
+        margin-right: var(--spacing-12);
     }
 
     .settings-sidebar>p {
@@ -310,12 +310,12 @@
     .settings-sidebar nav {
         display: flex;
         overflow: auto;
-        margin-top: var(--space-3);
+        margin-top: var(--spacing-3);
     }
 
     .settings-sidebar nav button {
         white-space: nowrap;
-        padding: 10px;
+        padding: var(--spacing-2-5);
         font-size: 14px;
     }
 
@@ -325,18 +325,18 @@
     }
 
     .settings-content {
-        padding: var(--space-6) var(--space-4);
+        padding: var(--spacing-6) var(--spacing-4);
     }
 
     .settings-content h1 {
-        margin: 0 0 var(--space-6);
+        margin: 0 0 var(--spacing-6);
         font-size: 22px;
     }
 
     .settings-row {
         align-items: stretch;
         flex-direction: column;
-        gap: var(--space-3);
+        gap: var(--spacing-3);
     }
 
     .settings-row :is(input,select,textarea) {
@@ -358,7 +358,7 @@
     }
 
     .settings-card {
-        padding: 0 var(--space-4);
+        padding: 0 var(--spacing-4);
     }
 }
 
@@ -379,7 +379,7 @@
 @media (min-width: 761px) {
     #settings-dialog {
         box-sizing: border-box;
-        border-radius: var(--radius-container);
+        border-radius: var(--radius-16);
         font-size: 14px;
     }
 
@@ -393,18 +393,18 @@
     }
 
     .settings-sidebar {
-        padding: var(--space-4) var(--space-3);
+        padding: var(--spacing-4) var(--spacing-3);
     }
 
     .settings-search {
-        gap: var(--space-2);
-        padding: 10px;
-        border-radius: var(--radius-control);
+        gap: var(--spacing-2);
+        padding: var(--spacing-2-5);
+        border-radius: var(--radius-8);
     }
 
     .settings-sidebar > p {
         font-size: 12px;
-        margin: var(--space-8) var(--space-3) var(--space-3);
+        margin: var(--spacing-8) var(--spacing-3) var(--spacing-3);
     }
 
     .settings-sidebar nav {
@@ -412,36 +412,36 @@
     }
 
     .settings-sidebar nav button {
-        gap: var(--space-2);
-        padding: var(--space-2) var(--space-3);
-        border-radius: var(--radius-control);
+        gap: var(--spacing-2);
+        padding: var(--spacing-2) var(--spacing-3);
+        border-radius: var(--radius-8);
     }
 
     .settings-content {
-        padding: var(--space-8);
+        padding: var(--spacing-8);
     }
 
     .settings-content h1 {
         font-size: 20px;
-        margin: 0 var(--space-8) var(--space-6) var(--space-4);
+        margin: 0 var(--spacing-8) var(--spacing-6) var(--spacing-4);
     }
 
     .settings-content h2 {
         font-size: 14px;
-        margin: var(--space-6) var(--space-4) 11px;
+        margin: var(--spacing-6) var(--spacing-4) 11px;
     }
 
     .settings-close {
-        width: 32px;
-        height: 32px;
+        width: var(--input-md);
+        height: var(--input-md);
         top: 16px;
         right: 16px;
         font-size: 22px;
     }
 
     .settings-card {
-        border-radius: var(--radius-panel);
-        padding: 0 var(--space-4);
+        border-radius: var(--radius-16);
+        padding: 0 var(--spacing-4);
     }
 
     .settings-row {
@@ -451,13 +451,13 @@
     }
 
     .settings-card.settings-row {
-        padding: 14px var(--space-4);
+        padding: 14px var(--spacing-4);
     }
 
     .settings-row :is(input, select, textarea) {
         width: 224px;
-        border-radius: var(--radius-control);
-        padding: var(--space-2) 10px;
+        border-radius: var(--radius-8);
+        padding: var(--spacing-2) var(--spacing-2-5);
     }
 
     .settings-row textarea {
@@ -470,12 +470,12 @@
     }
 
     .settings-content > form h2 + .settings-hint {
-        margin: -5px var(--space-4) 13px;
+        margin: -5px var(--spacing-4) 13px;
     }
 
     .settings-content button:not(.memory-switch) {
-        border-radius: var(--radius-control);
-        padding: var(--space-2) 13px;
+        border-radius: var(--radius-8);
+        padding: var(--spacing-2) 13px;
     }
 
     .settings-actions {
@@ -483,24 +483,24 @@
     }
 
     [data-settings-panel=memory] .settings-card + .settings-card {
-        padding: var(--space-4);
+        padding: var(--spacing-4);
         margin-top: 19px;
     }
 
     #settings-summary {
         margin-top: 13px;
         min-height: 176px;
-        padding: 10px;
+        padding: var(--spacing-2-5);
     }
 }
 
 .settings-account-avatar {
     display: grid;
     place-items: center;
-    width: 32px;
-    height: 32px;
-    flex: 0 0 32px;
-    border-radius: var(--radius-circle);
+    width: var(--input-md);
+    height: var(--input-md);
+    flex: 0 0 var(--input-md);
+    border-radius: var(--radius-full);
     background: color-mix(in srgb, var(--accent) 24%, var(--surface));
     color: var(--text);
     font-family: var(--font-body);
@@ -523,16 +523,16 @@
     }
 }
 
-.appearance-card { padding: 0 var(--space-4); }
-.appearance-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) 0; }
+.appearance-card { padding: 0 var(--spacing-4); }
+.appearance-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--spacing-4); padding: var(--spacing-4) 0; }
 .appearance-row + .appearance-row { border-top: 1px solid var(--border); }
 .appearance-row > div:first-child { flex: 1 1 160px; }
-.appearance-row .settings-hint { margin: var(--space-1) 0 0; }
-.appearance-options { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: flex-end; }
-.appearance-choice { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); padding: var(--space-2); border: 0; border-radius: var(--radius-control); background: transparent; color: var(--text-secondary); font: inherit; font-size: var(--font-size-5); cursor: pointer; }
+.appearance-row .settings-hint { margin: var(--spacing-1) 0 0; }
+.appearance-options { display: flex; flex-wrap: wrap; gap: var(--spacing-2); justify-content: flex-end; }
+.appearance-choice { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-1); padding: var(--spacing-2); border: 0; border-radius: var(--radius-8); background: transparent; color: var(--text-secondary); font: inherit; font-size: var(--font-size-5); cursor: pointer; }
 .appearance-choice:hover, .appearance-choice[aria-pressed="true"] { background: var(--surface-hover); color: var(--text); }
-.appearance-choice[aria-pressed="true"] > span:last-child::before { content: ''; display: inline-block; width: 16px; height: 16px; margin-right: 4px; vertical-align: -3px; background: currentColor; mask: url('../img/icons/check.svg') center/contain no-repeat; }
-.appearance-choice img, .appearance-font { width: 112px; height: 80px; border-radius: var(--radius-small); }
+.appearance-choice[aria-pressed="true"] > span:last-child::before { content: ''; display: inline-block; width: var(--input-xs); height: var(--input-xs); margin-right: var(--spacing-1); vertical-align: -3px; background: currentColor; mask: url('../img/icons/check.svg') center/contain no-repeat; }
+.appearance-choice img, .appearance-font { width: 112px; height: 80px; border-radius: var(--radius-4); }
 .appearance-font { display: grid; place-items: center; border: 1px solid var(--border); font-size: 42px; color: var(--text); }
 .appearance-font--serif { font-family: var(--font-heading); }
 .appearance-font--sans { font-family: var(--font-body); }

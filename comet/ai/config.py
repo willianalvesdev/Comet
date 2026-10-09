@@ -1,10 +1,20 @@
 import os
+import re
 from dataclasses import dataclass
 from urllib.parse import urlsplit
 
 
-LOCAL_MODELS = ('qwen3:1.7b', 'qwen3:4b', 'qwen3:8b', 'qwen3:4b-instruct-2507-q4_K_M')
-PROVIDERS = ('qwen', 'gemini', *LOCAL_MODELS)
+
+
+def is_local_model(value):
+    return (isinstance(value, str) and value not in ('gemini', 'qwen')
+            and len(value) <= 200 and '://' not in value and 'cloud' not in value.lower()
+            and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.:/-]*', value) is not None)
+
+
+def is_provider(value):
+    return value in ('gemini', 'qwen') or is_local_model(value)
+
 
 @dataclass(frozen=True)
 class AIConfig:

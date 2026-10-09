@@ -2,10 +2,10 @@
     width: min(760px, calc(100% - 32px));
     max-height: calc(100svh - 32px);
     margin: auto;
-    padding: 76px 48px 64px;
+    padding: 76px var(--spacing-12) 64px;
     overflow-y: auto;
     border: 1px solid var(--border);
-    border-radius: var(--radius-container);
+    border-radius: var(--radius-16);
     background: var(--bg);
     color: var(--text);
     text-align: center;
@@ -75,7 +75,7 @@ html:has(.auth[open]) {
     width: 18px;
     height: 18px;
     border: 0;
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     background: transparent;
     color: var(--text-secondary);
 }
@@ -83,13 +83,13 @@ html:has(.auth[open]) {
 .auth__title {
     font-family: var(--font-heading);
     font-size: 1.875rem;
-    font-weight: 400;
+    font-weight: var(--font-weight-regular);
     line-height: 1.12;
     text-wrap: balance;
 }
 
 .auth__policy {
-    margin-top: var(--space-5);
+    margin-top: var(--spacing-5);
     font-size: var(--font-size-3);
     line-height: 1.5;
 }
@@ -109,9 +109,9 @@ html:has(.auth[open]) {
 .auth__form {
     display: flex;
     flex-direction: column;
-    gap: var(--space-5);
+    gap: var(--spacing-5);
     width: min(100%, 400px);
-    margin: 36px auto 0;
+    margin: var(--spacing-9) auto 0;
 }
 
 .auth__form--login {
@@ -122,9 +122,9 @@ html:has(.auth[open]) {
     width: 100%;
     min-width: 0;
     height: 45px;
-    padding: var(--space-3) 28px;
+    padding: var(--spacing-3) var(--spacing-7);
     border: 1px solid var(--border);
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     background: var(--surface);
     font-size: var(--font-size-3);
 }
@@ -151,9 +151,9 @@ html:has(.auth[open]) {
 
 .auth__submit {
     min-height: 50px;
-    padding: var(--space-3) var(--space-5);
+    padding: var(--spacing-3) var(--spacing-5);
     border: 0;
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     background: var(--text);
     color: var(--bg);
     font-size: var(--font-size-3);
@@ -161,7 +161,7 @@ html:has(.auth[open]) {
 }
 
 .auth__form--login .auth__submit {
-    margin-top: 10px;
+    margin-top: var(--spacing-2-5);
 }
 
 .auth__switch {
@@ -190,7 +190,7 @@ html:has(.auth[open]) {
 
     .auth {
         width: min(600px, calc(100% - 32px));
-        padding: 48px 40px 40px;
+        padding: var(--spacing-12) var(--spacing-10) var(--spacing-10);
     }
 
     .auth__panel {
@@ -198,22 +198,22 @@ html:has(.auth[open]) {
     }
 
     .auth__form {
-        gap: var(--space-3);
-        margin-top: 28px;
+        gap: var(--spacing-3);
+        margin-top: var(--spacing-7);
     }
 
     .auth__form--login {
-        margin-top: 36px;
+        margin-top: var(--spacing-9);
     }
 
     .auth__switch {
-        margin-top: var(--space-8);
+        margin-top: var(--spacing-8);
     }
 }
 
 @media (width < 640px) {
     .auth {
-        padding: 64px var(--space-6) 40px;
+        padding: 64px var(--spacing-6) var(--spacing-10);
     }
 
     .auth__panel {
@@ -232,12 +232,12 @@ html:has(.auth[open]) {
     }
 
     .auth__form {
-        gap: var(--space-3);
-        margin-top: var(--space-8);
+        gap: var(--spacing-3);
+        margin-top: var(--spacing-8);
     }
 
     .auth__form input {
-        padding-inline: var(--space-4);
+        padding-inline: var(--spacing-4);
     }
 
 }

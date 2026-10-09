@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch,MagicMock
 from datetime import datetime,timezone
 from comet.ai.response_policy import current_context,without_source_list
-from comet.ai.config import AIConfig,LOCAL_MODELS
+from comet.ai.config import AIConfig
 from comet.ai.service import ComputerService
 
 class ResponsePolicyTests(unittest.TestCase):
@@ -30,7 +30,7 @@ class ResponsePolicyTests(unittest.TestCase):
             yield {'type':'delta','text':'segunda'}
             stage.append('complete')
         local.stream.side_effect=stream
-        service=ComputerService(local,AIConfig('http://localhost:11434',LOCAL_MODELS[0]))
+        service=ComputerService(local,AIConfig('http://localhost:11434','qwen3:1.7b'))
         store=MagicMock();store.begin.return_value={'conversation_id':'1','turn_id':'2','messages':[{'role':'user','content':'Oi'}]}
         events=service.stream_saved(1,{},store)
         self.assertEqual(next(events)['type'],'conversation')

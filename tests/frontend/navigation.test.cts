@@ -20,6 +20,7 @@ async function fixture(html: string, scripts: string[], source: string, routes: 
   });
   await page.goto('http://comet.test/');
   await page.evaluate(() => {
+    window.WorkspaceNavigation={go:async()=>{}};
     window.measurements = { creates: 0, titleQueries: 0, previewQueries: 0, currentWrites: 0, disabledWrites: 0 };
     const create = Document.prototype.createElement;
     Document.prototype.createElement = function (tagName:string,options?:ElementCreationOptions) { window.measurements.creates++; return create.call(this,tagName,options); };
@@ -41,13 +42,13 @@ async function fixture(html: string, scripts: string[], source: string, routes: 
     } });
     window.resetMeasurements = () => Object.assign(window.measurements,{creates:0,titleQueries:0,previewQueries:0,currentWrites:0,disabledWrites:0});
   });
-  for (const helper of ['dom','api-data','workspace-navigation']) await page.addScriptTag({content:fs.readFileSync(path.join(root,'static/js',helper+'.js'),'utf8')});
-  for (const script of scripts) await page.addScriptTag({ content: fs.readFileSync(path.join(source, 'static/js', script), 'utf8') });
+  for (const helper of ['dom','api-data']) await page.addScriptTag({content:fs.readFileSync(path.join(root,'artifacts/test-runtime',helper+'.js'),'utf8')});
+  for (const script of scripts) await page.addScriptTag({ content: fs.readFileSync(path.join(source, 'artifacts/test-runtime', script), 'utf8') });
   return { page, errors };
 }
 async function sessions(source: string) {
   const requests: {method:string;body:unknown;csrf:string}[] = [];
-  const { page, errors } = await fixture('<meta name="csrf-token" content="fixture-csrf"><body data-user-id="test"><aside class="sidebar"><button class="sidebar__toggle"></button><nav class="sidebar__nav"></nav></aside><main class="computer-page"></main></body>', ['sessions.js'], source, {
+  const { page, errors } = await fixture('<meta name="csrf-token" content="fixture-csrf"><body data-user-id="test"><aside class="sidebar"><button class="sidebar__toggle"></button><div class="sidebar__new-chat"><a class="sidebar__link" href="/computer.html?new=1">Novo chat</a></div><nav class="sidebar__nav"></nav></aside><main class="computer-page"></main></body>', ['sessions.js'], source, {
     '/api/ai/conversations/chat-2': async route => {
       requests.push({ method: route.request().method(), body: route.request().postDataJSON(), csrf: route.request().headers()['x-csrftoken'] });
       return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ title: route.request().method() === 'PATCH' ? 'Renamed conversation' : undefined }) });
@@ -92,10 +93,11 @@ async function sessions(source: string) {
   await page.evaluate(() => {
     requiredElement(document, "[data-id=\"chat-2\"] .sessions__more", HTMLButtonElement).click();
     requiredElement(document, ".sessions-menu [data-action=\"rename\"]", HTMLElement).click();
-    requiredElement(document, ".sessions-dialog input", HTMLInputElement).value = 'Renamed conversation';
-    requiredElement(document, ".sessions-dialog form", HTMLFormElement).requestSubmit();
+    const input=requiredElement(document, ".sessions-rename", HTMLInputElement);
+    input.value = 'Renamed conversation';
+    input.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
   });
-  await page.waitForFunction(() => requiredElement(document, "[data-id=\"chat-2\"] .sessions__link", HTMLAnchorElement).textContent === 'Renamed conversation');
+  await page.waitForFunction(() => optionalElement(document, "[data-id=\"chat-2\"] .sessions__link", HTMLAnchorElement)?.textContent === 'Renamed conversation');
   await page.evaluate(() => {
     requiredElement(document, "[data-id=\"chat-2\"] .sessions__more", HTMLButtonElement).click();
     requiredElement(document, ".sessions-menu [data-action=\"delete\"]", HTMLElement).click();

@@ -21,7 +21,7 @@
   "include": [
     "tests/frontend/**/*.cts",
     "tests/frontend/**/*.d.ts",
-    "artifacts/types/**/*.d.ts",
-    "static/ts/types/**/*.d.ts"
+    "frontend/types/**/*.d.ts",
+    "artifacts/types/test-globals.d.ts"
   ]
 }

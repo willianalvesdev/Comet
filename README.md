@@ -1,12 +1,12 @@
 # Comet
 
 Site com Python, Flask, MySQL e Waitress, seguindo a estrutura do Rota Financeira.
-O frontend usa HTML, CSS e TypeScript, compilado para scripts JavaScript clássicos. O banco `comet_db` e a conta
+O frontend usa Next.js, React, TypeScript e Tailwind CSS. O banco `comet_db` e a conta
 `comet_app` são exclusivos deste projeto.
 
 ## Iniciar no Windows
 
-1. Tenha Python 3.10+, Node.js 22+ com npm 10+ e MySQL 8+ instalados, com o serviço MySQL iniciado.
+1. Tenha Python 3.10+, Node.js 22.12+ com npm 10+ e MySQL 8+ instalados, com o serviço MySQL iniciado.
 2. Na primeira execução, abra `configurar_banco.bat`. Ele prepara `venv`, instala
    as bibliotecas e gera `.env` com chaves aleatórias. Informe o administrador do
    MySQL e sua senha na janela. A senha administrativa não é salva.
@@ -36,10 +36,17 @@ essas contas ao final. Sem MySQL configurado, esses testes são marcados como ig
 
 Instale as dependências locais com `npm ci`. Execute:
 
-- `npm run typecheck`: checagem estrita do site e dos testes; gera apenas declarações em `artifacts/types`.
-- `npm run build`: compila `static/ts` nos mesmos endereços de `static/js`.
-- `npm run test:frontend`: compila e executa os testes `.cts` como CommonJS em `artifacts/tests`.
-- `npm run watch`: recompila os scripts durante o desenvolvimento.
+- `npm run typecheck`: checagem estrita dos componentes e módulos TypeScript.
+- `npm run build`: gera e verifica a exportação estática do Next.js em `out/`.
+- `npm run test:frontend`: executa os testes de interface e de regras financeiras.
+- `npm run dev`: inicia o Next.js em `http://127.0.0.1:3000`, com atualização automática.
+
+Para desenvolvimento, mantenha o Flask em execução na porta 5001 e execute
+`npm run dev` em outro terminal. Abra `http://127.0.0.1:3000`: o Next encaminha as
+APIs, os arquivos estáticos e as ações de autenticação para o Flask. Se o backend
+usar outro endereço, defina `COMET_API_ORIGIN` no `.env`.
+Em produção, o Flask serve os arquivos de `out/` e injeta os dados públicos da
+sessão no HTML. Não é necessário manter um servidor Node.js em produção.
 
 Os testes usam Playwright local e, no Windows, o Edge instalado. `BROWSER_PATH`
 permite selecionar outro Chromium. As APIs são simuladas, sem contas reais nem
@@ -47,14 +54,15 @@ chamadas aos modelos. Não há lint configurado.
 
 O iniciador executa `npm ci` na primeira utilização e quando o lockfile muda.
 A compilação ocorre depois da verificação de instância duplicada. No comando R,
-um build com erro mantém o servidor existente; `noEmitOnError` preserva os arquivos
-JavaScript anteriores. Nenhuma ferramenta é instalada globalmente.
+um build com erro mantém o servidor existente. Nenhuma ferramenta é instalada globalmente.
 
 ## Estrutura do projeto
 
 - `comet/`: aplicação Flask, banco e serviços de IA.
-- `templates/`: páginas Jinja; `partials/` contém lateral e configurações compartilhadas.
-- `static/ts/`: fontes TypeScript; `static/js/`: saída gerada e biblioteca vendorizada.
+- `app/`: rotas, layout e entrada do Next.js App Router.
+- `frontend/`: páginas React, componentes compartilhados, módulos de comportamento e contratos TypeScript.
+- `out/`: exportação de produção do Next.js; não editar manualmente.
+- `next.config.ts` e `postcss.config.mjs`: configuração do Next.js e do Tailwind CSS.
 - `static/`: também contém CSS, fontes e imagens.
 - `scripts/`: preparação e inicialização do ambiente.
 - `infra/`: configuração do SearXNG.
@@ -63,27 +71,27 @@ JavaScript anteriores. Nenhuma ferramenta é instalada globalmente.
 - `instance/`: dados locais de execução.
 
 Os arquivos `.bat` permanecem na raiz para facilitar o uso no Windows.
-A localização dos templates não altera as URLs públicas das páginas.
+As URLs públicas das páginas foram preservadas na migração para Next.js.
 
 ## Organização do frontend
 
-O site mantém HTML com templates Jinja e CSS. O TypeScript compila para scripts
-clássicos ES2022, sem framework ou bundler. Edite os arquivos de `static/ts`;
-não edite a saída gerada de `static/js`. Lightweight Charts 5.0.9 e suas licenças
-continuam em `static/js/vendor`, com os tipos oficiais fixados na mesma versão.
-`static/css/globals.css` centraliza fontes, cores, espaçamentos, raios, tamanhos de
-ícones e durações em `:root`. Os estilos de cada página usam esses valores sem
-alterar seus pontos de quebra. `templates/partials/sidebar.html` compartilha o
-menu lateral das páginas autenticadas, mantendo a seleção da página atual.
-Os demais componentes de `templates/partials/` compartilham o menu móvel, o fundo
-clicável da lateral, o painel Descobrir e seu botão de abertura, além dos controles
-de ditado e envio. As páginas os incluem com Jinja, sem duplicar o HTML nem mudar
-os seletores usados pelo JavaScript. As caixas de mensagem mantêm suas diferenças
-entre chat e finanças.
+O Next.js App Router organiza as rotas e o React renderiza as páginas e os componentes
+compartilhados. `frontend/NextApplication.tsx` integra a navegação do Next e revalida
+a sessão em `/api/bootstrap`; `frontend/App.tsx` mantém a lateral montada.
+Os comportamentos existentes foram convertidos para módulos ES em `frontend/controllers`,
+montados e desmontados pelos efeitos React. Esses módulos ainda usam o DOM para chat,
+gráficos e menus; a migração preserva as regras existentes.
+`frontend/runtime/lifecycle.ts` encerra eventos, observadores, temporizadores e requisições.
 
-As listas atualizam a seleção sem reconstruir seus elementos. Observadores de
-DOM limitam as buscas aos elementos alterados; o navegador de mensagens atualiza
-apenas os indicadores anterior e atual.
+O Next.js empacota React, TypeScript, CSS e Lightweight Charts, instalado pelo npm.
+O Tailwind CSS usa os tokens existentes de cores, espaçamento, tipografia e raio;
+os estilos de componentes preservam o visual atual. Fontes e imagens permanecem em `static/`.
+`frontend/components/WorkspaceParts.tsx` compartilha lateral, configurações e caixa de mensagem;
+`frontend/pages/` contém Chat, Recentes, Descobrir, Aprender e Finanças. Login e cadastro
+ficam em `frontend/components/LandingPage.tsx`. As APIs e o banco continuam no Flask.
+
+Os testes de navegador carregam o mesmo build de produção. Os testes isolados geram
+bundles temporários a partir dos mesmos módulos em `artifacts/test-runtime`.
 
 ## Notícias — Descobrir
 
@@ -119,8 +127,8 @@ mais de uma instância. Não versione `.env`, o ambiente Python ou dados do banc
 
 ## Computer — conversa com Qwen local e Gemini
 
-`templates/computer.html` organiza a conversa; `static/js/computer.js` controla seu estado e
-`static/js/computer-service.js` lê os eventos da API interna. A geração passa por
+`frontend/pages/ComputerPage.tsx` organiza a conversa; `frontend/controllers/computer.ts` controla seu estado e
+`frontend/controllers/computer-service.ts` lê os eventos da API interna. A geração passa por
 `POST /api/ai/chat`, `ComputerService` e o provedor escolhido. As chaves permanecem
 no servidor. O modo inicial da interface é Gemini. Computer seleciona inicialmente
 `qwen3:4b-instruct-2507-q4_K_M`, apresentado como **4b no-think**.
@@ -245,7 +253,7 @@ Os cartões de anexos mostram nome, tamanho e miniatura de imagem. O endpoint
 responde com `Cache-Control: private, no-store`.
 
 A navegação entre Chat, Finanças, Descobrir e Recentes mantém a lateral no mesmo
-documento. `workspace-navigation.js` substitui apenas `#workspace-page` e encerra
+documento. `frontend/App.tsx` renderiza a página React em `#workspace-page` e encerra
 os eventos, requisições e temporizadores da página anterior antes de montar a próxima.
 
 ## Dados financeiros
@@ -332,3 +340,5 @@ bloqueios de segurança ou respostas inválidas. Se todos atingirem o limite,
 o erro de cota é mantido. Reinicie o Comet para carregar mudanças no servidor.
 As cotas continuam sendo as do projeto Google; a troca não renova cotas nem
 altera faturamento. Projetos pagos seguem os preços da própria conta.
+
+O seletor Computer consulta automaticamente `/api/tags` do Ollama configurado no servidor. A lista é atualizada ao abrir o seletor e inclui nomes personalizados. Modelos removidos deixam de aparecer; a preferência salva é mantida enquanto estiver instalada. Com o Ollama desligado ou sem modelos, o menu informa o estado. `OLLAMA_MODEL` define a preferência inicial quando esse modelo está instalado. Em acesso remoto, os modelos são os do computador que hospeda o Comet.

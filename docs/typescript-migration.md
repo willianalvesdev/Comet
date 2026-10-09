@@ -1,3 +1,5 @@
+> Registro histórico da migração anterior. O frontend atual usa Next.js, React e Tailwind CSS; veja `README.md`. Os caminhos abaixo descrevem a estrutura anterior, removida após a migração para Next.js.
+
 # Migração para TypeScript
 
 ## Resultado

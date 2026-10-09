@@ -9,7 +9,7 @@ let interpret: Interpreter = async () => {throw new Error('Interpretador não ca
 let execute: typeof executeFinancialActions = async () => {throw new Error('Executor não carregado');};
 class Meta {content='csrf-test';}
 runInNewContext(['dom','api-data','financial-parser','financial-context','financial-execution','financial-ai']
-    .map(name=>readFileSync(resolve(__dirname,'../../static/js/'+name+'.js'),'utf8')).join('\n')+'\ncapture(interpretFinancialInput, executeFinancialActions);', {
+    .map(name=>readFileSync(resolve(__dirname,'../../artifacts/test-runtime/'+name+'.js'),'utf8')).join('\n')+'\ncapture(interpretFinancialInput, executeFinancialActions);', {
     capture:(value:Interpreter, execution:typeof executeFinancialActions)=>{interpret=value;execute=execution;}, HTMLMetaElement:Meta,
     document:{querySelector:()=>new Meta()}, URL, AbortController, setTimeout, clearTimeout
 });

@@ -6,7 +6,7 @@ import {test} from 'node:test';
 
 let turn: typeof parseFinancialTurn = () => {throw new Error('Não carregado');};
 let confirmed: typeof rememberFinancialOperation = () => {throw new Error('Não carregado');};
-runInNewContext(['financial-parser','financial-context'].map(name=>readFileSync(resolve(__dirname,'../../static/js/'+name+'.js'),'utf8')).join('\n') +
+runInNewContext(['financial-parser','financial-context'].map(name=>readFileSync(resolve(__dirname,'../../artifacts/test-runtime/'+name+'.js'),'utf8')).join('\n') +
     '\ncapture(parseFinancialTurn, rememberFinancialOperation);', {
     capture: (parse: typeof parseFinancialTurn, remember: typeof rememberFinancialOperation) => {turn=parse;confirmed=remember;}
 });

@@ -13,6 +13,9 @@ from comet.ai.errors import AIError
 
 class ConversationPersistenceTests(unittest.TestCase):
     def setUp(self):
+        models = patch('comet.ai.ollama.OllamaProvider.models', return_value=['qwen3:4b-q4_K_M'])
+        models.start()
+        self.addCleanup(models.stop)
         self.app = create_app({'TESTING': True, 'RATELIMIT_ENABLED': False})
         self.service = self.app.extensions['comet_computer']
         self.store = self.app.extensions['comet_conversations']
@@ -27,7 +30,7 @@ class ConversationPersistenceTests(unittest.TestCase):
         self.tokens = []
         for _ in range(2):
             client = self.app.test_client()
-            token = re.search(r'name="csrf_token" value="([^"]+)"', client.get('/').get_data(as_text=True)).group(1)
+            token = re.search(r'name="csrf-token" content="([^"]+)"', client.get('/').get_data(as_text=True)).group(1)
             auth = uuid4().hex
             with self.app.app_context(), db.cursor(write=True) as cur:
                 cur.execute('INSERT INTO usuarios (nome,email,senha) VALUES (%s,%s,%s)',

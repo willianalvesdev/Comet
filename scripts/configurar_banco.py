@@ -39,6 +39,9 @@ def main():
                 for statement in (ROOT / 'setup_banco.sql').read_text(encoding='utf-8').split(';'):
                     if statement.strip():
                         cur.execute(statement)
+                cur.execute("SHOW COLUMNS FROM usuarios LIKE 'idade'")
+                if not cur.fetchone():
+                    cur.execute('ALTER TABLE usuarios ADD COLUMN idade TINYINT UNSIGNED NULL')
                 cur.execute("SHOW COLUMNS FROM finance_transactions LIKE 'deleted_at'")
                 if not cur.fetchone():
                     cur.execute('ALTER TABLE finance_transactions ADD COLUMN deleted_at DATETIME(6) NULL DEFAULT NULL')

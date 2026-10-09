@@ -10,10 +10,12 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from email_validator import EmailNotValidError, validate_email
-from flask import Flask, Response, g, jsonify, redirect, render_template, request, send_from_directory, session
+from flask import Flask, Response, g, jsonify, redirect, request, send_from_directory, session
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask_wtf.csrf import CSRFError, CSRFProtect
+from flask_wtf.csrf import CSRFError, CSRFProtect, generate_csrf
+from jinja2.utils import htmlsafe_json_dumps
+from markupsafe import escape
 from mysql.connector import Error as DatabaseError, IntegrityError
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -21,6 +23,25 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from . import db
 
 ROOT = Path(__file__).resolve().parent.parent
+
+
+APP_PAGES = ('index', 'computer', 'recentes', 'descobrir', 'aprender', 'graficos')
+
+
+def next_page_html(export_dir, page, bootstrap):
+    if page not in APP_PAGES:
+        raise ValueError('Página inválida.')
+    filename = 'index.html' if page == 'index' else f'{page}.html.html'
+    try:
+        html = (Path(export_dir) / filename).read_text(encoding='utf-8')
+    except OSError as error:
+        raise RuntimeError('Frontend indisponível. Execute npm run build ou iniciar.bat.') from error
+    if '</head>' not in html:
+        raise RuntimeError('Exportação Next.js inválida. Execute npm run build.')
+    state = htmlsafe_json_dumps(bootstrap)
+    token = escape(bootstrap['csrfToken'])
+    payload = f'<meta name="csrf-token" content="{token}"/><script id="app-bootstrap" type="application/json">{state}</script>'
+    return html.replace('</head>', payload + '</head>', 1)
 
 
 def normalize_email(value):
@@ -34,9 +55,8 @@ def normalize_email(value):
 
 def create_app(test_config=None):
     load_dotenv(ROOT / '.env')
-    app = Flask(__name__, template_folder=str(ROOT / 'templates'), static_folder=str(ROOT / 'static'))
+    app = Flask(__name__, template_folder=None, static_folder=str(ROOT / 'static'))
     app.config.from_mapping(
-        TEMPLATES_AUTO_RELOAD=True,
         SECRET_KEY=os.getenv('SECRET_KEY'),
         DB_HOST=os.getenv('DB_HOST', '127.0.0.1'), DB_PORT=int(os.getenv('DB_PORT', '3306')),
         DB_NAME=os.getenv('DB_NAME', 'ascenda_db'), DB_USER=os.getenv('DB_USER', 'ascenda_app'),
@@ -49,6 +69,7 @@ def create_app(test_config=None):
         RATELIMIT_STORAGE_URI=os.getenv('RATELIMIT_STORAGE_URI', 'memory://'),
         RATELIMIT_HEADERS_ENABLED=True,
         NEWS_API_KEY=os.getenv('NEWS_API_KEY', ''),
+        NEXT_EXPORT_DIR=ROOT / 'out',
     )
     if test_config:
         app.config.update(test_config)
@@ -69,7 +90,7 @@ def create_app(test_config=None):
     from .news import NewsService, NewsError, topic_selection
     news_service = NewsService(app.config['NEWS_API_KEY'])
     app.extensions['comet_news'] = news_service
-    from .ai.config import AIConfig, LOCAL_MODELS
+    from .ai.config import AIConfig
     from .ai.remote import RemoteProvider
     from .ai.ollama import OllamaProvider
     from .ai.service import ComputerService
@@ -77,9 +98,6 @@ def create_app(test_config=None):
     from .ai.conversations import ConversationStore
     ai_config = app.config.get('AI_CONFIG') or AIConfig.from_env()
     providers = {'qwen': OllamaProvider(ai_config), 'gemini': RemoteProvider.from_env('gemini', ai_config)}
-    for model in LOCAL_MODELS:
-        providers[model] = OllamaProvider(replace(ai_config, model=model))
-        providers[model].label = model
     computer_service = ComputerService(providers['qwen'], ai_config, providers)
     from .ai.web_search import WebSearch
     computer_service.web_search = WebSearch(providers['gemini'])
@@ -171,7 +189,10 @@ def create_app(test_config=None):
         from .finance_interpretation import prepare_interpretation, validate_interpretation, SYSTEM, SCHEMA
         try:
             with computer_service.slot(user['id']):
-                provider, data, context = prepare_interpretation(user['id'], request.get_json(silent=True), providers)
+                request_data = request.get_json(silent=True)
+                if isinstance(request_data, dict) and request_data.get('provider', 'qwen') != 'gemini':
+                    refresh_local_models()
+                provider, data, context = prepare_interpretation(user['id'], request_data, providers)
                 interpretation = validate_interpretation(providers[provider].structured(SYSTEM, data, SCHEMA))
                 return jsonify(interpretation=interpretation, context=context)
         except ValueError as error:
@@ -207,12 +228,46 @@ def create_app(test_config=None):
         session.permanent = True
         session['auth_token'] = token
 
+    def app_bootstrap(page):
+        user = current_user()
+        return {
+            'page': page,
+            'user': {key: user[key] for key in ('id', 'nome', 'email')} if user else None,
+            'csrfToken': generate_csrf(),
+            'currentYear': datetime.now(timezone.utc).year,
+        }
+
+    def render_app(page):
+        return next_page_html(app.config['NEXT_EXPORT_DIR'], page, app_bootstrap(page))
+
+    @app.get('/_next/<path:filename>')
+    def next_assets(filename):
+        return send_from_directory(Path(app.config['NEXT_EXPORT_DIR']) / '_next', filename)
+
+    @app.get('/<page>.txt')
+    def next_route_payload(page):
+        route = 'index' if page == 'index' else page.removesuffix('.html')
+        if route not in APP_PAGES or (route != 'index' and page != f'{route}.html'):
+            return jsonify(error='Página inválida.'), 404
+        if route != 'index' and not current_user():
+            return jsonify(error='Entre novamente para acessar sua conta.'), 401
+        return send_from_directory(app.config['NEXT_EXPORT_DIR'], f'{page}.txt', mimetype='text/x-component')
+
+    @app.get('/api/bootstrap')
+    def bootstrap_session():
+        page = request.args.get('page', 'computer')
+        if page not in APP_PAGES:
+            return jsonify(error='Página inválida.'), 400
+        if page != 'index' and not current_user():
+            return jsonify(error='Entre novamente para acessar sua conta.'), 401
+        return jsonify(app_bootstrap(page))
+
     @app.get('/')
     @app.get('/index.html')
     def landing():
         if current_user():
             return redirect('/principal.html')
-        return render_template('index.html')
+        return render_app('index')
 
     @app.get('/principal.html')
     @protected
@@ -222,11 +277,30 @@ def create_app(test_config=None):
             destination += '&settings=personalization'
         return redirect(destination)
 
+    def refresh_local_models():
+        names = providers['qwen'].models()
+        for name in tuple(providers):
+            if name not in ('qwen', 'gemini') and name not in names:
+                providers.pop(name, None)
+        for name in names:
+            if name not in providers:
+                providers[name] = OllamaProvider(replace(ai_config, model=name))
+                providers[name].label = name
+        return names
+
     @app.get('/api/ai/models')
     @api_protected('Entre novamente para escolher um modelo.')
     def computer_models(user):
-        response = jsonify(models=[{'id': name, 'name': provider.label, 'configured': isinstance(provider, OllamaProvider) or bool(provider.key)}
-                                   for name, provider in providers.items()])
+        try:
+            names = refresh_local_models()
+            local_error = None
+        except AIError:
+            names = []
+            local_error = 'Não foi possível conectar ao Ollama. Abra o aplicativo e tente novamente.'
+        response = jsonify(models=[{'id': 'gemini', 'name': 'Gemini', 'configured': bool(providers['gemini'].key)},
+                                   *[{'id': name, 'name': name, 'configured': True} for name in names]],
+                           default_model=ai_config.model if ai_config.model in names else next(iter(names), None),
+                           local_error=local_error)
         response.headers['Cache-Control'] = 'no-store'
         return response
 
@@ -277,6 +351,8 @@ def create_app(test_config=None):
             else:
                 payload = conversation_store.validate(request_payload)
                 store = conversation_store
+            if payload.get('provider', 'qwen') != 'gemini':
+                refresh_local_models()
             event_stream = computer_service.stream_saved(user['id'], payload, store)
             first_event = next(event_stream)
         except AIError as exc:
@@ -386,17 +462,17 @@ def create_app(test_config=None):
     @app.get('/recentes.html')
     @protected
     def recent_chats_page():
-        return render_template('recentes.html', user=g.user)
+        return render_app('recentes')
 
     @app.get('/computer.html')
     @protected
     def computer():
-        return render_template('computer.html', user=g.user)
+        return render_app('computer')
 
     @app.get('/graficos.html')
     @protected
     def graficos():
-        return render_template('graficos.html', user=g.user)
+        return render_app('graficos')
 
     @app.get('/robots.txt')
     def robots():
@@ -413,12 +489,12 @@ def create_app(test_config=None):
     @app.get('/aprender.html')
     @protected
     def aprender():
-        return render_template('aprender.html', user=g.user)
+        return render_app('aprender')
 
     @app.get('/descobrir.html')
     @protected
     def descobrir():
-        return render_template('descobrir.html', user=g.user)
+        return render_app('descobrir')
 
     @app.get('/api/news')
     @limiter.limit('30 per minute')
@@ -457,11 +533,15 @@ def create_app(test_config=None):
             return jsonify(error='A senha deve ter entre 8 e 128 caracteres.'), 422
         if password != request.form.get('confirmation'):
             return jsonify(error='As senhas não coincidem.'), 422
+        age_text = request.form.get('age', '').strip()
+        if not 1 <= len(age_text) <= 3 or not age_text.isascii() or not age_text.isdigit() or not 1 <= int(age_text) <= 120:
+            return jsonify(error='Informe uma idade inteira entre 1 e 120 anos.'), 422
+        age = int(age_text)
         password_hash = generate_password_hash(password)
         try:
             with db.cursor(write=True) as cursor:
-                cursor.execute('INSERT INTO usuarios (nome, email, senha) VALUES (%s,%s,%s)',
-                            (name, email, password_hash))
+                cursor.execute('INSERT INTO usuarios (nome, email, senha, idade) VALUES (%s,%s,%s,%s)',
+                            (name, email, password_hash, age))
                 token = issue_session(cursor, cursor.lastrowid)
         except IntegrityError as exc:
             if exc.errno != 1062:
@@ -507,7 +587,7 @@ def create_app(test_config=None):
         response.headers['X-Frame-Options'] = 'SAMEORIGIN' if request.endpoint == 'descobrir' else 'DENY'
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
         response.headers['Permissions-Policy'] = 'camera=(), microphone=(self), geolocation=(self)'
-        if response.mimetype in ('text/html', 'application/json'):
+        if response.mimetype in ('text/html', 'application/json', 'text/x-component'):
             response.headers['Cache-Control'] = 'no-store'
         return response
 

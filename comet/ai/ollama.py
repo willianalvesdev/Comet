@@ -5,6 +5,7 @@ import time
 from urllib.parse import urlsplit
 
 from .errors import AIError
+from .config import is_local_model
 from .local_context import fit_messages
 from .remote import read_structured_response, structured_json
 
@@ -29,6 +30,28 @@ class OllamaProvider:
 
         host = '127.0.0.1' if url.hostname == 'localhost' else url.hostname
         return http.client.HTTPConnection(host, url.port or 80, timeout=self.config.timeout)
+
+    def models(self):
+        connection = self._connect()
+        connection.timeout = min(self.config.timeout, 3)
+        try:
+            connection.request('GET', '/api/tags', headers={'Accept': 'application/json'})
+            response = connection.getresponse()
+            if response.status != 200:
+                raise AIError('unavailable', 503)
+            raw = response.read(2 * 1024 * 1024 + 1)
+            if len(raw) > 2 * 1024 * 1024:
+                raise AIError('invalid_response')
+            data = json.loads(raw)
+            if not isinstance(data, dict) or not isinstance(data.get('models'), list):
+                raise AIError('invalid_response')
+            return sorted({item['name'] for item in data['models']
+                           if isinstance(item, dict) and is_local_model(item.get('name'))
+                           and not item.get('remote_host') and not item.get('remote_model')})
+        except (OSError, http.client.HTTPException, ValueError):
+            raise AIError('unavailable', 503) from None
+        finally:
+            connection.close()
 
     def _post(self, connection, path, payload):
         connection.request('POST', path, json.dumps(payload).encode('utf-8'),
@@ -79,7 +102,7 @@ class OllamaProvider:
                 raise AIError('context_size', 422)
             payload = {'model': self.config.model, 'messages': messages, 'stream': False, 'format': schema,
                        'options': {'temperature': 0, 'num_ctx': context_limit, 'num_predict': 8192}}
-            if not (self.config.model.startswith('gemma3:') or '-instruct-' in self.config.model):
+            if ('thinking' in info['capabilities'] if isinstance(info.get('capabilities'), list) else not (self.config.model.startswith('gemma3:') or '-instruct-' in self.config.model)):
                 payload['think'] = False
             if time.monotonic() > deadline:
                 raise AIError('timeout', 504)
@@ -117,7 +140,7 @@ class OllamaProvider:
                 raise AIError('incompatible', 503)
             thinking = info.get('thinking') or {}
             values = thinking.get('values', [])
-            supports_thinking = not (self.config.model.startswith('gemma3:') or '-instruct-' in self.config.model)
+            supports_thinking = ('thinking' in info['capabilities'] if isinstance(info.get('capabilities'), list) else not (self.config.model.startswith('gemma3:') or '-instruct-' in self.config.model))
             if supports_thinking and values and not any(value is True for value in values):
                 log.warning('Model %s does not support think:true; configure a compatible OLLAMA_MODEL', self.config.model)
                 raise AIError('incompatible', 503)

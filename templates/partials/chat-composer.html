@@ -1,7 +1,0 @@
-<form class="home__composer {{ composer_class|default('') }}" aria-label="Escrever uma mensagem">
-    <p class="home__dictation-status" role="status" aria-live="polite" id="dictation-status"></p>
-    <div class="attachment-list" aria-label="Arquivos anexados" hidden></div>
-    <p class="attachment-status" role="status"></p>
-    <textarea class="home__input" aria-label="Mensagem" placeholder="{{ composer_placeholder|default('Pergunte qualquer coisa') }}" rows="2" maxlength="8000"{% if composer_readonly|default(false) %} readonly{% endif %}></textarea>
-{% include 'partials/chat-toolbar.html' %}
-</form>

@@ -8,7 +8,7 @@ from mysql.connector import IntegrityError
 
 from .. import db
 from .attachments import pack, unpack
-from .config import PROVIDERS
+from .config import is_provider
 from .errors import AIError
 from .response_metadata import pack_response, unpack_response
 
@@ -43,7 +43,7 @@ class ConversationStore:
         if 'web_search' in payload and not isinstance(payload['web_search'], bool):
             raise AIError('invalid_request', 422)
         provider = payload.get('provider', 'qwen')
-        if not isinstance(provider, str) or provider not in PROVIDERS:
+        if not is_provider(provider):
             raise AIError('invalid_request', 422)
         attachment_tokens = payload.get('attachments', [])
         if not isinstance(attachment_tokens, list) or len(attachment_tokens) > 4:
@@ -166,7 +166,7 @@ class ConversationStore:
 
     def begin(self, user_id, payload, config):
         provider = payload.get('provider', 'qwen')
-        if not isinstance(provider, str) or provider not in PROVIDERS:
+        if not is_provider(provider):
             raise AIError('invalid_request', 422)
         conversation_key, text, request_id = payload['conversation_id'], payload['message'], payload['request_id']
         try:

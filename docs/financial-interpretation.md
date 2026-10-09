@@ -228,8 +228,8 @@ As seções abaixo registram as etapas anteriores à conexão da execução; ref
 ## Estrutura atual analisada
 
 - Flask e MySQL no servidor; TypeScript estrito, scripts clássicos e Jinja na interface.
-  Os fontes usam nomes kebab-case em `static/ts`; contratos globais ficam em
-  `static/ts/types/*.d.ts`. Não há React nem store central.
+  Os fontes usam nomes kebab-case em `frontend/controllers`; contratos globais ficam em
+  `frontend/types/*.d.ts`. A interface usa React, com os controladores montados por efeitos e sem store central.
 - `Transaction` descreve os campos existentes: `kind` (`income`/`expense`),
   `amount` decimal em string, `description`, `category`, `occurred_on` e
   `external_id` opcional no contrato da interface. `StoredTransaction` acrescenta
@@ -302,7 +302,7 @@ para etapas posteriores. Nenhuma regra de linguagem natural ou IA foi adicionada
 
 ## Primeiro nível local implementado
 
-`static/ts/financial-parser.ts` expõe `parseFinancialInput(input, context)` no
+`frontend/controllers/financial-parser.ts` expõe `parseFinancialInput(input, context)` no
 padrão de scripts clássicos do projeto. Não é carregado pelos templates nem
 conectado ao composer: esta etapa só fornece a função pura para uso posterior.
 

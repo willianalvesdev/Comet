@@ -1,0 +1,35 @@
+.computer-eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: computer-look 10s ease-in-out infinite;
+}
+
+@keyframes computer-look {
+    0%, 100% {
+        transform: translateX(0) scaleY(1);
+    }
+
+    15%, 28%, 34%, 42% {
+        transform: translateX(-3px) scaleY(1);
+    }
+
+    31% {
+        transform: translateX(-3px) scaleY(.12);
+    }
+
+    65%, 78%, 84%, 92% {
+        transform: translateX(3px) scaleY(1);
+    }
+
+    81% {
+        transform: translateX(3px) scaleY(.12);
+    }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .computer-eyes {
+        animation: none;
+    }
+
+}

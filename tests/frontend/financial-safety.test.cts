@@ -8,7 +8,7 @@ const root=resolve(__dirname,'../..');
 function files(directory:string):string[] {
     return readdirSync(directory,{withFileTypes:true}).flatMap(entry=>entry.isDirectory()?files(join(directory,entry.name)):[join(directory,entry.name)]);
 }
-const sources=files(join(root,'static/ts'));
+const sources=files(join(root,'frontend')).filter(file=>/\.tsx?$/.test(file));
 const financial=sources.filter(file=>/financial-|graph-composer|[/\\]types[/\\]finance\.d\.ts$/.test(file));
 
 test('código financeiro não executa strings nem usa any ou supressões TypeScript',()=>{
@@ -31,8 +31,8 @@ test('código financeiro não executa strings nem usa any ou supressões TypeScr
     }
 });
 
-test('fontes e templates do frontend não contêm chave nem configuração privada de provedor',()=>{
-    const frontend=[...sources,...files(join(root,'templates')),...files(join(root,'static/js')).filter(file=>!file.includes(join('js','vendor')))];
+test('fontes e páginas do frontend não contêm chave nem configuração privada de provedor',()=>{
+    const frontend=[...sources,...files(join(root,'app')),...files(join(root,'artifacts/test-runtime')).filter(file=>!file.includes(join('js','vendor')))];
     const privateKey=/GEMINI_API_KEY|OPENAI_API_KEY|ANTHROPIC_API_KEY|x-goog-api-key|AIza[0-9A-Za-z_-]{30,}|sk-(?:proj-)?[A-Za-z0-9_-]{32,}/;
     for(const file of frontend) assert.equal(privateKey.test(readFileSync(file,'utf8')),false,relative(root,file)+': configuração privada no frontend');
 });

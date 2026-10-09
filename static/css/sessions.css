@@ -1,5 +1,5 @@
 .sessions {
-    margin: 22px 0 var(--space-3);
+    margin: 22px 0 var(--spacing-3);
     flex: 0 0 auto;
     min-width: 0;
 }
@@ -8,7 +8,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--space-2);
+    padding: var(--spacing-2);
     color: var(--text-secondary);
     list-style: none;
     cursor: pointer;
@@ -33,7 +33,7 @@
     display: flex;
     align-items: center;
     min-width: 0;
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
 }
 
 .sessions__row:hover, .sessions__row:has(:focus-visible), .sessions__row:has([aria-current]) {
@@ -44,7 +44,7 @@
     display: block;
     flex: 1;
     min-width: 0;
-    padding: 10px var(--space-2);
+    padding: var(--spacing-2-5) var(--spacing-2);
     color: var(--text);
     text-decoration: none;
     white-space: nowrap;
@@ -66,13 +66,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 24px;
-    width: 24px;
-    height: 24px;
-    margin: var(--space-1);
+    flex: 0 0 var(--input-sm);
+    width: var(--input-sm);
+    height: var(--input-sm);
+    margin: var(--spacing-1);
     padding: 0;
     border: 0;
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     background: transparent;
     color: var(--text-secondary);
     opacity: 0;
@@ -90,9 +90,9 @@
 
 .sessions-icon {
     display: inline-block;
-    width: 14px;
-    height: 14px;
-    flex: 0 0 14px;
+    width: var(--input-2xs);
+    height: var(--input-2xs);
+    flex: 0 0 var(--input-2xs);
     background: currentColor;
     mask: var(--session-icon) center / contain no-repeat;
     -webkit-mask: var(--session-icon) center / contain no-repeat;
@@ -113,15 +113,15 @@
 .sessions__tools {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-1);
-    margin-top: var(--space-2);
+    gap: var(--spacing-1);
+    margin-top: var(--spacing-2);
 }
 
 .sessions__tools button {
     border: 0;
     background: transparent;
     color: var(--text-secondary);
-    padding: 6px var(--space-2);
+    padding: var(--spacing-1-5) var(--spacing-2);
     text-align: left;
     cursor: pointer;
     font: inherit;
@@ -129,7 +129,7 @@
 }
 
 .sessions__status {
-    padding-inline: var(--space-2);
+    padding-inline: var(--spacing-2);
     color: var(--text-secondary);
     font-size: var(--font-size-4);
 }
@@ -152,22 +152,22 @@
     inset: auto;
     margin: 0;
     width: 180px;
-    padding: var(--space-2);
+    padding: var(--spacing-2);
     border: 1px solid var(--border);
-    border-radius: var(--radius-panel);
+    border-radius: var(--radius-16);
     background: var(--surface);
     color: var(--text);
-    box-shadow: 0 8px 28px rgb(0 0 0 / .15);
+    box-shadow: var(--shadow-md);
 }
 
 .sessions-menu button {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--spacing-3);
     width: 100%;
-    padding: var(--space-2);
+    padding: var(--spacing-2);
     border: 0;
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     background: transparent;
     color: inherit;
     text-align: left;
@@ -185,9 +185,9 @@
 
 .sessions-dialog {
     width: min(350px, calc(100vw - 32px));
-    padding: var(--space-4);
+    padding: var(--spacing-4);
     border: 1px solid var(--border);
-    border-radius: var(--radius-container);
+    border-radius: var(--radius-16);
     background: var(--surface);
     color: var(--text);
 }
@@ -197,7 +197,7 @@
 }
 
 .sessions-dialog h2 {
-    margin: 0 0 var(--space-4);
+    margin: 0 0 var(--spacing-4);
     font: inherit;
     font-size: 20px;
 }
@@ -218,10 +218,10 @@
 .sessions-dialog input {
     display: block;
     width: 100%;
-    margin-top: var(--space-2);
-    padding: 10px;
+    margin-top: var(--spacing-2);
+    padding: var(--spacing-2-5);
     border: 1px solid var(--border);
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     background: var(--bg);
     color: var(--text);
     font: inherit;
@@ -230,14 +230,14 @@
 .sessions-dialog form > div {
     display: flex;
     justify-content: flex-end;
-    gap: var(--space-2);
-    margin-top: var(--space-5);
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-5);
 }
 
 .sessions-dialog button {
-    padding: var(--space-2) var(--space-3);
+    padding: var(--spacing-2) var(--spacing-3);
     border: 1px solid var(--border);
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     color: var(--text);
     background: var(--bg);
     font: inherit;
@@ -266,12 +266,12 @@
     z-index: 150;
     box-sizing: border-box;
     width: 420px;
-    padding: var(--space-3);
+    padding: var(--spacing-3);
     border: 1px solid var(--border);
-    border-radius: var(--radius-panel);
+    border-radius: var(--radius-16);
     background: var(--surface);
     color: var(--text);
-    box-shadow: 0 8px 24px rgb(0 0 0 / .12);
+    box-shadow: var(--shadow-md);
     pointer-events: auto;
 }
 
@@ -281,7 +281,7 @@
 
 .chat-preview__time {
     display: block;
-    margin: 0 0 var(--space-2);
+    margin: 0 0 var(--spacing-2);
     text-align: right;
     color: var(--text-secondary);
     font-size: var(--font-size-5);
@@ -318,9 +318,9 @@
     box-sizing: border-box;
     width: min(420px, calc(100vw - 32px));
     min-height: 200px;
-    padding: 22px var(--space-5) var(--space-5);
+    padding: 22px var(--spacing-5) var(--spacing-5);
     border: 1px solid color-mix(in srgb, var(--text) 3%, transparent);
-    border-radius: var(--radius-container);
+    border-radius: var(--radius-16);
     background: var(--bg);
     margin: auto;
     font-family: var(--font-body);
@@ -338,10 +338,10 @@
 }
 
 .sessions-dialog--delete h2 {
-    margin: 0 0 var(--space-2);
+    margin: 0 0 var(--spacing-2);
     font-size: var(--font-size-0);
     line-height: 30px;
-    font-weight: 400;
+    font-weight: var(--font-weight-regular);
 }
 
 .sessions-dialog--delete .sessions-dialog__description {
@@ -349,26 +349,26 @@
     color: var(--text);
     font-size: var(--font-size-3);
     line-height: 28px;
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
 }
 
 .sessions-dialog--delete .sessions-dialog__description strong {
     display: block;
-    margin-top: 6px;
-    font-weight: 600;
+    margin-top: var(--spacing-1-5);
+    font-weight: var(--font-weight-semibold);
 }
 
 .sessions-dialog--delete form > div {
     margin-top: auto;
-    padding-top: var(--space-6);
-    gap: var(--space-3);
+    padding-top: var(--spacing-6);
+    gap: var(--spacing-3);
 }
 
 .sessions-dialog--delete button {
-    height: 40px;
-    padding: 0 var(--space-3);
+    height: var(--input-lg);
+    padding: 0 var(--spacing-3);
     border: 0;
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     font-size: var(--font-size-4);
     line-height: 24px;
 }
@@ -381,7 +381,7 @@
 .sessions-dialog--delete [data-confirm] {
     min-width: 88px;
     background: var(--red);
-    color: var(--color-ink);
+    color: var(--odin-dark-100);
 }
 
 .sessions-dialog--delete button:disabled {
@@ -390,7 +390,7 @@
 }
 
 .sessions-dialog--delete .sessions-dialog__error:not(:empty) {
-    margin: 10px 0 0;
+    margin: var(--spacing-2-5) 0 0;
     font-size: 14px;
 }
 
@@ -401,7 +401,7 @@
 .chat-preview {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: 5px 10px;
+    gap: 5px var(--spacing-2-5);
 }
 
 .chat-preview[hidden] {
@@ -427,10 +427,10 @@
 .sidebar-recents {
     display: none;
     place-items: center;
-    width: 32px;
-    height: 32px;
+    width: var(--input-md);
+    height: var(--input-md);
     border: 0;
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     background: transparent;
     color: var(--text);
     cursor: pointer;
@@ -461,9 +461,9 @@
     margin: 0;
     width: var(--recents-panel-width);
     height: var(--recents-panel-height);
-    padding: var(--space-4) var(--space-3);
+    padding: var(--spacing-4) var(--spacing-3);
     border: 1px solid var(--border);
-    border-radius: var(--radius-panel);
+    border-radius: var(--radius-16);
     background: var(--surface);
     color: var(--text);
     box-shadow: var(--panel-shadow);
@@ -476,7 +476,7 @@
     display: block;
     color: inherit;
     text-decoration: none;
-    padding: 0 var(--space-2) var(--space-3);
+    padding: 0 var(--spacing-2) var(--spacing-3);
     color: var(--text-secondary);
 }
 
@@ -487,8 +487,8 @@
 
 .recents-popover__list a {
     display: block;
-    padding: 7px var(--space-2);
-    border-radius: var(--radius-control);
+    padding: 7px var(--spacing-2);
+    border-radius: var(--radius-8);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -504,16 +504,16 @@
 .sessions > summary:has(.sessions__heading) {
     padding: 0;
     cursor: default;
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
 }
 
 .sessions__heading {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--spacing-1-5);
     flex: 0 1 auto;
     min-width: 0;
-    padding: 0 var(--space-2);
+    padding: 0 var(--spacing-2);
     border: 0;
     background: transparent;
     color: inherit;
@@ -534,17 +534,17 @@
 .sessions__visit, .sessions__preferences {
     display: grid;
     place-items: center;
-    flex: 0 0 24px;
-    width: 24px;
-    height: 24px;
+    flex: 0 0 var(--input-sm);
+    width: var(--input-sm);
+    height: var(--input-sm);
     padding: 0;
     border: 0;
     background: transparent;
     color: inherit;
 }
 .sessions__visit i, .sessions__preferences i {
-    width: 16px;
-    height: 16px;
+    width: var(--input-xs);
+    height: var(--input-xs);
     background: currentColor;
 }
 .sessions__visit { margin-left: auto; }
@@ -560,44 +560,43 @@
 
 .sidebar .sessions__row,
 .sidebar .sessions > summary {
-    height: 32px;
-    min-height: 32px;
+    height: var(--input-md);
+    min-height: var(--input-md);
 }
 .sidebar .sessions__link,
 .sidebar .sessions-rename,
 .sidebar .sessions__heading {
     box-sizing: border-box;
-    height: 32px;
+    height: var(--input-md);
     padding-block: 0;
     line-height: 32px;
 }
 #recent-chats {
     display: grid;
-    gap: 4px;
+    gap: 1px;
 }
 :is(#recent-chats, #pinned-chats) :is(.sessions__link, .sessions-rename) {
     position: relative;
-    padding-left: var(--space-2);
+    padding-left: var(--spacing-2);
 }
-
 
 .sessions__more .sessions-icon--more { transform: rotate(90deg); }
 
 .sessions-menu .sessions-menu__delete {
-    margin-top: 4px;
+    margin-top: var(--spacing-1);
     border-top: 1px solid var(--border);
 }
 .sessions-menu .sessions-menu__delete:hover,
 .sessions-menu .sessions-menu__delete:focus-visible {
     background: var(--red);
-    color: #fff;
+    color: var(--odin-light-0);
 }
 
 .sessions__heading:hover {
     color: var(--text);
 }
 .sessions__visit, .sessions__preferences {
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
 }
 .sessions__visit:hover, .sessions__preferences:hover {
     background: var(--surface-hover);
@@ -609,16 +608,16 @@
     inset: auto;
     margin: 0;
     width: min(224px, calc(100vw - 16px));
-    padding: var(--space-1);
+    padding: var(--spacing-1);
     border: 1px solid var(--border);
-    border-radius: var(--radius-panel);
+    border-radius: var(--radius-16);
     background: var(--surface);
     color: var(--text);
-    box-shadow: 0 8px 24px rgb(0 0 0 / .2);
+    box-shadow: var(--shadow-md);
 }
 .sessions-sort p {
     margin: 0;
-    padding: var(--space-2);
+    padding: var(--spacing-2);
     font-size: 12px;
     color: var(--text-secondary);
 }
@@ -626,12 +625,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-3);
+    gap: var(--spacing-3);
     width: 100%;
-    height: 32px;
-    padding: 0 var(--space-2);
+    height: var(--input-md);
+    padding: 0 var(--spacing-2);
     border: 0;
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-8);
     background: transparent;
     color: inherit;
     font: inherit;
@@ -639,8 +638,8 @@
 }
 .sessions-sort button:hover, .sessions-sort button:focus-visible { background: var(--surface-hover); }
 .sessions-sort button i {
-    width: 16px;
-    height: 16px;
+    width: var(--input-xs);
+    height: var(--input-xs);
     background: var(--accent);
     mask: url('../img/icons/check.svg') center / contain no-repeat;
     visibility: hidden;
@@ -670,28 +669,26 @@
 .sessions-icon--unpin { mask: url('../img/icons/unpin.svg') center / contain no-repeat; -webkit-mask: url('../img/icons/unpin.svg') center / contain no-repeat; }
 
 .is-renaming { background: var(--surface-selected); }
-.sessions-rename { min-width: 0; flex: 1; width: 100%; height: 40px; border: 0; outline: 0; padding: 0 12px; background: transparent; color: var(--text); font: inherit; }
+.sessions-rename { min-width: 0; flex: 1; width: 100%; height: var(--input-lg); border: 0; outline: 0; padding: 0 var(--spacing-3); background: transparent; color: var(--text); font: inherit; }
 .is-renaming .sessions__more, .is-renaming .recent-chats__row-actions { display: none; }
 
 .sessions-icon--read { mask: url('../img/icons/mark-read.svg') center/contain no-repeat; }
-.sessions__unread { position: absolute; z-index: 1; right: calc(var(--space-1) + 12px); top: calc(var(--space-1) + 12px); translate: 50% -50%; width: 7px; height: 7px; border-radius: 50%; background: #4fa5b3; box-shadow: 0 0 0 8px var(--sidebar-unread-shadow, var(--bg)), 0 0 12px 12px var(--sidebar-unread-shadow, var(--bg)); pointer-events: none; }
+.sessions__unread { position: absolute; z-index: 1; right: calc(var(--spacing-1) + 12px); top: calc(var(--spacing-1) + 12px); translate: 50% -50%; width: 7px; height: 7px; border-radius: var(--radius-full); background: var(--unread-color); box-shadow: var(--shadow-unread); pointer-events: none; }
 .sessions__row:hover .sessions__unread,
 .sessions__row:has(:focus-visible) .sessions__unread,
 .sessions__row:has(.sessions__more[aria-expanded="true"]) .sessions__unread { visibility: hidden; }
 @media (hover: none) {
     .sessions__row:has(.sessions__unread):not(:hover):not(:has(:focus-visible)):not(:has(.sessions__more[aria-expanded="true"])) .sessions__more { opacity: 0; }
 }
-.sessions__row:has(.sessions__unread) .sessions__title { padding-right: 40px; }
-
-:root[data-theme="light"] .sessions__unread { --sidebar-unread-shadow: #f1f0ec; }
+.sessions__row:has(.sessions__unread) .sessions__title { padding-right: var(--spacing-10); }
 
 .sessions__row:has(.sessions__unread) .sessions__link {
     mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent calc(100% - 28px));
 }
 
 .sessions__tools [data-action="more"] {
-    height: 32px;
-    padding: 0 var(--space-2);
+    height: var(--input-md);
+    padding: 0 var(--spacing-2);
     font-size: var(--font-size-4);
     line-height: 32px;
 }

@@ -10,6 +10,9 @@ from comet.ai.personalization import learn
 
 class PersonalizationTests(unittest.TestCase):
     def setUp(self):
+        models = patch('comet.ai.ollama.OllamaProvider.models', return_value=['qwen3:4b-q4_K_M'])
+        models.start()
+        self.addCleanup(models.stop)
         self.app = create_app({'TESTING':True,'RATELIMIT_ENABLED':False})
         self.ids=[]
         self.clients=[]
@@ -17,7 +20,7 @@ class PersonalizationTests(unittest.TestCase):
         self.addCleanup(self.cleanup)
         for _ in range(2):
             client=self.app.test_client()
-            self.tokens.append(re.search(r'name="csrf_token" value="([^"]+)"',client.get('/').get_data(as_text=True)).group(1))
+            self.tokens.append(re.search(r'name="csrf-token" content="([^"]+)"',client.get('/').get_data(as_text=True)).group(1))
             token=uuid4().hex
             with self.app.app_context(),db.cursor(write=True) as cur:
                 cur.execute('INSERT INTO usuarios (nome,email,senha) VALUES (%s,%s,%s)',('Nome do Cadastro','qa-memory-'+uuid4().hex+'@example.com','test'))

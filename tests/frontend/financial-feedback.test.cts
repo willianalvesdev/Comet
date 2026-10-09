@@ -6,7 +6,7 @@ import {test} from 'node:test';
 
 type Helpers = {success:typeof financialExecutionFeedback; question:typeof financialClarificationFeedback; execute:typeof executeFinancialActions};
 let helpers: Helpers;
-runInNewContext(['financial-parser','financial-execution','financial-feedback'].map(name=>readFileSync(resolve(__dirname,'../../static/js/'+name+'.js'),'utf8')).join('\n') +
+runInNewContext(['financial-parser','financial-execution','financial-feedback'].map(name=>readFileSync(resolve(__dirname,'../../artifacts/test-runtime/'+name+'.js'),'utf8')).join('\n') +
     '\ncapture({success:financialExecutionFeedback, question:financialClarificationFeedback, execute:executeFinancialActions});', {
     capture:(value:Helpers)=>{helpers=value;}
 });

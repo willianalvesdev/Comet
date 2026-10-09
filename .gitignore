@@ -13,3 +13,9 @@ instance/
 
 node_modules/
 static/js/*.js
+
+
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo

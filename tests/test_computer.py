@@ -220,11 +220,14 @@ class SavedComputerServiceTests(unittest.TestCase):
 
 class ComputerRouteTests(unittest.TestCase):
     def setUp(self):
+        models = patch('comet.ai.ollama.OllamaProvider.models', return_value=['qwen3:4b-q4_K_M'])
+        models.start()
+        self.addCleanup(models.stop)
         self.app = create_app({'TESTING': True, 'SECRET_KEY': 'test-' * 10,
                                'RATELIMIT_ENABLED': False, 'AI_CONFIG': CONFIG})
         self.client = self.app.test_client()
         html = self.client.get('/').get_data(as_text=True)
-        self.csrf = re.search(r'name="csrf_token" value="([^"]+)"', html).group(1)
+        self.csrf = re.search(r'name="csrf-token" content="([^"]+)"', html).group(1)
         self.service = self.app.extensions['comet_computer']
         self.service.web_search = None
         self.store = self.app.extensions['comet_conversations']
@@ -256,8 +259,8 @@ class ComputerRouteTests(unittest.TestCase):
         with self.db:
             self.assertEqual(self.client.post('/api/ai/chat', json={}).status_code, 400)
             page = self.client.get('/computer.html').get_data(as_text=True)
-            self.assertIn('data-chat-greeting', page)
-            self.assertIn('computer-messages', page)
+            self.assertIn('id="root"', page)
+            self.assertIn('"page": "computer"', page)
             self.assertNotIn('Ollama', page)
 
     def test_streaming_done_and_context(self):
@@ -314,11 +317,11 @@ class ComputerRouteTests(unittest.TestCase):
     def test_model_catalog_private_and_provider_routing(self):
         self.assertEqual(self.client.get('/api/ai/models').status_code, 401)
         self.login()
-        with self.db:
+        with self.db, patch.object(self.service.provider, 'models', return_value=['qwen-turbo1.7:latest', 'qwen3:4b']):
             response = self.client.get('/api/ai/models')
             self.assertEqual(response.status_code, 200)
-            self.assertEqual([m['id'] for m in response.json['models']], ['qwen', 'gemini', 'qwen3:1.7b', 'qwen3:4b', 'qwen3:8b', 'qwen3:4b-instruct-2507-q4_K_M'])
-            self.assertTrue(response.json['models'][0]['configured'])
+            self.assertEqual([m['id'] for m in response.json['models']], ['gemini', 'qwen-turbo1.7:latest', 'qwen3:4b'])
+            self.assertTrue(response.json['models'][1]['configured'])
             self.assertTrue(all(set(m) == {'id','name','configured'} for m in response.json['models']))
             def local(messages):
                 yield {'type':'delta','text':'Qwen answer'}
@@ -337,6 +340,11 @@ class ComputerRouteTests(unittest.TestCase):
                 self.assertEqual(gemini.call_count,1)
             invalid = self.client.post('/api/ai/chat', json={'conversation_id':None,'message':'Hi','request_id':str(uuid4()),'provider':'unknown'}, headers={'X-CSRFToken':self.csrf})
             self.assertEqual(invalid.status_code,422)
+
+            with patch.object(self.service.providers['qwen-turbo1.7:latest'], 'stream', side_effect=local) as custom:
+                response = self.client.post('/api/ai/chat', json={'conversation_id':None,'message':'Hi','request_id':str(uuid4()),'provider':'qwen-turbo1.7:latest'}, headers={'X-CSRFToken':self.csrf})
+                self.assertIn('Qwen answer', response.get_data(as_text=True))
+                custom.assert_called_once()
 
     def test_saved_chat_rejects_client_history_and_oversized_messages(self):
         self.login()

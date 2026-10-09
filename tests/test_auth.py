@@ -10,7 +10,7 @@ from comet import create_app, db
 
 def csrf(client):
     html = client.get('/', follow_redirects=True).get_data(as_text=True)
-    return re.search(r'name="csrf_token" value="([^"]+)"', html).group(1)
+    return re.search(r'name="csrf-token" content="([^"]+)"', html).group(1)
 
 
 class PublicSecurityTests(unittest.TestCase):
@@ -29,6 +29,16 @@ class PublicSecurityTests(unittest.TestCase):
             self.assertEqual(self.client.post(route).status_code, 400)
         for route in ('/.env', '/requirements.txt', '/comet/__init__.py'):
             self.assertEqual(self.client.get(route).status_code, 404)
+
+    def test_invalid_signup_ages(self):
+        self.app = create_app({'TESTING': True, 'SECRET_KEY': 'test-key-' * 8, 'RATELIMIT_ENABLED': False})
+        self.client = self.app.test_client()
+        token = csrf(self.client)
+        for age in ('', '0', '121', '-1', '18.5', 'abc', '9' * 5000):
+            response = self.client.post('/api/auth/signup', data={
+                'csrf_token': token, 'name': 'Teste', 'email': 'age@example.com',
+                'password': 'password-test', 'confirmation': 'password-test', 'age': age})
+            self.assertEqual(response.status_code, 422)
 
     def test_validation_and_rate_limit(self):
         token = csrf(self.client)
@@ -60,7 +70,7 @@ class MySQLAuthTests(unittest.TestCase):
 
     def signup(self, **overrides):
         data = dict(csrf_token=csrf(self.client), name='Pessoa <script>alert(1)</script>',
-                    email=self.email, password=self.password, confirmation=self.password)
+                    email=self.email, password=self.password, confirmation=self.password, age=25)
         data.update(overrides)
         return self.client.post('/api/auth/signup', data=data)
 
@@ -70,14 +80,16 @@ class MySQLAuthTests(unittest.TestCase):
         self.assertTrue(cookie.http_only)
         self.assertEqual(cookie.same_site, 'Lax')
         with self.app.app_context(), db.cursor() as cur:
-            cur.execute('SELECT senha FROM usuarios WHERE email=%s', (self.email,))
-            stored = cur.fetchone()['senha']
+            cur.execute('SELECT senha, idade FROM usuarios WHERE email=%s', (self.email,))
+            account = cur.fetchone()
+            self.assertEqual(account['idade'], 25)
+            stored = account['senha']
             self.assertNotEqual(stored, self.password)
             self.assertTrue(check_password_hash(stored, self.password))
         page = self.client.get('/principal.html', follow_redirects=True)
         self.assertEqual(page.status_code, 200)
         self.assertIn(self.email, page.get_data(as_text=True))
-        self.assertIn('&lt;script&gt;', page.get_data(as_text=True))
+        self.assertIn(r'\u003cscript\u003e', page.get_data(as_text=True))
         self.assertNotIn('<script>alert(1)</script>', page.get_data(as_text=True))
         self.assertEqual(self.client.get('/graficos.html').status_code, 200)
         self.assertEqual(self.client.post('/logout', data={'csrf_token': csrf(self.client)}).status_code, 302)
