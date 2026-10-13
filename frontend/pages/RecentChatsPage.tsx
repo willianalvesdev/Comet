@@ -11,7 +11,7 @@ export default function RecentChatsPage(_props: { bootstrap: BootstrapData }) {
                     <div className="recent-chats__default-actions tw:flex tw:items-center tw:gap-ui-2">
                         <button className="recent-chats__search-toggle" type="button" aria-label="Pesquisar conversas" aria-expanded="false" aria-controls="recent-chats-search"><i className="chat-search__icon" aria-hidden="true"></i></button>
                         <label className="recent-chats__search" hidden><i className="chat-search__icon" aria-hidden="true"></i><input id="recent-chats-search" type="search" placeholder="Buscar conversas..." aria-label="Buscar conversas" maxLength={100} /></label>
-                        <a className="recent-chats__new" href="/computer.html?new=1"><i className="recent-chats__icon recent-chats__icon--new" aria-hidden="true"></i>Novo</a>
+                        <a className="recent-chats__new" href="/novo.html?new=1"><i className="recent-chats__icon recent-chats__icon--new" aria-hidden="true"></i>Novo</a>
                     </div>
                     <div className="recent-chats__selection-actions tw:flex tw:items-center tw:gap-ui-2" hidden>
                         <button className="recent-chats__delete" type="button"><i className="sessions-icon sessions-icon--delete" aria-hidden="true"></i>Excluir</button>

@@ -5,10 +5,11 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     if (!list) return;
     const preview = document.createElement('div');
     preview.className = 'chat-preview'; preview.id = 'chat-preview'; preview.hidden = true;
-    preview.setAttribute('role', 'tooltip');
-    preview.innerHTML = '<time class="chat-preview__time"></time><p class="chat-preview__question"></p><p class="chat-preview__answer"></p>';
+    preview.setAttribute('role', 'region'); preview.setAttribute('aria-label', 'Prévia da conversa');
+    preview.innerHTML = '<span class="chat-preview__search" hidden><i aria-hidden="true"></i>Busca</span><time class="chat-preview__time"></time><a class="chat-preview__question"></a><p class="chat-preview__answer"></p>';
     scope.append(preview);
-    const stamp = requiredElement(preview, 'time', HTMLTimeElement), question = requiredElement(preview, '.chat-preview__question', HTMLElement), answer = requiredElement(preview, '.chat-preview__answer', HTMLElement);
+    const stamp = requiredElement(preview, 'time', HTMLTimeElement), question = requiredElement(preview, '.chat-preview__question', HTMLAnchorElement), answer = requiredElement(preview, '.chat-preview__answer', HTMLElement);
+    const search = requiredElement(preview, '.chat-preview__search', HTMLElement);
     const relative = new Intl.RelativeTimeFormat('pt-BR', {numeric:'always'});
     let anchor: HTMLAnchorElement | null = null, timer = 0, closeTimer = 0, controller: AbortController | undefined, version = 0;
     function hide() {
@@ -43,6 +44,8 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
                 const message = optionalString(data.message), text = optionalString(data.answer), created = optionalString(data.created_at) || ''; 
                 if (current !== version || !link.isConnected) return;
                 question.textContent = message || 'Conversa sem mensagens';
+                question.href = link.href;
+                search.hidden = data.has_search !== true;
                 answer.textContent = text || 'Resposta ainda não disponível.';
                 const date = new Date(created);
                 present(stamp).hidden = !created || Number.isNaN(date.getTime());
@@ -54,12 +57,14 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     }
     function closeSoon() { clearTimeout(closeTimer); closeTimer = setTimeout(hide, 150); }
     list.addEventListener('pointerover', event => { const link = eventElement(event.target)?.closest<HTMLAnchorElement>('.sessions__link'); if (link && event.pointerType !== 'touch') open(link); }, {signal: scope.signal});
-    list.addEventListener('pointerout', event => { if (eventElement(event.target)?.closest<HTMLAnchorElement>('.sessions__link') && !anchor?.contains(event.relatedTarget instanceof Node ? event.relatedTarget : null) && !preview.contains(event.relatedTarget instanceof Node ? event.relatedTarget : null)) closeSoon(); }, {signal: scope.signal});
+    list.addEventListener('pointerout', event => { if (eventElement(event.target)?.closest<HTMLAnchorElement>('.sessions__link') && !anchor?.contains(event.relatedTarget instanceof Node ? event.relatedTarget : null)) closeSoon(); }, {signal: scope.signal});
     list.addEventListener('focusin', event => { const link = eventElement(event.target)?.closest<HTMLAnchorElement>('.sessions__link'); if (link) open(link); }, {signal: scope.signal});
     list.addEventListener('focusout', closeSoon, {signal: scope.signal});
     preview.addEventListener('pointerenter', () => clearTimeout(closeTimer), {signal: scope.signal});
     preview.addEventListener('pointerleave', closeSoon, {signal: scope.signal});
-    document.addEventListener('pointerdown', hide, {signal: scope.signal});
+    preview.addEventListener('focusin', () => clearTimeout(closeTimer), {signal: scope.signal});
+    preview.addEventListener('focusout', closeSoon, {signal: scope.signal});
+    document.addEventListener('pointerdown', event => { if (!preview.contains(event.target as Node)) hide(); }, {signal: scope.signal});
     document.addEventListener('keydown', event => { if (event.key === 'Escape') hide(); }, {signal: scope.signal});
     window.addEventListener('scroll', hide, {capture:true, signal: scope.signal});
     window.addEventListener('resize', hide, {signal: scope.signal});

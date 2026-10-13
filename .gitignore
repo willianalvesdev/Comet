@@ -12,10 +12,14 @@ artifacts/
 instance/
 
 node_modules/
-static/js/*.js
 
 
 .next/
 out/
 next-env.d.ts
 *.tsbuildinfo
+
+public/static/
+public/manifest.webmanifest
+public/robots.txt
+public/llms.txt

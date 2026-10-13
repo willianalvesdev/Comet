@@ -12,12 +12,12 @@ ativo e excluído é carregado por paginação antes da interpretação; o reló
 pelo chamador em America/Sao_Paulo. Esclarecimentos exibem candidatos reais e não executam ações.
 O estado conversacional pertence à página e não é persistido em localStorage.
 
-`comet/finance_execution.py` valida cada ação, usa a conta autenticada e executa o lote
-em uma transação MySQL. Antes de cada update/delete/restore/permanent_delete, faz
+`server/finance/repository.ts` valida cada ação, usa a conta autenticada e executa o lote
+em uma transação PostgreSQL. Antes de cada update/delete/restore/permanent_delete, faz
 SELECT por conta e ID com FOR UPDATE. Todos os alvos são conferidos e bloqueados em
 ordem de ID, e todas as alterações são validadas antes da primeira gravação financeira.
 Falhas revertem o lote inteiro, incluindo eventos de auditoria. Valores continuam
-strings decimais na API e Decimal/DECIMAL no servidor/banco, sem float nas gravações.
+strings decimais na API e centavos BigInt/NUMERIC no servidor/banco, sem float nas gravações.
 UPDATE preserva campos não mencionados e recusa registros excluídos.
 
 `StoredTransaction.deleted_at` segue o snake_case existente: null significa ativa;
@@ -64,20 +64,14 @@ candidatos reais com valor, descrição e data; mensagens técnicas recebidas s�
 por perguntas ou orientações simples. IDs, JSON e indicadores internos não vão para o texto.
 “Aquela compra” utiliza o foco contextual, inclusive ao restaurar o mesmo registro.
 
-Para bancos existentes, executar `configurar_banco.bat` com administrador MySQL:
-acrescenta a coluna nullable se ausente e cria a tabela de operações. A conta do site
-continua apenas com SELECT/INSERT/UPDATE/DELETE. O configurador é repetível e não
-remove registros. Não executar somente CREATE TABLE IF NOT EXISTS em um banco antigo,
-pois isso não acrescenta a coluna à tabela já existente.
+Execute `configurar_banco.bat` com `DATABASE_URL` configurada para preparar o esquema
+PostgreSQL de `setup_banco.sql`. O script é idempotente, aplica tudo em uma transação
+e usa um bloqueio consultivo para impedir duas preparações simultâneas. Não apaga registros.
 
-Verificação: testes TypeScript cobrem linguagem, desfazer, ambiguidades e seleção de
-excluídos; o teste de navegador passa pelo parser/composer/executor com respostas HTTP
-controladas, incluindo perda da resposta e reenvio. `test_finance_execution.py` integra
-rotas Flask, validação, execução e consultas reais em SQLite isolado na memória, com
-adaptação explícita do dialeto MySQL. Confere rollback, idempotência, isolamento por conta,
-CSRF e ausência da lixeira em totais/gráficos. Esse teste não simula os locks concorrentes
-do MySQL. Não usa nem altera transações do usuário.
-
+Os testes TypeScript da interface cobrem linguagem, desfazer, ambiguidades e seleção
+de excluídos. A suíte de navegador usa o Next.js de produção com respostas de API
+controladas. Os serviços e a persistência são verificados pelos testes em `tests/server/`.
+Veja `README.md` para comandos; contagens históricas de testes não descrevem esta migração.
 ## Compras e correções em linguagem cotidiana
 
 “Comprei um salgado de 10 reais hoje” gera uma despesa de 10,00 com descrição
@@ -165,7 +159,7 @@ Ollama recusa modelos remotos e contexto excessivo em vez de truncar referência
 
 O prompt de sistema é fixo; USER_INPUT e os demais campos chegam em uma mensagem
 separada, como dados JSON não confiáveis. Essa separação é acompanhada de validações:
-JSON estrito no servidor (sem chaves duplicadas/NaN), limites de tamanho/tempo, campos
+JSON validado no servidor, limites de tamanho/tempo, campos
 exatos, enumerações e consistência entre status, ações e esclarecimento. Na interface,
 a resposta entra como `unknown`, passa pela validação estrutural existente e depois
 pela validação de negócio antes de virar `FinancialAction`. Não foi necessário adicionar
@@ -191,7 +185,7 @@ reenvio idempotente e bloqueio de lotes inválidos. Os testes não chamam servi�
 continua sendo `finance_transactions`; nenhum cálculo, parser ou listagem financeira
 consulta os eventos. Não há reconstrução automática de saldo por eventos.
 
-`finance_audit.py` grava usando o mesmo cursor e a mesma transação da execução:
+`server/finance/repository.ts` grava usando a mesma conexão e a mesma transação da execução:
 falha no evento reverte a alteração, e falha posterior no lote também reverte os eventos.
 O reenvio idempotente retorna antes de gravar novamente. O caminho existente de importação
 `receive` também registra a criação; nesse caso `operation_id` é null.
@@ -219,228 +213,3 @@ Executar `configurar_banco.bat` cria a tabela de eventos de forma aditiva. Não 
 backfill: registros existentes não recebem datas ou eventos históricos inventados.
 Os testes de integração cobrem os cinco eventos, diferenças mínimas, timestamp do
 soft delete, reenvio, rollback, falha de auditoria, importação e independência dos totais.
-
-## Histórico das etapas anteriores
-
-As seções abaixo registram as etapas anteriores à conexão da execução; referências a
-“futuro”, “sem execução” ou “fora dos templates” descrevem o estado daquela etapa.
-
-## Estrutura atual analisada
-
-- Flask e MySQL no servidor; TypeScript estrito, scripts clássicos e Jinja na interface.
-  Os fontes usam nomes kebab-case em `frontend/controllers`; contratos globais ficam em
-  `frontend/types/*.d.ts`. A interface usa React, com os controladores montados por efeitos e sem store central.
-- `Transaction` descreve os campos existentes: `kind` (`income`/`expense`),
-  `amount` decimal em string, `description`, `category`, `occurred_on` e
-  `external_id` opcional no contrato da interface. `StoredTransaction` acrescenta
-  `id` string e `currency`. Esses modelos foram movidos, sem alterações, de
-  `app.d.ts` para `finance.d.ts`, junto dos contratos de gráficos e respostas.
-- `category` é texto livre de até 80 caracteres, com valor padrão vazio.
-  Não há tabela nem catálogo fixo de categorias. Não foi criado enum artificial.
-- `setup_banco.sql` define `finance_transactions`: conta (`usuario_id`), ID bigint,
-  chave externa, tipo, DECIMAL(14,2), descrição, categoria, data e criação.
-  A chave externa é única por conta. Não há lixeira, revisão ou auditoria.
-- `comet/finance.py`: `validate_transaction` valida a entrada; `receive` cria
-  com idempotência; `history` pagina; `summarize` e `dashboard` calculam os gráficos.
-  `serialize` mantém dinheiro decimal em string e normaliza o título com
-  `transaction_title`. Essa normalização existente não foi alterada.
-  Não existem funções de alteração, exclusão, restauração ou exclusão permanente.
-- APIs existentes em `comet/__init__.py`: GET `/api/finance/dashboard`, GET
-  `/api/finance/transactions` (`limit`, `before`, retorno `next_cursor`) e POST
-  `/api/finance/transactions`. POST exige `external_id`, sessão e CSRF; retorna
-  201/200 para criação/repetição, 409 para conflito e 422 para dados inválidos.
-  O usuário vem da sessão, não do corpo enviado pelo navegador.
-- `finance-data.ts` mantém cursor e flags de carregamento no escopo da página.
-  `api-data.ts` valida JSON recebido como `unknown`. `WorkspaceNavigation` controla
-  montagem e limpeza; `finance:changed` recarrega totais e lista. O banco é a fonte
-  persistente; não há transações em localStorage. `graph-composer.ts` continua
-  apenas ajustando a caixa de texto e impedindo o envio.
-
-## Contratos adicionados
-
-`financial-interpretation.d.ts` reutiliza `Transaction` e `StoredTransaction`:
-
-- `FinancialIntent`: intenção ainda incompleta. Pode conter campos parciais,
-  referência textual e candidatos; candidatos não são alvos autorizados.
-- `FinancialAction`: união discriminada por `type` com `create`, `update`,
-  `delete`, `restore` e `permanent_delete`. Criação exige todos os campos do domínio;
-  alteração exige pelo menos um campo; ações sobre registros exigem IDs não vazios.
-  IDs, moeda e chave externa não são campos editáveis. Uma ação pode atingir vários
-  IDs; a mesma alteração se aplica a todos eles.
-- `ParserConfidence`: `high`, `medium` ou `low`, sem pontuações ou limites inventados.
-- `PendingClarification`: pergunta pendente, texto original, intenção, motivo,
-  campos faltantes e IDs candidatos. Confirmações também são representáveis.
-- `FinancialContext`: data de referência, fuso, idioma, moeda, categorias livres,
-  registros conhecidos, registros excluídos, eventos recentes e pergunta pendente.
-  Flags de completude impedem tratar a página carregada como todo o histórico.
-  O contexto futuro deve vir somente da conta autenticada, e não de outra sessão.
-- `ParserResult`: união por `status`: `resolved`, `needs_clarification` ou
-  `unrecognized`. Somente o primeiro contém uma ação completa.
-- `FinancialParser`: assinatura pura `(text, context) => ParserResult`, sem
-  implementação, chamadas de rede ou gravação.
-- `TransactionHistoryEvent`: evento por registro, com ID, operação agrupadora,
-  instante ISO e snapshots antes/depois coerentes com o tipo da ação. Exclusão
-  permanente guarda apenas identificação e metadados, sem copiar os dados apagados.
-  É um contrato futuro; `FinanceHistory` continua sendo a listagem atual, não auditoria.
-
-`delete` representa futuramente exclusão recuperável; `restore` reverte essa
-exclusão; `permanent_delete` é irreversível. Nada disso foi habilitado no servidor.
-Uma ação resolvida não autoriza execução nem dispensa confirmação e validação.
-Strings de dinheiro, datas e IDs continuam precisando de validação em runtime;
-esses contratos não validam dados externos nem substituem os validadores existentes.
-A futura criação deverá gerar a chave idempotente fora do parser antes de chamar
-`receive`; não se extrai `external_id` do texto do usuário.
-
-## Integração e limites desta etapa
-
-Os dois arquivos de declarações entram automaticamente nos tsconfigs existentes.
-Os consumidores atuais continuam usando os mesmos nomes globais. Não há novos
-scripts carregados, dependências, endpoints, tabelas, store ou efeitos em runtime.
-A próxima etapa pode implementar o parser contra `FinancialParser`; execução,
-persistência de contexto/lixeira/eventos e validação das novas operações ficam
-para etapas posteriores. Nenhuma regra de linguagem natural ou IA foi adicionada.
-
-## Primeiro nível local implementado
-
-`frontend/controllers/financial-parser.ts` expõe `parseFinancialInput(input, context)` no
-padrão de scripts clássicos do projeto. Não é carregado pelos templates nem
-conectado ao composer: esta etapa só fornece a função pura para uso posterior.
-
-As funções pequenas normalizam espaços, reconhecem o verbo inicial, extraem
-valores, convertem reais em centavos inteiros com BigInt e montam a descrição.
-A saída monetária continua sendo string decimal, compatível com Transaction.
-São aceitos gastei, recebi, paguei e comprei. Para compras sem moeda explícita,
-o preço precisa estar após `por`, evitando confundir quantidade e valor.
-Milhares brasileiros, vírgula/ponto decimal, R$, real/reais/conto e mil são aceitos.
-O limite monetário segue DECIMAL(14,2) do banco; zero e negativos não são aceitos.
-
-Uma ação resolvida é sempre create. A data vem de context.reference_date e a
-categoria permanece vazia; não há classificação automática. BRL é o padrão;
-um contexto com outra moeda é recusado. Sem descrição, são usados Gasto,
-Recebimento, Pagamento ou Compra. O parser não inventa identificação externa.
-
-Valor ausente ou não identificável gera needs_clarification. Entradas inválidas,
-negações, perguntas, datas explícitas e operações fora deste primeiro nível
-não são executadas; casos detectados fora do escopo retornam unrecognized.
-Uma pergunta pendente não é continuada neste nível. Seu ID de esclarecimento é
-determinístico a partir do texto e não é um ID persistente de operação.
-
-Os testes em tests/frontend/financial-parser.test.cts executam o JavaScript
-compilado em um contexto Node sem DOM, fetch ou banco. Cobrem os exemplos,
-formatos de dinheiro, quantidades, entradas recusadas e contexto preservado.
-Executar npm run test:frontend inclui esses testes. Não há IA, gravação,
-execução de ações ou alterações na interface.
-
-## Datas e cálculos locais
-
-O contexto aceita currentDate (AAAA-MM-DD), currentTime e timezone. O fuso
-padrão é America/Sao_Paulo. currentTime pode ser um horário local HH:mm[:ss]
-quando acompanhado de currentDate, ou um instante ISO com Z/offset, convertido
-para o fuso informado. Se ambos forem fornecidos, devem indicar o mesmo dia local.
-Contextos antigos com reference_date/time_zone continuam aceitos. Nenhuma função
-consulta o relógio da máquina nem fixa a data atual; falta de referência válida
-resulta em needs_clarification.
-
-Hoje/ontem/anteontem e dias da semana são resolvidos por calendário. Um dia da
-semana sem qualificador significa a ocorrência mais recente, incluindo hoje;
-passada/passado exclui hoje. Dia isolado usa o mês atual se já ocorreu, senão o
-anterior, inclusive na virada de ano. Dia e mês sem ano usam a ocorrência anual
-mais recente. Datas inválidas não são normalizadas para outro dia. Datas futuras
-pedem esclarecimento, de acordo com a criação atual de transações realizadas.
-Sem data explícita, create usa o dia atual fornecido. Semana passada e mês passado
-são reconhecidos como períodos ambíguos e pedem um dia exato; não inventam uma data.
-
-São suportados um ajuste de juros/desconto (percentual ou valor fixo) e quantidade
-inteira multiplicada por preço unitário com cada. Não há eval nem expressões
-arbitrárias. O cálculo usa BigInt e centavos; percentuais admitem até duas casas.
-O total final é arredondado ao centavo mais próximo, com empate para cima, e
-validado contra DECIMAL(14,2). Totais nulos/negativos, estouro, descontos acima de
-100% e cálculos compostos ambíguos não geram uma ação resolvida.
-
-Testes com calendário fornecido cobrem os exemplos, limites de mês/ano, ano
-bissexto, conversão de fuso, períodos ambíguos, precisão e arredondamento.
-A interpretação segue sem IA, efeitos colaterais, integração de UI ou execução.
-
-## Múltiplos eventos e compensações
-
-O retorno `resolved` agora contém `actions`, uma tupla não vazia de FinancialAction.
-Isso também vale para uma única ação; o campo singular action foi substituído.
-Não existem consumidores de produção ligados ao parser; os testes foram adaptados.
-Outros estados continuam sem ações para evitar executar apenas parte de uma frase.
-
-`splitFinancialEvents` examina possíveis conectores e só inicia uma cláusula quando
-há outro verbo financeiro, ou um novo preço seguido de local/origem/finalidade.
-Vírgulas decimais, listas de itens e conectivos dentro das descrições são preservados.
-O verbo pode ser herdado em “30 no almoço e 20 no ônibus”; o tipo muda quando surge
-um verbo explícito. Uma data no início da frase é compartilhada; datas de cláusulas
-específicas não sobrescrevem as demais.
-
-`extractFinancialCompensation` identifica devoluções e marcadores explícitos de
-retorno. `belongToSameFinancialEvent` exige despesa, ligação explícita e data
-compatível. A orquestração também exige um único evento anterior: havendo mais de
-um alvo possível, origem adicional ou referência a outra compra, retorna
-needs_clarification, sem tentar escolher pelo valor ou pela proximidade.
-Recebimentos simples de João, trabalho ou salário continuam independentes.
-
-A compensação subtrai centavos inteiros do gasto e preserva sua descrição/data.
-São reconhecidos de volta, reembolso, estorno, devolveram, recuperei, retornaram
-e voltou. Perdi representa uma despesa. Retornos repetidos podem reduzir o mesmo
-único gasto. Totais líquidos nulos ou negativos pedem esclarecimento, pois o modelo
-atual exige valor positivo. Uma compensação em data explicitamente diferente também
-pede esclarecimento, sem reescrever o histórico por suposição.
-
-O processamento é conservador e limitado às estruturas testadas; não é compreensão
-livre de linguagem nem IA. Continua sem chamadas de rede, gravação ou execução.
-
-## Contexto conversacional
-
-`financial-context.ts` acrescenta estado de linguagem, sem armazenamento paralelo:
-`FinancialConversationState` guarda last_mentioned_transaction_ids,
-last_created_transaction_ids, last_updated_transaction_ids,
-last_deleted_transaction_ids, last_restored_transaction_ids, last_intent e
-pending_clarification. Os nomes seguem o snake_case dos contratos existentes.
-FinancialContext incorpora esses campos; createFinancialConversationState fornece
-os valores iniciais. Os snapshots transactions/deleted_transactions continuam
-sendo dados reais da conta, carregados pelo chamador a partir do armazenamento.
-
-- parseFinancialInput retorna apenas ParserResult, como antes.
-- parseFinancialTurn retorna `{result, context}` com um novo contexto, sem mutar
-  o recebido. Guarda pergunta pendente e foco de referências resolvidas.
-- rememberFinancialOperation deve ser chamado somente depois da confirmação do
-  armazenamento, com os IDs devolvidos e snapshots atualizados. Valida presença
-  única dos IDs na lista ativa ou excluída correspondente. A interpretação sozinha
-  não preenche last_created/updated/deleted/restored_transaction_ids.
-
-Fluxo: interpretar a criação, receber confirmação do armazenamento e seu ID,
-atualizar o snapshot, chamar rememberFinancialOperation(context, 'create', [id]),
-então interpretar “Na verdade foram 90”, “E foi anteontem” ou “Apaga ela”.
-Não se tenta adivinhar o ID comparando descrição/valor da criação com registros.
-Uma nova criação não confirmada limpa o foco anterior, evitando corrigir outro gasto.
-
-Ela/ele/essa/essa compra/essa despesa/aquela/a anterior usam o foco do turno anterior.
-Os dois exige dois referentes; essas exige um conjunto plural. A última significa
-maior data occurred_on no histórico completo; empates pedem esclarecimento.
-Não se supõe que IDs crescentes provem a ordem. Busca por nome usa descrição
-normalizada exata, com filtro de data e tipo quando informados. Uma página parcial
-não prova unicidade; a seleção contextual por IDs explícitos conhecidos independe
-de ter todo o histórico carregado.
-
-Pedidos ambíguos carregam candidatos reais (IDs e snapshots de exibição) e preservam
-a operação, alterações e referência com data já resolvida. “A de 80” compara o
-valor com os candidatos apresentados, relidos no snapshot atual, sem criar IDs.
-Se desaparecerem, mudarem ou continuarem ambíguos, volta a perguntar. Snapshots
-antigos na pergunta não autorizam ações. Respostas plurais podem selecionar o
-conjunto apresentado. Correção com valor/data faltante também pode ser esclarecida;
-criação simples sem valor preserva descrição/data enquanto aguarda o valor.
-
-Correções de valor/data, exclusão e restauração apenas produzem ações tipadas.
-Não há integração com IA, execução de update/delete/restore, persistência do estado
-conversacional ou novos endpoints. O chamador deve isolar contexto e snapshots por
-conta/sessão e atualizar os dados antes de cada turno; autorização, concorrência e
-validação final continuam sendo responsabilidade do servidor na futura execução.
-Os scripts financial-parser.js e financial-context.js devem estar ambos carregados
-antes de chamar o parser; seguem fora dos templates nesta etapa.
-
-Os testes simulam a confirmação do armazenamento com IDs reais da fixture e
-vários turnos, incluindo seleção por valor, pronomes, dados parciais, IDs ausentes,
-registros alterados, exclusão/restauração e ausência de efeitos nos snapshots.

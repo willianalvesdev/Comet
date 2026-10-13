@@ -45,7 +45,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             for (const chat of data.conversations) {
                 const link = document.createElement('a');
                 link.className = 'chat-search__result';
-                link.href = '/computer.html?conversation=' + encodeURIComponent(chat.id);
+                link.href = '/novo.html?conversation=' + encodeURIComponent(chat.id);
                 link.title = chat.title;
                 const title = document.createElement('span');
                 title.className = 'chat-search__title'; title.textContent = chat.title;

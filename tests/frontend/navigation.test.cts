@@ -48,7 +48,7 @@ async function fixture(html: string, scripts: string[], source: string, routes: 
 }
 async function sessions(source: string) {
   const requests: {method:string;body:unknown;csrf:string}[] = [];
-  const { page, errors } = await fixture('<meta name="csrf-token" content="fixture-csrf"><body data-user-id="test"><aside class="sidebar"><button class="sidebar__toggle"></button><div class="sidebar__new-chat"><a class="sidebar__link" href="/computer.html?new=1">Novo chat</a></div><nav class="sidebar__nav"></nav></aside><main class="computer-page"></main></body>', ['sessions.js'], source, {
+  const { page, errors } = await fixture('<meta name="csrf-token" content="fixture-csrf"><body data-user-id="test"><aside class="sidebar"><button class="sidebar__toggle"></button><div class="sidebar__new-chat"><a class="sidebar__link" href="/novo.html?new=1">Novo chat</a></div><nav class="sidebar__nav"></nav></aside><main class="computer-page"></main></body>', ['sessions.js'], source, {
     '/api/ai/conversations/chat-2': async route => {
       requests.push({ method: route.request().method(), body: route.request().postDataJSON(), csrf: route.request().headers()['x-csrftoken'] });
       return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ title: route.request().method() === 'PATCH' ? 'Renamed conversation' : undefined }) });
@@ -152,7 +152,7 @@ async function tooltips(source: string) {
 async function preview(source: string) {
   let requests = 0;
   const { page, errors } = await fixture('<body><nav class="sidebar__nav"><div class="sessions__row" data-id="chat-1"><a class="sessions__link" href="#" title="Conversation">Conversation</a></div><span id="status"></span></nav></body>', ['chat-preview.js'], source, {
-    '/api/ai/conversations/chat-1/preview': route => { requests++; return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ message: 'Question', answer: 'Answer', created_at: '2026-01-01T10:00:00Z' }) }); }
+    '/api/ai/conversations/chat-1/preview': route => { requests++; return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ message: 'Question', answer: 'Answer', created_at: '2026-01-01T10:00:00Z', has_search: true }) }); }
   });
   await page.evaluate(() => {
     window.resetMeasurements();
@@ -162,8 +162,16 @@ async function preview(source: string) {
   const metrics = await page.evaluate(() => ({ ...window.measurements }));
   await page.focus('.sessions__link');
   await page.waitForFunction(() => !requiredElement(document, ".chat-preview", HTMLElement).hidden);
-  const shown = await page.evaluate(() => ({ text: [...elementList(document, ".chat-preview p", HTMLElement)].map(node => node.textContent), title: requiredElement(document, ".sessions__link", HTMLAnchorElement).getAttribute('title'), describedBy: requiredElement(document, ".sessions__link", HTMLAnchorElement).getAttribute('aria-describedby') }));
+  const shown = await page.evaluate(() => ({ text: [...elementList(document, ".chat-preview__question, .chat-preview__answer", HTMLElement)].map(node => node.textContent), title: requiredElement(document, ".sessions__link", HTMLAnchorElement).getAttribute('title'), describedBy: requiredElement(document, ".sessions__link", HTMLAnchorElement).getAttribute('aria-describedby') }));
   assert.deepEqual(shown, { text: ['Question', 'Answer'], title: null, describedBy: 'chat-preview' });
+  assert(await page.locator('.chat-preview__search').isVisible());
+  assert.equal(await page.locator('.chat-preview__question').getAttribute('href'), 'http://comet.test/#');
+  await page.locator('.chat-preview').hover();
+  await page.waitForTimeout(200);
+  assert(await page.locator('.chat-preview').isVisible());
+  await page.locator('.chat-preview__question').click();
+  assert(await page.locator('.chat-preview').isVisible());
+
   await page.evaluate(() => requiredElement(document, ".sessions__row", HTMLElement).remove());
   await page.waitForFunction(() => requiredElement(document, ".chat-preview", HTMLElement).hidden);
   await page.evaluate(() => {
@@ -207,6 +215,16 @@ async function navigator(source: string) {
   assert.equal(await page.evaluate(() => document.activeElement?.textContent), 'Message 1');
   await page.keyboard.press('Escape');
   assert.equal(await page.locator('.message-navigator__panel').isVisible(), false);
+  await page.evaluate(() => {
+    const answer = document.createElement('article'); answer.className = 'computer-message--assistant';
+    answer.innerHTML = '<div class="computer-message__text">Prévia da resposta</div>';
+    document.querySelector('.computer-message--user')?.after(answer);
+  });
+  await page.locator('.message-navigator__mark').first().hover();
+  assert.equal(await page.locator('.message-navigator__list button:not([hidden])').count(), 1);
+  assert.equal(await page.locator('.message-navigator__answer').first().textContent(), 'Prévia da resposta');
+  await page.evaluate(() => { const answer=document.querySelector('.computer-message--assistant .computer-message__text'); if(answer) answer.textContent='Resposta atualizada'; });
+  await page.waitForFunction(() => document.querySelector('.message-navigator__answer')?.textContent === 'Resposta atualizada');
   await page.evaluate(() => requiredElement(document, ".computer-messages", HTMLElement).replaceChildren());
   await page.waitForFunction(() => requiredElement(document, ".message-navigator", HTMLElement).hidden);
   assert.deepEqual(errors, []);

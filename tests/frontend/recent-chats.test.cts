@@ -1,28 +1,29 @@
 import fs = require('node:fs');
 import path = require('node:path');
 import assert = require('node:assert/strict');
-import {execFileSync} from 'node:child_process';
+import {startNextServer} from './next-server.cjs';
 import {test,before,after} from 'node:test';
 import {chromium,type Browser} from 'playwright';
 const root = path.resolve(__dirname, '../..');
-const python = process.env.PYTHON || path.join(root, process.platform === 'win32' ? 'venv/Scripts/python.exe' : 'venv/bin/python');
-const pages:Record<string,string> = stringPages(JSON.parse(execFileSync(python, ['-c', `import json
-from pathlib import Path
-from comet import next_page_html
-print(json.dumps({name+'.html':next_page_html(Path('out'),name,{'page':name,'user':None if name=='index' else {'id':7,'nome':'Teste','email':'teste@example.com'},'csrfToken':'test-csrf','currentYear':2026}) for name in ['recentes','computer','graficos','descobrir','aprender','index']}))`], {cwd:root, encoding:'utf8', env:{...process.env, PYTHONIOENCODING:'utf-8'}})));
-
 function testObject(value:unknown):Record<string,unknown> {
  if(typeof value!=='object'||value===null||Array.isArray(value))throw new Error('Invalid test data');
  return value as Record<string,unknown>;
 }
-function stringPages(value:unknown):Record<string,string> {
- return Object.fromEntries(Object.entries(testObject(value)).map(([key,value])=>{assert.equal(typeof value,'string');if(typeof value!=='string')throw new Error('Invalid page');return [key,value];}));
-}
 let browser: Browser;
-before(async () => { browser = await chromium.launch({executablePath:process.env.BROWSER_PATH || 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true,ignoreDefaultArgs:['--hide-scrollbars']}); });
-after(async () => browser.close());
+let nextServer: Awaited<ReturnType<typeof startNextServer>>;
+before(async () => {
+    nextServer = await startNextServer(root);
+    browser = await chromium.launch({executablePath:process.env.BROWSER_PATH || 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true,ignoreDefaultArgs:['--hide-scrollbars']});
+});
+after(async () => {await browser?.close(); await nextServer?.stop();});
 async function fixture(width = 1280) {
     const context = await browser.newContext({viewport:{width,height:800}, reducedMotion:'reduce'});
+    const close = context.close.bind(context);
+    context.close = async (...args) => {
+        for (const page of context.pages()) await page.unrouteAll({behavior:'wait'});
+        await context.unrouteAll({behavior:'wait'});
+        await close(...args);
+    };
     await context.addInitScript({content:fs.readFileSync(path.join(root,'artifacts/test-runtime/dom.js'),'utf8')+';Object.assign(window,{requiredElement,optionalElement,elementList,eventElement,errorMessage,isRecord,present,formField});'});
     await context.addInitScript({path:path.join(root,'artifacts/test-runtime/api-data.js')});
     await context.addInitScript(() => {localStorage.setItem('ascenda-cookie-choice-v1','accepted');if(!localStorage.getItem('ascensao-theme'))localStorage.setItem('ascensao-theme','dark');});
@@ -35,12 +36,6 @@ async function fixture(width = 1280) {
     await context.route('**/*', async route => {
         const request=route.request(), url=new URL(request.url());
         if(url.pathname === '/api/bootstrap') return route.fulfill({json:{page:url.searchParams.get('page')||'computer',user:url.searchParams.get('page')==='index'?null:{id:7,nome:'Teste',email:'teste@example.com'},csrfToken:'test-csrf',currentYear:2026}});
-        if(url.searchParams.has('_rsc') || url.pathname.endsWith('.txt')) {
-            const relative=decodeURIComponent(url.pathname).replace(/^\//,'')||'index';
-            const exported=path.join(root,'out',relative.endsWith('.txt')?relative:relative+'.txt');
-            if(fs.existsSync(exported))return route.fulfill({contentType:'text/x-component',body:fs.readFileSync(exported)});
-        }
-        if(url.pathname==='/' || url.pathname.endsWith('.html')) return route.fulfill({contentType:'text/html; charset=utf-8',body:pages[url.pathname.slice(1)||'index.html'] || pages['recentes.html']});
         if(url.pathname === '/api/ai/conversations') {
             const offset=Number(url.searchParams.get('offset') || 0);
             return route.fulfill({json:{conversations:chats.slice(offset,offset+2),next_offset:offset+2<chats.length?offset+2:null}});
@@ -61,11 +56,7 @@ async function fixture(width = 1280) {
         if(url.pathname==='/api/news')return route.fulfill({json:{articles:[],has_more:false,page:1}});
         if(url.pathname==='/api/ai/models')return route.fulfill({json:{models:[{id:'gemini',configured:true},{id:'qwen3:1.7b',configured:true},{id:'qwen3:4b',configured:true},{id:'qwen3:8b',configured:true},{id:'qwen3:4b-instruct-2507-q4_K_M',configured:true}]}});
         if(url.pathname.startsWith('/api/')) return route.fulfill({json:{}});
-        const file=path.join(root,url.pathname.startsWith('/_next/')?'out':'',decodeURIComponent(url.pathname));
-        if(fs.existsSync(file) && fs.statSync(file).isFile()) {
-            const types:Record<string,string>={'.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.woff2':'font/woff2','.otf':'font/otf'};
-            return route.fulfill({contentType:types[path.extname(file)]||'application/octet-stream',body:fs.readFileSync(file)});
-        }
+        if (url.origin === nextServer.origin) return route.continue();
         return route.fulfill({status:404,body:''});
     });
     const page=await context.newPage();page.on('pageerror',error=>errors.push(error.message));
@@ -73,7 +64,7 @@ async function fixture(width = 1280) {
     const mounted=()=>page.waitForFunction(()=>document.querySelector('#workspace-page, .auth'));
     page.goto=async (...args)=>{const response=await goto(...args);await mounted();return response;};
     page.reload=async (...args)=>{const response=await reload(...args);await mounted();return response;};
-    await page.goto('https://comet.test/recentes.html');
+    await page.goto(nextServer.origin + '/recentes.html');
     await page.waitForFunction(()=>requiredElement(document, ".recent-chats__list", HTMLElement).getAttribute('aria-busy')==='false');
     return {page,context,errors,requests,failDeletion:()=>{failDelete=true;},allowDeletion:()=>{failDelete=false;}};
 }
@@ -81,12 +72,20 @@ test('recentes: cabeçalho recolhe, atalho navega e seleção usa os SVGs corret
     const f=await fixture();const p=f.page;
     try {
         assert.equal(await p.locator('.recent-chats__row').count(),3);
+        for (const [trigger, menu] of [['.sessions__preferences', '#sessions-sort'], ['.sidebar__profile', '#profile-menu'], ['#recent-chats .sessions__row button', '#sessions-menu']]) {
+            const button = p.locator(trigger).first();
+            await button.click();
+            assert.equal(await p.locator(menu).evaluate(e => e.matches(':popover-open')), true, trigger);
+            await button.click();
+            assert.equal(await p.locator(menu).evaluate(e => e.matches(':popover-open')), false, trigger);
+        }
+
         if(process.env.QA_DESKTOP)await p.screenshot({path:process.env.QA_DESKTOP});
         await p.locator('.sessions__heading[aria-controls="recent-chats"]').click();
         await p.waitForFunction(()=>requiredElement(document, ".sessions__heading[aria-controls=\"recent-chats\"]", HTMLButtonElement).getAttribute('aria-expanded')==='false');
         assert.equal(await p.locator('.sessions__heading[aria-controls="recent-chats"]').getAttribute('aria-expanded'),'false');
-        assert.equal(await p.locator('a.sessions__visit').getAttribute('href'),'/recentes.html');
-        await p.locator('a.sessions__visit').click();
+        assert.equal(await p.locator('a.sessions__title').getAttribute('href'),'/recentes.html');
+        await p.locator('a.sessions__title').click();
         await p.waitForFunction(()=>optionalElement(document, ".recent-chats__row", HTMLElement));
         await p.locator('.recent-chats__row input').first().check();
         assert(await p.locator('#select-all-chats').evaluate(e=>e instanceof HTMLInputElement && e.indeterminate));
@@ -164,7 +163,7 @@ test('fixados: cabeçalho recolhe e navegação preserva o estado da lateral', a
         assert(!await pinned.evaluate(e=>e instanceof HTMLDetailsElement && e.open));
         await p.locator('.sessions__heading[aria-controls="recent-chats"]').click();
         await p.locator('.sidebar__toggle').click();
-        await p.goto('https://comet.test/recentes.html?return=1');
+        await p.goto(nextServer.origin + '/recentes.html?return=1');
         await p.waitForFunction(()=>window.ComputerSessions);
         assert(await p.locator('body').evaluate(e=>e.classList.contains('is-sidebar-collapsed')));
         assert(!await p.locator('#pinned-chats').evaluate(e=>present(e.closest('details')).open));
@@ -177,7 +176,7 @@ test('navegação mantém o mesmo documento e lateral entre todas as telas', asy
     const f=await fixture(); const p=f.page;
     try {
         await p.evaluate(()=>{window.originalSidebar=optionalElement(document, ".sidebar", HTMLElement);window.originalDocument=document;});
-        for (const [href, selector] of [['/computer.html?new=1','.computer-page'],['/graficos.html','#market-chart'],['/descobrir.html','.news-page'],['/recentes.html','.recent-chats'],['/computer.html?new=1','.computer-page']]) {
+        for (const [href, selector] of [['/novo.html?new=1','.computer-page'],['/financas.html','#market-chart'],['/descobrir.html','.news-page'],['/recentes.html','.recent-chats'],['/novo.html?new=1','.computer-page']]) {
             await p.evaluate(href=>window.WorkspaceNavigation.go(href),href);
             assert(await p.locator(selector).isVisible());
             assert(await p.evaluate(()=>window.originalSidebar===optionalElement(document, ".sidebar", HTMLElement) && window.originalDocument===document));
@@ -202,7 +201,7 @@ test('menu móvel fecha após navegar e Voltar preserva a lateral', async () => 
     try {
         await p.evaluate(()=>window.originalSidebar=optionalElement(document, ".sidebar", HTMLElement));
         await p.locator('.workspace__menu-toggle').click();
-        await p.locator('.sidebar a[href="./graficos.html"]').click();
+        await p.locator('.sidebar a[href="./financas.html"]').click();
         await p.waitForSelector('#market-chart');
         assert(await p.locator('body').evaluate(e=>e.classList.contains('is-sidebar-collapsed')));
         await p.goBack();
@@ -217,20 +216,33 @@ test('resposta acompanha o final e respeita quem rolou para cima', async () => {
     const f=await fixture();const p=f.page;
     try {
         await p.emulateMedia({reducedMotion:'no-preference'});
-        await p.route('**/api/ai/chat', route=>route.fulfill({contentType:'application/x-ndjson',body:[{type:'delta',text:'Uma resposta longa para verificar a rolagem. '.repeat(700)},{type:'done',metadata:{}}].map(value=>JSON.stringify(value)).join('\n')+'\n'}));
-        await p.evaluate(()=>window.WorkspaceNavigation.go('/computer.html?new=1'));
+        await p.evaluate(()=>window.WorkspaceNavigation.go('/novo.html?new=1'));
         await p.waitForFunction(()=>!requiredElement(document, ".home__input", HTMLTextAreaElement).readOnly);
-        await p.evaluate(()=>document.documentElement.style.setProperty('--response-characters-per-second','5000'));
+        await p.evaluate(()=>{
+            const original=window.fetch.bind(window);
+            window.fetch=async(input,init)=>{
+                if(!String(input).includes('/api/ai/chat'))return original(input,init);
+                return new Response(new ReadableStream({start(controller){
+                    const send=(value:unknown)=>controller.enqueue(new TextEncoder().encode(JSON.stringify(value)+'\n'));
+                    send({type:'delta',text:'Uma resposta longa para verificar a rolagem. '.repeat(100)});
+                    Reflect.set(window,'continueScrollResponse',()=>send({type:'delta',text:'Novos trechos recebidos do modelo. '.repeat(100)}));
+                    Reflect.set(window,'finishScrollResponse',()=>{send({type:'done',metadata:{}});controller.close();});
+                }}),{headers:{'Content-Type':'application/x-ndjson'}});
+            };
+        });
         await p.locator('.home__input').fill('Teste de rolagem');
         await p.locator('.home__send').click();
         await p.waitForFunction(()=>requiredElement(document, ".workspace__content", HTMLElement).scrollTop>300);
         assert(!await p.locator('.computer-message__actions').last().isVisible());
         assert(await p.evaluate(()=>requiredElement(document, ".workspace__content", HTMLElement).scrollHeight-requiredElement(document, ".workspace__content", HTMLElement).scrollTop-requiredElement(document, ".workspace__content", HTMLElement).clientHeight<10));
         await p.evaluate(()=>requiredElement(document, ".workspace__content", HTMLElement).scrollTo({top:100,behavior:'instant'}));
-        const length=await p.locator('.computer-response-reveal').evaluateAll(nodes=>nodes.reduce((sum,node)=>sum+node.textContent.length,0));
-        await p.waitForFunction(length=>[...elementList(document, ".computer-response-reveal", HTMLElement)].reduce((sum,node)=>sum+node.textContent.length,0)>length+2000,length);
+        await p.waitForTimeout(50);
+        const length=await p.locator('.computer-message--assistant').evaluate(node=>node.textContent.length);
+        await p.evaluate(()=>{const next=Reflect.get(window,'continueScrollResponse');if(typeof next==='function')next();});
+        await p.waitForFunction(length=>(document.querySelector('.computer-message--assistant')?.textContent?.length||0)>length+2000,length);
         assert(await p.evaluate(()=>requiredElement(document, ".workspace__content", HTMLElement).scrollTop<120));
         await p.evaluate(()=>requiredElement(document, ".workspace__content", HTMLElement).scrollTo({top:requiredElement(document, ".workspace__content", HTMLElement).scrollHeight,behavior:'instant'}));
+        await p.evaluate(()=>{const finish=Reflect.get(window,'finishScrollResponse');if(typeof finish==='function')finish();});
         await p.waitForFunction(()=>!requiredElement(document, ".home__input", HTMLTextAreaElement).readOnly);
         assert(await p.locator('.computer-message__actions').last().isVisible());
         assert(await p.evaluate(()=>requiredElement(document, ".workspace__content", HTMLElement).scrollHeight-requiredElement(document, ".workspace__content", HTMLElement).scrollTop-requiredElement(document, ".workspace__content", HTMLElement).clientHeight<10));
@@ -242,7 +254,7 @@ test('resposta acompanha o final e respeita quem rolou para cima', async () => {
 test('preferência de provedor e modelo persiste entre páginas e recargas', async () => {
     const f=await fixture();const p=f.page;
     try {
-        await p.evaluate(()=>window.WorkspaceNavigation.go('/computer.html?new=1'));
+        await p.evaluate(()=>window.WorkspaceNavigation.go('/novo.html?new=1'));
         await p.waitForFunction(()=>!requiredElement(document, ".computer-provider", HTMLButtonElement).disabled);
         await p.locator('.computer-provider').click();
         assert.equal(await p.evaluate(()=>window.ComputerModels.selected()),'qwen3:1.7b');
@@ -250,7 +262,7 @@ test('preferência de provedor e modelo persiste entre páginas e recargas', asy
         await p.locator('.local-model-picker').click();
         await p.locator('.model-menu [data-provider="qwen3:8b"]').click();
         await p.evaluate(()=>window.WorkspaceNavigation.go('/recentes.html'));
-        await p.evaluate(()=>window.WorkspaceNavigation.go('/computer.html?new=1'));
+        await p.evaluate(()=>window.WorkspaceNavigation.go('/novo.html?new=1'));
         assert.equal(await p.evaluate(()=>window.ComputerModels.selected()),'qwen3:8b');
         await p.waitForFunction(()=>!requiredElement(document, ".model-picker", HTMLButtonElement).disabled);
         await p.locator('.model-picker').click();
@@ -324,7 +336,7 @@ test('carregar histórico não esmaece os controles ao entrar no chat', async ()
     const pending=new Promise<void>(resolve=>release=resolve);
     try {
         await p.route('**/api/ai/conversations?offset=0',async route=>{await pending;await route.fulfill({json:{conversations:[],next_offset:null}});});
-        await p.evaluate(()=>window.WorkspaceNavigation.go('/computer.html?new=1'));
+        await p.evaluate(()=>window.WorkspaceNavigation.go('/novo.html?new=1'));
         assert(await p.locator('.model-picker').isDisabled());
         for(const selector of ['.model-picker','.home__microphone','.sessions__heading']) {
             assert.equal(await p.locator(selector).first().evaluate(e=>getComputedStyle(e).opacity),'1');
@@ -340,13 +352,13 @@ test('carregar histórico não esmaece os controles ao entrar no chat', async ()
 test('saudação permanece igual após recarregar e navegar', async () => {
     const f=await fixture();const p=f.page;
     try {
-        await p.evaluate(()=>window.WorkspaceNavigation.go('/computer.html?new=1'));
+        await p.evaluate(()=>window.WorkspaceNavigation.go('/novo.html?new=1'));
         const greeting=await p.locator('[data-chat-greeting]').textContent();
         await p.reload();
         await p.waitForFunction(()=>window.ComputerModels);
         assert.equal(await p.locator('[data-chat-greeting]').textContent(),greeting);
         await p.evaluate(()=>window.WorkspaceNavigation.go('/recentes.html'));
-        await p.evaluate(()=>window.WorkspaceNavigation.go('/computer.html?new=1'));
+        await p.evaluate(()=>window.WorkspaceNavigation.go('/novo.html?new=1'));
         assert.equal(await p.locator('[data-chat-greeting]').textContent(),greeting);
         assert.deepEqual(f.errors,[]);
     } finally {await f.context.close();}
@@ -380,7 +392,7 @@ test('finanças anima valor e variação ao abrir e mudar período', async () =>
     const f=await fixture();const p=f.page;
     try {
         await p.emulateMedia({reducedMotion:'no-preference'});
-        await p.evaluate(async()=>{await window.WorkspaceNavigation.go('/graficos.html');});
+        await p.evaluate(async()=>{await window.WorkspaceNavigation.go('/financas.html');});
         await p.waitForFunction(()=>requiredElement(document, ".finance-page", HTMLElement).getAttribute('aria-busy')==='false');
         assert.equal(await p.locator('#market-change').getAttribute('data-trend'),'neutral');
         assert.match(await p.locator('#market-change').textContent() ?? '',/0,00/);
@@ -408,7 +420,7 @@ test('finanças anima valor e variação ao abrir e mudar período', async () =>
 test('finanças exibe dados recebidos e estados vazios sem demonstrações', async () => {
     const f=await fixture();const p=f.page;
     try {
-        await p.evaluate(()=>window.WorkspaceNavigation.go('/graficos.html'));
+        await p.evaluate(()=>window.WorkspaceNavigation.go('/financas.html'));
         await p.waitForFunction(()=>requiredElement(document, ".finance-page", HTMLElement).getAttribute('aria-busy')==='false');
         assert.match(await p.locator('[data-finance-total="balance"] .finance-total__values p').textContent() ?? '',/100,00/);
         assert.equal(await p.locator('.transfer-row').count(),1);
@@ -440,7 +452,7 @@ test('finanças pagina transações e mostra erro quando o banco está indispon�
             const next=new URL(route.request().url()).searchParams.has('before');
             return route.fulfill({json:{transactions:[{id:next?'2':'1',description:next?'Mercado':'Salário',kind:next?'expense':'income',amount:'20.00',occurred_on:'2026-09-01',category:''}],next_cursor:next?null:'2026-09-01:1'}});
         });
-        await p.evaluate(()=>window.WorkspaceNavigation.go('/graficos.html'));
+        await p.evaluate(()=>window.WorkspaceNavigation.go('/financas.html'));
         await p.waitForFunction(()=>requiredElement(document, ".finance-page", HTMLElement).getAttribute('aria-busy')==='false');
         await p.locator('.transfer-more').click();
         await p.waitForFunction(()=>elementList(document, ".transfer-row", HTMLElement).length===2);
@@ -548,7 +560,7 @@ test('chat financeiro usa IA só no fallback, valida lotes e preserva execução
             if(loseResponse){loseResponse=false;return route.abort('failed');}
             return route.fulfill({json:result});
         });
-        await p.evaluate(()=>window.WorkspaceNavigation.go('/graficos.html'));
+        await p.evaluate(()=>window.WorkspaceNavigation.go('/financas.html'));
         const input=p.locator('.finance-composer textarea');
         async function submit(value:string){await input.fill(value);await input.press('Enter');await p.waitForFunction(()=>!requiredElement(document,'.finance-composer textarea',HTMLTextAreaElement).readOnly);}
         await submit('Gastei 67 no mercado ontem');
@@ -665,7 +677,7 @@ test('chat preserva streaming anonimo com ID nulo e metadados',async()=>{
             {type:'delta',text:'Resposta privada'},
             {type:'done',metadata:{thinking_seconds:null,elapsed_seconds:1,instant:false}}
         ].map(value=>JSON.stringify(value)).join('\n')+'\n'}));
-        await p.evaluate(()=>window.WorkspaceNavigation.go('/computer.html?new=1'));
+        await p.evaluate(()=>window.WorkspaceNavigation.go('/novo.html?new=1'));
         await p.waitForFunction(()=>!requiredElement(document,'.home__input',HTMLTextAreaElement).readOnly);
         await p.locator('.anonymous-toggle').click();
         await p.locator('.home__input').fill('Mensagem privada');await p.locator('.home__send').click();
@@ -682,7 +694,7 @@ test('chat restaura anexos e fontes com os campos da API',async()=>{
     try {
         const research={state:'complete',query:'consulta',queries:['consulta'],sources:[{title:'Fonte de teste',url:'https://example.com/report',domain:'example.com',excerpt:'Trecho da fonte',published_at:'2026-09-30',date_approximate:true}]};
         await p.route('**/api/ai/conversations/1',route=>route.fulfill({json:{conversation:{id:'1',title:'Historico',created_at:'2026-09-30',updated_at:'2026-09-30'},active:false,before:null,turns:[{id:'turn-1',message:'Analise',answer:'Resposta salva',thinking:'Raciocinio salvo',created_at:'2026-09-30T12:00:00Z',status:'completed',attachments:[{id:'file-1',name:'documento.txt',kind:'file',size:20}],metadata:{research,thinking_seconds:2}}]}}));
-        await p.evaluate(()=>window.WorkspaceNavigation.go('/computer.html?conversation=1'));
+        await p.evaluate(()=>window.WorkspaceNavigation.go('/novo.html?conversation=1'));
         await p.waitForFunction(()=>!requiredElement(document,'.home__input',HTMLTextAreaElement).readOnly);
         assert.equal(await p.locator('.attachment-chip__name').textContent(),'documento.txt');
         assert.equal(await p.locator('.computer-message--assistant .computer-message__text').textContent(),'Resposta salva');
@@ -712,7 +724,7 @@ test('respostas: versões preservam texto, fontes e horário ao recarregar', asy
     try {
         const research = {sources:[{url:'https://example.com/source', domain:'example.com', title:'Fonte antiga'}]};
         await p.route('**/api/ai/conversations/1', route => route.fulfill({json:{conversation:{id:'1',title:'Versões',created_at:'2026-10-01',updated_at:'2026-10-04'},active:false,before:null,turns:[{id:'10',message:'Pergunta',answer:'Resposta nova',thinking:'',status:'completed',created_at:'2026-10-01T12:00:00Z',metadata:{answered_at:'2026-10-04T12:00:00Z',versions:[{answer:'Resposta antiga',thinking:'Pensamento anterior',metadata:{answered_at:'2026-10-01T12:00:00Z',research}}]}}]}}));
-        await p.goto('https://comet.test/computer.html?conversation=1');
+        await p.goto(nextServer.origin + '/novo.html?conversation=1');
         const answer = p.locator('.computer-message--assistant .computer-message__text');
         await p.waitForFunction(() => document.querySelector('.response-versions') !== null);
         assert.equal(await answer.textContent(), 'Resposta nova');
@@ -733,7 +745,7 @@ test('respostas: versões preservam texto, fontes e horário ao recarregar', asy
 test('Comet: pesquisa web, fontes e histórico financeiro recolhível', async () => {
     const f = await fixture(), p = f.page;
     try {
-        await p.goto('https://comet.test/computer.html');
+        await p.goto(nextServer.origin + '/novo.html');
         await p.waitForFunction(() => !requiredElement(document, '.home__input', HTMLTextAreaElement).readOnly);
         await p.locator('.attachment-toggle').click();
         const web = p.locator('.web-search-toggle');
@@ -742,7 +754,7 @@ test('Comet: pesquisa web, fontes e histórico financeiro recolhível', async ()
         assert.equal(await p.locator('.attachment-menu p').count(), 0);
         assert.match(await web.locator('i').evaluate(e => getComputedStyle(e).maskImage), /settings-settings-search(?:\.[\w-]+)?\.svg/);
         assert(!await p.evaluate(() => [...document.fonts].some(font => /Serrif|Geist/i.test(font.family))));
-        await p.goto('https://comet.test/graficos.html');
+        await p.goto(nextServer.origin + '/financas.html');
         const toggle = p.locator('.finance-panel-toggle'), history = p.locator('#finance-history-panel');
         await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
         await p.locator('.chart-range[data-range="MAX"]').click();
@@ -781,7 +793,7 @@ test('Comet: pesquisa web, fontes e histórico financeiro recolhível', async ()
 test('finanças: planilha usa dados reais, compartilha período e volta ao gráfico', async () => {
     const f = await fixture(), p = f.page;
     try {
-        await p.goto('https://comet.test/graficos.html');
+        await p.goto(nextServer.origin + '/financas.html');
         await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
         await p.locator('[data-range="MAX"]').click();
         await p.getByRole('button', {name:'Planilha',exact:true}).click();
@@ -853,7 +865,7 @@ test('finanças: planilha usa dados reais, compartilha período e volta ao gráf
 test('gráfico: hover livre por minuto e cartão abaixo do cursor', async () => {
     const f = await fixture(), p = f.page;
     try {
-        await p.goto('https://comet.test/graficos.html');
+        await p.goto(nextServer.origin + '/financas.html');
         await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
         await p.evaluate(() => window.CometChart.setData({currency:'BRL',kind:'balance',points:Array.from({length:4}, (_,i) => ({time:(1700000000+i*86400) as import('lightweight-charts').UTCTimestamp,open:i,close:i+1,low:i,high:i+1,volume:10}))}));
         await p.locator('[data-range="MAX"]').click();
@@ -909,7 +921,7 @@ test('gráfico: horários não se repetem e zoom preserva a escala lateral', asy
                 if (maxWidth === undefined) draw.call(this,text,x,y); else draw.call(this,text,x,y,maxWidth);
             };
         });
-        await p.goto('https://comet.test/graficos.html');
+        await p.goto(nextServer.origin + '/financas.html');
         await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
         await p.evaluate(() => {
             const clocks = ['08:00:00','08:00:00','09:15:00','09:15:00','00:05:00'];
@@ -952,7 +964,7 @@ test('gráfico: seleção compara saldos e escala evita intervalos mínimos', as
                 if (maxWidth === undefined) draw.call(this, text, x, y); else draw.call(this, text, x, y, maxWidth);
             };
         });
-        await p.goto('https://comet.test/graficos.html');
+        await p.goto(nextServer.origin + '/financas.html');
         await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
         const setValues = async (values: number[]) => {
             await p.evaluate(values => window.CometChart.setData({currency:'BRL',kind:'balance',points:values.map((value,i) => ({time:(1700000000+i*86400) as import('lightweight-charts').UTCTimestamp,open:value,close:value,low:value,high:value,volume:10}))}), values);
@@ -1009,7 +1021,7 @@ test('gráfico: cada transação aparece mesmo no mesmo dia e com saldo negativo
         });
         const points = [{time:day,open:0,close:-40,high:0,low:-100,volume:200}, {time:day+86400,open:-40,close:-40,high:-40,low:-40,volume:0}];
         await p.route('**/api/finance/dashboard', route => route.fulfill({json:{as_of:'2026-10-02',summary:Object.fromEntries(['balance','income','expense'].map(key => [key,{amount:key==='balance'?'-40.00':key==='income'?'80.00':'120.00',difference:'0.00',percentage:null,series:[0,-40]}])),chart:{currency:'BRL',kind:'balance',points,movements,intraday:[]}}}));
-        await p.goto('https://comet.test/graficos.html');
+        await p.goto(nextServer.origin + '/financas.html');
         await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
         await p.locator('[data-range="MAX"]').click();
         const host = p.locator('#market-chart');
@@ -1055,7 +1067,7 @@ test('gráfico: cada transação aparece mesmo no mesmo dia e com saldo negativo
 for (const width of [1920, 1280, 390]) test(`aprender: lista e envio com pesquisa e anexo (${width})`, async () => {
     const f = await fixture(width), p = f.page;
     try {
-        await p.goto('https://comet.test/aprender.html');
+        await p.goto(nextServer.origin + '/academico.html');
         await p.waitForFunction(() => !!window.ComputerAttachments);
         if (width < 640) {
             await p.evaluate(() => document.body.classList.add('is-sidebar-collapsed'));
@@ -1106,7 +1118,7 @@ for (const width of [1920, 1280, 390]) test(`aprender: lista e envio com pesquis
 test('aprender: modelo Computer é mantido no novo chat', async () => {
     const f = await fixture(), p = f.page;
     try {
-        await p.locator('.sidebar__link[href="./aprender.html"]').click();
+        await p.locator('.sidebar__link[href="./academico.html"]').click();
         await p.locator('.computer-provider').click();
         await p.locator('.local-model-picker').click();
         await p.locator('[data-provider="qwen3:4b"]').click();
@@ -1115,6 +1127,7 @@ test('aprender: modelo Computer é mantido no novo chat', async () => {
         await p.locator('.study-composer textarea').fill('Explique a gravidade');
         await p.locator('.study-composer textarea').press('Enter');
         const payload = testObject((await request).postDataJSON());
+        await p.waitForFunction(() => document.querySelector('.computer-message--assistant')?.textContent?.includes('Estudo'));
         assert.equal(payload.provider, 'qwen3:4b');
         assert.equal(payload.web_search, true);
         assert.equal(payload.conversation_id, null);
@@ -1126,7 +1139,7 @@ for (const viewport of [{width:1920,height:925},{width:1536,height:738},{width:1
     const f = await fixture(viewport.width), p = f.page;
     try {
         await p.setViewportSize(viewport);
-        await p.goto('https://comet.test/aprender.html');
+        await p.goto(nextServer.origin + '/academico.html');
         await p.waitForFunction(() => !!window.ComputerAttachments);
         await p.evaluate(() => document.fonts.ready);
         const bounds = await p.evaluate(() => {
@@ -1176,7 +1189,7 @@ test('respostas não lidas: indicador, menu, persistência e nova resposta', asy
     try {
         let models = ['qwen3:1.7b-turbo', 'qwen3:4b'];
         await f.context.route('**/api/ai/models', route => route.fulfill({json:{models:[{id:'gemini',configured:true}, ...models.map(id=>({id,configured:true}))]}}));
-        await f.page.goto('https://comet.test/aprender.html');
+        await f.page.goto(nextServer.origin + '/academico.html');
         await f.page.locator('.computer-provider').click();
         await f.page.locator('.local-model-picker').click();
         assert.deepEqual(await f.page.locator('.model-menu [data-provider]').evaluateAll(nodes=>nodes.map(n=>(n as HTMLElement).dataset.provider)), models);
@@ -1205,7 +1218,7 @@ test('ordenar: teclado compartilhado e alinhamento do chat', async () => {
         await p.keyboard.press('End');
         assert.equal(await p.locator(':focus').getAttribute('data-order'), 'activity');
         await p.keyboard.press('Escape');
-        await p.goto('https://comet.test/computer.html');
+        await p.goto(nextServer.origin + '/novo.html');
         await p.addStyleTag({content:'*,*::before,*::after {transition:none!important;animation:none!important}'});
         await p.locator('.computer-page').evaluate(el=>el.classList.add('has-conversation'));
         await p.waitForFunction(()=>document.querySelector('.computer-composer')?.getBoundingClientRect().width===680);
@@ -1223,7 +1236,7 @@ test('ordenar: teclado compartilhado e alinhamento do chat', async () => {
  test('saudação respeita o tamanho definido no CSS', async () => {
     const f=await fixture(1600);const p=f.page;
     try {
-        await p.goto('https://comet.test/computer.html?new=1');
+        await p.goto(nextServer.origin + '/novo.html?new=1');
         await p.waitForFunction(()=>!!document.querySelector<HTMLElement>('[data-chat-greeting]')?.style.fontSize);
         for (const width of [1600, 1100, 390]) {
             await p.setViewportSize({width,height:900});
@@ -1244,7 +1257,7 @@ test('site: páginas principais cabem no celular e desktop nos dois temas', asyn
             for (const width of [390,1280]) {
                 await p.setViewportSize({width,height:900});
                 for (const name of ['index','computer','aprender','descobrir','recentes','graficos']) {
-                    await p.goto('https://comet.test/'+name+'.html');
+                    await p.goto(nextServer.origin + '/'+name+'.html');
                     await p.evaluate(()=>document.fonts.ready);
                     const overflow=await p.evaluate(()=>{
                         const main=document.querySelector<HTMLElement>('.workspace__content');
@@ -1265,8 +1278,8 @@ test('descobrir: cards responsivos, clima noturno e unidades persistentes', asyn
         await p.evaluate(data=>localStorage.setItem('ascenda-weather-7',JSON.stringify({city:{name:'Monte Mor',latitude:-22.9,longitude:-47.3},data,saved:Date.now()})),data);
         await f.context.route('https://api.open-meteo.com/**',route=>{weatherRequests++;return route.fulfill({json:{...data,current:{...data.current,is_day:0}}});});
         await f.context.route('**/audit-cover.svg',route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="600" height="400" fill="#22808c"/></svg>'}));
-        await f.context.route('**/api/news?*',route=>route.fulfill({json:{page:1,has_more:false,articles:Array.from({length:4},(_,i)=>({id:String(i),title:'Águias e grandes projetos: notícias de tecnologia e ciência',description:'Pesquisas e descobertas para entender o mundo.',url:'https://example.com/'+i,image:'https://comet.test/audit-cover.svg',published_at:'2026-10-08T10:00:00Z',source:'Exemplo',sources:[{name:'Exemplo',url:'https://example.com'}]}))}}));
-        await p.goto('https://comet.test/descobrir.html');
+        await f.context.route('**/api/news?*',route=>route.fulfill({json:{page:1,has_more:false,articles:Array.from({length:4},(_,i)=>({id:String(i),title:'Águias e grandes projetos: notícias de tecnologia e ciência',description:'Pesquisas e descobertas para entender o mundo.',url:'https://example.com/'+i,image:nextServer.origin + '/audit-cover.svg',published_at:'2026-10-08T10:00:00Z',source:'Exemplo',sources:[{name:'Exemplo',url:'https://example.com'}]}))}}));
+        await p.goto(nextServer.origin + '/descobrir.html');
         await p.waitForFunction(()=>document.querySelectorAll('.news-card:not(.news-skeleton)').length===4 && document.querySelector('.weather-temp .icon-night'));
         const weatherPadding=await p.locator('.weather-panel').evaluate(e=>{
             const style=getComputedStyle(e);
@@ -1305,7 +1318,7 @@ test('fontes: topo fixo, scroll interno discreto e brilho do ditado dentro da ca
     try {
         const research={state:'complete',query:'consulta',sources:Array.from({length:20},(_,i)=>({title:'Fonte de pesquisa '+i,url:'https://example.com/report/'+i,domain:'example.com',excerpt:'Trecho detalhado da fonte para consultar as informações que foram usadas na resposta.'}))};
         await p.route('**/api/ai/conversations/1',route=>route.fulfill({json:{conversation:{id:'1',title:'Histórico',created_at:'2026-09-30',updated_at:'2026-09-30'},active:false,before:null,turns:[{id:'turn-1',message:'Analise',answer:'Resposta salva',thinking:'',created_at:'2026-09-30T12:00:00Z',status:'completed',metadata:{research}}]}}));
-        await p.goto('https://comet.test/computer.html?conversation=1');
+        await p.goto(nextServer.origin + '/novo.html?conversation=1');
         await p.locator('.computer-sources').click();
         const list=p.locator('.sources-card__list'), heading=p.locator('.sources-card > summary');
         const top=await heading.evaluate(e=>e.getBoundingClientRect().top);
@@ -1340,11 +1353,11 @@ test('fontes: topo fixo, scroll interno discreto e brilho do ditado dentro da ca
 test('fontes: últimas fontes automáticas e painel oculto no novo chat',async()=>{
     const f=await fixture(1600);const p=f.page;
     try {
-        await p.goto('https://comet.test/computer.html?new=1');
+        await p.goto(nextServer.origin + '/novo.html?new=1');
         const panel=p.locator('.computer-sources-panel'),toggle=p.locator('.sources-panel-toggle');
         assert(!await toggle.isVisible());assert(!await panel.isVisible());
         await p.route('**/api/ai/conversations/1',route=>route.fulfill({json:{conversation:{id:'1',title:'Histórico',created_at:'2026-09-30',updated_at:'2026-09-30'},active:false,before:null,turns:[1,2].map(i=>({id:'turn-'+i,message:'Analise '+i,answer:'Resposta '+i,thinking:'',created_at:'2026-09-30T12:00:00Z',status:'completed',metadata:{research:{state:'complete',sources:[{title:'Fonte '+i,url:'https://example.com/'+i,domain:'example.com',excerpt:'Trecho '+i}]}}}))}}));
-        await p.goto('https://comet.test/computer.html?conversation=1');
+        await p.goto(nextServer.origin + '/novo.html?conversation=1');
         await p.waitForFunction(()=>document.querySelector('.sources-card__title')?.textContent==='Fonte 2');
         assert(await panel.isVisible());
         assert.equal(await p.locator('.chat-links__title').textContent(),'Fonte 2');
@@ -1358,8 +1371,18 @@ test('fontes: últimas fontes automáticas e painel oculto no novo chat',async()
         await p.waitForFunction(()=>document.querySelector('.sources-card__title')?.textContent==='Fonte 2');
         assert(await panel.isVisible());assert.equal(await panel.evaluate(e=>e.getBoundingClientRect().height),384);
         await p.locator('[data-chat-view="links"]').click();assert(await toggle.isVisible());
-        await toggle.click();assert(!await panel.isVisible());await toggle.click();assert(await panel.isVisible());
-        await p.goto('https://comet.test/computer.html?new=1');
+        await toggle.click();assert(!await panel.isVisible());
+        await p.reload();
+        await p.waitForFunction(()=>document.querySelector('.sources-card__title')?.textContent==='Fonte 2');
+        assert(!await panel.isVisible());assert(await toggle.isVisible());
+        assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('ascenda-sources-panel-7') || '{}').visible),false);
+        await toggle.click();assert(await panel.isVisible());
+        await p.locator('.sources-card > summary').click();
+        await p.waitForFunction(()=>JSON.parse(localStorage.getItem('ascenda-sources-panel-7') || '{}').expanded===false);
+        await p.reload();
+        await p.waitForFunction(()=>document.querySelector('.sources-card__title')?.textContent==='Fonte 2');
+        assert(await panel.isVisible());assert(!await p.locator('.sources-card__list').isVisible());
+        await p.goto(nextServer.origin + '/novo.html?new=1');
         await p.waitForFunction(()=>document.querySelector('.sources-card--empty'));
         assert(!await panel.isVisible());assert(!await toggle.isVisible());assert.equal(await p.locator('.sources-card__source').count(),0);
         assert.deepEqual(f.errors,[]);
@@ -1370,7 +1393,7 @@ test('fontes: últimas fontes automáticas e painel oculto no novo chat',async()
 test('aprender: altura acompanha largura e fontes sem precisar digitar', async () => {
     const f=await fixture(1600),p=f.page;
     try {
-        await p.goto('https://comet.test/aprender.html');
+        await p.goto(nextServer.origin + '/academico.html');
         const input=p.locator('.study-page textarea');
         await input.fill('Uma pergunta de estudo com várias palavras para verificar a quebra de linha. '.repeat(4));
         await p.setViewportSize({width:950,height:900});
@@ -1397,9 +1420,9 @@ test('Next: navegação usa o build de produção e descarta eventos da página 
         assert(!scripts.some(src=>src?.startsWith('/static/js/')));
         await p.locator('.sidebar').evaluate(e=>{(e as HTMLElement).dataset.navigationMarker='preserved';});
         for(let i=0;i<3;i++) {
-            await p.evaluate(()=>window.WorkspaceNavigation.go('/computer.html?new=1'));
+            await p.evaluate(()=>window.WorkspaceNavigation.go('/novo.html?new=1'));
             assert.equal(await p.locator('.sources-panel-toggle').count(),1);
-            await p.evaluate(()=>window.WorkspaceNavigation.go('/aprender.html'));
+            await p.evaluate(()=>window.WorkspaceNavigation.go('/academico.html'));
             assert.equal(await p.locator('.sources-panel-toggle').count(),0);
             assert.equal(await p.locator('.sidebar').getAttribute('data-navigation-marker'),'preserved');
         }
@@ -1413,19 +1436,78 @@ test('Next: navegação usa o build de produção e descarta eventos da página 
     } finally {await f.context.close();}
 });
 
-test('Next: cadastro mantém idade e CSRF no formulário', async () => {
+for (const width of [375,1280]) test(`auth: e-mail com código, provedores e layout ${width}px`,async()=>{
+    const f=await fixture(width),p=f.page;
+    let sends=0, submitted='', provider='';
+    try {
+        await p.route('**/api/auth/email/request',route=>{
+            assert.equal(route.request().headers()['x-csrftoken'],'test-csrf');
+            assert.equal(testObject(route.request().postDataJSON()).email,'pessoa@example.com');
+            sends++;return route.fulfill({json:{ok:true,retryAfter:60}});
+        });
+        await p.route('**/api/auth/email/verify',route=>{
+            submitted=String(testObject(route.request().postDataJSON()).code);
+            return route.fulfill(submitted==='123456'?{json:{ok:true}}:{status:422,json:{error:'Código inválido ou expirado.'}});
+        });
+        await p.route('**/api/auth/*/start',route=>{
+            provider=new URL(route.request().url()).pathname;
+            assert.equal(route.request().method(),'POST');
+            return route.fulfill({status:503,json:{error:'Este acesso ainda não foi configurado.'}});
+        });
+        await p.goto(nextServer.origin+'/index.html');
+        await p.locator('[data-auth-open="signup"]').click();
+        assert.equal(await p.locator('.auth [name="age"], .auth [type="password"]').count(),0);
+        assert.equal(await p.locator('[data-auth-provider]').count(),2);
+        assert.equal(await p.locator('[data-auth-email] [name="csrf_token"]').inputValue(),'test-csrf');
+        await p.locator('[data-auth-provider=github]').click();
+        await p.waitForFunction(()=>document.querySelector('[data-auth-entry-message]')?.textContent?.includes('não foi configurado'));
+        assert.equal(provider,'/api/auth/github/start');
+        assert(await p.locator('[data-auth-email] button').isDisabled());
+        await p.locator('#auth-email').fill('pessoa@example.com');
+        assert(!await p.locator('[data-auth-email] button').isDisabled());
+        await p.screenshot({path:path.join(root,`artifacts/auth-entry-${width}.png`)});
+        await p.locator('[data-auth-email] button').click();
+        await p.locator('[data-auth-panel=verify]').waitFor();
+        assert.equal(sends,1);
+        assert.equal(await p.locator('[data-auth-destination]').textContent(),'pessoa@example.com');
+        assert(await p.locator('[data-auth-resend]').isDisabled());
+        await p.locator('[data-auth-digit="0"]').fill('654321');
+        assert.deepEqual(await p.locator('[data-auth-digit]').evaluateAll(inputs=>inputs.map(input=>(input as HTMLInputElement).value)),['6','5','4','3','2','1']);
+        await p.locator('[data-auth-verify] button').click();
+        await p.waitForFunction(()=>document.querySelector('[data-auth-verify-message]')?.textContent==='Código inválido ou expirado.');
+        assert.equal(submitted,'654321');
+        assert(!await p.locator('[data-auth-verify] button').isDisabled());
+        await p.locator('[data-auth-digit="5"]').fill('');
+        await p.locator('[data-auth-digit="5"]').press('Backspace');
+        assert.equal(await p.locator('[data-auth-digit="4"]').inputValue(),'');
+        assert(await p.locator('[data-auth-verify] button').isDisabled());
+        await p.locator('[data-auth-digit="0"]').fill('123456');
+        assert.equal(await p.locator('.auth').evaluate(e=>e.scrollWidth<=e.clientWidth),true);
+        await p.screenshot({path:path.join(root,`artifacts/auth-code-${width}.png`)});
+        await p.locator('[data-auth-verify] button').click();
+        await p.waitForURL('**/novo.html?new=1');
+        await p.locator('.computer-page').waitFor();
+        assert.equal(submitted,'123456');
+        assert.deepEqual(f.errors,[]);
+    } finally {await f.context.close();}
+});
+
+test('auth: fechar durante o envio não reabre o diálogo',async()=>{
     const f=await fixture(),p=f.page;
     try {
-        await p.goto('https://comet.test/index.html');
-        await p.locator('[data-auth-open="signup"]').click();
-        assert.deepEqual(f.errors,[]);
-        const form=p.locator('[data-auth-panel=signup] form');
-        assert(await form.isVisible());
-        assert.equal(await form.locator('[name="csrf_token"]').inputValue(),'test-csrf');
-        assert.equal(await form.locator('[name="age"]').count(),1);
-        assert.equal(await p.locator('.auth__form--login [name="age"]').count(),0);
-        await p.locator('.auth__close').click();
+        let respond!:()=>Promise<void>;
+        await p.route('**/api/auth/email/request',route=>new Promise<void>(resolve=>{
+            respond=async()=>{await route.fulfill({json:{ok:true,retryAfter:60}});resolve();};
+        }));
+        await p.goto(nextServer.origin+'/?login=1');
+        await p.locator('#auth-email').fill('pessoa@example.com');
+        const waiting=p.waitForRequest('**/api/auth/email/request');
+        await p.locator('[data-auth-email] button').click();await waiting;
+        await p.locator('.auth__close').click();await respond();
+        await p.waitForFunction(()=>document.querySelector('.auth')?.getAttribute('aria-busy')==='false');
         assert(!await p.locator('.auth').isVisible());
+        await p.locator('.site-header__login').click();
+        assert(await p.locator('[data-auth-panel=entry]').isVisible());
         assert.deepEqual(f.errors,[]);
     } finally {await f.context.close();}
 });
@@ -1436,15 +1518,148 @@ test('Next: logo e novo chat repetido preservam navegação e sessão', async ()
         await p.locator('.sidebar').evaluate(e=>{(e as HTMLElement).dataset.navigationMarker='preserved';});
         await p.locator('.sidebar__logo').click();
         await p.waitForFunction(()=>document.querySelector('.computer-page') && !document.querySelector<HTMLTextAreaElement>('.home__input')?.readOnly);
-        assert.equal(new URL(p.url()).pathname,'/computer.html');
+        assert.equal(new URL(p.url()).pathname,'/novo.html');
         for(let i=0;i<2;i++) {
-            await p.evaluate(()=>window.WorkspaceNavigation.go('/computer.html?new=1'));
+            await p.evaluate(()=>window.WorkspaceNavigation.go('/novo.html?new=1'));
             await p.waitForFunction(()=>!document.querySelector<HTMLTextAreaElement>('.home__input')?.readOnly);
         }
-        await p.evaluate(()=>window.WorkspaceNavigation.go('/aprender.html'));
+        await p.evaluate(()=>window.WorkspaceNavigation.go('/academico.html'));
         await p.goBack();
         await p.locator('.computer-page').waitFor();
         assert.equal(await p.locator('.sidebar').getAttribute('data-navigation-marker'),'preserved');
+        assert.deepEqual(f.errors,[]);
+    } finally {await f.context.close();}
+});
+
+for (const width of [1280, 390]) test(`novo chat: opções expandem a caixa e alinham a lateral (${width}px)`, async () => {
+    const f = await fixture(width); const p = f.page;
+    try {
+        await p.goto(nextServer.origin+'/novo.html?new=1');
+        await p.waitForFunction(() => !document.querySelector<HTMLTextAreaElement>('.home__input')?.readOnly);
+        const composer = p.locator('.home__composer'), toggle = p.locator('.attachment-toggle');
+        const before = await composer.boundingBox(); assert.ok(before);
+        await toggle.click();
+        assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
+        assert.equal(await p.locator('#attachment-menu').isVisible(), true);
+        const expanded = await composer.boundingBox(); assert.ok(expanded && expanded.height > before.height + 80);
+        assert.equal(await p.locator('#attachment-menu').evaluate(el => getComputedStyle(el).position), 'static');
+        await p.locator('.web-search-toggle').click();
+        assert.equal(await p.locator('.web-search-toggle').getAttribute('aria-pressed'), 'false');
+        await p.screenshot({path:path.join(root,'artifacts/composer-expanded-'+width+'.png')});
+        await toggle.click();
+        assert.equal(await p.locator('#attachment-menu').isVisible(), false);
+        await toggle.click(); await p.keyboard.press('Escape');
+        assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+        if (width < 640) { await p.locator('.workspace__menu-toggle').click(); await p.waitForTimeout(500); }
+        const centers = await p.locator('.sidebar__logo, .sidebar__search, .sidebar__notification, .sidebar__top > .sidebar__toggle').evaluateAll(els => els.map(el => { const r=el.getBoundingClientRect();return r.top+r.height/2; }));
+        assert.equal(centers.length, 4); assert.ok(Math.max(...centers)-Math.min(...centers)<1, JSON.stringify(centers));
+        assert.deepEqual(f.errors, []);
+    } finally { await f.context.close(); }
+});
+
+test('anexos: menu flutuante em conversas e Acadêmico, painel somente no novo chat', async () => {
+    const f = await fixture(), p = f.page;
+    try {
+        await p.route('**/api/ai/conversations/1', route => route.fulfill({json:{conversation:{id:'1',title:'Conversa'},active:false,before:null,turns:[{id:'1',created_at:'2026-10-01T12:00:00Z',message:'Olá',answer:'Olá, como posso ajudar?',thinking:'',status:'completed',metadata:{}}]}}));
+        for (const url of ['/novo.html?conversation=1', '/academico.html']) {
+            await p.goto(nextServer.origin + url);
+            if (url.includes('conversation')) await p.locator('.computer-page.has-conversation').waitFor();
+            const menu = p.locator('#attachment-menu'), toggle = p.locator('.attachment-toggle');
+            await toggle.click();
+            assert.equal(await menu.evaluate(el => el.matches(':popover-open')), true);
+            assert.equal(await menu.evaluate(el => getComputedStyle(el).position), 'fixed');
+            await toggle.click();
+            assert.equal(await menu.evaluate(el => el.matches(':popover-open')), false);
+        }
+        await p.goto(nextServer.origin + '/novo.html?new=1');
+        await p.locator('.attachment-toggle').click();
+        assert.equal(await p.locator('#attachment-menu').getAttribute('popover'), null);
+        assert.equal(await p.locator('[data-upload-files]').evaluate(el => getComputedStyle(el).borderTopWidth), '0px');
+        assert.deepEqual(f.errors, []);
+    } finally { await f.context.close(); }
+});
+
+test('finanças: navegar com opções abertas não deixa eventos nem menus do chat', async () => {
+ const f=await fixture(), p=f.page;
+ try {
+  await p.goto(nextServer.origin+'/novo.html?new=1');
+  await p.locator('.attachment-toggle').click();
+  await p.locator('.sidebar a[href="./financas.html"]').click();
+  await p.locator('#market-chart').waitFor();
+  await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
+  assert.equal(await p.locator('#attachment-menu').count(),0);
+  assert.deepEqual(f.errors,[]);
+ } finally {await f.context.close();}
+});
+
+test('páginas: nomes do menu e redirecionamentos antigos', async () => {
+ const f=await fixture(), p=f.page;
+ try {
+  for(const [oldPath,newPath,selector] of [['graficos','financas','.finance-page'],['aprender','academico','.study-page']]) {
+   await p.goto(nextServer.origin+'/'+oldPath+'.html');
+   assert.equal(new URL(p.url()).pathname,'/'+newPath+'.html');
+   await p.locator(selector).waitFor();
+   assert.equal(await p.locator('.sidebar__link[aria-current="page"]').getAttribute('href'),'./'+newPath+'.html');
+  }
+  assert.deepEqual(f.errors,[]);
+ } finally {await f.context.close();}
+});
+
+
+test('prévia: Busca, link clicável, hover contínuo e opções fixas no chat selecionado',async()=>{
+    const f=await fixture(1600),p=f.page;
+    try {
+        await p.route('**/api/ai/conversations/2',route=>route.fulfill({json:{conversation:{id:'2',title:'Outra conversa',created_at:'2026-09-29',updated_at:'2026-09-29'},active:false,before:null,turns:[]}}));
+        await p.route('**/api/ai/conversations/2/preview',route=>route.fulfill({json:{message:'Consulta de teste',answer:'Resposta pesquisada.',created_at:'2026-09-29T12:00:00Z',has_search:true}}));
+        await p.locator('#recent-chats [data-id="2"] .sessions__link').hover();
+        const preview=p.locator('.chat-preview');
+        await preview.waitFor({state:'visible'});
+        await preview.hover();await p.waitForTimeout(300);
+        assert(await preview.isVisible());assert(await preview.locator('.chat-preview__search').isVisible());
+        assert.equal(await preview.locator('a').getAttribute('href'),nextServer.origin+'/novo.html?conversation=2');
+        await preview.locator('a').click();
+        await p.waitForURL('**/novo.html?conversation=2');
+        await p.locator('#recent-chats [data-id="2"] .sessions__link[aria-current]').waitFor();
+        await p.mouse.move(1500,700);
+        assert.equal(await p.locator('#recent-chats [data-id="2"] .sessions__more').evaluate(e=>getComputedStyle(e).opacity),'1');
+        assert.equal(await p.locator('#recent-chats [data-id="1"] .sessions__more').evaluate(e=>getComputedStyle(e).opacity),'0');
+        assert.deepEqual(f.errors,[]);
+    } finally {await f.context.close();}
+});
+
+
+test('opções do chat: título, fixar, renomear, excluir e três exportações com notificações',async()=>{
+    const f=await fixture(1600),p=f.page;
+    try {
+        await p.route('**/api/ai/conversations/2',route=>route.request().method()==='GET'?route.fulfill({json:{conversation:{id:'2',title:'Outra conversa',created_at:'2026-09-28T12:00:00Z',updated_at:'2026-09-29T12:00:00Z'},active:false,before:null,turns:[{id:'turn-2',message:'Pergunta',answer:'Resposta salva',thinking:'',status:'completed',created_at:'2026-09-29T12:00:00Z'}]}}):route.fallback());
+        await p.goto(nextServer.origin+'/novo.html?conversation=2');
+        const trigger=p.locator('.chat-options-toggle');await trigger.waitFor({state:'visible'});await p.waitForFunction(()=>!requiredElement(document,'.chat-options-toggle',HTMLButtonElement).disabled);
+        await trigger.click();const menu=p.locator('.chat-options');await menu.waitFor({state:'visible'});
+        if(process.env.EXPORT_UI_QA)await p.screenshot({path:'artifacts/chat-options-desktop.png'});
+        assert.equal(await menu.locator('h2').textContent(),'Outra conversa');assert.equal(await menu.locator('.chat-options__owner').textContent(),'Teste (Você)');assert.match(await menu.locator('time').textContent() || '',/setembro/);
+        await menu.locator('[data-action="pin"]').click();assert(await p.locator('#pinned-chats [data-id="2"]').isVisible());
+        await trigger.click();assert.equal(await menu.locator('[data-action="pin"]').textContent(),'Desafixar');await menu.locator('[data-action="pin"]').click();
+        await trigger.click();await menu.locator('[data-action="rename"]').click();await p.locator('.chat-rename input').fill('Sessão renomeada');await p.locator('.chat-rename button[type="submit"]').click();await p.locator('.chat-rename').waitFor({state:'hidden'});
+        assert.equal(await p.locator('#recent-chats [data-id="2"] .sessions__title').textContent(),'Sessão renomeada');
+        for(const [format,extension,type] of [['pdf','pdf','application/pdf'],['markdown','md','text/markdown'],['docx','docx','application/vnd.openxmlformats-officedocument.wordprocessingml.document']]) {
+            let release!:()=>void;const ready=new Promise<void>(resolve=>release=resolve);
+            await p.route('**/api/ai/conversations/2/export?format='+format,async route=>{await ready;await route.fulfill({contentType:type,headers:{'Content-Disposition':"attachment; filename*=UTF-8''Sess%C3%A3o."+extension},body:'conteúdo do arquivo'});});
+            await trigger.click();await menu.locator('[data-export="'+format+'"]').click();await p.locator('.export-notice[data-state="pending"]').waitFor({state:'visible'});
+            const download=p.waitForEvent('download');release();assert.equal((await download).suggestedFilename(),'Sessão.'+extension);
+            await p.locator('.export-notice[data-state="complete"]').first().waitFor({state:'visible'});
+        }
+        assert.equal(await p.locator('.export-notice[data-state="complete"]').count(),3);
+        if(process.env.EXPORT_UI_QA)await p.screenshot({path:'artifacts/chat-export-notices.png'});
+        await p.locator('.export-notices__clear').click();assert(!await p.locator('.export-notices').isVisible());
+        await p.route('**/api/ai/conversations/2/export?format=pdf',route=>route.fulfill({status:500,json:{error:'Falha de teste'}}));
+        await trigger.click();await menu.locator('[data-export="pdf"]').click();await p.locator('.export-notice[data-state="failed"]').waitFor({state:'visible'});assert.match(await p.locator('.export-notice small').textContent() || '',/Falha de teste/);
+        await p.locator('.export-notice > button').click();assert(!await p.locator('.export-notices').isVisible());
+        await p.setViewportSize({width:390,height:800});await trigger.click();
+        assert(await menu.evaluate(e=>e.getBoundingClientRect().right<=innerWidth && e.getBoundingClientRect().left>=0));
+        if(process.env.EXPORT_UI_QA)await p.screenshot({path:'artifacts/chat-options-mobile.png'});
+        await menu.locator('[data-action="delete"]').click();assert(await p.locator('.sessions-dialog--delete').isVisible());await p.locator('.sessions-dialog--delete [data-cancel]').click();
+        await p.setViewportSize({width:1600,height:800});
+        await p.locator('.sidebar__new-chat a[aria-label="Novo chat"]').click();await p.waitForURL('**/novo.html?new=1');await trigger.waitFor({state:'hidden'});assert(!await trigger.isVisible());
         assert.deepEqual(f.errors,[]);
     } finally {await f.context.close();}
 });

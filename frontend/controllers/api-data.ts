@@ -37,7 +37,7 @@ export function conversationsData(value: unknown): ConversationList {
 export function researchData(value: unknown): Research {
     const data=record(value);
     return {error:optionalString(data.error),queries:data.queries==null?undefined:arrayValue(data.queries,stringValue),query:optionalString(data.query),state:researchState(data.state),engine:optionalString(data.engine),suggestions:optionalString(data.suggestions),seconds:data.seconds==null?undefined:numberValue(data.seconds),
-        sources:data.sources==null?[]:arrayValue(data.sources,value=>{const source=record(value);return {title:stringValue(source.title),url:stringValue(source.url),domain:stringValue(source.domain ?? ''),excerpt:optionalString(source.excerpt),published_at:optionalString(source.published_at),date_approximate:source.date_approximate==null?undefined:booleanValue(source.date_approximate),snippet:optionalString(source.snippet),image:optionalString(source.image)};})};
+        sources:data.sources==null?[]:arrayValue(data.sources,value=>{const source=record(value);return {title:stringValue(source.title),url:stringValue(source.url),domain:stringValue(source.domain ?? ''),excerpt:optionalString(source.excerpt),published_at:optionalString(source.published_at),date_approximate:source.date_approximate==null?undefined:booleanValue(source.date_approximate),snippet:optionalString(source.snippet),image:optionalString(source.image),evidence_type:optionalString(source.evidence_type),read_status:optionalString(source.read_status)};})};
 }
 export function metadataData(value:unknown, includeVersions = true):ResponseMetadata {
     const data=record(value ?? {});

@@ -154,12 +154,6 @@
     height: 19px;
 }
 
-.chart-range:focus-visible,
-.chart-style:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: -2px;
-}
-
 .chart-style__icon--line {
     --chart-style-icon: url("../img/icons/chart-line.svg");
 }
@@ -319,11 +313,6 @@
     .chart-style {
         transition: none;
     }
-}
-
-.market-chart:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: -3px;
 }
 
 .chart-description {
@@ -895,7 +884,6 @@
 .finance-view-tabs button { border: 0; border-bottom: 2px solid transparent; padding: var(--spacing-2-5) 0; background: transparent; color: var(--text-secondary); font: inherit; cursor: pointer; }
 .finance-view-tabs button[aria-pressed="true"] { border-bottom-color: var(--text); color: var(--text); }
 .finance-view-tabs button:hover { color: var(--text); }
-.finance-view-tabs button:focus-visible, .finance-sheet:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
 .finance-sheet { grid-area: 2 / 1; min-width: 0; }
 .finance-sheet[hidden], .chart-stage[hidden] { display: none; }
 .is-sheet-view { overflow: visible; }
@@ -919,7 +907,6 @@
 .finance-sheet-pagination button { display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-1-5); min-height: 30px; padding: var(--spacing-1) var(--spacing-2-5); border: 1px solid var(--border); border-radius: var(--radius-8); background: transparent; color: var(--text); font: inherit; font-size: var(--font-size-5); cursor: pointer; }
 .finance-sheet-pagination button:disabled { opacity: .4; cursor: default; }
 .finance-sheet-pagination button:hover:not(:disabled) { background: var(--surface-hover); }
-.finance-sheet-pagination button:focus-visible { outline: 2px solid var(--border-focus); }
 .finance-sheet-page-label { color: var(--text-secondary); font-size: var(--font-size-4); text-align: center; }
 .finance-sheet-pagination i { width: 12px; height: 12px; background: currentColor; mask: url('../img/icons/arrow.svg') center / contain no-repeat; }
 .finance-sheet-pagination .sheet-next { transform: none; }

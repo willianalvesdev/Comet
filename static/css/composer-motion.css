@@ -1,0 +1,84 @@
+/* Shared composer geometry and menu motion. */
+.composer-provider-group.provider-toggle {
+    position: relative;
+    isolation: isolate;
+    gap: 0;
+    padding: 0;
+    --provider-progress: 0;
+    --gemini-width: 94px;
+    --computer-width: 36px;
+    --indicator-width: 94px;
+    --indicator-x: 0px;
+}
+.provider-toggle > .provider-toggle__indicator {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: var(--indicator-x);
+    width: var(--indicator-width);
+    border: 1px solid var(--border);
+    border-radius: inherit;
+    background: color-mix(in srgb, var(--text) 6%, var(--surface));
+    pointer-events: none;
+}
+.composer-provider-group.provider-toggle > button {
+    position: relative;
+    flex: none;
+    justify-content: flex-start;
+    overflow: hidden;
+    gap: 0;
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+    width: var(--gemini-width);
+}
+.composer-provider-group.provider-toggle > .computer-provider { width: var(--computer-width); }
+.composer-provider-group.provider-toggle > button > .provider-toggle__content {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    gap: 0;
+    width: max-content;
+    padding-inline-end: 12px;
+    white-space: nowrap;
+}
+.provider-toggle__content > i { flex: none; width: 16px; height: 16px; margin-inline: 10px; }
+.provider-toggle .model-picker .provider-toggle__label { opacity: calc(1 - var(--provider-progress)); }
+.provider-toggle .computer-provider .provider-toggle__label { opacity: var(--provider-progress); }
+.composer-provider-group.provider-toggle > button:not(:disabled):hover { background: transparent; color: var(--text); }
+.hero .provider-toggle__indicator { background: rgb(253, 251, 250); }
+.model-menu { --menu-origin: bottom right; }
+.attachment-menu[popover], #profile-menu { --menu-origin: bottom left; }
+.home__composer.has-inline-options > .attachment-menu { overflow: hidden; }
+.computer-page:not(.has-conversation) .home__composer.has-inline-options::before,
+.computer-page:not(.has-conversation) .home__composer.has-inline-options.is-dictating::after { bottom: calc(var(--spacing-3) + var(--attachment-menu-height, 0px)); }
+
+.computer-citation { display: inline; font-size: .8em; vertical-align: super; color: var(--accent); text-decoration: none; padding-inline: 2px; border-radius: 4px; }
+.computer-citation:hover { background: var(--surface-hover); color: var(--text); }
+
+@media (prefers-reduced-motion: no-preference) {
+    :is(.model-menu, .attachment-menu[popover], .sessions-menu, .sessions-sort-menu, .recents-popover, .profile-menu, #profile-menu, #notifications-panel, [role="menu"][popover]) {
+        opacity: 0;
+        transform: scale(.95);
+        transform-origin: var(--menu-origin, top left);
+        transition: opacity 150ms cubic-bezier(.7,0,.84,0), transform 150ms cubic-bezier(.7,0,.84,0), display 150ms allow-discrete, overlay 150ms allow-discrete;
+    }
+    :is(.model-menu, .attachment-menu[popover], .sessions-menu, .sessions-sort-menu, .recents-popover, .profile-menu, #profile-menu, #notifications-panel, [role="menu"][popover]):popover-open {
+        opacity: 1;
+        transform: scale(1);
+        transition-timing-function: cubic-bezier(.16,1,.3,1);
+    }
+    @starting-style {
+        :is(.model-menu, .attachment-menu[popover], .sessions-menu, .sessions-sort-menu, .recents-popover, .profile-menu, #profile-menu, #notifications-panel, [role="menu"][popover]):popover-open { opacity: 0; transform: scale(.95); }
+    }
+    .home__composer.has-inline-options > .attachment-menu {
+        opacity: 0;
+        transform: translateY(-6px);
+        transition: opacity 150ms cubic-bezier(.16,1,.3,1), transform 220ms cubic-bezier(.16,1,.3,1);
+    }
+    .home__composer.has-inline-options.is-options-open > .attachment-menu { opacity: 1; transform: translateY(0); }
+    @starting-style { .home__composer.has-inline-options.is-options-open > .attachment-menu { opacity: 0; transform: translateY(-6px); } }
+}
+
+.model-icon--search { mask: url('../img/icons/settings-settings-search.svg') center / contain no-repeat; }
+.workspace .home__toolbar .composer-provider-group.provider-toggle > button:not(:disabled):hover { background: transparent; color: var(--text); }
+.provider-toggle__content { font-family: var(--font-ui); }

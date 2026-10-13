@@ -80,11 +80,6 @@
     display: none;
 }
 
-.cookie-notice button:focus-visible, .cookie-settings:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
-}
-
 @media (width < 640px) {
     .cookie-notice {
         right: 10px;

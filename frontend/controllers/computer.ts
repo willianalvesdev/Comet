@@ -43,6 +43,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     if(!optionalElement(document, '.anonymous-note', HTMLElement)){const note=document.createElement('p');note.className='anonymous-note';note.hidden=true;note.textContent='Esse chat não será salvo no histórico';form.after(note);}
     const anonymousButton = requiredElement(document, '.anonymous-toggle', HTMLButtonElement);
     let currentTitle = '';
+    let currentConversation: Conversation | null = null;
     let currentId: string | null = null, active: AbortController | null = null, loading = true, ready = false, remoteActive = false;
     let nextOffset: number | null = null, before: string | null = null, turns: Turn[] = [], pollTimer = 0, leaving = false, revision = 0;
 
@@ -262,6 +263,8 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         window.ComputerAttachments?.setBusy(busy || unavailable || anonymous);
         anonymousButton.hidden = !!currentId || present(conversation).children.length > 0;
         anonymousButton.disabled = busy || unavailable;
+        const options=optionalElement(document,'.chat-options-toggle',HTMLButtonElement);
+        if(options){options.hidden=!currentId || anonymous;options.disabled=busy || unavailable;}
         document.body.classList.toggle('chat-is-empty', present(conversation).children.length === 0);
         requiredElement(document, '.chat-tabs', HTMLElement).hidden = present(conversation).children.length === 0;
         elementList(present(conversation), '.computer-rewrite', HTMLButtonElement).forEach(button=>button.disabled=busy||unavailable);
@@ -279,7 +282,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         present(page).classList.toggle('has-conversation', !present(conversation).hidden);
         resizeInput();
     }
-    function remember(id: string | null, title?: string) {
+    function remember(id: string | null, title?: string, details?: Conversation) {
         if (leaving) return;
         if (id !== currentId) window.ComputerResponseDetails.reset();
         currentId = id;
@@ -291,6 +294,9 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         if (window.WorkspaceNavigation.replaceURL) window.WorkspaceNavigation.replaceURL(url);
         else history.replaceState(null, '', url);
         sessions.select(id, title);
+        const now=new Date().toISOString();
+        currentConversation=id ? details || {id,title:currentTitle,created_at:currentConversation?.id===id?currentConversation.created_at:now,updated_at:now} : null;
+        window.dispatchEvent(new CustomEvent('chat:context',{detail:currentConversation}));
     }
 
     const versionSelection = new Map<string, number>();
@@ -342,6 +348,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             const turn = selectedVersion ? {...original, ...selectedVersion} : original;
             const user = addMessage('user', turn.message); user.article.dataset.turn=turn.id ?? ''; messageTime(user.article,turn.created_at); messageAttachments(user.article,turn.attachments);
             const assistant = addMessage('assistant', turn.answer);
+            renderAnswer(assistant.body, turn.answer, turn.metadata?.research?.sources);
             assistant.article.classList.toggle('is-computer-response', !!turn.metadata?.provider && turn.metadata.provider !== 'gemini');
             requiredElement(assistant.article, '.computer-message__actions', HTMLElement).hidden = turn.status === 'running';
             assistant.article.dataset.turn = turn.id ?? '';
@@ -367,6 +374,8 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const result = await service.list(append ? nextOffset : 0);
         if (leaving) return [];
         nextOffset = result.next_offset;
+        const saved=result.conversations.find(chat=>chat.id===currentId);
+        if(saved){currentConversation=saved;window.dispatchEvent(new CustomEvent('chat:context',{detail:saved}));}
         sessions.render(result.conversations, append, nextOffset !== null);
         if (currentId) sessions.select(currentId);
         return result.conversations;
@@ -405,7 +414,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         note.textContent = '';
         try {
             const result = await service.load(id);
-            remember(result.conversation.id, result.conversation.title);
+            remember(result.conversation.id, result.conversation.title, result.conversation);
             turns = result.turns;
             before = result.before;
             olderButton.hidden = !before;
@@ -538,7 +547,15 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         try {
             await service.chat(payload, delta => {
                 if(!currentRequest())return;
+                if (nearLatest()) followingLatest = true;
                 answer += delta;
+                assistant.body.hidden = false;
+                const last = assistant.body.lastChild;
+                if (last instanceof Text) last.appendData(delta);
+                else assistant.body.append(document.createTextNode(delta));
+                thinking.details.classList.remove('is-thinking');
+                thinking.details.hidden = !thinking.text.length;
+                if (followingLatest) followLatest();
             }, controller.signal, delta => {
                 if(!currentRequest())return;
                 if (thoughtStart === null) thoughtStart = performance.now();
@@ -580,9 +597,9 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             thinking.details.classList.remove('is-thinking');
             thinking.details.hidden = !thinking.text.length;
             if (thinking.text.length) thinking.label.textContent = thoughtLabel(responseMeta.thinking_seconds);
-            await revealAnswer(assistant.body, answer, controller.signal);
+            const follow = followingLatest || nearLatest();
+            renderAnswer(assistant.body, answer, responseMeta.research?.sources);
             if(!currentRequest())return;
-            const follow = followingLatest;
             requiredElement(assistant.article, '.computer-message__actions', HTMLElement).hidden = false;
             if (follow) scrollToLatest();
             const completed: Turn={ id:savedTurnId, message:text, answer, thinking:thinking.text.data, status:'completed', metadata:responseMeta, created_at:sentAt, attachments:attached };
@@ -674,23 +691,6 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     }
     present(input).addEventListener('input',resizeInput, {signal: scope.signal});
     scope.listen(window, 'resize',resizeInput);
-    async function revealAnswer(body: HTMLElement,text: string,signal: AbortSignal) {
-        body.hidden = false;
-        body.replaceChildren(); let shown=0;
-        const speed = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--response-characters-per-second')) || 500;
-        const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const started = performance.now();
-        await new Promise<void>(resolve => {
-            function frame(now: number) {
-                const follow = followingLatest;
-                const count = reduce || signal.aborted || document.hidden ? text.length : Math.min(text.length, Math.ceil((now-started)*speed/1000));
-                if(count>shown){const chunk=document.createElement('span');chunk.className='computer-response-reveal';chunk.textContent=text.slice(shown,count);body.append(chunk);shown=count;}
-                if (follow) followLatest();
-                if (count === text.length) resolve(); else requestAnimationFrame(frame);
-            }
-            requestAnimationFrame(frame);
-        });
-    }
     function setAnonymous(value: boolean) {
         anonymous=value;document.body.classList.toggle('is-anonymous',value);
         anonymousButton.setAttribute('aria-pressed',String(value));
@@ -711,3 +711,4 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     initialize();
     resizeInput();
 }
+import { renderAnswer } from './answer-content';

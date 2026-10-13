@@ -12,8 +12,22 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     const list = document.createElement('div'); list.className = 'message-navigator__list';
     panel.append(list); nav.append(rail, panel); scope.append(nav);
     let entries: {message:HTMLElement;mark:HTMLButtonElement;item:HTMLButtonElement}[] = [], current = -1, frame = 0;
-    function open() { panel.hidden = false; nav.classList.add('is-open'); }
-    function close() { panel.hidden = true; nav.classList.remove('is-open'); }
+    let previewIndex = -1;
+    function open(index = Math.max(0, current)) {
+        const entry = entries[index]; if (!entry) return;
+        previewIndex = index;
+        entries.forEach((value, i) => { value.item.hidden = i !== index; value.mark.classList.toggle('is-previewed', i === index); value.mark.classList.toggle('is-near-preview', Math.abs(i - index) === 1); value.mark.classList.toggle('is-next-preview', Math.abs(i - index) === 2); });
+        const answer = entry.message.nextElementSibling;
+        const preview = requiredElement(entry.item, '.message-navigator__answer', HTMLElement);
+        preview.textContent = answer?.classList.contains('computer-message--assistant') ? answer.querySelector('.computer-message__text')?.textContent?.trim() ?? '' : '';
+        preview.hidden = !preview.textContent;
+        panel.hidden = false; nav.classList.add('is-open');
+        panel.style.top = `${entry.mark.getBoundingClientRect().top - nav.getBoundingClientRect().top + entry.mark.offsetHeight / 2}px`;
+        const bounds = panel.getBoundingClientRect();
+        const correction = Math.max(8 - bounds.top, Math.min(0, innerHeight - 8 - bounds.bottom));
+        panel.style.top = `${parseFloat(panel.style.top) + correction}px`;
+    }
+    function close() { panel.hidden = true; nav.classList.remove('is-open'); entries.forEach(entry => entry.mark.classList.remove('is-previewed', 'is-near-preview', 'is-next-preview')); }
     function go(index: number) {
         const entry = entries[index]; if (!entry) return;
         const rect = entry.message.getBoundingClientRect();
@@ -42,34 +56,35 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     function schedule() { if (!frame) frame = requestAnimationFrame(update); }
     function rebuild() {
         const nodes = [...elementList(present(messages), '.computer-message--user', HTMLElement)];
-        if (nodes.length === entries.length && nodes.every((node, i) => node === entries[i].message)) return;
+        if (nodes.length === entries.length && nodes.every((node, i) => node === entries[i].message)) { if (!panel.hidden) open(previewIndex); return; }
         const marks = document.createDocumentFragment(), items = document.createDocumentFragment(); current = -1;
         entries = nodes.map((message, index) => {
             const text = requiredElement(message, '.computer-message__text', HTMLElement).textContent.trim();
             const mark = document.createElement('button'); mark.type = 'button'; mark.className = 'message-navigator__mark';
             mark.setAttribute('aria-label', `Mensagem ${index + 1}: ${text.slice(0, 100)}`);
-            const item = document.createElement('button'); item.type = 'button'; item.textContent = text; item.title = text;
+            const item = document.createElement('button'); item.type = 'button'; item.hidden = true; const title = document.createElement('strong'); title.className = 'message-navigator__question'; title.textContent = text; const answer = document.createElement('span'); answer.className = 'message-navigator__answer'; item.append(title, answer);
             item.setAttribute('aria-label', `Ir para mensagem ${index + 1}: ${text.slice(0, 100)}`);
-            mark.addEventListener('click', () => { if (matchMedia('(hover: none)').matches && panel.hidden) open(); else go(index); }, {signal: scope.signal});
+            mark.addEventListener('click', () => { if (matchMedia('(hover: none)').matches && panel.hidden) open(index); else go(index); }, {signal: scope.signal});
+            mark.addEventListener('pointerenter', event => { if (event.pointerType !== 'touch') open(index); }, {signal: scope.signal});
+            mark.addEventListener('focus', () => { if (!matchMedia('(hover: none)').matches) open(index); }, {signal: scope.signal});
             item.addEventListener('click', () => go(index), {signal: scope.signal});
             marks.append(mark); items.append(item);
             return {message, mark, item};
         });
         rail.replaceChildren(marks); list.replaceChildren(items);
         nav.hidden = !entries.length;
-        if (!entries.length) close();
+        if (!entries.length) close(); else if (!panel.hidden) open(Math.min(previewIndex, entries.length - 1));
         schedule();
     }
-    nav.addEventListener('pointerenter', event => { if (event.pointerType !== 'touch') open(); }, {signal: scope.signal});
     nav.addEventListener('pointerleave', () => { if (!nav.contains(document.activeElement)) close(); }, {signal: scope.signal});
-    nav.addEventListener('focusin', open, {signal: scope.signal});
+
     nav.addEventListener('focusout', event => { if (!nav.contains(event.relatedTarget instanceof Node ? event.relatedTarget : null)) close(); }, {signal: scope.signal});
     nav.addEventListener('keydown', event => {
         if (event.key === 'Escape') { close(); document.activeElement instanceof HTMLElement && document.activeElement.blur(); event.stopPropagation(); }
         if (['ArrowDown','ArrowUp','Home','End'].includes(event.key)) {
-            const buttons = elementList(list, 'button', HTMLButtonElement); let index = buttons.findIndex(button => button === document.activeElement);
+            const buttons = elementList(list, 'button', HTMLButtonElement); let index = previewIndex;
             index = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : Math.max(0,Math.min(buttons.length - 1,index + (event.key === 'ArrowDown' ? 1 : -1)));
-            event.preventDefault(); buttons[index]?.focus();
+            event.preventDefault(); open(index); buttons[index]?.focus();
         }
     }, {signal: scope.signal});
     scope.listen(document, 'pointerdown', event => { if (!nav.contains(event.target instanceof Node ? event.target : null)) close(); });
@@ -78,6 +93,6 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     new ResizeObserver(schedule).observe(messages);
     const composer = requiredElement(document, '.computer-composer', HTMLElement);
     if (composer) new ResizeObserver(schedule).observe(composer);
-    new MutationObserver(rebuild).observe(messages, {childList:true});
+    new MutationObserver(rebuild).observe(messages, {childList:true, subtree:true, characterData:true});
     rebuild();
 }

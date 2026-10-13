@@ -1,344 +1,162 @@
 # Comet
 
-Site com Python, Flask, MySQL e Waitress, seguindo a estrutura do Rota Financeira.
-O frontend usa Next.js, React, TypeScript e Tailwind CSS. O banco `comet_db` e a conta
-`comet_app` são exclusivos deste projeto.
+Aplicação Next.js com React, TypeScript e Tailwind CSS. O mesmo processo Node.js
+serve as páginas, a autenticação e as APIs. Os dados são armazenados no PostgreSQL.
 
 ## Iniciar no Windows
 
-1. Tenha Python 3.10+, Node.js 22.12+ com npm 10+ e MySQL 8+ instalados, com o serviço MySQL iniciado.
-2. Na primeira execução, abra `configurar_banco.bat`. Ele prepara `venv`, instala
-   as bibliotecas e gera `.env` com chaves aleatórias. Informe o administrador do
-   MySQL e sua senha na janela. A senha administrativa não é salva.
-3. Abra `iniciar.bat`: o site abre automaticamente no navegador quando o servidor está pronto. O endereço padrão é **http://127.0.0.1:5001**. Reiniciar com R não abre outra aba. Mantenha a janela aberta;
-   Digite R + Enter para reiniciar o servidor ou S + Enter para encerrar. Ctrl+C também encerra. A porta 5001 evita conflito com o Rota Financeira.
+1. Instale Node.js 22.12 ou superior, com npm 10+, e tenha PostgreSQL disponível.
+2. Copie `.env.example` para `.env`, configure `DATABASE_URL` para um banco e usuário
+   próprios do Comet e substitua `SECRET_KEY` por uma chave aleatória de pelo menos
+   32 caracteres. Nunca publique esse arquivo.
+3. Execute `configurar_banco.bat` para instalar as dependências e criar as tabelas.
+   O banco indicado pela URL já deve existir, e a conta usada nessa etapa precisa
+   de permissão para criar tabelas. O configurador é idempotente e não apaga dados.
+4. Execute `iniciar.bat`. Ele compila o site, inicia o Next.js e abre o navegador.
+   O endereço padrão é `http://127.0.0.1:5001`. Mantenha a janela aberta.
 
-Os iniciadores também reconhecem o Python disponibilizado pelo Codex nesta máquina.
-O `.env` existente é preservado. Ajuste nele host, porta e credenciais se necessário.
-Não abra os arquivos HTML diretamente nem use Live Server: o login depende do Flask.
+O iniciador aceita **R + Enter** para compilar e reiniciar e **S + Enter** para
+encerrar. Durante a recompilação, o servidor fica parado; se houver erro, corrija-o
+e use R para tentar novamente. A porta e o endereço são definidos por `APP_PORT` e `APP_HOST`.
 
-## Contas
+Esta instalação usa um banco PostgreSQL novo. Não há importação automática de
+contas, conversas ou transações de outro banco. O cadastro cria a conta no banco
+configurado atualmente. Faça backup do PostgreSQL e de `instance/attachments/`
+para preservar tanto os registros quanto os anexos.
 
-O cadastro valida nome, e-mail, senha (8 a 128 caracteres) e confirmação. Ao concluir,
-o usuário entra na tela principal. O perfil mostra seu nome e e-mail e permite sair.
-As páginas principal e de gráficos exigem autenticação. As sessões duram 30 dias,
-são verificadas no MySQL e invalidadas ao sair. As senhas são armazenadas com hash
-scrypt, e os formulários têm proteção CSRF e limite de tentativas por IP.
+## PostgreSQL com Docker
 
-Os gráficos financeiros usam as transações armazenadas por usuário. A página Computer tem chat com Qwen local e Gemini.
-O ditado usa o reconhecimento de voz do navegador; a permissão de microfone permanece disponível.
+A configuração em `infra/postgres/compose.yaml` inicia um PostgreSQL exclusivo do
+Comet, exposto apenas em `127.0.0.1`. Defina `POSTGRES_DB`, `POSTGRES_USER`,
+`POSTGRES_PASSWORD` e `POSTGRES_PORT` no `.env`, e configure `DATABASE_URL` com os
+mesmos valores. Se a porta 5432 já estiver ocupada, escolha outra em `POSTGRES_PORT`
+(por exemplo 5433) e repita essa porta em `DATABASE_URL`. Senhas com caracteres
+reservados precisam ser codificadas para URL.
 
-## Verificação
-
-Execute `venv\Scripts\python.exe -m unittest discover -s tests -v`.
-Os testes de integração usam contas temporárias no banco configurado e removem apenas
-essas contas ao final. Sem MySQL configurado, esses testes são marcados como ignorados.
-
-Instale as dependências locais com `npm ci`. Execute:
-
-- `npm run typecheck`: checagem estrita dos componentes e módulos TypeScript.
-- `npm run build`: gera e verifica a exportação estática do Next.js em `out/`.
-- `npm run test:frontend`: executa os testes de interface e de regras financeiras.
-- `npm run dev`: inicia o Next.js em `http://127.0.0.1:3000`, com atualização automática.
-
-Para desenvolvimento, mantenha o Flask em execução na porta 5001 e execute
-`npm run dev` em outro terminal. Abra `http://127.0.0.1:3000`: o Next encaminha as
-APIs, os arquivos estáticos e as ações de autenticação para o Flask. Se o backend
-usar outro endereço, defina `COMET_API_ORIGIN` no `.env`.
-Em produção, o Flask serve os arquivos de `out/` e injeta os dados públicos da
-sessão no HTML. Não é necessário manter um servidor Node.js em produção.
-
-Os testes usam Playwright local e, no Windows, o Edge instalado. `BROWSER_PATH`
-permite selecionar outro Chromium. As APIs são simuladas, sem contas reais nem
-chamadas aos modelos. Não há lint configurado.
-
-O iniciador executa `npm ci` na primeira utilização e quando o lockfile muda.
-A compilação ocorre depois da verificação de instância duplicada. No comando R,
-um build com erro mantém o servidor existente. Nenhuma ferramenta é instalada globalmente.
-
-## Estrutura do projeto
-
-- `comet/`: aplicação Flask, banco e serviços de IA.
-- `app/`: rotas, layout e entrada do Next.js App Router.
-- `frontend/`: páginas React, componentes compartilhados, módulos de comportamento e contratos TypeScript.
-- `out/`: exportação de produção do Next.js; não editar manualmente.
-- `next.config.ts` e `postcss.config.mjs`: configuração do Next.js e do Tailwind CSS.
-- `static/`: também contém CSS, fontes e imagens.
-- `scripts/`: preparação e inicialização do ambiente.
-- `infra/`: configuração do SearXNG.
-- `tests/`: testes do backend e frontend.
-- `docs/`: documentação complementar.
-- `instance/`: dados locais de execução.
-
-Os arquivos `.bat` permanecem na raiz para facilitar o uso no Windows.
-As URLs públicas das páginas foram preservadas na migração para Next.js.
-
-## Organização do frontend
-
-O Next.js App Router organiza as rotas e o React renderiza as páginas e os componentes
-compartilhados. `frontend/NextApplication.tsx` integra a navegação do Next e revalida
-a sessão em `/api/bootstrap`; `frontend/App.tsx` mantém a lateral montada.
-Os comportamentos existentes foram convertidos para módulos ES em `frontend/controllers`,
-montados e desmontados pelos efeitos React. Esses módulos ainda usam o DOM para chat,
-gráficos e menus; a migração preserva as regras existentes.
-`frontend/runtime/lifecycle.ts` encerra eventos, observadores, temporizadores e requisições.
-
-O Next.js empacota React, TypeScript, CSS e Lightweight Charts, instalado pelo npm.
-O Tailwind CSS usa os tokens existentes de cores, espaçamento, tipografia e raio;
-os estilos de componentes preservam o visual atual. Fontes e imagens permanecem em `static/`.
-`frontend/components/WorkspaceParts.tsx` compartilha lateral, configurações e caixa de mensagem;
-`frontend/pages/` contém Chat, Recentes, Descobrir, Aprender e Finanças. Login e cadastro
-ficam em `frontend/components/LandingPage.tsx`. As APIs e o banco continuam no Flask.
-
-Os testes de navegador carregam o mesmo build de produção. Os testes isolados geram
-bundles temporários a partir dos mesmos módulos em `artifacts/test-runtime`.
-
-## Notícias — Descobrir
-
-A página usa a [NewsAPI](https://newsapi.org/docs) para notícias internacionais de
-assuntos variados. Configure `NEWS_API_KEY` no `.env` ou execute
-`configurar_noticias.bat` e reinicie o servidor. A chave permanece no servidor.
-A API gratuita é destinada a desenvolvimento; produção requer plano apropriado.
-
-O padrão é finanças em português e inglês. O menu Tópicos do próprio Descobrir
-seleciona o assunto; o menu do perfil não contém mais preferências de notícias.
-Top ordena pela popularidade das fontes. Português e inglês usam duas consultas
-por página, intercaladas no feed.
-Crimes, violência e conteúdo adulto continuam filtrados por termos, sem garantia
-absoluta. Só aparecem notícias com imagens que carregam.
-
-Há cache de 30 minutos por página, tópico e ordenação (até 64 entradas), pausa de
-5 minutos após erros e uso do cache anterior por até 24 horas com aviso. São buscadas
-até 10 páginas, respeitando os limites do plano. Os testes usam respostas simuladas.
-
-O clima usa Open-Meteo com previsão de cinco dias. O botão Usar minha localização
-pede permissão ao navegador. Após a permissão, latitude e longitude arredondadas a
-duas casas decimais são enviadas ao Open-Meteo para obter a previsão da região.
-A localização aproximada e a previsão ficam em cache no navegador por conta. Geolocalização exige HTTPS ou
-localhost. A página informa recusas, indisponibilidade e tempo esgotado.
-
-## Publicação
-
-Este backend precisa de hospedagem Python com MySQL; GitHub Pages hospeda apenas
-arquivos estáticos. Em produção, use HTTPS, `SESSION_COOKIE_SECURE=true`, uma chave
-secreta própria e `RATELIMIT_STORAGE_URI` compartilhado (por exemplo Redis) se houver
-mais de uma instância. Não versione `.env`, o ambiente Python ou dados do banco.
-
-
-## Computer — conversa com Qwen local e Gemini
-
-`frontend/pages/ComputerPage.tsx` organiza a conversa; `frontend/controllers/computer.ts` controla seu estado e
-`frontend/controllers/computer-service.ts` lê os eventos da API interna. A geração passa por
-`POST /api/ai/chat`, `ComputerService` e o provedor escolhido. As chaves permanecem
-no servidor. O modo inicial da interface é Gemini. Computer seleciona inicialmente
-`qwen3:4b-instruct-2507-q4_K_M`, apresentado como **4b no-think**.
-
-Os outros modelos locais disponíveis são 1.7b, 4b e 8b. Gemma foi removido do catálogo.
-Mantenha o Ollama em execução para os modelos locais; `OLLAMA_MODEL` e
-`OLLAMA_BASE_URL` configuram o provedor local do servidor. Gemini usa
-`GEMINI_API_KEY` e `GEMINI_MODEL` no `.env` privado. Reinicie pelo `iniciar.bat`
-ou com **R + Enter** para carregar mudanças dessas configurações.
-
-### Pesquisa e respostas
-
-Todos os modelos locais podem pesquisar pelo SearXNG. Gemini pesquisa somente com
-o Google Search da própria API. Pedidos explícitos de pesquisa acionam a busca,
-inclusive no 4b no-think. Não há troca automática de buscador quando uma busca falha.
-Veja `infra/searxng/README.md` para iniciar o serviço local.
-
-A data e o horário atuais do servidor acompanham o contexto de cada geração.
-O contexto local é limitado sem apagar mensagens salvas. As fontes consultadas
-ficam no painel lateral e na aba Links, com títulos, trechos e favicons; listas de
-referências repetidas no texto da resposta são removidas.
-
-A interface alterna entre Pensando e Pesquisando durante o processamento. A resposta
-é recebida por completo antes da apresentação com velocidade fixa e animação de
-cor/opacidade. Respostas sem pensamento e concluídas em menos de três segundos
-recebem o indicador Instantâneo. O botão Reescrever gera novamente a resposta;
-falhas preservam a versão anterior. Copiar exibe uma confirmação por ícone, e os
-botões de avaliação indicam a seleção.
-
-### Histórico e modo anônimo
-
-As conversas comuns são salvas no MySQL por conta. Recentes permite abrir, fixar,
-renomear e excluir conversas. A lista carrega 50 conversas por página; o histórico,
-30 envios por página. A aba do navegador mostra somente o título do chat.
-
-O modo anônimo pode ser ativado em um chat novo. Seu histórico existe apenas na
-página atual, não é persistido no banco nem usado na memória da conta e desaparece
-ao sair. Anexos ficam indisponíveis nesse modo.
-
-Enter envia e Shift + Enter cria uma linha. A caixa cresce até dez linhas antes de
-rolar. Durante a geração, o botão de envio permite interromper. O navegador lateral
-indica uma mensagem por vez e centraliza a mensagem selecionada na tela.
-
-As mensagens aceitam até 8 mil caracteres; limites de contexto, resposta e tempo
-estão em `comet/ai/config.py`. Sessão e CSRF continuam obrigatórios. Os textos
-são renderizados sem executar HTML ou scripts enviados pelo usuário/modelo.
-
-`comet/ai/conversations.py` controla propriedade, paginação, deduplicação,
-regeneração e checkpoints. `comet/db.py` centraliza commit, rollback e liberação
-de cursores. As conexões são fechadas também nos caminhos de falha. Interrupções
-não deixam o estado da conversa preso em geração quando o stream é finalizado.
-
-### Banco do histórico do Computer
-
-`setup_banco.sql` cria `computer_conversas` e `computer_mensagens` de forma idempotente.
-Em instalações existentes, execute `configurar_banco.bat` uma vez com o administrador
-MySQL e depois reinicie pelo `iniciar.bat`. Nenhuma tabela existente é apagada.
-O site usa apenas SELECT/INSERT/UPDATE/DELETE; a conta de execução não precisa de CREATE.
-`comet/ai/conversations.py` controla propriedade, paginação, deduplicação e gravação.
-GET `/api/ai/conversations` lista somente conversas da conta autenticada; GET
-`/api/ai/conversations/<id>` recupera seus envios. POST `/api/ai/chat` recebe somente
-`conversation_id`, `message`, um UUID `request_id` e `provider` (`qwen` ou `gemini`, padrão `qwen`); o navegador não fornece o histórico.
-Conexões MySQL são fechadas após cada gravação. Uma reserva por conversa evita respostas
-simultâneas em abas/processos distintos. As respostas da API não são armazenadas em cache.
-
-A lista Recentes aparece nas páginas internas. Cada conversa tem um menu de três pontos
-para renomear ou excluir (com confirmação). Essas ações exigem sessão e CSRF, verificam
-o proprietário e ficam bloqueadas enquanto a conversa tem uma resposta em andamento.
-
-Testes das APIs sem consumir créditos: `venv\Scripts\python.exe -m unittest discover -s tests -p test_remote_ai.py -v`.
-
-
-### Personalização e memória por conta
-
-O menu do perfil abre **Todas as configurações**, com Personalização e Configurações
-de memória separadas. Conta, Preferências e Notificações ficam reservadas para depois.
-Nome preferido, ocupação, empresa, nascimento, gênero, instruções, localização opcional
-e preferências de resposta são usados no contexto de Qwen e Gemini. A localização
-é solicitada apenas ao clicar em Compartilhar e arredondada a duas casas decimais.
-As preferências adicionais ficam em um envelope JSON versionado na coluna `sobre`,
-compatível com o texto dos perfis antigos, sem exigir uma nova migração.
-`/personalizar.html` redireciona para a janela de configurações.
-Sem nome preferido, o nome do cadastro é usado. O histórico continua separado por
-conversa, mas o resumo de memória acompanha a conta em todas elas.
-
-A memória começa ativada e vazia. Após uma resposta concluída, registra declarações
-pessoais explícitas das novas mensagens (por exemplo, “Sou estudante”, “Moro em
-Recife” e “Prefiro respostas curtas”). A extração é conservadora, baseada em padrões:
-não entende toda formulação, não resume todo o histórico anterior e não deduz fatos
-pelas respostas da IA. O resumo é editável e limitado a 6.000 caracteres; ao atingir
-o limite, pode ser reduzido na página. Os dados não são compartilhados entre contas.
-
-Desativar e salvar impede novas memórias e omite o resumo do contexto das próximas
-mensagens. Os campos de perfil continuam ativos. Limpar e salvar apaga o resumo;
-as conversas continuam salvas, mas não são reimportadas automaticamente. Desativar
-não remove informações já presentes no histórico da conversa aberta.
-
-`computer_personalizacao` é criada pelo `configurar_banco.bat`. GET/PUT
-`/api/ai/personalization` exige sessão e PUT exige CSRF; a versão impede sobrescrever
-memórias alteradas em outra aba ou por uma resposta simultânea. A tabela é removida
-em cascata com a conta. O nome de modelo/credenciais nunca são editáveis neste endpoint.
-
-
-### Gemini e anexos
-
-O seletor oferece Gemini (modo inicial, API externa) e Computer (modelos Qwen locais).
-O botão + e Ctrl+V no campo do chat enviam até quatro anexos por mensagem (8 MB cada): PNG/JPG/WebP,
-PDF com texto selecionável (até 40 páginas), DOCX e texto UTF-8.
-Documentos têm limite de 20 mil caracteres cada e 30 mil em conjunto. Imagens são
-normalizadas para JPEG de até 1600 px, sem metadados. Arquivos ficam privados em
-`instance/attachments/<usuario>/`; a referência fica junto à mensagem no banco,
-sem migração. Faça backup dessa pasta junto com o banco.
-Ao anexar arquivos, o chat seleciona automaticamente o Gemini e envia as imagens
-e o texto extraído dos documentos à API, usando `GEMINI_API_KEY` e `GEMINI_MODEL`.
-Respostas que usam anexos do histórico também são processadas pelo Gemini.
-O histórico inclui o conteúdo dos anexos dentro dos limites
-de contexto e no máximo quatro imagens. A exclusão de uma conversa remove seus
-anexos que não estejam referenciados em outra conversa.
-
-Os cartões de anexos mostram nome, tamanho e miniatura de imagem. O endpoint
-`GET /api/ai/attachments/<token>/preview` exige a conta proprietária do anexo e
-responde com `Cache-Control: private, no-store`.
-
-A navegação entre Chat, Finanças, Descobrir e Recentes mantém a lateral no mesmo
-documento. `frontend/App.tsx` renderiza a página React em `#workspace-page` e encerra
-os eventos, requisições e temporizadores da página anterior antes de montar a próxima.
-
-## Dados financeiros
-
-A página Finanças usa registros de `finance_transactions`, isolados pela conta autenticada.
-Execute `configurar_banco.bat` uma vez com o administrador do MySQL após esta atualização;
-o configurador cria `finance_operations` e `finance_transaction_events` e acrescenta `deleted_at` às transações existentes, sem apagá-las. Reinicie o servidor.
-A conta do site mantém apenas permissões de leitura e escrita, sem criação de tabelas.
-
-O chat de Finanças interpreta primeiro no parser local. Somente quando falta confiança,
-usa Gemini ou Ollama local (conforme o modelo selecionado) para produzir JSON, validado
-antes da execução. Pedidos ambíguos exigem esclarecimento e não gravam parcialmente.
-A chave Gemini fica no servidor. Não há conexão bancária automática.
-Após a confirmação, o chat informa o que foi adicionado, alterado, removido ou restaurado.
-Em caso de dúvida, pergunta qual transação escolher usando valores, descrições e datas.
-Lotes são validados por inteiro antes de qualquer alteração financeira e gravados atomicamente.
-A origem local/IA fica somente nos metadados internos de observabilidade.
-As APIs exigem sessão autenticada e, para gravações, `X-CSRFToken` (meta `csrf-token` da página).
-A identidade sempre vem da sessão:
-
-- `POST /api/finance/transactions`: recebe e persiste uma transação.
-- `POST /api/finance/interpret`: interpreta com IA usando contexto mínimo da conta; não grava transações.
-- `POST /api/finance/actions`: executa um lote atômico com `operation_id` UUID e `actions`.
-  Aceita create/update/delete/restore/permanent_delete; repetir o mesmo UUID e ações não duplica o pedido.
-- `GET /api/finance/transactions?state=deleted`: lista a lixeira com a mesma paginação.
-  Sem esse parâmetro, o histórico contém apenas registros ativos.
-- `GET /api/finance/transactions?limit=30`: histórico em ordem de data e ID decrescentes;
-  envie o `next_cursor` retornado em `before` para obter a próxima página (limite 100).
-- `GET /api/finance/dashboard`: saldo, receitas e despesas do mês corrente, comparações,
-  pequenas curvas mensais e série diária do gráfico.
-
-Exemplo de corpo JSON para recebimento:
-
-```json
-{
-  "external_id": "importacao-banco-2026-09-001",
-  "kind": "income",
-  "amount": "2500.50",
-  "description": "Salário",
-  "category": "Trabalho",
-  "occurred_on": "2026-09-01"
-}
+```console
+docker compose --env-file .env -f infra/postgres/compose.yaml up -d
+npm run db:setup
 ```
 
-`kind` aceita `income` ou `expense`; valores são positivos, em BRL, enviados como string
-com ponto decimal e até duas casas, armazenados em DECIMAL(14,2). `category` é opcional.
-`occurred_on` é a data efetiva (AAAA-MM-DD), de 1970 até hoje; o fechamento diário usa
-UTC−03:00. Não são aceitos agendamentos futuros. `external_id` é obrigatório e único
-por usuário: repetir o mesmo registro retorna 200 sem duplicar; reutilizá-lo com outros
-valores retorna 409. Novos registros retornam 201 e dados inválidos retornam 422.
+O banco usa um volume persistente. Encerrar o contêiner não apaga esse volume.
+Mudar `POSTGRES_PASSWORD` depois da primeira inicialização não muda automaticamente
+a senha já criada no banco. Para usar um PostgreSQL externo, basta configurar
+`DATABASE_URL`; as variáveis `POSTGRES_*` servem somente ao contêiner local.
 
-A exclusão comum define `deleted_at` em UTC; a restauração limpa esse campo e preserva o ID.
-Somente pedidos explícitos produzem `permanent_delete`, e apenas registros na lixeira podem ser
-apagados fisicamente. UPDATE de um registro excluído é recusado. Todos os cálculos ignoram a lixeira.
-O saldo parte de zero e soma receitas menos despesas do histórico ativo;
-não representa saldo bancário não importado. Receitas e gastos são totais do mês atual.
-A comparação usa o mês anterior inteiro; para o saldo, usa o saldo no fim do mês anterior.
-Se a base anterior for zero, a porcentagem aparece como “—”. Dias sem transações carregam
-o saldo anterior. As velas representam abertura, máximo, mínimo e fechamento do saldo
-por data, seguindo a ordem de registro dentro do dia; o volume é a soma movimentada em BRL.
-Sem movimentações, o gráfico exibe uma linha cinza no zero e os totais ficam em zero. Falhas de conexão exibem erro,
-sem substituir dados por exemplos. A página atualiza ao reabrir, reconectar ou receber
-o evento `finance:changed`, emitido após a execução pelo chat; os números animam a atualização.
+## Desenvolvimento e verificação
 
+```console
+npm ci
+npm run db:setup
+npm run dev
+```
 
-O histórico mínimo em `finance_transaction_events` registra criação, alteração,
-exclusão, restauração e exclusão definitiva na mesma transação da gravação financeira.
-Atualizações preservam somente os campos alterados antes/depois; reenvios não duplicam
-eventos. Os eventos são apenas auditoria/debug/apoio à recuperação, sem participar dos
-saldos ou gráficos. Detalhes em [interpretação financeira](docs/financial-interpretation.md).
+O modo de desenvolvimento atende em `http://127.0.0.1:3000`, incluindo as APIs.
+Não é necessário iniciar um segundo servidor. Para produção:
 
-A marca e o pacote Python agora são Comet (`comet`). Instalações existentes continuam usando os valores de banco do `.env`; chaves antigas de sessão, preferências e formatos de anexos/respostas são mantidas para compatibilidade. Serrif e Geist foram removidas; Kalice permanece para títulos e respostas serifadas, e Saans para interface e números.
+```console
+npm run build
+npm start
+```
 
-### Troca automática do Gemini
+Comandos de verificação:
 
-Quando o Gemini retorna HTTP 429 antes de começar a resposta, o Comet tenta
-`gemini-2.5-flash` e depois `gemini-2.5-flash-lite`, mantendo a pergunta, o histórico,
-os anexos e a pesquisa. A mesma regra vale para a interpretação financeira.
-`GEMINI_FALLBACK_MODELS` permite configurar a ordem (separada por vírgulas);
-um valor vazio desativa a troca. O padrão funciona sem editar o `.env`.
-Cada modelo é tentado uma vez por pedido, dentro do prazo total existente.
-Não há troca após começar a transmitir, nem para falhas de autenticação,
-bloqueios de segurança ou respostas inválidas. Se todos atingirem o limite,
-o erro de cota é mantido. Reinicie o Comet para carregar mudanças no servidor.
-As cotas continuam sendo as do projeto Google; a troca não renova cotas nem
-altera faturamento. Projetos pagos seguem os preços da própria conta.
+```console
+npm run typecheck
+npm run test:server
+npm run test:frontend
+npm run test:production
+```
 
-O seletor Computer consulta automaticamente `/api/tags` do Ollama configurado no servidor. A lista é atualizada ao abrir o seletor e inclui nomes personalizados. Modelos removidos deixam de aparecer; a preferência salva é mantida enquanto estiver instalada. Com o Ollama desligado ou sem modelos, o menu informa o estado. `OLLAMA_MODEL` define a preferência inicial quando esse modelo está instalado. Em acesso remoto, os modelos são os do computador que hospeda o Comet.
+A suíte de navegador usa o build real de produção do Next.js e simula somente os
+serviços e dados das APIs. Os testes de servidor não devem ser apontados para um
+banco que contenha dados importantes; eles usam `DATABASE_URL` do `.env`, criam
+contas temporárias e removem os próprios registros ao final. Serviços pagos não são necessários nas verificações simuladas.
+
+A verificação de produção compila o Next.js e envia PDF e DOCX pelas APIs reais.
+Ela também exige PostgreSQL, cria uma conta temporária e remove essa conta e seus
+anexos ao terminar.
+
+## Estrutura
+
+- `app/`: páginas, layout e rotas HTTP do Next.js.
+- `frontend/components/` e `frontend/pages/`: interface React.
+- `frontend/controllers/`: interações, navegação, streaming e validação das respostas.
+- `server/`: autenticação, PostgreSQL, notícias e serviços de IA e finanças.
+- `static/css/`: estilos e variáveis importados pelo build Tailwind.
+- `static/img/`, `static/fonts/` e `static/schemas/`: recursos públicos.
+- `scripts/`: inicialização, configuração e geração dos recursos dos testes.
+- `setup_banco.sql`: esquema idempotente do PostgreSQL.
+- `tests/frontend/` e `tests/server/`: testes TypeScript.
+
+Antes de `dev` e `build`, `scripts/sync-static.mjs` copia apenas os recursos públicos
+necessários para `public/`. Os estilos entram no build pelo import da aplicação.
+`.next/`, `public/static/` e `artifacts/` são gerados e não devem ser editados.
+As URLs existentes, como `/novo.html`, `/recentes.html` e `/descobrir.html`,
+continuam válidas. `/principal.html` abre um novo chat; `/personalizar.html` abre
+as configurações de personalização.
+
+## Autenticação e proteção de dados
+
+A entrada usa Google, GitHub ou código por e-mail, sem idade ou senha. Sessões são
+mantidas em cookies HTTP-only e verificadas no PostgreSQL. Alterações exigem CSRF.
+Códigos expiram em dez minutos, são de uso único e possuem limites de envio e de
+tentativas. As credenciais OAuth e SMTP ficam exclusivamente no servidor.
+Consulte [Configurar autenticação](docs/authentication.md) para ativar os serviços.
+Em produção, use HTTPS, `SESSION_COOKIE_SECURE=true`, uma `SECRET_KEY` exclusiva
+e um PostgreSQL com acesso restrito. A conta normal do site pode usar permissões
+somente de leitura e escrita após a criação do esquema. Para mais de uma instância,
+compartilhe PostgreSQL e armazenamento privado dos anexos. Mantenha `TRUST_PROXY=false`
+no acesso direto. Use `TRUST_PROXY=true` somente atrás de um proxy controlado que
+sobrescreva `X-Forwarded-For`, `X-Forwarded-Host` e `X-Forwarded-Proto`. Esses cabeçalhos identificam o cliente e a origem pública usados nas verificações de acesso.
+
+## Computer, Gemini e Ollama
+
+A página Computer usa Gemini ou os modelos instalados no Ollama do servidor.
+`OLLAMA_BASE_URL`, `OLLAMA_MODEL` e `OLLAMA_TIMEOUT_SECONDS` configuram o serviço
+local. O seletor consulta o catálogo do Ollama e acompanha modelos adicionados ou
+removidos; em acesso remoto, os modelos são os da máquina que hospeda o Comet.
+
+Gemini usa `GEMINI_API_KEY` e `GEMINI_MODEL`. `GEMINI_FALLBACK_MODELS` define uma
+lista de alternativas, separadas por vírgula, para erros de cota antes de iniciar
+a resposta. Um valor vazio desativa a troca. As cotas e cobranças continuam sendo
+as do projeto do provedor. Reinicie o servidor depois de alterar `.env`.
+
+Os modelos locais podem pesquisar pelo SearXNG configurado em `SEARXNG_URL`.
+Gemini usa a pesquisa da própria API. O painel de fontes mostra os links da
+conversa. A execução exige sessão, valida os dados e mantém o histórico da conta
+separado de outras contas. Recentes permite abrir, fixar, renomear e excluir chats.
+
+O modo anônimo mantém o histórico somente na página atual, sem salvar no banco
+nem alimentar a memória. A personalização e a memória podem ser editadas nas
+configurações, incluindo a opção de desativar ou limpar a memória.
+
+O botão + aceita até quatro anexos por mensagem, com limite de 8 MB por arquivo:
+PNG/JPEG/WebP, PDF com texto, DOCX e texto UTF-8. Imagens são normalizadas, e os
+arquivos ficam privados em `instance/attachments/`. Pré-visualizações exigem a
+conta proprietária. A referência e o conteúdo necessário acompanham a mensagem
+nos limites de contexto do provedor.
+
+## Finanças
+
+As transações são armazenadas no PostgreSQL e isoladas por conta. Valores monetários
+circulam como strings decimais e são armazenados em `NUMERIC(14,2)`. Datas e horários
+seguem as regras descritas em `docs/graficos.md`. Não há conexão bancária automática.
+
+As APIs mantêm os contratos existentes para histórico, painel, interpretação e
+execução de ações. Lotes são validados e gravados atomicamente; um `operation_id`
+UUID evita duplicar o mesmo pedido. Exclusão comum envia para a lixeira, restauração
+preserva o ID e exclusão definitiva requer a ação correspondente. Eventos de
+auditoria são gravados na mesma transação e não participam dos cálculos.
+
+## Notícias e clima
+
+Execute `configurar_noticias.bat` para salvar uma chave NewsAPI no `.env` sem exibi-la
+na tela. A chave fica exclusivamente no servidor. A API mantém filtros de temas,
+idiomas e conteúdo, busca páginas de até 100 resultados por idioma e limita a dez
+páginas. O cache dura 30 minutos; após falha, pode mostrar o cache anterior por até
+24 horas com indicação de desatualização. Novas tentativas aguardam cinco minutos.
+
+O clima consulta Open-Meteo no navegador. A localização exige permissão e é enviada
+com precisão reduzida. A previsão fica em cache local por conta, e o usuário pode
+alternar entre Celsius e Fahrenheit.

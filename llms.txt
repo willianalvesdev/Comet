@@ -9,7 +9,7 @@
 ## Recursos
 
 A área autenticada reúne uma interface para escrever ou ditar mensagens, visualização de gráficos financeiros e leitura de notícias com preferências de temas e idiomas.
-Os gráficos, os resumos financeiros e o histórico de transferências atualmente exibem dados demonstrativos. A página Computer tem integração com Qwen local por padrão e opção de alternar para a API Gemini, configurados no servidor. A conversa não tem acesso a contas financeiras, transações, arquivos ou ferramentas. O histórico do Computer é salvo no MySQL, vinculado à conta autenticada, e pode ser retomado ao voltar ao site.
+Os gráficos, os resumos financeiros e o histórico exibem os registros financeiros da conta autenticada. A página Computer tem integração com Qwen local por padrão e opção de alternar para a API Gemini, configurados no servidor. A conversa não tem acesso a contas financeiras, transações, arquivos ou ferramentas. O histórico do Computer é salvo no PostgreSQL, vinculado à conta autenticada, e pode ser retomado ao voltar ao site.
 
 ## Acesso e privacidade
 

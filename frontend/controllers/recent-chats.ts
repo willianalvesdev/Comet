@@ -51,7 +51,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.className = 'recent-chats__checkbox';
             checkbox.setAttribute('aria-label', `Selecionar ${chat.title}`); checkbox.disabled = !loaded;
             checkbox.addEventListener('change', () => { if (checkbox.checked) selected.add(chat.id); else selected.delete(chat.id); updateSelection(); }, {signal: scope.signal});
-            const link = document.createElement('a'); link.className = 'recent-chats__link'; link.href = '/computer.html?conversation=' + encodeURIComponent(chat.id);
+            const link = document.createElement('a'); link.className = 'recent-chats__link'; link.href = '/novo.html?conversation=' + encodeURIComponent(chat.id);
             const kind = document.createElement('span'); kind.className = 'recent-chats__kind'; kind.textContent = 'Chat'; if (sessions.isUnread(chat)) kind.setAttribute('aria-label', 'Resposta não lida');
             const name = document.createElement('span'); name.className = 'recent-chats__name'; name.textContent = chat.title; name.title = chat.title;
             const time = document.createElement('time'); time.dateTime = chat.updated_at; time.textContent = timeLabel(chat.updated_at);

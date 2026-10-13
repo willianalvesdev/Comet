@@ -13,7 +13,7 @@ export default function NextApplication() {
     const [view, setView] = useState<{bootstrap: BootstrapData; revision: number} | null>(null);
     const [reload, setReload] = useState(0), [error, setError] = useState('');
     const silentURL = useRef(''), navigating = useRef(false);
-    const initial = useRef(true), pending = useRef<Array<() => void>>([]);
+    const pending = useRef<Array<() => void>>([]);
     const ready = useCallback(() => {
         navigating.current = false;
         document.querySelector('.workspace__content')?.scrollTo({top:0, behavior:'instant'});
@@ -29,18 +29,10 @@ export default function NextApplication() {
         const controller = new AbortController();
         async function load() {
             try {
-                let data: BootstrapData;
-                const payload = initial.current ? document.getElementById('app-bootstrap') : null;
-                initial.current = false;
-                if (payload) {
-                    data = JSON.parse(payload.textContent || '{}') as BootstrapData;
-                    payload.remove();
-                } else {
-                    const response = await fetch('/api/bootstrap?page=' + page, {credentials:'same-origin', cache:'no-store', signal:controller.signal});
-                    if (response.status === 401) { location.assign('/?login=1'); return; }
-                    if (!response.ok) throw new Error('Não foi possível abrir esta página. Tente novamente.');
-                    data = await response.json() as BootstrapData;
-                }
+                const response = await fetch('/api/bootstrap?page=' + page, {credentials:'same-origin', cache:'no-store', signal:controller.signal});
+                if (response.status === 401) { location.assign('/?login=1'); return; }
+                if (!response.ok) throw new Error('Não foi possível abrir esta página. Tente novamente.');
+                const data = await response.json() as BootstrapData;
                 if (controller.signal.aborted) return;
                 if (page === 'index' && data.user) { location.assign('/principal.html'); return; }
                 if (page !== 'index' && !data.user) { location.assign('/?login=1'); return; }
@@ -67,7 +59,10 @@ export default function NextApplication() {
         const controller = new AbortController();
         async function go(destination: string | URL, replace = false) {
             const url = new URL(destination, location.href);
-            if (url.pathname === '/principal.html') { url.pathname = '/computer.html'; url.searchParams.set('new', '1'); }
+            if (url.pathname === '/computer.html') url.pathname = '/novo.html';
+            if (url.pathname === '/graficos.html') url.pathname = '/financas.html';
+            if (url.pathname === '/aprender.html') url.pathname = '/academico.html';
+            if (url.pathname === '/principal.html') { url.pathname = '/novo.html'; url.searchParams.set('new', '1'); }
             if (url.origin !== location.origin || !routes[url.pathname] || routes[url.pathname] === 'index' || routes[location.pathname] === 'index') { location.assign(url.href); return; }
             silentURL.current = '';
             navigating.current = true;

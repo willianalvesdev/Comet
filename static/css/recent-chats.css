@@ -272,11 +272,6 @@
     display: none;
 }
 
-.recent-chats-page :is(button, a, input, select):focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-}
-
 @media (width < 640px) {
     .recent-chats__header {
         flex-wrap: wrap;
@@ -317,7 +312,7 @@
 
 .recent-chats__row.is-unread:not(:hover):not(:focus-within):not(.has-selection *) > .recent-chats__checkbox:not(:checked) {
     mask: none;
-    background: radial-gradient(circle, var(--unread-color) 0 3.5px, transparent 4px);
+    background: radial-gradient(circle, var(--accent-brand) 0 3.5px, transparent 4px);
 }
 
 .recent-chats__sort { padding-right: var(--spacing-7); font: inherit; cursor: pointer; }

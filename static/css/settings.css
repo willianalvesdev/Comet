@@ -213,11 +213,6 @@
     color: var(--bg) !important;
 }
 
-.settings-content :focus-visible,.settings-sidebar button:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-}
-
 #settings-status {
     color: var(--text-secondary);
     font-size: 14px;

@@ -125,11 +125,6 @@
     height: 13px;
 }
 
-.home button:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
-}
-
 .home.is-computer .home__eyebrow {
     color: var(--accent);
 }
@@ -343,9 +338,4 @@
     .home__composer.is-dictating::after {
         animation: none;
     }
-}
-
-
-.home__composer:has(.home__input:not(:placeholder-shown)):not(.is-dictating) .home__microphone {
-    display: none;
 }

@@ -21,7 +21,7 @@ interface PageContext {
 type PageFactory = (context: PageContext) => void;
 interface Attachment { id: string; name: string; size: number; kind: 'image' | 'file'; }
 interface Conversation { last_response_at?: string | null; id: string; title: string; created_at: string; updated_at: string; }
-interface ResearchSource { title: string; url: string; domain: string; snippet?: string; image?: string; excerpt?: string; published_at?: string; date_approximate?: boolean; }
+interface ResearchSource { title: string; url: string; domain: string; snippet?: string; image?: string; excerpt?: string; published_at?: string; date_approximate?: boolean; evidence_type?: string; read_status?: string; }
 interface Research { error?: string; query?: string; sources?: ResearchSource[]; suggestions?: string; status?: string; state?: ResearchState; seconds?: number; queries?: string[]; engine?: string; }
 interface ResponseVersion { answer: string; thinking: string; metadata: ResponseMetadata; }
 interface ResponseMetadata { answered_at?: string; versions?: ResponseVersion[]; provider?: string; research?: Research; thinking_seconds?: number | null; elapsed_seconds?: number; instant?: boolean; }
@@ -46,7 +46,7 @@ interface Window {
     ComputerModels: {selected():ModelProvider;select(value:string):void;error():string;setBusy(value:boolean):void};
     ComputerAttachments: {files():Attachment[];busy():boolean;clear():void;restore(items:Attachment[]):void;setBusy(value:boolean):void};
     ComputerAttachmentCard: (file:Attachment,onRemove?:()=>void)=>HTMLDivElement;
-    ComputerSessions: {isUnread(chat:Conversation):boolean;markRead(id:string,version?:string|null):void;render(items:Conversation[],append?:boolean,hasMore?:boolean):void;select(id:string|null,title?:string):void;setBusy(value:boolean):void;openOptions(item:Conversation,button:HTMLElement):void;request(path:string,method?:string,body?:unknown):Promise<unknown>;isPinned(id:string):boolean};
+    ComputerSessions: {runAction(item:Conversation,action:string,origin:HTMLElement):void;isUnread(chat:Conversation):boolean;markRead(id:string,version?:string|null):void;render(items:Conversation[],append?:boolean,hasMore?:boolean):void;select(id:string|null,title?:string):void;setBusy(value:boolean):void;openOptions(item:Conversation,button:HTMLElement):void;request(path:string,method?:string,body?:unknown):Promise<unknown>;isPinned(id:string):boolean};
     ComputerResponseDetails: {research(article:HTMLElement,value?:Research,complete?:boolean):void;reset():void};
     CometChart: {setData(data:ChartData,animate?:boolean):void;rollNumber(element:HTMLElement,text:string):void};
     LightweightCharts: typeof import('lightweight-charts');
@@ -60,6 +60,8 @@ interface WindowEventMap {
     'workspace:navigated': Event;
     'news-preferences-change': Event;
     'chat:anonymous': CustomEvent<boolean>;
+    'chat:context': CustomEvent<Conversation|null>;
+    'chat:export': CustomEvent<{id:string;title:string;format:'pdf'|'markdown'|'docx'}>;
     'sessions:open': CustomEvent<{id:string}>;
     'sessions:changed': CustomEvent<{id:string;deleted?:boolean;title?:string}>;
     'sessions:new': Event; 'sessions:refresh': Event;

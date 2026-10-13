@@ -441,7 +441,6 @@
     --weight-900: 900;
     --font-weight-black: var(--weight-900);
     --accent-brand: #20808d;
-    --unread-color: #4fa5b3;
     --shadow-dialog: 0 20px 45px var(--shadow-color);
     --shadow-composer: 0 1px 2px rgb(from var(--text) r g b / .04);
     --shadow-overlay: 0 0 0 100vmax var(--text);
@@ -477,16 +476,17 @@
     --border: rgb(from var(--text) r g b / .1);
     --border-focus: rgb(from var(--text) r g b / .2);
     --text: var(--odin-dark-1000);
-    --text-secondary: rgb(from var(--text) r g b / .5);
+    --text-secondary: rgb(from var(--text) r g b / .65);
     --text-tertiary: rgb(from var(--text) r g b / .35);
     --text-white: var(--odin-light-0);
     --green: var(--garuda-dark-400);
     --red: var(--ifrit-dark-400);
 
-    --icon-small: var(--input-xs);
+    --icon-tiny: 14px;
+    --icon-small: 16px;
     --icon-small-medium: 18px;
     --icon-medium: 20px;
-    --icon-large: var(--input-sm);
+    --icon-large: 24px;
     --duration-fast: 150ms;
     --duration-ui: 160ms;
     --duration-press: 180ms;
@@ -504,7 +504,6 @@
     --recents-panel-width: 320px;
     --recents-panel-height: 262px;
     --composer-max-lines: 10;
-    --response-characters-per-second: 280;
 }
 
 :root[data-theme="light"] {
@@ -537,6 +536,10 @@
         margin: 0;
         padding: 0;
     }
+}
+
+:focus {
+    outline: none;
 }
 
 html {
@@ -724,13 +727,13 @@ button:not(:disabled) {
 
 .site-header__login {
     display: inline-flex;
-    height: var(--input-md);
+    height: 36px;
     align-items: center;
     justify-content: center;
     justify-self: end;
     padding: var(--spacing-2) calc(var(--gap) / 2);
     border: 1px solid var(--border);
-    border-radius: var(--radius-8);
+    border-radius: var(--radius-full);
     background-color: var(--text);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
@@ -849,7 +852,6 @@ code, pre, kbd {
 }
 
 :is(textarea, input:not([type]), input[type="text"], input[type="search"], input[type="email"], input[type="password"], input[type="tel"], input[type="url"], input[type="number"]):focus {
-    outline: none !important;
     box-shadow: none !important;
 }
 

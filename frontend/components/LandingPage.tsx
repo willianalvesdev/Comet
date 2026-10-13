@@ -1,20 +1,15 @@
+import { useRef } from 'react';
 import type { BootstrapData } from '../types';
-import './landing-logo.css';
+import { ChatComposer } from './WorkspaceParts';
 
 export default function LandingPage({ bootstrap }: { bootstrap: BootstrapData }) {
+    const mobileMenu = useRef<HTMLDialogElement>(null);
     return (<>
 <div className="page-background" aria-hidden="true"></div>
     <header className="site-header">
         <div className="site-header__inner">
             <a className="site-header__brand" href="#" aria-label="Comet — início">
-                <svg className="site-header__logo" aria-hidden="true" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M13.1614 35.0978L13.0954 35.0355C5.48521 27.449 5.54021 15.2075 13.2274 7.68886C16.9142 4.07895 21.9082 2.06408 27.1039 2.08791C32.3014 2.11174 37.2752 4.17062 40.9291 7.81353L40.9914 7.87954C41.1656 8.05004 41.1656 8.32688 40.9914 8.49922C40.9089 8.58172 40.7952 8.62755 40.6779 8.62755C40.5606 8.62755 40.4469 8.58172 40.3644 8.49922L40.2342 8.37271C37.0424 5.22114 32.7102 3.44827 28.1929 3.44827C23.6737 3.44827 19.3416 5.22114 16.1516 8.37271C9.50021 14.9435 9.50021 25.5789 16.1516 32.1497C17.1581 33.1452 18.2251 34.0894 19.3452 34.9731C19.4204 35.0355 19.5011 35.0923 19.5854 35.1418C19.6697 35.1913 19.7669 35.217 19.8659 35.2151C19.9649 35.2078 20.0602 35.1711 20.1391 35.1106C20.2179 35.052 20.2912 34.9878 20.3591 34.9163L25.1477 30.1935C25.2559 30.0872 25.3292 30.0028 25.3769 29.9387C25.4484 29.8488 25.4887 29.737 25.4906 29.6233C25.4796 29.5078 25.4301 29.4015 25.3494 29.3172C25.2724 29.2328 25.1881 29.154 25.1001 29.0825C24.0441 28.2061 23.0284 27.2858 22.0512 26.3233C17.2314 21.5583 17.2314 13.8472 22.0512 9.08406C24.3667 6.79785 27.5072 5.51265 30.7834 5.51265C34.0596 5.51265 37.2019 6.79785 39.5156 9.08406L39.6421 9.20873C39.8162 9.38107 39.8162 9.65974 39.6421 9.83208C39.5596 9.91275 39.4459 9.96041 39.3286 9.96041C39.2094 9.96041 39.0976 9.91275 39.0132 9.83208L38.8867 9.70557C37.0332 7.87587 34.5179 6.84735 31.8944 6.84735C29.2709 6.84735 26.7556 7.87587 24.9039 9.70557C21.0429 13.5208 21.0429 19.6956 24.9039 23.5109C25.9031 24.4991 26.9371 25.4543 28.0041 26.3764C28.1031 26.4644 28.1819 26.5249 28.2424 26.5616C28.3414 26.6221 28.4404 26.6514 28.5302 26.6478C28.6182 26.6478 28.7154 26.6129 28.8162 26.5451C28.8987 26.4846 28.9757 26.4168 29.0454 26.3416L33.0091 22.431C33.0897 22.3559 33.1631 22.2734 33.2291 22.1872C33.2987 22.0992 33.3391 21.9928 33.3427 21.8828C33.3372 21.771 33.2932 21.6647 33.2181 21.5803C33.1466 21.4942 33.0696 21.4153 32.9852 21.342C31.9622 20.4143 30.9594 19.4665 29.9786 18.4984C27.7181 16.2654 27.7181 12.65 29.9786 10.4169C31.0621 9.3444 32.5361 8.74305 34.0706 8.74305C35.6069 8.74305 37.0809 9.3444 38.1644 10.4169C38.7492 10.9908 39.3176 11.5793 39.8731 12.1843C40.7531 13.1413 42.2527 13.2128 43.2207 12.3456C44.1447 11.5169 44.2621 10.1291 43.4921 9.15923C35.1632 -1.26716 19.8494 -3.05837 9.28205 5.16064C-1.28346 13.376 -3.09846 28.4958 5.22671 38.9277C6.71905 40.7996 8.48821 42.4441 10.4719 43.8027C10.6809 43.9438 10.8514 44.0098 10.9815 43.9988C11.1117 43.9878 11.2675 43.8925 11.449 43.7165L16.3166 38.9075C16.4027 38.8269 16.4834 38.7389 16.5549 38.6454C16.6301 38.5519 16.6704 38.4364 16.6704 38.319C16.6539 38.1999 16.5989 38.0899 16.5109 38.0092C16.4284 37.9267 16.3404 37.8497 16.2451 37.78C15.1615 36.9513 14.1312 36.0566 13.1614 35.0978Z" fill="currentColor"/>
-</svg>
-
-<svg className="site-header__symbol" aria-hidden="true" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M13.1614 35.0978L13.0954 35.0355C5.48521 27.449 5.54021 15.2075 13.2274 7.68886C16.9142 4.07895 21.9082 2.06408 27.1039 2.08791C32.3014 2.11174 37.2752 4.17062 40.9291 7.81353L40.9914 7.87954C41.1656 8.05004 41.1656 8.32688 40.9914 8.49922C40.9089 8.58172 40.7952 8.62755 40.6779 8.62755C40.5606 8.62755 40.4469 8.58172 40.3644 8.49922L40.2342 8.37271C37.0424 5.22114 32.7102 3.44827 28.1929 3.44827C23.6737 3.44827 19.3416 5.22114 16.1516 8.37271C9.50021 14.9435 9.50021 25.5789 16.1516 32.1497C17.1581 33.1452 18.2251 34.0894 19.3452 34.9731C19.4204 35.0355 19.5011 35.0923 19.5854 35.1418C19.6697 35.1913 19.7669 35.217 19.8659 35.2151C19.9649 35.2078 20.0602 35.1711 20.1391 35.1106C20.2179 35.052 20.2912 34.9878 20.3591 34.9163L25.1477 30.1935C25.2559 30.0872 25.3292 30.0028 25.3769 29.9387C25.4484 29.8488 25.4887 29.737 25.4906 29.6233C25.4796 29.5078 25.4301 29.4015 25.3494 29.3172C25.2724 29.2328 25.1881 29.154 25.1001 29.0825C24.0441 28.2061 23.0284 27.2858 22.0512 26.3233C17.2314 21.5583 17.2314 13.8472 22.0512 9.08406C24.3667 6.79785 27.5072 5.51265 30.7834 5.51265C34.0596 5.51265 37.2019 6.79785 39.5156 9.08406L39.6421 9.20873C39.8162 9.38107 39.8162 9.65974 39.6421 9.83208C39.5596 9.91275 39.4459 9.96041 39.3286 9.96041C39.2094 9.96041 39.0976 9.91275 39.0132 9.83208L38.8867 9.70557C37.0332 7.87587 34.5179 6.84735 31.8944 6.84735C29.2709 6.84735 26.7556 7.87587 24.9039 9.70557C21.0429 13.5208 21.0429 19.6956 24.9039 23.5109C25.9031 24.4991 26.9371 25.4543 28.0041 26.3764C28.1031 26.4644 28.1819 26.5249 28.2424 26.5616C28.3414 26.6221 28.4404 26.6514 28.5302 26.6478C28.6182 26.6478 28.7154 26.6129 28.8162 26.5451C28.8987 26.4846 28.9757 26.4168 29.0454 26.3416L33.0091 22.431C33.0897 22.3559 33.1631 22.2734 33.2291 22.1872C33.2987 22.0992 33.3391 21.9928 33.3427 21.8828C33.3372 21.771 33.2932 21.6647 33.2181 21.5803C33.1466 21.4942 33.0696 21.4153 32.9852 21.342C31.9622 20.4143 30.9594 19.4665 29.9786 18.4984C27.7181 16.2654 27.7181 12.65 29.9786 10.4169C31.0621 9.3444 32.5361 8.74305 34.0706 8.74305C35.6069 8.74305 37.0809 9.3444 38.1644 10.4169C38.7492 10.9908 39.3176 11.5793 39.8731 12.1843C40.7531 13.1413 42.2527 13.2128 43.2207 12.3456C44.1447 11.5169 44.2621 10.1291 43.4921 9.15923C35.1632 -1.26716 19.8494 -3.05837 9.28205 5.16064C-1.28346 13.376 -3.09846 28.4958 5.22671 38.9277C6.71905 40.7996 8.48821 42.4441 10.4719 43.8027C10.6809 43.9438 10.8514 44.0098 10.9815 43.9988C11.1117 43.9878 11.2675 43.8925 11.449 43.7165L16.3166 38.9075C16.4027 38.8269 16.4834 38.7389 16.5549 38.6454C16.6301 38.5519 16.6704 38.4364 16.6704 38.319C16.6539 38.1999 16.5989 38.0899 16.5109 38.0092C16.4284 37.9267 16.3404 37.8497 16.2451 37.78C15.1615 36.9513 14.1312 36.0566 13.1614 35.0978Z" fill="currentColor"/>
-</svg>
-
+                <img className="site-header__logo" src="/static/img/logos/textlogo.svg" alt="Comet" />
             </a>
             <nav className="site-header__nav" aria-label="Navegação principal">
                 <a href="#inicio">Início</a>
@@ -22,90 +17,66 @@ export default function LandingPage({ bootstrap }: { bootstrap: BootstrapData })
                 <a href="#sobre">Sobre a Comet</a>
             </nav>
             <button className="site-header__login" type="button" data-auth-open="login">Iniciar Sessão</button>
+            <button className="site-header__menu-toggle" type="button" aria-label="Abrir menu" aria-haspopup="dialog" onClick={() => mobileMenu.current?.showModal()}><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M2 6.5h14M2 11.5h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg></button>
         </div>
     </header>
+    <dialog className="landing-menu" ref={mobileMenu} aria-label="Menu principal">
+        <div className="landing-menu__header"><img src="/static/img/logos/textlogo.svg" alt="Comet" /><button type="button" aria-label="Fechar menu" onClick={() => mobileMenu.current?.close()}><i className="ui-icon-x" aria-hidden="true"></i></button></div>
+        <nav aria-label="Navegação móvel" onClick={() => mobileMenu.current?.close()}>
+            <a href="#inicio">Início</a><a href="#contato">Contato</a><a href="#sobre">Sobre a Comet</a>
+            <button type="button" data-auth-open="login">Iniciar Sessão</button>
+        </nav>
+    </dialog>
     <main id="inicio">
         <section className="hero" aria-labelledby="hero-title">
-            <h1 id="hero-title">Sua Comet Começou.</h1>
+            <h1 id="hero-title">O novo Comet<br />para navegador</h1>
             <p className="hero__description" id="sobre">
-                A nova ferramenta Web de administração financeira pessoal<br className="hero__line-break" />
-                Para Computadores e Celular.
+                A nova ferramenta Web de<br />administração financeira pessoal
             </p>
 
-            <div className="hero__composer" role="group" aria-label="Exemplo de registro financeiro">
-                <div className="hero__input-bar">
-<svg className="hero__symbol" aria-hidden="true" focusable="false" width="44" height="36" viewBox="0 0 44 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M35.9999 6.00192C35.9999 4.89618 35.1026 4.00128 33.9992 4.00128H9.9986C8.8952 4.00128 7.99796 4.89618 7.99796 6.00192V22.0047C7.99796 23.1104 8.8952 24.0053 9.9986 24.0053H33.9992C35.1026 24.0053 35.9999 23.1104 35.9999 22.0047V6.00192ZM39.9988 22.0047C39.9988 25.3196 37.3118 28.0066 33.9992 28.0066H9.9986C6.68606 28.0066 3.99902 25.3196 3.99902 22.0047V6.00192C3.99902 2.68704 6.68606 0 9.9986 0H33.9992C37.3118 0 39.9988 2.68704 39.9988 6.00192V22.0047Z" fill="currentColor"/>
-<path d="M41.9994 32.0079C43.1028 32.0079 44 32.9052 44 34.0086C44 35.1143 43.1028 36.0092 41.9994 36.0092H1.9983C0.894899 36.0092 0 35.1143 0 34.0086C0 32.9028 0.894899 32.0079 1.9983 32.0079H41.9994Z" fill="currentColor"/>
-<g className="computer-eyes">
-<path d="M15.9307 10.2129V13.7946C15.9307 14.8996 16.8264 15.7953 17.9313 15.7953C19.0363 15.7953 19.9319 14.8996 19.9319 13.7946V10.2129C19.9319 9.10797 19.0363 8.21228 17.9313 8.21228C16.8264 8.21228 15.9307 9.10797 15.9307 10.2129Z" fill="currentColor"/>
-<path d="M23.9307 10.2129V13.7946C23.9307 14.8996 24.8264 15.7953 25.9313 15.7953C27.0363 15.7953 27.9319 14.8996 27.9319 13.7946V10.2129C27.9319 9.10797 27.0363 8.21228 25.9313 8.21228C24.8264 8.21228 23.9307 9.10797 23.9307 10.2129Z" fill="currentColor"/>
-</g>
-
-</svg>
-
-                    <p className="hero__input">
-                        <span className="sr-only">Exemplos de registros: despesas do dia a dia, receitas e dinheiro guardado para metas.</span>
-                        <span className="hero__typewriter" data-typewriter aria-hidden="true">Gastei R$ 67 no mercado hoje.</span>
-                    </p>
-                    <button className="hero__microphone" type="button" aria-label="Usar microfone"><span className="microphone-icon" aria-hidden="true"></span>
-                    </button>
-                    <button className="hero__send" type="button" aria-label="Enviar registro">
-                        <i className="ui-arrow" aria-hidden="true"></i>
-                    </button>
-                </div>
-            </div>
+            <ChatComposer composerClass="hero__composer" demo />
 
             <div className="hero__actions">
                 <button className="hero__action hero__action--primary" type="button" data-auth-open="signup">Criar uma conta</button>
                 <a className="hero__action hero__action--secondary" href="#sobre">Sobre o Site</a>
             </div>
 
-            <p className="hero__notice">
-                Este Site se encontra em fase de Desenvolvimento e pode apresentar erros,<br className="hero__line-break" />
-                reporte problemas nesse link. <button className="hero__report" type="button">Reportar um Problema</button>
-            </p>
         </section>
     </main>
-    <dialog className="auth" aria-labelledby="auth-login-title" aria-describedby="auth-login-policy">
-        <button className="auth__close" type="button" aria-label="Fechar janela">
-            <i className="ui-icon-x" aria-hidden="true"></i>
-        </button>
-
-        <section className="auth__panel" data-auth-panel="login">
-            <h2 className="auth__title" id="auth-login-title" tabIndex={-1}>Faça login ou cadastre-se<br /> gratuitamente</h2>
-            <p className="auth__policy" id="auth-login-policy">Ao continuar, você concorda com nossa <button className="auth__link" type="button">política de privacidade</button>.</p>
-            <form className="auth__form auth__form--login" action="/api/auth/login" method="post">
-                <input type="hidden" name="csrf_token" defaultValue={bootstrap.csrfToken} />
-                <label className="sr-only" htmlFor="login-email">Email</label>
-                <input id="login-email" name="email" type="email" autoComplete="email" placeholder="Introduza o seu email" required maxLength={254} />
-                <label className="sr-only" htmlFor="login-password">Senha</label>
-                <input id="login-password" name="password" type="password" autoComplete="current-password" placeholder="Digite sua senha" required maxLength={128} />
-                <p className="auth__message" role="alert"></p>
-                <button className="auth__submit" type="submit">Entrar</button>
-            </form>
-            <p className="auth__switch">Ainda não tem uma conta? <button className="auth__link" type="button" data-auth-switch="signup">Comece por aqui.</button></p>
+    <dialog className="auth" aria-labelledby="auth-entry-title" aria-describedby="auth-entry-policy">
+        <button className="auth__close" type="button" aria-label="Fechar janela"><i className="ui-icon-x" aria-hidden="true"></i></button>
+        <section className="auth__panel" data-auth-panel="entry">
+            <h2 className="auth__title" id="auth-entry-title" tabIndex={-1}>Entre ou cadastre-se para desbloquear todo o potencial do Comet</h2>
+            <p className="auth__policy" id="auth-entry-policy">Escolha como você quer continuar.</p>
+            <div className="auth__options">
+                <button className="auth__provider auth__provider--google" type="button" data-auth-provider="google"><i aria-hidden="true"></i>Continuar com o Google</button>
+                <button className="auth__provider auth__provider--github" type="button" data-auth-provider="github"><i aria-hidden="true"></i>Continuar com o GitHub</button>
+                <div className="auth__divider" role="separator"></div>
+                <form className="auth__form" data-auth-email action="/api/auth/email/request" method="post">
+                    <input type="hidden" name="csrf_token" defaultValue={bootstrap.csrfToken} />
+                    <label className="sr-only" htmlFor="auth-email">Seu e-mail</label>
+                    <input id="auth-email" name="email" type="email" autoComplete="email" inputMode="email" placeholder="Introduza o seu e-mail" required maxLength={254} />
+                    <button className="auth__submit auth__submit--email" type="submit" disabled>Continuar com e-mail</button>
+                </form>
+                <p className="auth__message" data-auth-entry-message role="alert"></p>
+            </div>
+            <button className="auth__dismiss" type="button" data-auth-close>Fechar</button>
         </section>
-
-        <section className="auth__panel" data-auth-panel="signup" hidden>
-            <h2 className="auth__title" id="auth-signup-title" tabIndex={-1}>Crie Sua conta</h2>
-            <p className="auth__policy" id="auth-signup-policy">Ao continuar, você concorda com nossa <button className="auth__link" type="button">política de privacidade</button>.</p>
-            <form className="auth__form" action="/api/auth/signup" method="post">
+        <section className="auth__panel auth__panel--verify" data-auth-panel="verify" hidden>
+            <img className="auth__verification-icon" src="/static/img/icons/email-verification.svg" alt="" width="80" height="80" />
+            <h2 className="auth__title" id="auth-verify-title" tabIndex={-1}>Verifique o seu e-mail</h2>
+            <p className="auth__policy" id="auth-verify-policy">Enviamos um código de seis dígitos para<br /><span data-auth-destination></span></p>
+            <form className="auth__form auth__form--verify" data-auth-verify action="/api/auth/email/verify" method="post">
                 <input type="hidden" name="csrf_token" defaultValue={bootstrap.csrfToken} />
-                <label className="sr-only" htmlFor="signup-name">Nome</label>
-                <input id="signup-name" name="name" type="text" autoComplete="name" placeholder="Como podemos chamá-lo?" required minLength={2} maxLength={100} />
-                <label className="sr-only" htmlFor="signup-age">Idade</label>
-                <input id="signup-age" name="age" type="number" inputMode="numeric" placeholder="Sua idade" min="1" max="120" step="1" required />
-                <label className="sr-only" htmlFor="signup-email">Email</label>
-                <input id="signup-email" name="email" type="email" autoComplete="email" placeholder="Digite o seu email" required maxLength={254} />
-                <label className="sr-only" htmlFor="signup-password">Senha</label>
-                <input id="signup-password" name="password" type="password" autoComplete="new-password" placeholder="Crie uma senha" required minLength={8} maxLength={128} />
-                <label className="sr-only" htmlFor="signup-confirm">Confirme sua senha</label>
-                <input id="signup-confirm" name="confirmation" type="password" autoComplete="new-password" placeholder="Confirme sua senha" required minLength={8} maxLength={128} />
-                <p className="auth__message" role="alert"></p>
-                <button className="auth__submit" type="submit">Criar Conta</button>
+                <fieldset className="auth__digits"><legend className="sr-only">Código de verificação de seis dígitos</legend>
+                    {[0,1,2,3,4,5].map(index => <input key={index} type="text" inputMode="numeric" autoComplete={index === 0 ? 'one-time-code' : 'off'} aria-label={`Dígito ${index + 1} do código`} maxLength={6} pattern="[0-9]*" data-auth-digit={index} />)}
+                </fieldset>
+                <p className="auth__message" data-auth-verify-message role="alert"></p>
+                <button className="auth__submit" type="submit" disabled>Confirmar</button>
             </form>
-            <p className="auth__switch">Já tem uma conta? <button className="auth__link" type="button" data-auth-switch="login">Entre aqui.</button></p>
+            <p className="auth__hint">O código expira em 10 minutos.</p>
+            <div className="auth__verification-actions"><button type="button" data-auth-resend>Reenviar código</button><button type="button" data-auth-change>Alterar e-mail</button></div>
+            <p className="sr-only" data-auth-status role="status"></p>
         </section>
     </dialog>
     </>);

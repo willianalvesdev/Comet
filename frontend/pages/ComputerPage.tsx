@@ -16,6 +16,7 @@ export default function ComputerPage({ bootstrap }: { bootstrap: BootstrapData }
                 <header className="workspace__header computer-header">
                     <MobileMenu />
                     <nav className="chat-tabs" aria-label="Visualização da resposta" hidden><button type="button" data-chat-view="answer" aria-current="page"><i className="chat-tab-logo" aria-hidden="true"></i>Resposta</button><button type="button" data-chat-view="links" hidden><i className="chat-tab-links" aria-hidden="true"></i>Links</button></nav>
+                    <button className="workspace__header-button chat-options-toggle" type="button" aria-label="Opções do chat" aria-haspopup="dialog" aria-expanded="false" hidden><i className="sessions-icon sessions-icon--more" aria-hidden="true"></i></button>
                     <button className="workspace__header-button anonymous-toggle" type="button" aria-label="Ativar modo anônimo" aria-pressed="false"><i aria-hidden="true"></i></button>
                 </header>
                 <section className="computer-page" aria-labelledby="computer-title">

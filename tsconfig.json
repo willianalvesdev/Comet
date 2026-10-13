@@ -33,7 +33,11 @@
     "frontend/**/*.ts",
     "frontend/**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "server/**/*.ts",
+    "scripts/**/*.ts",
+    "tests/server/**/*.ts",
+    "tests/production/**/*.ts"
   ],
   "exclude": [
     "node_modules",

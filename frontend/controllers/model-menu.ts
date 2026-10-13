@@ -1,11 +1,19 @@
 import { optionalElement, isRecord, present, requiredElement, eventElement } from './dom';
 import { isLocalModel, record, arrayValue, stringValue, booleanValue } from './api-data';
+import { composerState } from '../components/composer-state';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
     const gemini = optionalElement(document, '.model-picker', HTMLButtonElement), computer = optionalElement(document, '.computer-provider', HTMLButtonElement);
     const trigger = optionalElement(document, '.local-model-picker', HTMLButtonElement), menu = optionalElement(document, '.model-menu', HTMLElement);
     if (!gemini || !computer || !trigger || !menu) return;
+    composerState.update({busy:false});
+    trigger.popoverTargetElement = menu;
     const labels: Record<string,string> = {};
     let options: HTMLButtonElement[] = [];
+    const geminiOption = document.createElement('button');
+    geminiOption.type = 'button'; geminiOption.dataset.provider = 'gemini';
+    geminiOption.setAttribute('role', 'menuitemradio');
+    geminiOption.innerHTML = '<i class="model-icon model-icon--gemini" aria-hidden="true"></i><span>Gemini</span><i class="model-check" aria-hidden="true"></i>';
+    function visibleOptions() { return selected === 'gemini' ? [geminiOption] : options; }
     let selected: ModelProvider = 'gemini', local: LocalModel = '', availability: Record<string,boolean> | undefined;
     let localError = 'Carregando os modelos do Ollama…', loading: Promise<void> | null = null;
     const preferenceKey = 'ascenda-model-preference-' + optionalElement(document, '[data-user-id]', HTMLElement)?.dataset.userId;
@@ -19,15 +27,20 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         try { localStorage.setItem(preferenceKey, JSON.stringify({provider:selected === 'gemini' ? 'gemini' : 'computer', local})); } catch {}
     }
     function update() {
-        present(gemini).setAttribute('aria-pressed', String(selected === 'gemini'));
-        present(computer).setAttribute('aria-pressed', String(selected !== 'gemini'));
-        present(trigger).hidden = selected === 'gemini';
-        requiredElement(present(trigger), '.local-model-name', HTMLElement).textContent = labels[local] || local || 'Ollama';
-        present(trigger).setAttribute('aria-label', 'Modelo local: ' + (labels[local] || local || 'Ollama'));
+        composerState.update({ computer: selected !== 'gemini' });
+        present(trigger).hidden = false;
+        const name = selected === 'gemini' ? 'Gemini' : labels[local] || local || 'Ollama';
+        requiredElement(present(trigger), '.model-icon', HTMLElement).className = 'model-icon model-icon--' + (selected === 'gemini' ? 'gemini' : 'ollama');
+        present(menu).setAttribute('aria-label', selected === 'gemini' ? 'Modelos de pesquisa' : 'Modelos locais');
+        present(menu).replaceChildren(...visibleOptions());
+        if (selected !== 'gemini' && !options.length) { const message = document.createElement('p'); message.textContent = localError; present(menu).append(message); }
+        geminiOption.setAttribute('aria-checked', String(selected === 'gemini'));
+        requiredElement(present(trigger), '.local-model-name', HTMLElement).textContent = name;
+        present(trigger).setAttribute('aria-label', 'Modelo: ' + name);
         present(gemini).removeAttribute('title'); present(gemini).removeAttribute('data-tooltip');
-        present(gemini).setAttribute('aria-label', 'Usar Gemini');
+        present(gemini).setAttribute('aria-label', 'Usar Pesquisar');
         options.forEach(option => { option.setAttribute('aria-checked', String(option.dataset.provider === local)); option.title = labels[option.dataset.provider || ''] || option.dataset.provider || ''; });
-        if (selected === 'gemini' && present(menu).matches(':popover-open')) present(menu).hidePopover();
+
     }
     function position() {
         const rect = present(trigger).getBoundingClientRect(), width = Math.min(275, innerWidth-24);
@@ -48,36 +61,36 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
                 option.setAttribute('role','menuitemradio');
                 const label=document.createElement('span');label.textContent=labels[m.id];
                 const check=document.createElement('i');check.className='model-check';check.setAttribute('aria-hidden','true');
-                option.append(label,check);return option;
+                const icon=document.createElement('i');icon.className='model-icon model-icon--ollama';icon.setAttribute('aria-hidden','true');
+                option.append(icon,label,check);return option;
             });
             localError = typeof result.local_error==='string' ? result.local_error : options.length ? '' : 'Nenhum modelo instalado no Ollama.';
             if (!options.some(o=>o.dataset.provider===local)) {
                 local = options.find(o=>o.dataset.provider===result.default_model)?.dataset.provider || options[0]?.dataset.provider || '';
                 if (selected!=='gemini') selected=local;
             }
-            present(menu).replaceChildren(...options);
-            if (!options.length) {const message=document.createElement('p');message.textContent=localError;present(menu).append(message);}
             update();
         }).catch(()=>{localError='Não foi possível carregar os modelos. Tente novamente.';}).finally(()=>{loading=null;});
         return loading;
     }
     async function open() {
-        await refreshModels();
-        if (!scope.active || present(trigger).disabled || selected==='gemini') return;
-        present(menu).showPopover(); position(); options.find(option=>option.dataset.provider===local)?.focus({preventScroll:true});
+        if (!scope.active || present(trigger).disabled) return;
+        update();
+        present(menu).showPopover(); position(); visibleOptions().find(option=>option.dataset.provider===selected)?.focus({preventScroll:true});
     }
     gemini.addEventListener('click',()=>{ selected='gemini'; savePreference(); update(); }, {signal: scope.signal});
     computer.addEventListener('click',()=>{ selected=local; savePreference(); update(); void refreshModels(); }, {signal: scope.signal});
-    trigger.addEventListener('click',()=>menu.matches(':popover-open') ? menu.hidePopover() : open(), {signal: scope.signal});
+    trigger.addEventListener('click',event=>{event.preventDefault();if(menu.matches(':popover-open')) menu.hidePopover(); else void open();}, {signal: scope.signal});
     trigger.addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();open();}}, {signal: scope.signal});
     menu.addEventListener('toggle',()=>trigger.setAttribute('aria-expanded',String(menu.matches(':popover-open'))), {signal: scope.signal});
     menu.addEventListener('click',e=>{
-        const option=eventElement(e.target)?.closest<HTMLButtonElement>('[data-provider]'); if(!option || !isLocalModel(option.dataset.provider))return;
-        selected=local=option.dataset.provider;savePreference();update();menu.hidePopover();trigger.focus({preventScroll:true});
+        const option=eventElement(e.target)?.closest<HTMLButtonElement>('[data-provider]'); if(!option || (option.dataset.provider !== 'gemini' && !isLocalModel(option.dataset.provider)))return;
+        selected=option.dataset.provider; if(selected !== 'gemini') local=selected;savePreference();update();menu.hidePopover();trigger.focus({preventScroll:true});
     }, {signal: scope.signal});
     menu.addEventListener('keydown',e=>{
         if(e.key==='Escape'){e.preventDefault();menu.hidePopover();trigger.focus();}
         if(e.key==='Tab')menu.hidePopover();
+        const options = visibleOptions();
         if(options.length && ['ArrowDown','ArrowUp','Home','End'].includes(e.key)){
             e.preventDefault();const i=options.findIndex(option=>option===document.activeElement);
             options[e.key==='Home'?0:e.key==='End'?options.length-1:(i+(e.key==='ArrowUp'?-1:1)+options.length)%options.length].focus();
@@ -89,7 +102,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         selected:()=>selected,
         select:value=>{if(value==='qwen')value=local;if((value==='gemini'||isLocalModel(value)) && (value==='gemini'||options.some(o=>o.dataset.provider===value))){selected=value;if(value!=='gemini')local=value;update();}},
         error:()=>selected!=='gemini' ? localError : availability&&!availability.gemini?'Configure a chave do Gemini no servidor para começar.':'',
-        setBusy:value=>{[gemini,computer,trigger].forEach(b=>b.disabled=value);if(value&&menu.matches(':popover-open'))menu.hidePopover();}
+        setBusy:value=>{composerState.update({busy:value});trigger.disabled=value;if(value&&menu.matches(':popover-open'))menu.hidePopover();}
     };
     update();
     void refreshModels();

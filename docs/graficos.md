@@ -19,4 +19,4 @@ Novas transações sem hora explícita recebem a hora do servidor em São Paulo,
 
 Alterar apenas o valor, a descrição ou a data preserva o horário existente. Repetir uma criação com o mesmo identificador não substitui o horário original. Registros antigos sem hora permanecem com `occurred_time = NULL`.
 
-Em uma instalação existente, um administrador MySQL deve executar `atualizar_horarios.bat` uma vez. O script adiciona somente a coluna opcional `occurred_time TIME`; não altera dados existentes nem salva a senha. Instalações novas incluem a coluna em `setup_banco.sql`.
+Execute `configurar_banco.bat` com uma conexão PostgreSQL configurada em `DATABASE_URL`. Ele aplica o esquema idempotente de `setup_banco.sql`, incluindo `occurred_time TIME`, sem apagar registros existentes.

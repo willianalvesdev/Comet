@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { BootstrapData } from '../types';
+import { ProviderToggle } from './ProviderToggle';
 
 export function Sidebar({ data }: { data: BootstrapData }) {
     const user = data.user;
@@ -17,12 +18,12 @@ export function Sidebar({ data }: { data: BootstrapData }) {
         </div>
 
         <div className="sidebar__new-chat">
-            <a className="sidebar__link" href="./computer.html?new=1" aria-current={data.activePage === 'computer' && !data.conversationId ? 'page' : undefined} aria-label="Novo chat" title="Novo chat"><span className="sidebar__new-icon" aria-hidden="true"></span><span className="sidebar__label">Novo chat</span></a>
+            <a className="sidebar__link" href="./novo.html?new=1" aria-current={data.activePage === 'computer' && !data.conversationId ? 'page' : undefined} aria-label="Novo chat" title="Novo chat"><span className="sidebar__new-icon" aria-hidden="true"></span><span className="sidebar__label">Novo</span></a>
 
-            <a className="sidebar__link" href="./graficos.html" aria-current={data.activePage === 'graficos' ? 'page' : undefined} aria-label="Finanças" title="Finanças"><span className="sidebar__icon sidebar__finance-icon" aria-hidden="true"></span>
+            <a className="sidebar__link" href="./financas.html" aria-current={data.activePage === 'graficos' ? 'page' : undefined} aria-label="Finanças" title="Finanças"><span className="sidebar__icon sidebar__finance-icon" aria-hidden="true"></span>
                 <span className="sidebar__label">Finanças</span>
             </a>
-            <a className="sidebar__link" href="./aprender.html" aria-current={data.activePage === 'aprender' ? 'page' : undefined} aria-label="Aprender" title="Aprender"><span className="sidebar__icon sidebar__learn-icon" aria-hidden="true"></span><span className="sidebar__label">Aprender</span></a>
+            <a className="sidebar__link" href="./academico.html" aria-current={data.activePage === 'aprender' ? 'page' : undefined} aria-label="Acadêmico" title="Acadêmico"><span className="sidebar__icon sidebar__learn-icon" aria-hidden="true"></span><span className="sidebar__label">Acadêmico</span></a>
             <a className="sidebar__link" href="./descobrir.html" aria-current={data.activePage === 'descobrir' ? 'page' : undefined} aria-label="Descobrir" title="Descobrir"><span className="sidebar__icon sidebar__discover-icon" aria-hidden="true"></span><span className="sidebar__label">Descobrir</span></a>
 
         </div>
@@ -136,15 +137,14 @@ export function ChatToolbar({ webSearch = true, attachments = true }: { webSearc
 <div className="home__toolbar tw:flex tw:items-center tw:justify-between">
                         <div className="home__modes tw:flex tw:items-center tw:min-w-0 tw:rounded-round" role="group" aria-label="Modo da mensagem">
 {attachments && <>
-                            <button className="attachment-toggle" type="button" popoverTarget="attachment-menu" aria-label="Adicionar arquivos ou imagens"><svg className="attachment-plus" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1v14M1 8h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg></button>
-                            <div id="attachment-menu" className="attachment-menu" popover="auto"><button type="button" data-upload-files><i aria-hidden="true"></i>Enviar arquivos ou imagens</button>{webSearch && <><button type="button" className="web-search-toggle" aria-pressed="true"><i aria-hidden="true"></i>Pesquisa na web<span className="web-search-check" aria-hidden="true"></span></button></>}</div>
+                            <button className="attachment-toggle" type="button" aria-expanded="false" aria-controls="attachment-menu" aria-label="Adicionar arquivos ou imagens"><i className="attachment-plus" aria-hidden="true"></i></button>
                             <input id="attachment-input" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.docx,.txt,.md,.csv,.json,.py,.js,.html,.css,.log" hidden />
 </>}
-                            <div className="composer-provider-group"><button className="model-picker" type="button" title="Escolher modelo (Qwen selecionado)"><i className="model-icon model-icon--gemini" aria-hidden="true"></i><span>Gemini</span></button><button className="home__mode computer-provider" type="button" aria-pressed="false"><i className="computer-icon" aria-hidden="true"></i><span>Computer</span></button></div>
+                            <ProviderToggle />
                         </div>
                         <div className="home__actions tw:relative tw:flex tw:shrink-0 tw:items-center">
 
-<button className="local-model-picker" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="computer-model-menu" hidden><i className="model-icon model-icon--qwen" aria-hidden="true"></i><span className="local-model-name">1.7b</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+<button className="local-model-picker" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="computer-model-menu" hidden><i className="model-icon model-icon--ollama" aria-hidden="true"></i><span className="local-model-name">1.7b</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
                             <div className="model-menu" id="computer-model-menu" popover="auto" role="menu" aria-label="Modelos locais"></div>
 <ComposerActions />
                         </div>
@@ -152,14 +152,15 @@ export function ChatToolbar({ webSearch = true, attachments = true }: { webSearc
     );
 }
 
-export function ChatComposer({ composerClass = "", placeholder = "Pergunte qualquer coisa", readonly = false, webSearch = true, attachments = true }: { composerClass?: string; placeholder?: string; readonly?: boolean; webSearch?: boolean; attachments?: boolean }) {
+export function ChatComposer({ composerClass = "", placeholder = "Pergunte qualquer coisa", readonly = false, webSearch = true, attachments = true, demo = false }: { composerClass?: string; placeholder?: string; readonly?: boolean; webSearch?: boolean; attachments?: boolean; demo?: boolean }) {
     return (
-<form className={`home__composer ${composerClass}`} aria-label="Escrever uma mensagem">
+<form className={`home__composer ${composerClass}`} aria-label={demo ? "Exemplo de registro financeiro" : "Escrever uma mensagem"} onSubmit={demo ? event => event.preventDefault() : undefined}>
     <p className="home__dictation-status" role="status" aria-live="polite" id="dictation-status"></p>
     <div className="attachment-list" aria-label="Arquivos anexados" hidden></div>
     <p className="attachment-status" role="status"></p>
-    <textarea className="home__input" aria-label="Mensagem" placeholder={placeholder} rows={2} maxLength={8000} readOnly={readonly}></textarea>
-<ChatToolbar webSearch={webSearch} attachments={attachments} />
+    {demo ? <p className="home__input"><span className="sr-only">Exemplos de registros financeiros.</span><span className="hero__typewriter" data-typewriter aria-hidden="true">Gastei R$ 67 no mercado hoje.</span></p> : <textarea className="home__input" aria-label="Mensagem" placeholder={placeholder} rows={2} maxLength={8000} readOnly={readonly}></textarea>}
+{demo ? <div inert><ChatToolbar webSearch={webSearch} attachments={attachments} /></div> : <ChatToolbar webSearch={webSearch} attachments={attachments} />}
+{attachments && <div id="attachment-menu" className="attachment-menu" hidden><button type="button" data-upload-files><i aria-hidden="true"></i>Enviar arquivos ou imagens</button>{webSearch && <><button type="button" className="web-search-toggle" aria-pressed="true"><i aria-hidden="true"></i>Pesquisa na web<span className="web-search-check" aria-hidden="true"></span></button></>}</div>}
 </form>
     );
 }

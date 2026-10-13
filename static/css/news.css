@@ -109,6 +109,11 @@
     font-size: var(--font-size-6);
 }
 
+.news-card__time span {
+
+    color: var(--text);
+}
+
 .news-card__description {
     display: none;
     font-family: var(--font-heading);
@@ -203,7 +208,7 @@
 
 .news-card--featured .news-card__time {
     font-size: var(--font-size-5);
-    margin-top: var(--spacing-4);
+    margin-top: var(--spacing-2);
 }
 
 .news-card--featured .news-card__description {
@@ -302,11 +307,6 @@
     font-size: var(--font-size-4);
 }
 
-.news-page :is(button, a, summary):focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
-}
-
 @media (width < 1100px) {
     .news-page {
         padding-inline: var(--spacing-8);
@@ -368,6 +368,7 @@
     background: none;
     color: var(--text-secondary);
     font-size: var(--font-size-4);
+    font-weight: 500;
     cursor: pointer;
     white-space: nowrap;
 }
@@ -747,7 +748,6 @@
     cursor: pointer;
 }
 .weather-units button[aria-pressed="true"] { color: var(--text); }
-.weather-units button:focus-visible { outline: 1px solid var(--border-focus); }
 
 .icon-night { --discovery-icon: url('../img/icons/weather-night.svg'); }
 

@@ -39,6 +39,10 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             domain.textContent=source.domain;url.className='chat-links__url';url.textContent=source.url;identity.append(domain,url);publisher.append(icon(source.domain),identity);
             const title=document.createElement('a');title.className='chat-links__title';title.textContent=source.title;title.href=source.url;title.target='_blank';title.rel='noopener noreferrer';result.append(publisher,title);
             if(source.excerpt){const excerpt=document.createElement('p');excerpt.textContent=source.excerpt;result.append(excerpt);}
+            const evidence=document.createElement('small');
+            evidence.textContent=source.evidence_type==='page'?'Página consultada':source.evidence_type==='grounding'?'Evidência do Google':'Resumo da busca';
+            if(source.read_status==='unavailable')evidence.textContent+=' · não foi possível ler a página';
+            result.append(evidence);
             present(linksPage).append(result);
         }
     }
@@ -63,29 +67,29 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     collapse.setAttribute('aria-label','Recolher painel de fontes');
     collapse.innerHTML='<img src="/static/img/icons/collapse-panel.svg" alt="">';
     scope.append(panel,collapse);
-    let latestArticle: HTMLElement | null=null, panelVisible=false, cardOpen=true;
+    let latestArticle: HTMLElement | null=null, panelVisible=false, panelPreference=true, cardOpen=true;
     const panelStateKey='ascenda-sources-panel-'+optionalElement(document,'[data-user-id]',HTMLElement)?.dataset.userId;
     try {
         const state=record(JSON.parse(localStorage.getItem(panelStateKey) || '{}'));
-        panelVisible=state.visible===true;cardOpen=state.expanded!==false;
+        panelPreference=state.visible!==false;cardOpen=state.expanded!==false;
     } catch {}
     function savePanelState() {
-        try {localStorage.setItem(panelStateKey,JSON.stringify({visible:panelVisible,expanded:cardOpen}));} catch {}
+        try {localStorage.setItem(panelStateKey,JSON.stringify({visible:panelPreference,expanded:cardOpen}));} catch {}
     }
-    function setPanelVisible(value: boolean) {
+    function setPanelVisible(value: boolean, remember=false) {
         panelVisible=value; panel.hidden=!value;
         workspace.classList.toggle('has-source-panel',value);
         collapse.classList.toggle('is-collapsed',!value);
         collapse.setAttribute('aria-label',value?'Recolher painel de fontes':'Expandir painel de fontes');
         collapse.setAttribute('aria-expanded',String(value));
-        savePanelState();
+        if (remember) { panelPreference=value;savePanelState(); }
         window.dispatchEvent(new Event('resize'));
     }
-    collapse.addEventListener('click',()=>setPanelVisible(!panelVisible), {signal: scope.signal});
+    collapse.addEventListener('click',()=>setPanelVisible(!panelVisible,true), {signal: scope.signal});
     function reset() {
         latestArticle=null;showSources(null,{},false);collapse.hidden=true;view('answer');
     }
-    function showSources(article: HTMLElement | null,value: Research,visible=true) {
+    function showSources(article: HTMLElement | null,value: Research,visible=true,remember=false) {
         renderLinks(value);
         const sources=validSources(value.sources);
         const card=document.createElement('details');card.className='sources-card';card.open=cardOpen;
@@ -113,7 +117,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             link.append(icon(source.domain),content);list.append(link);
         }
         if (!sources.length) { const empty=document.createElement('p');empty.textContent='As fontes citadas da pesquisa aparecerão aqui.';list.append(empty); }
-        card.append(list);panel.replaceChildren(card);setPanelVisible(visible);
+        card.append(list);panel.replaceChildren(card);setPanelVisible(visible,remember);
     }
     function research(article: HTMLElement,value: Research | undefined,completed=false) {
         elementList(article, '.computer-research,.computer-sources,.computer-source-list,.computer-search-suggestions', HTMLElement).forEach(e=>e.remove());
@@ -133,13 +137,12 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             [...new Set(sources.map(s=>s.domain))].slice(0,3).forEach(domain=>logos.append(icon(domain)));
             const count=document.createElement('span');count.textContent=sources.length+(sources.length===1?' fonte':' fontes');
             trigger.append(logos,count);trigger.setAttribute('aria-label','Abrir '+count.textContent);
-            trigger.addEventListener('click',()=>{cardOpen=true;collapse.hidden=false;showSources(article,value);}, {signal: scope.signal});actions?.append(trigger);
+            trigger.addEventListener('click',()=>{cardOpen=true;collapse.hidden=false;showSources(article,value,true,true);}, {signal: scope.signal});actions?.append(trigger);
         }
         if (sources.length && (!latestArticle?.isConnected || latestArticle===article || (latestArticle.compareDocumentPosition(article) & Node.DOCUMENT_POSITION_FOLLOWING))) {
-            const visible=!latestArticle?.isConnected || panelVisible;
             latestArticle=article;
             collapse.hidden=false;
-            showSources(article,value,visible);
+            showSources(article,value,panelPreference);
         }
         if(value.suggestions){
             const widget=document.createElement('iframe');widget.className='computer-search-suggestions';widget.title='Sugestões de pesquisa do Google';
