@@ -3,6 +3,19 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     const menu = requiredElement(document, ".profile-menu", HTMLElement);
     const trigger = requiredElement(document, ".sidebar__profile", HTMLButtonElement);
     elementList(menu, '[data-profile-submenu="news"], [aria-controls="profile-news"], #profile-news', HTMLElement).forEach(element => element.remove());
+    const anonymous = requiredElement(menu, '.profile-anonymous', HTMLButtonElement);
+    scope.listen(anonymous, 'click', () => {
+        menu.hidePopover();
+        if (document.querySelector('.computer-page')) window.dispatchEvent(new Event('chat:toggle-anonymous'));
+        else void window.WorkspaceNavigation.go('/novo.html?new=1&anonymous=1');
+    });
+    scope.listen(window, 'chat:anonymous', event => {
+        anonymous.setAttribute('aria-checked', String(event.detail));
+        elementList(document, '.sidebar__logo, .sidebar__link[aria-label="Novo chat"]', HTMLAnchorElement).forEach(link => {
+            if (event.detail) { link.dataset.normalHref ??= link.getAttribute('href') || '/novo.html?new=1'; link.href = '/novo.html?new=1&anonymous=1'; }
+            else if (link.dataset.normalHref) { link.setAttribute('href', link.dataset.normalHref); delete link.dataset.normalHref; }
+        });
+    });
     const triggers = [...elementList(menu, "[data-profile-submenu]", HTMLElement)];
     window.CometNewsPreferences = {topics:['business'], languages:'pt-en'};
     let active: HTMLElement | null = null;

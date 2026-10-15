@@ -1,7 +1,8 @@
+import { financeOverview, chartRequest } from './chart';
 import { createHash } from 'node:crypto';
 import { query, transaction } from '../db';
 import { ApiError } from '../http';
-import { dateString, fields, invalid, isObject, localClock, localDay, serialize, summarize, timestampString, validDay, validId, validateTransaction, type Transaction, type TransactionRow } from './model';
+import { dateString, fields, invalid, isObject, localClock, localDay, serialize, timestampString, validDay, validId, validateTransaction, type Transaction, type TransactionRow } from './model';
 
 type Query = typeof query;
 type Db = { query: Query };
@@ -47,12 +48,6 @@ export async function history(userId: number, limit = 30, before: string | null 
   const rows = await query<TransactionRow>('SELECT * FROM finance_transactions WHERE usuario_id=$1' + condition + ` ORDER BY occurred_on DESC, id DESC LIMIT $${params.length}`, params);
   const page = rows.slice(0, limit), last = page.at(-1);
   return { transactions: page.map(serialize), next_cursor: rows.length > limit && last ? `${dateString(last.occurred_on)}:${last.id}` : null };
-}
-
-export async function dashboard(userId: number) {
-  const today = localDay();
-  const rows = await query<TransactionRow>('SELECT * FROM finance_transactions WHERE usuario_id=$1 AND deleted_at IS NULL AND occurred_on<=$2 ORDER BY occurred_on, id', [userId, today]);
-  return summarize(rows, today);
 }
 
 export function validateActions(payload: unknown, now = localClock()): { operationId: string; actions: Action[] } {
@@ -159,4 +154,10 @@ export async function executeActions(userId: number, payload: unknown) {
     await db.query('UPDATE finance_operations SET result=$1 WHERE usuario_id=$2 AND operation_id=$3', [JSON.stringify(result), userId, operationId]);
     return result;
   });
+}
+
+export async function chartOverview(userId: number, params: URLSearchParams) {
+  const today = localDay(); chartRequest(params, today);
+  const rows = await query<TransactionRow>('SELECT * FROM finance_transactions WHERE usuario_id=$1 AND deleted_at IS NULL AND occurred_on<=$2 ORDER BY occurred_on, id', [userId, today]);
+  return financeOverview(rows, params, today);
 }

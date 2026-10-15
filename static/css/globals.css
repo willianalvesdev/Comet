@@ -78,123 +78,15 @@
     font-display: swap;
 }
 
-@font-face {
-    font-family: "Saans";
-    src: url("../fonts/saans/saans-trial-light.woff2") format("woff2");
-    font-weight: 300;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Saans";
-    src: url("../fonts/saans/saans-trial-lightitalic.woff2") format("woff2");
-    font-weight: 300;
-    font-style: italic;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Saans";
-    src: url("../fonts/saans/saans-trial-regular.woff2") format("woff2");
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Saans";
-    src: url("../fonts/saans/saans-trial-regularitalic.woff2") format("woff2");
-    font-weight: 400;
-    font-style: italic;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Saans";
-    src: url("../fonts/saans/saans-trial-medium.woff2") format("woff2");
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Saans";
-    src: url("../fonts/saans/saans-trial-mediumitalic.woff2") format("woff2");
-    font-weight: 500;
-    font-style: italic;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Saans";
-    src: url("../fonts/saans/saans-trial-semibold.woff2") format("woff2");
-    font-weight: 600;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Saans";
-    src: url("../fonts/saans/saans-trial-semibolditalic.woff2") format("woff2");
-    font-weight: 600;
-    font-style: italic;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Saans";
-    src: url("../fonts/saans/saans-trial-bold.woff2") format("woff2");
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Saans";
-    src: url("../fonts/saans/saans-trial-bolditalic.woff2") format("woff2");
-    font-weight: 700;
-    font-style: italic;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Saans";
-    src: url("../fonts/saans/saans-trial-heavy.woff2") format("woff2");
-    font-weight: 900;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Saans";
-    src: url("../fonts/saans/saans-trial-heavyitalic.woff2") format("woff2");
-    font-weight: 900;
-    font-style: italic;
-    font-display: swap;
-}
-
 :root {
-    --odin-light-0: #ffffff;
-    --odin-light-100: #fdfbfb;
-    --odin-light-200: #faf8f5;
-    --odin-light-300: #f3f0ec;
-    --odin-light-400: #ece9e4;
-    --odin-light-500: #e5e2dc;
-    --odin-light-600: #dedbd4;
-    --odin-light-700: #d8d4cd;
-    --odin-light-1000: #271a00;
-    --odin-light-2000: #27251e;
-    --odin-dark-0: #000000;
+    /* Paleta completa, preservada para ajustes de tema. */
+    --odin-light-500:  #e2e2e2;
+    --odin-light-600:  #dcdcdc;
+    --odin-light-700:  #d5d5d5;
+    --odin-light-1000: #1f1f1f;
     --odin-dark-50: #121212;
-    --odin-dark-100: #161616;
-    --odin-dark-200: #1d1d1d;
-    --odin-dark-300: #232323;
-    --odin-dark-400: #292929;
-    --odin-dark-500: #2f2f2f;
     --odin-dark-600: #353535;
     --odin-dark-700: #3b3b3b;
-    --odin-dark-1000: #dedede;
     --ifrit-light-50: #fcf1f1;
     --ifrit-light-100: #fdd2d3;
     --ifrit-light-200: #ffabae;
@@ -209,7 +101,6 @@
     --ifrit-dark-100: #fececf;
     --ifrit-dark-200: #f7abad;
     --ifrit-dark-300: #e7848a;
-    --ifrit-dark-400: #dc6973;
     --ifrit-dark-500: #c34a58;
     --ifrit-dark-600: #a63143;
     --ifrit-dark-700: #792b34;
@@ -289,7 +180,6 @@
     --garuda-dark-100: #bbe5b8;
     --garuda-dark-200: #94cd92;
     --garuda-dark-300: #73b572;
-    --garuda-dark-400: #539e55;
     --garuda-dark-500: #328439;
     --garuda-dark-600: #136a22;
     --garuda-dark-700: #0c5218;
@@ -301,7 +191,6 @@
     --shiva-light-300: #3abbc6;
     --shiva-light-400: #00a1ac;
     --shiva-light-500: #01838c;
-    --shiva-light-600: #016a71;
     --shiva-light-700: #0c4f54;
     --shiva-light-800: #0f3639;
     --shiva-light-900: #071f21;
@@ -309,7 +198,6 @@
     --shiva-dark-100: #bdd9dd;
     --shiva-dark-200: #90bfc5;
     --shiva-dark-300: #64a6af;
-    --shiva-dark-400: #4e99a3;
     --shiva-dark-500: #22808c;
     --shiva-dark-600: #1a636c;
     --shiva-dark-700: #0c4f54;
@@ -396,6 +284,85 @@
     --jenova-dark-800: #591342;
     --jenova-dark-900: #330d25;
     --shiva-dark-1000: #0b1316;
+
+    /* Palette primitives */
+    --odin-light-0:    #ffffff;
+    --odin-light-100:  #fcfcfc;
+    --odin-light-200:  #f8f8f8;
+    --odin-light-300:  #f0f0f0;
+    --odin-light-400:  #e9e9e9;
+    --odin-light-2000: #161616;
+    --odin-dark-0: #000000;
+    --odin-dark-100: #161616;
+    --odin-dark-200: #1d1d1d;
+    --odin-dark-300: #232323;
+    --odin-dark-400: #292929;
+    --odin-dark-500: #2f2f2f;
+    --odin-dark-1000: #fcfcfc;
+    --ifrit-dark-400: #dc6973;
+    --garuda-dark-400: #539e55;
+    --shiva-light-600: #016a71;
+    --shiva-dark-400: #4e99a3;
+
+    /* Theme roles: surfaces, foreground, borders and accent */
+    --bg: var(--odin-dark-50);
+    --surface: var(--odin-dark-100);
+    --surface-hover: var(--odin-dark-200);
+    --surface-hover-strong: var(--odin-dark-300);
+    --surface-selected: var(--odin-dark-400);
+    --text: var(--odin-dark-1000);
+    --text-white: var(--odin-light-0);
+    --green: var(--garuda-dark-400);
+    --red: var(--ifrit-dark-400);
+    --accent-brand: #20808d;
+    --sidebar-surface: #101010;
+    --accent: var(--accent-brand);
+    --border: rgb(from var(--text) r g b / .1);
+    --border-focus: rgb(from var(--text) r g b / .2);
+    --text-secondary: rgb(from var(--text) r g b / .65);
+    --text-tertiary: rgb(from var(--text) r g b / .35);
+
+    /* Elevation: layered shadows with progressively wider blur */
+    --shadow-hairline-width: 1px;
+    --shadow-overlay: 0 0 0 100vmax var(--text);
+        --shadow-autofill: 0 0 0 1000px color-mix(in srgb, var(--accent) 20%, var(--surface)) inset;
+    --shadow-unread: 0 0 0 8px var(--sidebar-surface), 0 0 12px 12px var(--sidebar-surface);
+    --shadow-dialog: var(--shadow-lg);
+    --shadow-composer: var(--shadow-md);
+    --shadow-sm: inset 0 var(--shadow-hairline-width) 0 0 color-mix(in srgb,#fff 5%,#0000),inset 0 0 0 var(--shadow-hairline-width) color-mix(in srgb,#fff 5%,#0000),0 1px 2px 0 color-mix(in srgb,#000 24%,#0000),0 0 2px 0 color-mix(in srgb,#000 19%,#0000),0 1px 4px -1px color-mix(in srgb,#000 14%,#0000);
+    --shadow-md: inset 0 var(--shadow-hairline-width) 0 0 color-mix(in srgb,#fff 6%,#0000),inset 0 0 0 var(--shadow-hairline-width) color-mix(in srgb,#fff 7%,#0000),0 1px 3px 0 color-mix(in srgb,#000 26%,#0000),0 1px 5px 0 color-mix(in srgb,#000 26%,#0000),0 3px 12px -2px color-mix(in srgb,#000 18%,#0000);
+    --shadow-lg: inset 0 var(--shadow-hairline-width) 0 0 color-mix(in srgb,#fff 6%,#0000),inset 0 0 0 var(--shadow-hairline-width) color-mix(in srgb,#fff 7%,#0000),0 1px 4px 0 color-mix(in srgb,#000 30%,#0000),0 2px 8px 0 color-mix(in srgb,#000 38%,#0000),0 6px 18px -2px color-mix(in srgb,#000 28%,#0000);
+    --panel-shadow: var(--shadow-lg);
+
+    /* Typography */
+    --weight-300: 300;
+    --font-weight-light: var(--weight-300);
+    --weight-400: 450;
+    --font-weight-regular: var(--weight-400);
+    --weight-500: 500;
+    --font-weight-medium: var(--weight-500);
+    --weight-600: 600;
+    --font-weight-semibold: var(--weight-600);
+    --weight-700: 700;
+    --font-weight-bold: var(--weight-700);
+    --weight-800: 800;
+    --font-weight-extrabold: var(--weight-800);
+    --weight-900: 900;
+    --font-weight-black: var(--weight-900);
+    --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-heading: "Kalice", Georgia, serif;
+    --font-ui: var(--font-body);
+    --font-prose: var(--font-heading);
+    --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --font-size-0: 18px;
+    --font-size-1: 72px;
+    --font-size-2: 24px;
+    --font-size-3: 16px;
+    --font-size-4: 14px;
+    --font-size-5: 12px;
+    --font-size-6: 10px;
+
+    /* Geometry and motion */
     --spacing-1: 0.25rem;
     --spacing-2: 0.5rem;
     --spacing-3: 0.75rem;
@@ -413,75 +380,19 @@
     --spacing-0-5: .125rem;
     --spacing-1-5: .375rem;
     --spacing-2-5: .625rem;
-    --radius-2: 2px;
-    --radius-4: 4px;
-    --radius-6: 6px;
-    --radius-8: 8px;
-    --radius-12: 12px;
-    --radius-16: 16px;
-    --radius-24: 24px;
+    --radius-2: 2.6999999999999997px;
+    --radius-4: 5.3999999999999995px;
+    --radius-6: 8.1px;
+    --radius-8: 10.799999999999999px;
+    --radius-12: 16.2px;
+    --radius-16: 21.599999999999998px;
+    --radius-24: 32.4px;
     --radius-full: 9999px;
     --input-2xs: 14px;
     --input-xs: 16px;
     --input-sm: 24px;
     --input-md: 32px;
     --input-lg: 40px;
-    --weight-300: 300;
-    --font-weight-light: var(--weight-300);
-    --weight-400: 400;
-    --font-weight-regular: var(--weight-400);
-    --weight-500: 500;
-    --font-weight-medium: var(--weight-500);
-    --weight-600: 600;
-    --font-weight-semibold: var(--weight-600);
-    --weight-700: 700;
-    --font-weight-bold: var(--weight-700);
-    --weight-800: 800;
-    --font-weight-extrabold: var(--weight-800);
-    --weight-900: 900;
-    --font-weight-black: var(--weight-900);
-    --accent-brand: #20808d;
-    --shadow-dialog: 0 20px 45px var(--shadow-color);
-    --shadow-composer: 0 1px 2px rgb(from var(--text) r g b / .04);
-    --shadow-overlay: 0 0 0 100vmax var(--text);
-    --shadow-sidebar-border: inset -1px 0 var(--border);
-    --shadow-autofill: 0 0 0 1000px color-mix(in srgb, var(--accent) 20%, var(--surface)) inset;
-    --shadow-color: rgb(from var(--surface) r g b / .6);
-    --shadow-sm: 0 2px 6px var(--shadow-color);
-    --shadow-md: 0 8px 24px var(--shadow-color);
-    --shadow-lg: 0 12px 32px var(--shadow-color);
-    --shadow-unread: 0 0 0 8px var(--sidebar-surface), 0 0 12px 12px var(--sidebar-surface);
-    --sidebar-surface: var(--surface);
-
-    --font-body: "Saans", sans-serif;
-    --font-heading: "Kalice", Georgia, serif;
-    --font-ui: var(--font-body);
-    --font-prose: var(--font-heading);
-    --font-mono: "Cascadia Code", Consolas, monospace;
-    --font-numbers: var(--font-body);
-    --font-size-0: 18px;
-    --font-size-1: 72px;
-    --font-size-2: 24px;
-    --font-size-3: 16px;
-    --font-size-4: 14px;
-    --font-size-5: 12px;
-    --font-size-6: 10px;
-
-    --bg: var(--odin-dark-100);
-    --surface: var(--odin-dark-200);
-    --surface-hover: var(--odin-dark-300);
-    --surface-hover-strong: var(--odin-dark-400);
-    --surface-selected: var(--odin-dark-500);
-    --accent: var(--accent-brand);
-    --border: rgb(from var(--text) r g b / .1);
-    --border-focus: rgb(from var(--text) r g b / .2);
-    --text: var(--odin-dark-1000);
-    --text-secondary: rgb(from var(--text) r g b / .65);
-    --text-tertiary: rgb(from var(--text) r g b / .35);
-    --text-white: var(--odin-light-0);
-    --green: var(--garuda-dark-400);
-    --red: var(--ifrit-dark-400);
-
     --icon-tiny: 14px;
     --icon-small: 16px;
     --icon-small-medium: 18px;
@@ -493,7 +404,6 @@
     --duration-normal: 200ms;
     --duration-slow: 250ms;
     --opacity-disabled: .35;
-    --panel-shadow: var(--shadow-lg);
     --margin-inline-1: var(--spacing-24);
     --margin-inline-2: var(--spacing-10);
     --gap: var(--spacing-12);
@@ -507,9 +417,19 @@
 }
 
 :root[data-theme="light"] {
+    --weight-300: 400;
+    --weight-400: 500;
+    --weight-500: 600;
+    --weight-600: 700;
+    --weight-700: 800;
+    --weight-800: 900;
+    --weight-900: 900;
+    --shadow-sm: 0 0 0 var(--shadow-hairline-width) color-mix(in srgb,#071f21 5%,#0000),0 1px 0 0 color-mix(in srgb,#071f21 1%,#0000),0 1px 1px 0 color-mix(in srgb,#071f21 5%,#0000),0 0 2px 0 color-mix(in srgb,#071f21 8%,#0000),0 2px 6px -2px color-mix(in srgb,#071f21 8%,#0000);
+    --shadow-md: 0 0 0 var(--shadow-hairline-width) color-mix(in srgb,#071f21 8%,#0000),0 1px 0 0 color-mix(in srgb,#071f21 2%,#0000),0 1px 2px 0 color-mix(in srgb,#071f21 1%,#0000),0 2px 6px -2px color-mix(in srgb,#071f21 14%,#0000),0 6px 20px -5px color-mix(in srgb,#071f21 10%,#0000);
+    --shadow-lg: 0 0 0 var(--shadow-hairline-width) color-mix(in srgb,#071f21 8%,#0000),0 1px 0 0 color-mix(in srgb,#071f21 2%,#0000),0 1px 4px 0 color-mix(in srgb,#071f21 1%,#0000),0 2px 8px -1px color-mix(in srgb,#071f21 16%,#0000),0 10px 40px -6px color-mix(in srgb,#071f21 14%,#0000);
     --bg: var(--odin-light-200);
+    --sidebar-surface: var(--surface);
     --surface: var(--odin-light-100);
-    --surface-soft: var(--odin-light-600);
     --surface-hover: var(--odin-light-300);
     --surface-hover-strong: var(--odin-light-400);
     --surface-selected: var(--odin-light-400);
@@ -522,6 +442,10 @@
     --accent: var(--shiva-light-600);
     --panel-shadow: var(--shadow-sm);
     color-scheme: light;
+}
+
+@media (min-resolution: 2dppx) {
+    :root { --shadow-hairline-width: .5px; }
 }
 
 :root[data-theme="dark"] {
@@ -564,7 +488,7 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-full); corner-shape: round;
     background: color-mix(in srgb, var(--text-secondary) 14%, transparent);
 }
 
@@ -680,8 +604,8 @@ button:not(:disabled) {
 
 .site-header.is-scrolled {
     background-color: color-mix(in srgb, var(--bg) 80%, transparent);
-    -webkit-backdrop-filter: blur(100px);
-    backdrop-filter: blur(100px);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -733,10 +657,10 @@ button:not(:disabled) {
     justify-self: end;
     padding: var(--spacing-2) calc(var(--gap) / 2);
     border: 1px solid var(--border);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-full); corner-shape: round;
     background-color: var(--text);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     transition: background-color var(--duration-normal) ease;
     color: var(--bg);
     white-space: nowrap;
@@ -863,4 +787,12 @@ code, pre, kbd {
     background: currentColor;
     mask: url('../img/icons/x.svg') center/contain no-repeat;
     vertical-align: middle;
+}
+
+
+/* Broader radii compensate for the flatter shoulders of continuous corners. */
+@supports (corner-shape: squircle) {
+    :root { --radius-2: 4.05px; --radius-4: 8.1px; --radius-6: 12.15px; --radius-8: 16.2px; --radius-12: 24.3px; --radius-16: 32.4px; --radius-24: 48.6px; }
+    *, *::before, *::after { corner-shape: squircle; }
+    [class~="tw:rounded-round"], [class~="tw:rounded-full"], .sidebar__avatar, .home__send, .profile-anonymous__switch, .profile-anonymous__switch::before { corner-shape: round; }
 }

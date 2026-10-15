@@ -20,10 +20,12 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     try { readResponses = record(JSON.parse(localStorage.getItem(readKey) || '{}')); } catch {}
     function isUnread(chat: Conversation) {
         const seen = readResponses[chat.id];
-        return !!chat.last_response_at && (typeof seen !== 'string' || chat.last_response_at > seen);
+        return seen === false || !!chat.last_response_at && (typeof seen !== 'string' || chat.last_response_at > seen);
     }
-    function markRead(id: string, version?: string | null) {
-        const stamp = version ?? items.get(id)?.last_response_at ?? pins[id]?.last_response_at;
+    function markRead(id: string, version?: string | null, force=false) {
+        if (readResponses[id] === false && !force) return;
+        if (id.startsWith('anonymous-')) return;
+        const stamp = version ?? items.get(id)?.last_response_at ?? pins[id]?.last_response_at ?? (force ? new Date().toISOString() : null);
         if (!stamp || (typeof readResponses[id] === 'string' && String(readResponses[id]) >= stamp)) return;
         readResponses[id] = stamp;
         try { localStorage.setItem(readKey, JSON.stringify(readResponses)); } catch {}
@@ -56,7 +58,9 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const preferences = document.createElement('button'); preferences.type = 'button'; preferences.className = 'sessions__preferences';
         preferences.setAttribute('aria-label', 'Preferências de ' + label.toLowerCase()); preferences.innerHTML = '<i aria-hidden="true"></i>';
         summary.append(title, heading);
-        if (href) summary.append(preferences);
+        const create = document.createElement('a'); create.className = 'sessions__new'; create.href = '/novo.html?new=1'; create.setAttribute('aria-label', 'Novo chat em ' + label.toLowerCase()); create.innerHTML = '<i aria-hidden="true"></i>';
+        summary.append(preferences);
+        if (href) summary.append(create);
         requiredElement(container, '.sessions__list', HTMLElement).id = id;
         container.open = open !== false;
         function sync() {
@@ -79,18 +83,22 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const saved = localStorage.getItem(orderKey);
         if (saved === 'name' || saved === 'created' || saved === 'activity') order = saved;
     } catch {}
-    function sortedRecent(chats: Conversation[]): Conversation[] {
+    let pinnedOrder: RecentOrder = 'activity';
+    try { const saved = localStorage.getItem(pinKey + '-order'); if (saved === 'name' || saved === 'created' || saved === 'activity') pinnedOrder = saved; } catch {}
+    function sortedRecent(chats: Conversation[], selectedOrder = order): Conversation[] {
         return chats.sort((a, b) => {
-            if (order === 'name') return a.title.localeCompare(b.title, 'pt-BR', {sensitivity:'base', numeric:true});
-            const timestamp = (chat: Conversation) => Date.parse(order === 'created' ? chat.created_at : chat.updated_at) || 0;
+            if (selectedOrder === 'name') return a.title.localeCompare(b.title, 'pt-BR', {sensitivity:'base', numeric:true});
+            const timestamp = (chat: Conversation) => Date.parse(selectedOrder === 'created' ? chat.created_at : chat.updated_at) || 0;
             return timestamp(b) - timestamp(a);
         });
     }
-    const preferences = requiredElement(section, '.sessions__preferences', HTMLButtonElement);
+    for (const container of [section, pinned]) {
+    const isPinned = container === pinned;
+    const preferences = requiredElement(container, '.sessions__preferences', HTMLButtonElement);
     const sortMenu = document.createElement('div');
-    sortMenu.className = 'sessions-sort'; sortMenu.id = 'sessions-sort';
+    sortMenu.className = 'sessions-sort'; sortMenu.id = isPinned ? 'pinned-sort' : 'sessions-sort';
     sortMenu.setAttribute('popover', 'auto'); sortMenu.setAttribute('role', 'menu');
-    sortMenu.setAttribute('aria-label', 'Ordenar recentes');
+    sortMenu.setAttribute('aria-label', isPinned ? 'Ordenar fixados' : 'Ordenar recentes');
     sortMenu.innerHTML = '<p>Ordenar por</p>';
     const sortOptions: [RecentOrder, string][] = [['name','Nome'],['created','Recém-criados'],['activity','Última atividade']];
     for (const [value, label] of sortOptions) {
@@ -100,20 +108,21 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const check = document.createElement('i'); check.setAttribute('aria-hidden', 'true');
         button.append(text, check); sortMenu.append(button);
         button.addEventListener('click', () => {
-            order = value;
-            try { localStorage.setItem(orderKey, order); } catch {}
+            if (isPinned) pinnedOrder = value; else order = value;
+            try { localStorage.setItem(isPinned ? pinKey + '-order' : orderKey, value); } catch {}
             syncOrder(); draw(); sortMenu.hidePopover(); preferences.focus();
         }, {signal: scope.signal});
     }
     function syncOrder() {
-        elementList(sortMenu, 'button', HTMLButtonElement).forEach(button => button.setAttribute('aria-checked', String(button.dataset.order === order)));
+        elementList(sortMenu, 'button', HTMLButtonElement).forEach(button => button.setAttribute('aria-checked', String(button.dataset.order === (isPinned ? pinnedOrder : order))));
     }
     syncOrder(); scope.append(sortMenu);
-    preferences.setAttribute('aria-label', 'Ordenar recentes'); preferences.setAttribute('aria-haspopup', 'menu');
+    preferences.setAttribute('aria-label', isPinned ? 'Ordenar fixados' : 'Ordenar recentes'); preferences.setAttribute('aria-haspopup', 'menu');
     preferences.setAttribute('aria-controls', sortMenu.id); preferences.setAttribute('aria-expanded', 'false');
     preferences.popoverTargetElement = sortMenu;
     setupSortMenu(sortMenu, preferences);
     window.addEventListener('resize', () => { if (sortMenu.matches(':popover-open')) sortMenu.hidePopover(); }, {signal: scope.signal});
+    }
     const pinList = optionalElement(pinned, '.sessions__list', HTMLElement);
     nav.append(pinned, section);
     const recentsButton=document.createElement('button');recentsButton.type='button';recentsButton.className='sidebar-recents';
@@ -151,7 +160,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         if(!items.size){const empty=document.createElement('p');empty.textContent='Nenhum chat recente';fragment.append(empty);}
         present(container).replaceChildren(fragment);
     }
-    function savePins() { try { localStorage.setItem(pinKey, JSON.stringify(pins)); } catch {} }
+    function savePins() { if(document.body.classList.contains('is-anonymous'))return; try { localStorage.setItem(pinKey, JSON.stringify(pins)); } catch {} }
 
     const list = requiredElement(section, '.sessions__list', HTMLElement), status = requiredElement(section, '.sessions__status', HTMLElement);
     const more = requiredElement(section, '[data-action="more"]', HTMLElement);
@@ -196,7 +205,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             if (!title || title === item.title) { cancel(); return; }
             saving = true; input.readOnly = true;
             try {
-                const result = record(await request(`/api/ai/conversations/${item.id}`, 'PATCH', {title}));
+                const result = item.id.startsWith('anonymous-') ? {title} : record(await request(`/api/ai/conversations/${item.id}`, 'PATCH', {title}));
                 const updated = {...item, title: stringValue(result.title)};
                 items.set(item.id, updated); if (pins[item.id]) pins[item.id] = updated;
                 finished = true; input.replaceWith(link); row.classList.remove('is-renaming');
@@ -221,12 +230,12 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         target = item; opener = options;
         requiredElement(menu, '[data-action="pin"] span', HTMLElement).textContent = pins[item.id] ? 'Desafixar' : 'Fixar';
         requiredElement(menu, '[data-action="pin"] i', HTMLElement).classList.toggle('sessions-icon--unpin', Boolean(pins[item.id]));
+        requiredElement(menu, '[data-action="read"]', HTMLButtonElement).lastChild!.textContent = isUnread(item) ? 'Marcar como lida' : 'Marcar como não lida';
         const rect = options.getBoundingClientRect();
-        const sidebarBounds = requiredElement(document, '.sidebar', HTMLElement).getBoundingClientRect();
-        menu.style.width = Math.max(0, sidebarBounds.width - 20) + 'px';
+        menu.style.width = Math.min(240, innerWidth - 16) + 'px';
         menu.showPopover();
         const bounds = menu.getBoundingClientRect();
-        menu.style.left = Math.max(8, Math.min(sidebarBounds.left + (sidebarBounds.width - bounds.width) / 2, innerWidth - bounds.width - 8)) + 'px';
+        menu.style.left = Math.max(8, Math.min(rect.left, innerWidth - bounds.width - 8)) + 'px';
         menu.style.top = Math.max(8, Math.min(rect.bottom + 6, innerHeight - bounds.height - 8)) + 'px';
         options.setAttribute('aria-expanded','true'); requiredElement(menu, 'button', HTMLButtonElement).focus({preventScroll:true});
     }
@@ -238,19 +247,19 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const recentChats = sortedRecent(chats.filter(chat => !pins[chat.id]));
         more.textContent = recentChats.length >= 20 ? 'Ver Tudo' : 'Mais chats';
         more.hidden = recentChats.length < 20 && !hasMoreChats;
-        for (const item of [...chats.filter(chat => pins[chat.id]), ...recentChats.slice(0, 20)]) {
+        for (const item of [...sortedRecent(chats.filter(chat => pins[chat.id]), pinnedOrder), ...recentChats.slice(0, 20)]) {
             const row = document.createElement('div'); row.className = 'sessions__row'; row.dataset.id = item.id;
             const link = document.createElement('a'); link.className = 'sessions__link'; link.href = `/novo.html?conversation=${encodeURIComponent(item.id)}`;
-            link.title = item.title;
             const titleViewport = document.createElement('span'); titleViewport.className = 'sessions__title';
             const titleText = document.createElement('span'); titleText.textContent = item.title;
-            titleViewport.append(titleText); link.append(titleViewport);
+            const icon = document.createElement('span'); icon.className = 'sessions__chat-icon'; icon.setAttribute('aria-hidden', 'true');
+            titleViewport.append(titleText); link.append(icon, titleViewport);
             function stopTitleScroll() { titleText.classList.remove('is-scrolling'); }
             function scrollTitle() {
                 stopTitleScroll();
                 if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-                if (titleText.scrollWidth <= titleViewport.clientWidth - 32) return;
-                const distance = Math.max(0, titleText.scrollWidth - titleViewport.clientWidth + 60);
+                if (titleText.scrollWidth <= titleViewport.clientWidth - 24) return;
+                const distance = Math.max(0, titleText.scrollWidth - titleViewport.clientWidth + 24);
                 titleText.style.setProperty('--title-scroll-distance', `${-distance}px`);
                 titleText.style.setProperty('--title-scroll-duration', `${Math.max(2, distance / 28)}s`);
                 titleText.classList.add('is-scrolling');
@@ -284,7 +293,11 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     function runAction(item: Conversation, value: string, origin: HTMLElement) {
         target=item;opener=origin;action=value;
         if (menu.matches(':popover-open')) menu.hidePopover();
-        if (action === 'read') { markRead(target.id, target.last_response_at); return; }
+        if (action === 'read') {
+            if (isUnread(target)) markRead(target.id, target.last_response_at, true);
+            else { readResponses[target.id]=false; try {localStorage.setItem(readKey,JSON.stringify(readResponses));} catch {} draw(); window.dispatchEvent(new Event('sessions:read')); }
+            return;
+        }
         if (action === 'pin') {
             if (pins[target.id]) delete pins[target.id]; else pins[target.id] = target;
             savePins(); draw(); emit('pins'); return;
@@ -315,7 +328,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         changing = true; elementList(dialog, 'button', HTMLButtonElement).forEach(button=>button.disabled=true); error.textContent = '';
         try {
             const id = target.id;
-            await request(`/api/ai/conversations/${id}`, 'DELETE');
+            if (!id.startsWith('anonymous-')) await request(`/api/ai/conversations/${id}`, 'DELETE');
             items.delete(id); delete pins[id];
             savePins();
             dialog.close(); draw(); emit('changed',{id,deleted:true});
@@ -352,8 +365,9 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         elementList(present(nav), '.sessions__link', HTMLAnchorElement).forEach(link=>markSelected(link,inComputer()&&link.closest<HTMLElement>('.sessions__row')?.dataset.id===id));
         elementList(recentMenu, '[data-chat-id]', HTMLElement).forEach(link=>markSelected(link,link.dataset.chatId===id));
     }
-    function setBusy(value: boolean) { if(busy===value)return; busy=value; elementList(present(nav), '.sessions button', HTMLButtonElement).forEach(button=>button.disabled=value); }
+    function setBusy(value: boolean) { if(busy===value)return; busy=value; elementList(present(nav), '.sessions__more, .sessions__tools button', HTMLButtonElement).forEach(button=>button.disabled=value); }
     async function load(append=false) {
+        if (document.body.classList.contains('is-anonymous')) return;
         setBusy(true);
         try { const result=conversationsData(await request(`/api/ai/conversations?offset=${append ? nextOffset : 0}`)); nextOffset=result.next_offset; render(result.conversations,append,nextOffset!==null); }
         catch(failure) { status.textContent='Não foi possível carregar os chats.'; requiredElement(section, '[data-action="refresh"]', HTMLElement).hidden=false; }
@@ -365,9 +379,14 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         render(arrayValue(savedState.chats,conversationData), false, nextOffset !== null);
         nav.scrollTop = typeof savedState.scrollTop === 'number' ? savedState.scrollTop : 0;
     }
+    let normalPins = pins;
+    window.addEventListener('chat:anonymous', event => {
+        if (event.detail) { if (pins === normalPins) pins = {}; }
+        else { pins = normalPins; }
+    }, {signal:scope.signal});
     let loggingOut = false;
     window.addEventListener('pagehide', () => {
-        if (loggingOut) return;
+        if (loggingOut || document.body.classList.contains('is-anonymous')) return;
         try {
             sessionStorage.setItem(stateKey, JSON.stringify({
                 recentOpen: section.open, pinnedOpen: pinned.open, scrollTop: nav.scrollTop,

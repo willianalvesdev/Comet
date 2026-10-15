@@ -46,10 +46,8 @@ interface Window {
     ComputerModels: {selected():ModelProvider;select(value:string):void;error():string;setBusy(value:boolean):void};
     ComputerAttachments: {files():Attachment[];busy():boolean;clear():void;restore(items:Attachment[]):void;setBusy(value:boolean):void};
     ComputerAttachmentCard: (file:Attachment,onRemove?:()=>void)=>HTMLDivElement;
-    ComputerSessions: {runAction(item:Conversation,action:string,origin:HTMLElement):void;isUnread(chat:Conversation):boolean;markRead(id:string,version?:string|null):void;render(items:Conversation[],append?:boolean,hasMore?:boolean):void;select(id:string|null,title?:string):void;setBusy(value:boolean):void;openOptions(item:Conversation,button:HTMLElement):void;request(path:string,method?:string,body?:unknown):Promise<unknown>;isPinned(id:string):boolean};
+    ComputerSessions: {runAction(item:Conversation,action:string,origin:HTMLElement):void;isUnread(chat:Conversation):boolean;markRead(id:string,version?:string|null,force?:boolean):void;render(items:Conversation[],append?:boolean,hasMore?:boolean):void;select(id:string|null,title?:string):void;setBusy(value:boolean):void;openOptions(item:Conversation,button:HTMLElement):void;request(path:string,method?:string,body?:unknown):Promise<unknown>;isPinned(id:string):boolean};
     ComputerResponseDetails: {research(article:HTMLElement,value?:Research,complete?:boolean):void;reset():void};
-    CometChart: {setData(data:ChartData,animate?:boolean):void;rollNumber(element:HTMLElement,text:string):void};
-    LightweightCharts: typeof import('lightweight-charts');
     CometNewsPreferences?: {topics:string[];languages:string};
 }
 interface WindowEventMap {
@@ -59,9 +57,10 @@ interface WindowEventMap {
     'workspace:before-mount': Event;
     'workspace:navigated': Event;
     'news-preferences-change': Event;
+    'chat:toggle-anonymous': Event;
     'chat:anonymous': CustomEvent<boolean>;
     'chat:context': CustomEvent<Conversation|null>;
-    'chat:export': CustomEvent<{id:string;title:string;format:'pdf'|'markdown'|'docx'}>;
+    'chat:export': CustomEvent<{id:string;title:string;turnId?:string;format:'pdf'|'markdown'|'docx'}>;
     'sessions:open': CustomEvent<{id:string}>;
     'sessions:changed': CustomEvent<{id:string;deleted?:boolean;title?:string}>;
     'sessions:new': Event; 'sessions:refresh': Event;

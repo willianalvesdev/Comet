@@ -25,7 +25,6 @@ import aprender from '../controllers/aprender';
 import news from '../controllers/news';
 import weather from '../controllers/weather';
 import recentChats from '../controllers/recent-chats';
-import graficos from '../controllers/graficos';
 import financeData from '../controllers/finance-data';
 import graphComposer from '../controllers/graph-composer';
 import discoveryPanel from '../controllers/discovery-panel';
@@ -38,5 +37,5 @@ export const pageControllers: Record<PageName, PageFactory[]> = {
     recentes: [recentChats],
     aprender: [computerService, modelMenu, attachments, aprender, dictation],
     descobrir: [news, weather],
-    graficos: [computerService, modelMenu, graficos, financeData, graphComposer, dictation, discoveryPanel],
+    graficos: [computerService, modelMenu, financeData, graphComposer, dictation, discoveryPanel],
 };

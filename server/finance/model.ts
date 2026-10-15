@@ -59,8 +59,6 @@ export function serialize(row: TransactionRow) {
   return { id: String(row.id), external_id: row.external_id, kind: row.kind, amount: money(cents(row.amount)), description: transactionTitle(row.description), category: row.category, currency: 'BRL', occurred_on: dateString(row.occurred_on), occurred_time: row.occurred_time ?? null, deleted_at: row.deleted_at ? timestampString(row.deleted_at) : null };
 }
 
-const zero = (balance = 0n) => ({ open: balance, high: balance, low: balance, close: balance, volume: 0n, income: 0n, expense: 0n });
-const chartValues = (point: ReturnType<typeof zero>) => Object.fromEntries((['open', 'high', 'low', 'close', 'volume'] as const).map(key => [key, Number(point[key]) / 100]));
 const nextDay = (day: string, delta = 1) => new Date(Date.parse(day) + delta * 86400000).toISOString().slice(0, 10);
 const abs = (amount: bigint) => amount < 0n ? -amount : amount;
 const percentage = (difference: bigint, old: bigint) => {
@@ -72,44 +70,26 @@ const percentage = (difference: bigint, old: bigint) => {
 };
 
 export function summarize(rows: BalanceRow[], today = localDay()) {
-  const monthStart = today.slice(0, 7) + '-01';
-  const previousStart = nextDay(monthStart, -1).slice(0, 7) + '-01';
-  const current = { income: 0n, expense: 0n }, previous = { income: 0n, expense: 0n };
-  let balance = 0n, previousBalance = 0n;
-  const daily = new Map<string, ReturnType<typeof zero>>();
-  const movements: Record<string, unknown>[] = [];
-  const sorted = [...rows].sort((a, b) => dateString(a.occurred_on).localeCompare(dateString(b.occurred_on)) || (a.occurred_time ?? '').localeCompare(b.occurred_time ?? '') || (BigInt(a.id ?? 0) < BigInt(b.id ?? 0) ? -1 : BigInt(a.id ?? 0) > BigInt(b.id ?? 0) ? 1 : 0));
-  for (const row of sorted) {
-    const day = dateString(row.occurred_on), amount = cents(row.amount);
-    if (day > today || row.deleted_at != null) continue;
-    const point = daily.get(day) ?? zero(balance);
-    daily.set(day, point);
-    const opening = balance;
-    balance += row.kind === 'income' ? amount : -amount;
-    const clock = row.occurred_time ?? null;
-    movements.push({ time: Date.parse(`${day}T${clock ?? '00:00:00'}-03:00`) / 1000, occurred_on: day, occurred_time: clock, open: Number(opening) / 100, high: Number(opening > balance ? opening : balance) / 100, low: Number(opening < balance ? opening : balance) / 100, close: Number(balance) / 100, volume: Number(amount) / 100 });
-    point.high = point.high > balance ? point.high : balance;
-    point.low = point.low < balance ? point.low : balance;
-    point.close = balance;
-    point.volume += amount;
-    point[row.kind] += amount;
-    if (day < monthStart) previousBalance = balance;
-    if (day >= monthStart) current[row.kind] += amount;
-    else if (day >= previousStart) previous[row.kind] += amount;
+  const monthStart=today.slice(0,7)+'-01',previousStart=nextDay(monthStart,-1).slice(0,7)+'-01';
+  let balance=0n,previousBalance=0n;
+  const current={income:0n,expense:0n},previous={income:0n,expense:0n};
+  const daily=new Map<string,{income:bigint;expense:bigint}>();
+  for(const row of rows){
+    const day=dateString(row.occurred_on);
+    if(row.deleted_at||day>today)continue;
+    const amount=cents(row.amount),delta=row.kind==='income'?amount:-amount;
+    balance+=delta;
+    if(day<monthStart)previousBalance+=delta;
+    if(day>=monthStart){current[row.kind]+=amount;const entry=daily.get(day)??{income:0n,expense:0n};entry[row.kind]+=amount;daily.set(day,entry);}
+    else if(day>=previousStart)previous[row.kind]+=amount;
   }
-  const points: Record<string, number>[] = [];
-  const sparks = { balance: [] as number[], income: [] as number[], expense: [] as number[] };
-  let income = 0n, expense = 0n, carried = 0n;
-  const first = daily.keys().next().value as string | undefined;
-  for (let day = first && first < monthStart ? first : monthStart; day <= today; day = nextDay(day)) {
-    const point = daily.get(day) ?? zero(carried);
-    carried = point.close;
-    if (daily.size) points.push({ time: Date.parse(day + 'T00:00:00Z') / 1000, ...chartValues(point) });
-    if (day >= monthStart) {
-      income += point.income; expense += point.expense;
-      sparks.balance.push(Number(carried) / 100); sparks.income.push(Number(income) / 100); sparks.expense.push(Number(expense) / 100);
-    }
+  const sparks={balance:[] as number[],income:[] as number[],expense:[] as number[]};
+  let carried=previousBalance,income=0n,expense=0n;
+  for(let day=monthStart;day<=today;day=nextDay(day)){
+    const entry=daily.get(day)??{income:0n,expense:0n};
+    carried+=entry.income-entry.expense;income+=entry.income;expense+=entry.expense;
+    sparks.balance.push(Number(carried)/100);sparks.income.push(Number(income)/100);sparks.expense.push(Number(expense)/100);
   }
-  const card = (value: bigint, old: bigint, key: keyof typeof sparks) => ({ amount: money(value), difference: money(value - old), percentage: old ? percentage(value - old, old) : null, series: sparks[key] });
-  return { currency: 'BRL', as_of: today, month: today.slice(0, 7), summary: { balance: card(balance, previousBalance, 'balance'), income: card(current.income, previous.income, 'income'), expense: card(current.expense, previous.expense, 'expense') }, chart: { currency: 'BRL', kind: 'balance', points, movements, intraday: [] } };
+  const card=(value:bigint,old:bigint,key:keyof typeof sparks)=>({amount:money(value),difference:money(value-old),percentage:old?percentage(value-old,old):null,series:sparks[key]});
+  return {currency:'BRL',as_of:today,month:today.slice(0,7),summary:{balance:card(balance,previousBalance,'balance'),income:card(current.income,previous.income,'income'),expense:card(current.expense,previous.expense,'expense')}};
 }

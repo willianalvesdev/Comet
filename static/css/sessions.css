@@ -1,5 +1,5 @@
 .sessions {
-    margin: 22px 0 var(--spacing-3);
+    margin: 14px 0 var(--spacing-2);
     flex: 0 0 auto;
     min-width: 0;
 }
@@ -50,14 +50,14 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: clip;
-    mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+    mask-image: none;
 }
 
 .sessions__row:hover .sessions__link,
 .sessions__row:has(:focus-visible) .sessions__link,
 .sessions__row:has([aria-expanded="true"]) .sessions__link,
 .sessions__row:has(.sessions__link[aria-current]) .sessions__link {
-    mask-image: linear-gradient(to right, #000 calc(100% - 68px), transparent calc(100% - 28px));
+    mask-image: none;
 }
 
 .sessions__more {
@@ -326,7 +326,7 @@
 
 .sessions-dialog--delete::backdrop {
     background: rgb(0 0 0 / .6);
-    backdrop-filter: blur(5px);
+    backdrop-filter: none;
 }
 
 .sessions-dialog--delete form {
@@ -561,15 +561,15 @@
 
 .sidebar .sessions__row,
 .sidebar .sessions > summary {
-    height: var(--input-md);
-    min-height: var(--input-md);
+    height: 36px;
+    min-height: 36px;
 }
 .sidebar .sessions__link,
 .sidebar .sessions-rename {
     box-sizing: border-box;
-    height: var(--input-md);
+    height: 36px;
     padding-block: 0;
-    line-height: 32px;
+    line-height: 36px;
 }
 #recent-chats {
     display: grid;
@@ -673,17 +673,17 @@
 .is-renaming .sessions__more, .is-renaming .recent-chats__row-actions { display: none; }
 
 .sessions-icon--read { mask: url('../img/icons/mark-read.svg') center/contain no-repeat; }
-.sessions__unread { position: absolute; z-index: 1; right: calc(var(--spacing-1) + 12px); top: calc(var(--spacing-1) + 12px); translate: 50% -50%; width: 7px; height: 7px; border-radius: var(--radius-full); background: var(--accent-brand); box-shadow: var(--shadow-unread); pointer-events: none; }
+.sessions__unread { position: absolute; z-index: 1; right: calc(var(--spacing-1) + 12px); top: calc(var(--spacing-1) + 12px); translate: 50% -50%; width: 7px; height: 7px; border-radius: var(--radius-full); corner-shape: round; background: var(--accent-brand); box-shadow: var(--shadow-unread); pointer-events: none; }
 .sessions__row:hover .sessions__unread,
 .sessions__row:has(:focus-visible) .sessions__unread,
 .sessions__row:has(.sessions__more[aria-expanded="true"]) .sessions__unread { visibility: hidden; }
 @media (hover: none) {
     .sessions__row:has(.sessions__unread):not(:hover):not(:has(:focus-visible)):not(:has(.sessions__more[aria-expanded="true"])) .sessions__more { opacity: 0; }
 }
-.sessions__row:has(.sessions__unread) .sessions__title { padding-right: var(--spacing-10); }
+.sessions__row:has(.sessions__unread) .sessions__title { padding-right: 0; }
 
 .sessions__row:has(.sessions__unread) .sessions__link {
-    mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent calc(100% - 28px));
+    mask-image: none;
 }
 
 .sessions__tools [data-action="more"] {
@@ -713,3 +713,46 @@
     mask: url('../img/icons/settings-settings-search.svg') center/contain no-repeat;
 }
 .chat-preview__question:hover, .chat-preview__question:focus-visible { text-decoration: underline; }
+
+
+
+.sidebar .sessions__link { display: flex; align-items: center; gap: 8px; }
+.sidebar .sessions__link > .sessions__title { flex: 1; min-width: 0; }
+.sessions__chat-icon {
+    display: block;
+    flex: 0 0 var(--icon-medium);
+    width: var(--icon-medium);
+    height: var(--icon-medium);
+    background: currentColor;
+    color: var(--text);
+    mask: url('../img/icons/chat.svg') center / contain no-repeat;
+}
+
+.sessions__new { display: grid; place-items: center; flex: 0 0 var(--input-sm); width: var(--input-sm); height: var(--input-sm); border-radius: var(--radius-8); color: inherit; }
+.sessions__new i { width: 18px; height: 18px; background: currentColor; mask: url('../img/icons/new.svg') center / contain no-repeat; }
+.sessions__new:hover { background: var(--surface-hover); }
+@media (hover: hover) {
+    .sidebar .sessions__toggle, .sidebar .sessions__preferences, .sidebar .sessions__new { opacity: 0; pointer-events: none; transition: opacity 150ms ease; }
+    .sidebar:hover .sessions__toggle,
+    .sidebar .sessions__toggle:focus-visible,
+    .sidebar .sessions > summary:is(:hover, :focus-within) :is(.sessions__preferences, .sessions__new),
+    .sidebar .sessions__preferences[aria-expanded="true"] { opacity: 1; pointer-events: auto; }
+}
+
+.sidebar .sessions__new { color: var(--text-secondary); }
+.sidebar .sessions__new:hover { color: var(--text); }
+
+.sidebar .sessions__more { width: 28px; height: 28px; margin: 4px; }
+.sessions__preferences i, .sessions__new i { display: block; width: 16px; height: 16px; }
+.sessions__new i { mask-size: 125% 125%; }
+.sidebar .sessions__preferences, .sidebar .sessions__new { color: var(--text-secondary); }
+
+
+.sidebar .sessions__link { padding-right:var(--spacing-2); }
+.sidebar .sessions__row:is(:hover,:focus-within) .sessions__link,
+.sidebar .sessions__row:has(.sessions__link[aria-current],.sessions__more[aria-expanded="true"],.sessions__unread) .sessions__link { padding-right:36px; }
+.sidebar .sessions__more { background:var(--surface-hover); z-index:2; }
+.sidebar .sessions__more:is(:hover,:focus-visible,[aria-expanded="true"]) { background:var(--surface-selected); }
+
+.sidebar .sessions__link > .sessions__title { mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent); }
+.sidebar .sessions__link { font-size:var(--font-size-3); }

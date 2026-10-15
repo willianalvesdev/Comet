@@ -13,6 +13,21 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     panel.append(list); nav.append(rail, panel); scope.append(nav);
     let entries: {message:HTMLElement;mark:HTMLButtonElement;item:HTMLButtonElement}[] = [], current = -1, frame = 0;
     let previewIndex = -1;
+    function depth() {
+        const bounds = rail.getBoundingClientRect();
+        const selected = panel.hidden ? current : previewIndex;
+        entries.forEach((entry, index) => {
+            const rect = entry.mark.getBoundingClientRect();
+            const edgeDistance = Math.min(rect.top + rect.height / 2 - bounds.top, bounds.bottom - rect.top - rect.height / 2);
+            const edge = Math.max(0, Math.min(1, 1 - edgeDistance / 72));
+            const relief = selected < 0 ? 1 : Math.max(0, Math.min(1, (Math.abs(index - selected) - 2) / 3));
+            const fade = edge * edge * (3 - 2 * edge);
+            const amount = fade * relief;
+            entry.mark.style.setProperty('--mark-blur', (amount * 1.8).toFixed(2) + 'px');
+            entry.mark.style.setProperty('--mark-depth', (amount * 42).toFixed(2) + 'deg');
+            entry.mark.style.setProperty('--mark-opacity', String(1 - amount * .5));
+        });
+    }
     function open(index = Math.max(0, current)) {
         const entry = entries[index]; if (!entry) return;
         previewIndex = index;
@@ -21,13 +36,21 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const preview = requiredElement(entry.item, '.message-navigator__answer', HTMLElement);
         preview.textContent = answer?.classList.contains('computer-message--assistant') ? answer.querySelector('.computer-message__text')?.textContent?.trim() ?? '' : '';
         preview.hidden = !preview.textContent;
-        panel.hidden = false; nav.classList.add('is-open');
+        const time = requiredElement(entry.item, '.message-navigator__time', HTMLTimeElement);
+        const value = entry.message.querySelector('time')?.dateTime;
+        const date = new Date(value || '');
+        time.hidden = Number.isNaN(date.getTime());
+        if (!time.hidden) {
+            time.dateTime = date.toISOString();
+            time.textContent = date.toLocaleDateString('pt-BR', {day:'numeric',month:'short'}) + ', ' + date.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+        }
+        panel.hidden = false; nav.classList.add('is-open'); depth();
         panel.style.top = `${entry.mark.getBoundingClientRect().top - nav.getBoundingClientRect().top + entry.mark.offsetHeight / 2}px`;
         const bounds = panel.getBoundingClientRect();
         const correction = Math.max(8 - bounds.top, Math.min(0, innerHeight - 8 - bounds.bottom));
         panel.style.top = `${parseFloat(panel.style.top) + correction}px`;
     }
-    function close() { panel.hidden = true; nav.classList.remove('is-open'); entries.forEach(entry => entry.mark.classList.remove('is-previewed', 'is-near-preview', 'is-next-preview')); }
+    function close() { panel.hidden = true; nav.classList.remove('is-open'); entries.forEach(entry => entry.mark.classList.remove('is-previewed', 'is-near-preview', 'is-next-preview')); depth(); }
     function go(index: number) {
         const entry = entries[index]; if (!entry) return;
         const rect = entry.message.getBoundingClientRect();
@@ -36,9 +59,10 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     }
     function update() {
         frame = 0; if (!entries.length) return;
+        const atTop = scroller.scrollTop <= 8;
         const atBottom = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight <= 8;
-        let index = entries.length - 1;
-        if (!atBottom) {
+        let index = atTop ? 0 : entries.length - 1;
+        if (!atTop && !atBottom) {
             let distance = Infinity;
             entries.forEach((entry,i) => {
                 const rect = entry.message.getBoundingClientRect();
@@ -46,12 +70,13 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
                 if (next < distance) { distance = next; index = i; }
             });
         }
-        if (index === current) return;
+        if (index === current) { depth(); return; }
         const previous = entries[current];
         if (previous) { previous.mark.removeAttribute('aria-current'); previous.item.removeAttribute('aria-current'); }
         current = index;
         entries[index].mark.setAttribute('aria-current', 'true');
         entries[index].item.setAttribute('aria-current', 'true');
+        depth();
     }
     function schedule() { if (!frame) frame = requestAnimationFrame(update); }
     function rebuild() {
@@ -62,7 +87,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             const text = requiredElement(message, '.computer-message__text', HTMLElement).textContent.trim();
             const mark = document.createElement('button'); mark.type = 'button'; mark.className = 'message-navigator__mark';
             mark.setAttribute('aria-label', `Mensagem ${index + 1}: ${text.slice(0, 100)}`);
-            const item = document.createElement('button'); item.type = 'button'; item.hidden = true; const title = document.createElement('strong'); title.className = 'message-navigator__question'; title.textContent = text; const answer = document.createElement('span'); answer.className = 'message-navigator__answer'; item.append(title, answer);
+            const item = document.createElement('button'); item.type = 'button'; item.hidden = true; const title = document.createElement('strong'); title.className = 'message-navigator__question'; title.textContent = text; const answer = document.createElement('span'); answer.className = 'message-navigator__answer'; const time = document.createElement('time'); time.className = 'message-navigator__time'; time.hidden = true; item.append(title, answer, time);
             item.setAttribute('aria-label', `Ir para mensagem ${index + 1}: ${text.slice(0, 100)}`);
             mark.addEventListener('click', () => { if (matchMedia('(hover: none)').matches && panel.hidden) open(index); else go(index); }, {signal: scope.signal});
             mark.addEventListener('pointerenter', event => { if (event.pointerType !== 'touch') open(index); }, {signal: scope.signal});
@@ -89,6 +114,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     }, {signal: scope.signal});
     scope.listen(document, 'pointerdown', event => { if (!nav.contains(event.target instanceof Node ? event.target : null)) close(); });
     scope.listen(scroller, 'scroll', schedule, {passive:true});
+    scope.listen(rail, 'scroll', schedule, {passive:true});
     scope.listen(window, 'resize', schedule);
     new ResizeObserver(schedule).observe(messages);
     const composer = requiredElement(document, '.computer-composer', HTMLElement);

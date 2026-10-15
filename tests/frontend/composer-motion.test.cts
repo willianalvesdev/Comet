@@ -106,12 +106,12 @@ test('texto aparece antes do fim da resposta e citaÃ§Ãµes abrem somente fontes v
     } finally {await context.close();}
 });
 
-for (const width of [1280, 390]) test(`pesquisa, fontes e caixa fechada estável em ${width}px`, async () => {
+for (const width of [1280, 390]) test(`pesquisa, fontes e caixa fechada estï¿½vel em ${width}px`, async () => {
     const {context,page:p,errors} = await fixture(width);
     try {
-        await p.evaluate(() => document.fonts.ready);
-        const fonts = await p.evaluate(() => ({saans: document.fonts.check('14px Saans'), kalice: document.fonts.check('24px Kalice'), input: getComputedStyle(document.querySelector('.home__input')!).fontFamily}));
-        assert.equal(fonts.saans, true); assert.equal(fonts.kalice, true); assert.match(fonts.input, /Saans/);
+        await p.evaluate(async () => { await document.fonts.load('24px Kalice'); await document.fonts.ready; });
+        const fonts = await p.evaluate(() => ({kalice: document.fonts.check('24px Kalice'), input: getComputedStyle(document.querySelector('.home__input')!).fontFamily}));
+        assert.equal(fonts.kalice, true); assert.match(fonts.input, /-apple-system/);
         assert.equal(await p.locator('.model-picker').innerText(), 'Pesquisar');
         await p.locator('.local-model-picker').click();
         assert.equal(await p.locator('#computer-model-menu button').count(), 1);
@@ -125,7 +125,7 @@ for (const width of [1280, 390]) test(`pesquisa, fontes e caixa fechada estável 
             await new Promise<void>(resolve => {const start=performance.now();function frame(){values.push(composer.getBoundingClientRect().height);if(performance.now()-start<300)requestAnimationFrame(frame);else resolve();}requestAnimationFrame(frame);});
             return values;
         });
-        assert.ok(Math.max(...heights)-Math.min(...heights)<1, 'Clique fora não deve abrir a caixa fechada');
+        assert.ok(Math.max(...heights)-Math.min(...heights)<1, 'Clique fora nï¿½o deve abrir a caixa fechada');
         await p.locator('.model-picker').hover();
         assert.equal(await p.locator('.model-picker').evaluate(e => getComputedStyle(e).backgroundColor), 'rgba(0, 0, 0, 0)');
         assert.deepEqual(errors, []);

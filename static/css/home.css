@@ -40,6 +40,7 @@
 .home__input {
     display: block;
     width: 100%;
+    font-weight: var(--font-weight-regular);
     min-height: 60px;
     max-height: 240px;
     padding: 0 var(--spacing-2);
@@ -74,7 +75,7 @@
     min-height: 36px;
     padding: 7px var(--spacing-3);
     border: 1px solid transparent;
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-full); corner-shape: round;
     background: transparent;
     color: var(--text-secondary);
     font-size: var(--font-size-4);
@@ -104,6 +105,8 @@
 }
 
 .home__microphone {
+    border-radius: var(--radius-full);
+    corner-shape: round;
     width: var(--input-md);
     height: var(--input-md);
     background: transparent;
@@ -116,7 +119,7 @@
 }
 
 .home__send {
-    background: var(--text);
+    background: var(--accent);
     color: var(--surface);
 }
 
@@ -296,31 +299,15 @@
     }
 }
 
-@property --dictation-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-}
-
-.home__composer.is-dictating::after {
-    content: '';
-    position: absolute;
-    inset: var(--spacing-px);
-    z-index: 1;
-    padding: 1.5px;
-    border-radius: inherit;
-    background: conic-gradient(from var(--dictation-angle), transparent 0deg 230deg, color-mix(in srgb, var(--accent) 25%, transparent) 275deg, var(--accent) 320deg, color-mix(in srgb, var(--text) 75%, var(--accent)) 340deg, transparent 360deg);
-    mask: linear-gradient(var(--text-white) 0 0) content-box, linear-gradient(var(--text-white) 0 0);
-    mask-composite: exclude;
-    pointer-events: none;
-    animation: dictation-border 4s linear infinite;
-}
-
-@keyframes dictation-border {
-    to {
-        --dictation-angle: 360deg;
-    }
-}
+.dictation-equalizer { display: none; width: 116px; height: 24px; flex: 0 1 116px; fill: var(--accent); }
+.is-dictating .dictation-equalizer { display: block; }
+.home__toolbar.is-dictating .local-model-picker { display: none; }
+.dictation-glow { position: absolute; inset: 1px; z-index: 2; border-radius: inherit; padding: 1px; overflow: hidden; pointer-events: none; opacity: 0; transition: opacity 300ms; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; }
+.is-dictating > .dictation-glow { opacity: 1; }
+.dictation-glow__stretch { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; transform: scaleX(calc(var(--dictation-aspect, 4) * .65)); }
+.dictation-glow__spin { position: absolute; width: 100%; min-height: 100%; aspect-ratio: 1; background: conic-gradient(transparent 135deg, var(--accent) 180deg, transparent 225deg); filter: none; }
+.is-dictating .dictation-glow__spin { animation: dictation-spin 5s linear infinite; }
+@keyframes dictation-spin { to { transform: rotate(360deg); } }
 
 .home__dictation-status {
     position: absolute;
@@ -335,7 +322,7 @@
 }
 
 @media(prefers-reduced-motion:reduce) {
-    .home__composer.is-dictating::after {
+    .is-dictating .dictation-glow__spin {
         animation: none;
     }
 }

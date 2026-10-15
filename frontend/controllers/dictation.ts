@@ -12,7 +12,85 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     const toolbar = button.closest(".home__toolbar");
     let session: SpeechRecognitionSession | null = null;
     let stopping = false;
+    const waveform = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    waveform.classList.add('dictation-equalizer');
+    waveform.setAttribute('viewBox', '0 0 116 24');
+    waveform.setAttribute('aria-hidden', 'true');
+    const dots = Array.from({length: 145}, (_, index) => {
+        const dot = document.createElementNS(waveform.namespaceURI, 'circle');
+        dot.setAttribute('cx', String(2 + Math.floor(index / 5) * 4));
+        dot.setAttribute('cy', String(4 + index % 5 * 4));
+        dot.setAttribute('r', '1');
+        waveform.append(dot);
+        return dot;
+    });
+    button.before(waveform);
+    const glow = document.createElement('div');
+    glow.className = 'dictation-glow';
+    glow.setAttribute('aria-hidden', 'true');
+    glow.innerHTML = '<div class="dictation-glow__stretch"><div class="dictation-glow__spin"></div></div>';
+    composer?.append(glow);
+    const resize = new ResizeObserver(() => {
+        glow.style.setProperty('--dictation-aspect', String(glow.clientWidth / Math.max(1, glow.clientHeight)));
+    });
+    resize.observe(glow);
+    let stream: MediaStream | null = null;
+    let audio: AudioContext | null = null;
+    let frame = 0;
+    let audioEpoch = 0;
+    function releaseAudio() {
+        audioEpoch++;
+        window.cancelAnimationFrame(frame);
+        stream?.getTracks().forEach(track => track.stop());
+        stream = null;
+        void audio?.close().catch(() => {});
+        audio = null;
+    }
+    function paint(level: number) {
+        dots.forEach((dot, index) => {
+            const column = Math.floor(index / 5), row = index % 5;
+            const envelope = Math.sin(Math.PI * (column + 1) / 30);
+            const strength = Math.max(0, Math.min(1, level * envelope * 3 - Math.abs(row - 2) * .45));
+            dot.setAttribute('opacity', String((row === 2 ? .15 : .04) + strength * .85));
+        });
+    }
+    paint(0);
+    async function analyse(recognition: SpeechRecognitionSession) {
+        if (!navigator.mediaDevices?.getUserMedia || !window.AudioContext) return;
+        const epoch = ++audioEpoch;
+        try {
+            const captured = await navigator.mediaDevices.getUserMedia({audio:true});
+            if (epoch !== audioEpoch || session !== recognition || stopping || !scope.active) {
+                captured.getTracks().forEach(track => track.stop());
+                return;
+            }
+            stream = captured;
+            audio = new AudioContext();
+            const analyser = audio.createAnalyser();
+            analyser.fftSize = 256;
+            audio.createMediaStreamSource(captured).connect(analyser);
+            await audio.resume();
+            if (epoch !== audioEpoch) return;
+            const samples = new Uint8Array(analyser.fftSize);
+            const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+            let smooth = 0;
+            function tick() {
+                if (epoch !== audioEpoch) return;
+                analyser.getByteTimeDomainData(samples);
+                const rms = Math.sqrt(samples.reduce((sum, value) => sum + ((value - 128) / 128) ** 2, 0) / samples.length);
+                smooth = smooth * .65 + Math.min(1, rms * 7) * .35;
+                paint(reduced ? .3 : smooth);
+                if (!reduced) frame = requestAnimationFrame(tick);
+            }
+            tick();
+        } catch {
+            if (epoch === audioEpoch) { releaseAudio(); paint(0); }
+            // Transcription remains available when audio metering is unsupported.
+        }
+    }
+    scope.cleanup(() => { releaseAudio(); resize.disconnect(); waveform.remove(); glow.remove(); });
     function indicate(active: boolean, message: string) {
+        if (!active) { releaseAudio(); paint(0); }
         present(button).setAttribute("aria-pressed", String(active));
         present(button).setAttribute("aria-label", active ? "Parar ditado" : "Ditar mensagem");
         present(button).title = active ? "Parar ditado" : "Ditar mensagem";
@@ -37,6 +115,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     function stop() {
         if (!session || stopping) return;
         stopping = true;
+        releaseAudio();
         indicate(true, "Finalizando ditado…");
 
         session.stop();
@@ -74,7 +153,10 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         stopping = false;
         indicate(true, "Ativando microfone…");
         recognition.onstart = () => {
-            if (session === recognition && !stopping) indicate(true, "Ouvindo… Toque no quadrado para parar.");
+            if (session === recognition && !stopping) {
+                indicate(true, "Ouvindo… Toque para concluir.");
+                void analyse(recognition);
+            }
         };
         recognition.onresult = event => {
             if (session !== recognition) return;

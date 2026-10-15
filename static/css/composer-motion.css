@@ -3,7 +3,7 @@
     position: relative;
     isolation: isolate;
     gap: 0;
-    padding: 0;
+    padding: 2px;
     --provider-progress: 0;
     --gemini-width: 94px;
     --computer-width: 36px;
@@ -12,11 +12,13 @@
 }
 .provider-toggle > .provider-toggle__indicator {
     position: absolute;
-    inset-block: 0;
-    inset-inline-start: var(--indicator-x);
+    inset-block: 2px;
+    inset-inline-start: calc(var(--indicator-x) + 2px);
     width: var(--indicator-width);
     border: 1px solid var(--border);
     border-radius: inherit;
+    corner-shape: inherit;
+    box-shadow: none;
     background: color-mix(in srgb, var(--text) 6%, var(--surface));
     pointer-events: none;
 }
@@ -41,7 +43,7 @@
     padding-inline-end: 12px;
     white-space: nowrap;
 }
-.provider-toggle__content > i { flex: none; width: 16px; height: 16px; margin-inline: 10px; }
+.provider-toggle__content > i { flex: none; width: 16px; height: 16px; margin-inline: 8px; }
 .provider-toggle .model-picker .provider-toggle__label { opacity: calc(1 - var(--provider-progress)); }
 .provider-toggle .computer-provider .provider-toggle__label { opacity: var(--provider-progress); }
 .composer-provider-group.provider-toggle > button:not(:disabled):hover { background: transparent; color: var(--text); }

@@ -217,9 +217,9 @@ export async function renderConversationExport(conversation: ExportConversation,
     const data = prepareExport(conversation);
     return format === 'pdf' ? pdf(data) : format === 'docx' ? docx(data) : markdown(data);
 }
-export async function exportConversation(userId: number, cid: string, format: string | null): Promise<Response> {
+export async function exportConversation(userId: number, cid: string, format: string | null, turnId?: string): Promise<Response> {
     if (format !== 'pdf' && format !== 'markdown' && format !== 'docx') throw new ApiError(400, 'Escolha PDF, Markdown ou DOCX para exportar.');
-    const conversation = await getConversationExport(userId, cid);
+    const conversation = await getConversationExport(userId, cid, turnId);
     const buffer = await renderConversationExport(conversation, format);
     const filename = exportFilename(conversation.title, format);
     const fallback = filename.normalize('NFD').replace(/\p{M}/gu, '').replace(/[^\x20-\x7e]|["\\]/g, '_');

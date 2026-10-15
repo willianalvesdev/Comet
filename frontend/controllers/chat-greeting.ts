@@ -22,18 +22,18 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
   else localStorage.setItem(greetingKey,JSON.stringify({interval,text:greeting}));
  } catch {}
  function fit(){
-  const heading=present(label).parentElement;const width=present(heading).clientWidth-(optionalElement(present(heading), 'img, svg, i, .computer-logo', Element)?.getBoundingClientRect().width||44)-(parseFloat(getComputedStyle(present(heading)).columnGap)||0);
+  const heading=present(label).parentElement;const width=present(heading).clientWidth-(getComputedStyle(present(heading)).flexDirection==='column' ? 0 : (optionalElement(present(heading), 'img, svg, i, .computer-logo', Element)?.getBoundingClientRect().width||44)+(parseFloat(getComputedStyle(present(heading)).columnGap)||0));
   const base=parseFloat(getComputedStyle(present(heading)).fontSize);present(label).style.fontSize=base+'px';
   if(present(label).scrollWidth>width)present(label).style.fontSize=Math.max(12,base*width/present(label).scrollWidth)+'px';
  }
  const eyes=optionalElement(present(label.parentElement), '.computer-eyes', HTMLElement);
  if(eyes)eyes.style.animationDelay=-(Date.now()%10000)+'ms';
  const nameKey='ascenda-greeting-name-'+label.dataset.accountId;
- let anonymous=false,currentName=label.dataset.accountName || '';
+ let anonymous=document.body.classList.contains('is-anonymous'),currentName=label.dataset.accountName || '';
  try { currentName=localStorage.getItem(nameKey)||currentName; } catch {}
- const render=(name:string)=>{currentName=name||currentName;label.textContent=anonymous?'Você está no modo anônimo':greeting.replaceAll('{name}',currentName);fit();};
+ const render=(name:string)=>{currentName=name||currentName;label.textContent=anonymous?'Você está Anônimo':greeting.replaceAll('{name}',currentName);fit();};
  scope.listen(window, 'chat:anonymous',event=>{anonymous=event.detail;render(currentName);});
  new ResizeObserver(fit).observe(present(label.parentElement));document.fonts.ready.then(fit);
  render(currentName);
- fetch('/api/ai/personalization',{credentials:'same-origin',cache:'no-store'}).then(response=>response.ok?response.json():null).then((profile:unknown)=>{if(isRecord(profile)){const name=profile.name||profile.account_name;if(typeof name==='string'&&name){try{localStorage.setItem(nameKey,name);}catch{}if(name!==currentName)render(name);}}}).catch(()=>{});
+ if (!anonymous) fetch('/api/ai/personalization',{credentials:'same-origin',cache:'no-store'}).then(response=>response.ok?response.json():null).then((profile:unknown)=>{if(isRecord(profile)){const name=profile.name||profile.account_name;if(typeof name==='string'&&name){try{localStorage.setItem(nameKey,name);}catch{}if(name!==currentName)render(name);}}}).catch(()=>{});
 }

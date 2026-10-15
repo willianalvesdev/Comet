@@ -33,3 +33,12 @@
     }
 
 }
+
+.computer-intro .computer-eyes { animation-name: computer-look-down; }
+@keyframes computer-look-down {
+    0%, 100% { transform: translate(0, 0) scaleY(1); }
+    18%, 35%, 42%, 65% { transform: translate(0, 3px) scaleY(1); }
+    38% { transform: translate(0, 3px) scaleY(.12); }
+    74%, 87% { transform: translate(2px, 2px) scaleY(1); }
+    82% { transform: translate(2px, 2px) scaleY(.12); }
+}

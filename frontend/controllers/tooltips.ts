@@ -6,6 +6,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     let active: HTMLElement | null = null, timer = 0;
     function prepareTitle(node: Node) {
         if (!(node instanceof HTMLElement) || !node.hasAttribute('title')) return;
+        if (node.matches('.sessions__link, [data-chat-id]')) { node.removeAttribute('title'); delete node.dataset.tooltip; return; }
         if (node.title) node.dataset.tooltip = node.title;
         node.removeAttribute('title');
     }

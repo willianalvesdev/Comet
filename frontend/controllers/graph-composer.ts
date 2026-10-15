@@ -35,7 +35,7 @@ export default function mount({scope, fetch, requestAnimationFrame, ResizeObserv
     const send = requiredElement(composer, '.home__send', HTMLButtonElement);
     function updateInput() {
         present(input).style.height = 'auto';
-        present(input).style.height = Math.max(38, Math.min(present(input).scrollHeight, 240)) + 'px';
+        present(input).style.height = Math.max(parseFloat(getComputedStyle(present(input)).lineHeight), Math.min(present(input).scrollHeight, 120)) + 'px';
         send.classList.toggle('is-empty', !present(input).value.trim());
     }
     present(input).addEventListener('input', updateInput, {signal: scope.signal});

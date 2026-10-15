@@ -154,16 +154,40 @@ test('provider interruption persists partial content and produces error without 
   assert.equal(saved.active,false);
 });
 
-test('cancelling before generation marks interrupted and releases the user slot', async () => {
-  let calls = 0;
-  globalThis.fetch = async () => { calls++; throw new Error('Provider should not be reached'); };
-  const response = await chatResponse(request(),users[0],payload('Cancelar'));
-  await response.body!.cancel();
-  const latest = await listConversations(users[0],0,'Cancelar');
+test('saved response survives disconnect and explicit stop is owner scoped', async () => {
+  let finish:()=>void=()=>{}, began:()=>void=()=>{};
+  const started=new Promise<void>(resolve=>{began=resolve;});
+  let generationSignal:AbortSignal|null=null;
+  globalThis.fetch=async (_url,options)=>{
+    generationSignal=options?.signal as AbortSignal;
+    return new Response(new ReadableStream({start(controller){
+      const send=(text:string,done=false)=>controller.enqueue(new TextEncoder().encode('data: '+JSON.stringify({candidates:[{content:{parts:[{text}]},...(done?{finishReason:'STOP'}:{})}]})+'\n\n'));
+      send('Parte inicial. ');finish=()=>{send('Resposta completa.',true);controller.close();};began();
+      generationSignal!.addEventListener('abort',()=>controller.error(new DOMException('Aborted','AbortError')),{once:true});
+    }}),{headers:{'content-type':'text/event-stream'}});
+  };
+  const navigation=new AbortController();
+  const work=payload('Continuar ao navegar');
+  const response=await chatResponse(new Request('http://localhost/api/ai/chat',{signal:navigation.signal}),users[0],work);
+  const reader=response.body!.getReader();
+  const first=JSON.parse(new TextDecoder().decode((await reader.read()).value).trim());
+  await started;await reader.cancel();navigation.abort();
+  assert.equal((generationSignal as AbortSignal|null)?.aborted,false);
+  finish();
+  let saved=await getConversation(users[0],first.conversation_id,null);
+  for(let i=0;i<100&&saved.active;i++){await new Promise(r=>setTimeout(r,20));saved=await getConversation(users[0],first.conversation_id,null);}
+  assert.equal(saved.turns[0].status,'completed');assert.equal(saved.turns[0].answer,'Parte inicial. Resposta completa.');
+  await new Promise(r=>setTimeout(r,50));
+  globalThis.fetch=async (_url,options)=>new Response(new ReadableStream({start(controller){options?.signal?.addEventListener('abort',()=>controller.error(new DOMException('Aborted','AbortError')),{once:true});}}),{headers:{'content-type':'text/event-stream'}});
+  const stopping=payload('Parar explicitamente');
+  const running=await chatResponse(request(),users[0],stopping);
+  const cancel=()=>new Request('http://localhost/api/ai/chat/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request_id:stopping.request_id})});
+  assert.deepEqual(await (await handleAI(cancel(),{id:users[1]},['chat','cancel']))!.json(),{stopped:false});
+  assert.deepEqual(await (await handleAI(cancel(),{id:users[0]},['chat','cancel']))!.json(),{stopped:true});
+  await running.text();
+  const latest=await listConversations(users[0],0,'Parar explicitamente');
   assert.equal((await getConversation(users[0],latest.conversations[0].id,null)).turns[0].status,'interrupted');
-  assert.equal(calls,0);
-  mockGemini('Pode continuar');
-  assert.equal((await events(await chatResponse(request(),users[0],payload()))).at(-1)!.type,'done');
+  mockGemini('Pode continuar');assert.equal((await events(await chatResponse(request(),users[0],payload()))).at(-1)!.type,'done');
 });
 
 test('anonymous chat never creates history, profile or cross-chat memories', async () => {

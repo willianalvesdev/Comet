@@ -21,7 +21,7 @@ for (const name of fs.readdirSync('frontend/controllers').filter(name => name.en
             const names=ts.isVariableStatement(node)?node.declarationList.declarations.map(d=>d.name.text):node.name?[node.name.text]:[];
             for(const symbol of names) {
                 const isType=ts.isInterfaceDeclaration(node)||ts.isTypeAliasDeclaration(node);
-                declarations += isType ? `type ${symbol} = import('./controllers/${name.slice(0,-3)}').${symbol};\n` : `declare const ${symbol}: typeof import('./controllers/${name.slice(0,-3)}').${symbol};\n`;
+                declarations += isType ? `type ${symbol} = import('./frontend/controllers/${name.slice(0,-3)}').${symbol};\n` : `declare const ${symbol}: typeof import('./frontend/controllers/${name.slice(0,-3)}').${symbol};\n`;
             }
         }
     }

@@ -6,10 +6,9 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     const preview = document.createElement('div');
     preview.className = 'chat-preview'; preview.id = 'chat-preview'; preview.hidden = true;
     preview.setAttribute('role', 'region'); preview.setAttribute('aria-label', 'Prévia da conversa');
-    preview.innerHTML = '<span class="chat-preview__search" hidden><i aria-hidden="true"></i>Busca</span><time class="chat-preview__time"></time><a class="chat-preview__question"></a><p class="chat-preview__answer"></p>';
+    preview.innerHTML = '<span class="chat-preview__search"><i aria-hidden="true"></i>Busca</span><time class="chat-preview__time"></time><a class="chat-preview__question"></a><p class="chat-preview__answer"></p>';
     scope.append(preview);
     const stamp = requiredElement(preview, 'time', HTMLTimeElement), question = requiredElement(preview, '.chat-preview__question', HTMLAnchorElement), answer = requiredElement(preview, '.chat-preview__answer', HTMLElement);
-    const search = requiredElement(preview, '.chat-preview__search', HTMLElement);
     const relative = new Intl.RelativeTimeFormat('pt-BR', {numeric:'always'});
     let anchor: HTMLAnchorElement | null = null, timer = 0, closeTimer = 0, controller: AbortController | undefined, version = 0;
     function hide() {
@@ -45,7 +44,6 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
                 if (current !== version || !link.isConnected) return;
                 question.textContent = message || 'Conversa sem mensagens';
                 question.href = link.href;
-                search.hidden = data.has_search !== true;
                 answer.textContent = text || 'Resposta ainda não disponível.';
                 const date = new Date(created);
                 present(stamp).hidden = !created || Number.isNaN(date.getTime());

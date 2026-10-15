@@ -2,11 +2,12 @@ import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { query, closeDatabase } from '../../server/db';
-import { dashboard, executeActions, history, receive } from '../../server/finance/repository';
+import { chartOverview, executeActions, history, receive } from '../../server/finance/repository';
 import { prepareInterpretation } from '../../server/finance/interpretation';
 
 if (process.env.TEST_DATABASE_URL) process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
 after(closeDatabase);
+const dashboard=(userId:number)=>chartOverview(userId,new URLSearchParams({period:'max'}));
 const configured = Boolean(process.env.DATABASE_URL);
 const transaction = (changes: Record<string, unknown> = {}) => ({ kind: 'expense', amount: '80.00', description: 'Mercado', category: 'Alimentação', occurred_on: '2026-09-30', ...changes });
 const action = (type: string, id: string, extra: Record<string, unknown> = {}) => ({ type, transaction_ids: [id], ...extra });
@@ -47,7 +48,7 @@ test('PostgreSQL financial lifecycle preserves IDs, exact cents, audit and accou
   assert.ok(deleted.deleted_at);
   const empty = await dashboard(user);
   assert.equal(empty.summary.balance.amount, '0.00');
-  assert.deepEqual(empty.chart.points, []);
+  assert.deepEqual(empty.series.balance.points, []);
   await assert.rejects(execute(user, [action('update', id, { changes: { amount: '1.00' } })]), { status: 409 });
   await execute(user, [action('restore', id)]);
   assert.equal((await history(user)).transactions[0].amount, '90.01');

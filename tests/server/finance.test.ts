@@ -25,7 +25,7 @@ test('clock is Sao Paulo across month/year boundaries and updates preserve absen
   for (const occurred_time of ['24:00', '09:60', '12:00:60', 'abc', 930, '', '9:00']) assert.throws(() => validateTransaction(payload({ occurred_time })), { status: 422 });
 });
 
-test('totals, daily carry, candles and percentage remain exact', () => {
+test('monthly totals, sparklines and percentages remain exact', () => {
   const data = summarize([
     { kind: 'income', amount: '100.10', occurred_on: '2026-01-31' },
     { kind: 'expense', amount: '10.05', occurred_on: '2026-02-01' },
@@ -38,10 +38,6 @@ test('totals, daily carry, candles and percentage remain exact', () => {
   assert.equal(data.summary.balance.difference, '-4.85');
   assert.equal(data.summary.balance.percentage, '-4.85');
   assert.equal(data.summary.expense.percentage, null);
-  assert.equal(data.chart.points.length, 5);
-  assert.deepEqual(data.chart.points.map(row => row.close), [100.1, 90.25, 90.25, 95.25, 95.25]);
-  assert.equal(data.chart.points[1].low, 90.05);
-  assert.equal(data.chart.points[4].volume, 0);
   assert.equal(summarize([], '2024-02-29').summary.income.series.length, 29);
   const large = summarize([{ kind: 'income', amount: '999999999999.99', occurred_on: '2026-01-01' }, { kind: 'expense', amount: '0.01', occurred_on: '2026-01-01' }], '2026-01-01');
   assert.equal(large.summary.balance.amount, '999999999999.98');
@@ -55,9 +51,6 @@ test('same-time movements keep stable IDs, negative balances, deleted and future
     { id: '4', kind: 'income', amount: '999', occurred_on: '2026-10-01', deleted_at: '2026-10-01T12:00:00Z' },
     { id: '5', kind: 'income', amount: '999', occurred_on: '2026-10-03' },
   ], '2026-10-02');
-  assert.deepEqual(data.chart.movements.map(row => row.close), [-100, -70, -90]);
-  assert.equal(data.chart.movements[0].time, data.chart.movements[1].time);
-  assert.equal(new Date(Number(data.chart.movements[2].time) * 1000).toISOString(), '2026-10-02T02:30:00.000Z');
   assert.equal(data.summary.balance.amount, '-90.00');
 });
 

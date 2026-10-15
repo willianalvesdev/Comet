@@ -12,7 +12,7 @@
 .study-topics h2 { font-size: var(--font-size-3); font-weight: var(--font-weight-regular); }
 .study-carousel { position: relative; }
 .study-list-controls { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
-.study-list-controls button { position: absolute; top: 50%; transform: translateY(-50%); pointer-events: auto; display: grid; place-items: center; width: var(--input-lg); height: var(--input-lg); border: 1px solid var(--border); border-radius: var(--radius-full); background: var(--surface); color: var(--text); opacity: 1; visibility: visible; transition: opacity 300ms ease, visibility 0s; }
+.study-list-controls button { position: absolute; top: 50%; transform: translateY(-50%); pointer-events: auto; display: grid; place-items: center; width: var(--input-lg); height: var(--input-lg); border: 1px solid var(--border); border-radius: var(--radius-full); corner-shape: round; background: var(--surface); color: var(--text); opacity: 1; visibility: visible; transition: opacity 300ms ease, visibility 0s; }
 .study-list-controls [data-topic-direction="-1"] { left: -20px; }
 .study-list-controls [data-topic-direction="1"] { right: -20px; }
 .study-list-controls button:disabled { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 300ms ease, visibility 0s 300ms; }

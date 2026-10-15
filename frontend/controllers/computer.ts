@@ -42,6 +42,10 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     }
     if(!optionalElement(document, '.anonymous-note', HTMLElement)){const note=document.createElement('p');note.className='anonymous-note';note.hidden=true;note.textContent='Esse chat não será salvo no histórico';form.after(note);}
     const anonymousButton = requiredElement(document, '.anonymous-toggle', HTMLButtonElement);
+    const privateChats = new Map<string, {conversation: Conversation; turns: Turn[]}>();
+    let privateId: string | null = null;
+    function drawPrivateChats() { sessions.render([...privateChats.values()].map(item=>item.conversation)); sessions.select(privateId); }
+    let activeRequestId: string | null = null;
     let currentTitle = '';
     let currentConversation: Conversation | null = null;
     let currentId: string | null = null, active: AbortController | null = null, loading = true, ready = false, remoteActive = false;
@@ -153,7 +157,12 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             button.dataset.feedback=kind; actions.append(button);
         }
         const rewriteButton=document.createElement('button');rewriteButton.type='button';rewriteButton.className='computer-rewrite';rewriteButton.setAttribute('aria-label','Reescrever resposta');rewriteButton.title='Reescrever resposta';rewriteButton.innerHTML='<i aria-hidden="true"></i>';rewriteButton.addEventListener('click',()=>rewrite(article), {signal: scope.signal});
-        actions.append(status,rewriteButton); article.append(actions);
+        const download=document.createElement('button');download.type='button';download.className='computer-download';download.setAttribute('aria-label','Baixar pergunta e resposta em PDF');download.title='Baixar pergunta e resposta em PDF';download.innerHTML='<i aria-hidden="true" style="--action-icon:url(/static/img/icons/download-answer.svg)"></i>';
+        download.addEventListener('click',()=>{
+            if (!currentId || !article.dataset.turn) { status.textContent='Esta resposta ainda não está salva para exportação.'; return; }
+            window.dispatchEvent(new CustomEvent('chat:export',{detail:{id:currentId,title:currentTitle||'Resposta',format:'pdf',turnId:article.dataset.turn}}));
+        },{signal:scope.signal});
+        actions.append(status,download,rewriteButton); article.append(actions);
         requestAnimationFrame(()=>{const value=feedback.get(article.dataset.turn || article);if(value)actions.querySelector(`[data-feedback="${value}"]`)?.setAttribute('aria-pressed','true');});
     }
     function messageAttachments(article: HTMLElement, files: Attachment[] | undefined) {
@@ -224,13 +233,10 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         summary.className = 'computer-thinking__toggle';
         const label = document.createElement('span');
         label.textContent = 'Pensando';
-        const logo = requiredElement(present(page), '.computer-intro__animated-logo', SVGElement).cloneNode(true);
-        if (!(logo instanceof SVGElement)) throw new Error('Invalid icon');
-        logo.classList.replace('computer-intro__animated-logo', 'computer-thinking__logo');
         const arrow = requiredElement(document, '[data-profile-submenu] > svg', SVGElement).cloneNode(true);
         if (!(arrow instanceof SVGElement)) throw new Error('Invalid icon');
         arrow.classList.add('computer-thinking__arrow');
-        summary.append(logo, label, arrow);
+        summary.append(label, arrow);
         const panel = document.createElement('div');
         panel.className = 'computer-thinking__content';
         panel.tabIndex = 0;
@@ -260,9 +266,11 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const unavailable = loading || !ready || remoteActive;
         form.classList.toggle('is-responding', busy);
         send.disabled = !busy && (unavailable || window.ComputerAttachments?.busy() || (empty && microphone.getAttribute("aria-pressed") !== "true"));
-        window.ComputerAttachments?.setBusy(busy || unavailable || anonymous);
-        anonymousButton.hidden = !!currentId || present(conversation).children.length > 0;
-        anonymousButton.disabled = busy || unavailable;
+        window.ComputerAttachments?.setBusy(busy || unavailable);
+        anonymousButton.hidden = present(conversation).children.length > 0;
+        anonymousButton.disabled = unavailable;
+        const privateToggle = optionalElement(document, '.profile-anonymous', HTMLButtonElement);
+        if (privateToggle) privateToggle.disabled = unavailable;
         const options=optionalElement(document,'.chat-options-toggle',HTMLButtonElement);
         if(options){options.hidden=!currentId || anonymous;options.disabled=busy || unavailable;}
         document.body.classList.toggle('chat-is-empty', present(conversation).children.length === 0);
@@ -273,7 +281,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         present(input).readOnly = busy || unavailable;
         microphone.disabled = busy || unavailable;
         present(conversation).setAttribute('aria-busy', String(busy || remoteActive));
-        sessions.setBusy(loading || busy);
+        sessions.setBusy(loading || (anonymous && busy));
         models.setBusy(loading || busy || remoteActive);
         olderButton.disabled = loading || busy || !ready;
     }
@@ -290,6 +298,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         document.title = (id ? (title || 'Conversa') : 'Novo chat');
         const url = new URL(location.href);
         url.searchParams.delete('new');
+        url.searchParams.delete('anonymous');
         if (id) url.searchParams.set('conversation', id); else url.searchParams.delete('conversation');
         if (window.WorkspaceNavigation.replaceURL) window.WorkspaceNavigation.replaceURL(url);
         else history.replaceState(null, '', url);
@@ -352,7 +361,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             assistant.article.classList.toggle('is-computer-response', !!turn.metadata?.provider && turn.metadata.provider !== 'gemini');
             requiredElement(assistant.article, '.computer-message__actions', HTMLElement).hidden = turn.status === 'running';
             assistant.article.dataset.turn = turn.id ?? '';
-            if (turn.thinking || turn.status === 'running') {
+            if (turn.thinking || turn.metadata?.research || turn.status === 'running') {
                 const thinking = addThinking(assistant);
                 thinking.text.appendData(turn.thinking);
                 thinking.details.open = opened.has(turn.id);
@@ -371,6 +380,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         showConversation();
     }
     async function listConversations(append = false) {
+        if (anonymous) { drawPrivateChats(); return; }
         const result = await service.list(append ? nextOffset : 0);
         if (leaving) return [];
         nextOffset = result.next_offset;
@@ -405,6 +415,13 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         }, 2000);
     }
     async function loadConversation(id: string) {
+        if (anonymous) {
+            const saved = privateChats.get(id); if (!saved) return;
+            privateId = id; currentTitle = saved.conversation.title; turns = saved.turns;
+            window.ComputerResponseDetails.reset(); renderTurns(turns); sessions.select(id);
+            present(input).value = ''; present(input).dispatchEvent(new Event('input', {bubbles:true}));
+            showConversation(); controls(); return;
+        }
         setAnonymous(false);
         editing = null;
         window.ComputerAttachments?.clear();
@@ -420,7 +437,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             olderButton.hidden = !before;
             remoteActive = result.active;
             renderTurns(turns);
-            if (!document.hidden) sessions.markRead(id, result.conversation.last_response_at);
+            if (!document.hidden) sessions.markRead(id, result.conversation.last_response_at, true);
             ready = true;
             resetRecovery();
             present(input).value = '';
@@ -435,7 +452,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         }
     }
     function newConversation() {
-        setAnonymous(false);
+        privateId = null;
         window.ComputerResponseDetails.reset();
         resetRecovery();
         editing = null;
@@ -454,11 +471,13 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         loading = true; ready = false; controls();
         note.textContent = '';
         try {
-            await listConversations();
+            const startAnonymous = new URL(location.href).searchParams.get('anonymous') === '1';
+            if (!startAnonymous) await listConversations();
             if (leaving) return;
             const requested = new URL(location.href).searchParams.get('conversation');
             const id = new URL(location.href).searchParams.has('new') ? null : requested;
-            if (id) await loadConversation(id);
+            if (startAnonymous) { loading = false; newConversation(); setAnonymous(true); drawPrivateChats(); }
+            else if (id) await loadConversation(id);
             else { loading = false; newConversation(); }
             if (draft && previousId === currentId) { present(input).value = draft; present(input).dispatchEvent(new Event('input', { bubbles: true })); }
         } catch (error) {
@@ -477,10 +496,22 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         }
     }
     scope.listen(window, 'attachments:changed',controls);
-    scope.listen(window, 'sessions:open', event => { if (!loading && !active) loadConversation(event.detail.id); });
-    scope.listen(window, 'sessions:new', () => { if (!loading && !active) newConversation(); });
+    function detachResponse() { revision++; active?.abort(); active=null; activeRequestId=null; }
+    scope.listen(window, 'sessions:open', event => { if (!loading && !(anonymous && active)) { detachResponse(); void loadConversation(event.detail.id); } });
+    scope.listen(document, 'click', event => {
+        const target = event.target instanceof Element ? event.target.closest('a') : null;
+        if (anonymous && target && (target.matches('.sidebar__logo, .sidebar__link[aria-label="Novo chat"], .sessions__new'))) {
+            event.preventDefault(); event.stopImmediatePropagation(); if (!loading && !active) newConversation();
+        }
+    }, {capture:true});
+    scope.listen(window, 'sessions:new', () => { if (!loading && !(anonymous && active)) { detachResponse(); newConversation(); } });
     scope.listen(window, 'sessions:refresh', () => { if (!loading && !active) initialize(); });
     scope.listen(window, 'sessions:changed', async event => {
+        if (anonymous) {
+            if (event.detail.deleted) { privateChats.delete(event.detail.id); if (privateId === event.detail.id) newConversation(); }
+            else { const saved=privateChats.get(event.detail.id); if(saved && event.detail.title) saved.conversation.title=event.detail.title; }
+            drawPrivateChats(); return;
+        }
         if (event.detail.deleted && event.detail.id === currentId) newConversation();
         else if (event.detail.id === currentId && event.detail.title) remember(currentId, event.detail.title);
         try { await listConversations(); } catch (error) { recovery(error); }
@@ -504,7 +535,10 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     }, {signal: scope.signal});
     form.addEventListener('submit', event => {
         event.preventDefault();
-        if(active){active.abort();return;}
+        if(active){
+            if(activeRequestId && !anonymous) void fetch('/api/ai/chat/cancel',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRFToken':requiredElement(document,'meta[name="csrf-token"]',HTMLMetaElement).content},body:JSON.stringify({request_id:activeRequestId})}).catch(()=>{});
+            active.abort();return;
+        }
         submitMessage();
     }, {signal: scope.signal});
     async function submitMessage(rewriting: Turn | null = null) {
@@ -539,7 +573,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const thinking = addThinking(assistant);
         showConversation(); note.textContent = '';
         if(!rewriting){present(input).value = ''; present(input).dispatchEvent(new Event('input', { bubbles: true }));}
-        const controller = new AbortController(); active = controller;
+        const controller = new AbortController(); active = controller; activeRequestId=payload.request_id;
         let timedOut = false, answer = '', persisted = false, savedTurnId: string | null = null;
         let thoughtStart: number | null = null, thoughtSeconds: number | null = null, responseMeta: ResponseMetadata = {provider:payload.provider};
         const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, 310000);
@@ -550,11 +584,9 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
                 if (nearLatest()) followingLatest = true;
                 answer += delta;
                 assistant.body.hidden = false;
-                const last = assistant.body.lastChild;
-                if (last instanceof Text) last.appendData(delta);
-                else assistant.body.append(document.createTextNode(delta));
+                renderAnswer(assistant.body, answer, responseMeta.research?.sources);
                 thinking.details.classList.remove('is-thinking');
-                thinking.details.hidden = !thinking.text.length;
+                thinking.details.hidden = !thinking.text.length && !responseMeta.research;
                 if (followingLatest) followLatest();
             }, controller.signal, delta => {
                 if(!currentRequest())return;
@@ -583,19 +615,19 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
                 responseMeta.research = research;
                 thinking.details.hidden = false;
                 thinking.details.classList.add('is-thinking');
-                thinking.label.textContent = ['searching','reading'].includes(research.state || '') ? 'Pesquisando' : 'Pensando';
+                thinking.label.textContent = 'Pensando';
                 window.ComputerResponseDetails.research(assistant.article, research);
             }, metadata => {
                 if(!currentRequest())return;
                 responseMeta = {...metadata, provider:metadata.provider ?? responseMeta.provider};
                 window.ComputerResponseDetails.research(assistant.article, metadata.research, true);
                 
-                if (thinking.text.length) thinking.label.textContent = thoughtLabel(metadata.thinking_seconds ?? thoughtSeconds);
+                if (thinking.text.length || responseMeta.research) thinking.label.textContent = thoughtLabel(metadata.thinking_seconds ?? thoughtSeconds);
             });
             if(!currentRequest())return;
             if (!answer.trim()) throw new Error('A resposta veio vazia. Tente novamente.');
             thinking.details.classList.remove('is-thinking');
-            thinking.details.hidden = !thinking.text.length;
+            thinking.details.hidden = !thinking.text.length && !responseMeta.research;
             if (thinking.text.length) thinking.label.textContent = thoughtLabel(responseMeta.thinking_seconds);
             const follow = followingLatest || nearLatest();
             renderAnswer(assistant.body, answer, responseMeta.research?.sources);
@@ -610,6 +642,12 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             responseMeta.answered_at ||= new Date().toISOString();
             versionSelection.delete(savedTurnId || '');
             if(rewriting)turns[turns.indexOf(rewriting)]=completed;else turns.push(completed);
+            if (privateTurn) {
+                privateId ||= 'anonymous-' + crypto.randomUUID();
+                const saved = privateChats.get(privateId), now = new Date().toISOString();
+                privateChats.set(privateId, {conversation:{id:privateId,title:saved?.conversation.title || text.slice(0,100),created_at:saved?.conversation.created_at || now,updated_at:now},turns});
+                drawPrivateChats();
+            }
             addResponseInfo(assistant.article, completed);
             note.textContent = '';
         } catch (error) {
@@ -628,7 +666,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
                 recovery(note.textContent);
             }
         } finally {
-            clearTimeout(timeout); if(active===controller)active = null; controls();
+            clearTimeout(timeout); if(active===controller){active = null;activeRequestId=null;} controls();
             if (currentRequest()) {
                 try { await listConversations(); if (!document.hidden && currentId) sessions.markRead(currentId); } catch (error) { recovery(error); }
                 present(input).focus({ preventScroll: true });
@@ -675,6 +713,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         } catch (error) { recovery(error, syncHistory); }
         finally { syncing = false; }
     }
+    setInterval(syncHistory, 4000);
     scope.listen(window, 'online', syncHistory);
     scope.listen(document, 'visibilitychange', syncHistory);
     function resizeInput() {
@@ -695,18 +734,31 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         anonymous=value;document.body.classList.toggle('is-anonymous',value);
         anonymousButton.setAttribute('aria-pressed',String(value));
         anonymousButton.setAttribute('aria-label',value?'Desativar modo anônimo':'Ativar modo anônimo');
-        requiredElement(document, '.anonymous-note', HTMLElement).hidden=!value;
+        const privacyNote = optionalElement(present(page), '.anonymous-note', HTMLElement);
+        if (privacyNote) privacyNote.hidden=!value;
         window.dispatchEvent(new CustomEvent('chat:anonymous',{detail:value}));
         if(value){window.ComputerAttachments?.clear();document.title='Chat anônimo';}else if(!currentId){document.title='Novo chat';}
         controls();
     }
-    anonymousButton.addEventListener('click',()=>{if(!active&&!currentId&&!present(conversation).children.length)setAnonymous(!anonymous);}, {signal: scope.signal});
+    function toggleAnonymous() {
+        if (loading || leaving) return;
+        const next = !anonymous;
+        revision++;
+        active?.abort(); active = null;
+        feedback.clear();
+        setAnonymous(next);
+        privateChats.clear();
+        newConversation();
+        if (next) drawPrivateChats(); else { sessions.render([]); void listConversations(); }
+    }
+    anonymousButton.addEventListener('click', toggleAnonymous, {signal: scope.signal});
+    scope.listen(window, 'chat:toggle-anonymous', toggleAnonymous);
     requiredElement(document, '.anonymous-close', HTMLElement).addEventListener('click', () => {
         if (!anonymous) return;
         active?.abort();
         active = null;
         feedback.clear();
-        newConversation();
+        setAnonymous(false); privateChats.clear(); newConversation(); void listConversations();
     }, {signal: scope.signal});
     initialize();
     resizeInput();

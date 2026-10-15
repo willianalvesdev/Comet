@@ -30,7 +30,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         composerState.update({ computer: selected !== 'gemini' });
         present(trigger).hidden = false;
         const name = selected === 'gemini' ? 'Gemini' : labels[local] || local || 'Ollama';
-        requiredElement(present(trigger), '.model-icon', HTMLElement).className = 'model-icon model-icon--' + (selected === 'gemini' ? 'gemini' : 'ollama');
+        requiredElement(present(trigger), '.model-icon', HTMLElement).hidden = selected !== 'gemini';
         present(menu).setAttribute('aria-label', selected === 'gemini' ? 'Modelos de pesquisa' : 'Modelos locais');
         present(menu).replaceChildren(...visibleOptions());
         if (selected !== 'gemini' && !options.length) { const message = document.createElement('p'); message.textContent = localError; present(menu).append(message); }
@@ -61,8 +61,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
                 option.setAttribute('role','menuitemradio');
                 const label=document.createElement('span');label.textContent=labels[m.id];
                 const check=document.createElement('i');check.className='model-check';check.setAttribute('aria-hidden','true');
-                const icon=document.createElement('i');icon.className='model-icon model-icon--ollama';icon.setAttribute('aria-hidden','true');
-                option.append(icon,label,check);return option;
+                option.append(label,check);return option;
             });
             localError = typeof result.local_error==='string' ? result.local_error : options.length ? '' : 'Nenhum modelo instalado no Ollama.';
             if (!options.some(o=>o.dataset.provider===local)) {

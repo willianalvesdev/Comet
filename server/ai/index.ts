@@ -92,39 +92,47 @@ async function* chatEvents(userId: number, payload: ChatPayload, signal: AbortSi
     } finally { release(); }
   }
 }
+const activeResponses = new Map<string, AbortController>();
 export async function chatResponse(request: Request, userId: number, payload: ChatPayload): Promise<Response> {
   const abort = new AbortController();
-  const signal = AbortSignal.any([request.signal, abort.signal, AbortSignal.timeout(300000)]);
+  // Saved replies belong to the conversation, not the browser connection.
+  const signal = AbortSignal.any([abort.signal, AbortSignal.timeout(300000), ...(payload.anonymous ? [request.signal] : [])]);
   const source = chatEvents(userId, payload, signal);
   const first = await source.next();
+  const key = userId + ':' + payload.request_id;
+  activeResponses.set(key, abort);
   const encoder = new TextEncoder();
   const encode = (event: Record<string, unknown>) => encoder.encode(JSON.stringify(event) + '\n');
-  let ended = false;
+  let disconnected = false;
   const body = new ReadableStream<Uint8Array>({
-    start(controller) { if (!first.done) controller.enqueue(encode(first.value)); },
-    async pull(controller) {
-      if (ended) return;
-      try {
-        const event = await source.next();
-        if (ended) return;
-        if (event.done) { ended = true; controller.close(); }
-        else controller.enqueue(encode(event.value));
-      } catch (error) {
-        if (ended) return;
-        ended = true;
-        if (!signal.aborted) {
-          const failure = error instanceof ApiError ? error : new AIError('stream_error');
-          controller.enqueue(encode({ type: 'error', error: failure.message, ...(failure.code ? { code: failure.code } : {}) }));
+    start(controller) {
+      if (!first.done) controller.enqueue(encode(first.value));
+      void (async () => {
+        try {
+          for await (const event of source) { if (!disconnected) controller.enqueue(encode(event)); }
+        } catch (error) {
+          if (!disconnected && !signal.aborted) {
+            const failure = error instanceof ApiError ? error : new AIError('stream_error');
+            controller.enqueue(encode({type:'error',error:failure.message,...(failure.code?{code:failure.code}:{})}));
+          }
+        } finally {
+          activeResponses.delete(key);
+          if (!disconnected) controller.close();
         }
-        controller.close();
-      }
+      })();
     },
-    async cancel() { ended = true; abort.abort(); await source.return(undefined); },
+    cancel() { disconnected = true; if (payload.anonymous) abort.abort(); },
   });
-  return new Response(body, { headers: { 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-store', 'X-Accel-Buffering': 'no' } });
+  return new Response(body, {headers:{'Content-Type':'application/x-ndjson; charset=utf-8','Cache-Control':'no-store','X-Accel-Buffering':'no'}});
 }
 export async function handleAI(request: Request, user: { id: number }, segments: string[]): Promise<Response | null> {
   const route = segments.join('/'), method = request.method;
+  if (route === 'chat/cancel' && method === 'POST') {
+    const data = await readJson(request);
+    if (typeof data.request_id !== 'string' || !/^[0-9a-f-]{36}$/.test(data.request_id) || Object.keys(data).length !== 1) throw new AIError('invalid_request',422);
+    const active = activeResponses.get(user.id + ':' + data.request_id);
+    active?.abort(); return json({stopped:!!active});
+  }
   if (route === 'models' && method === 'GET') return json(await modelList());
   if (route === 'attachments' && method === 'POST') {
     let form: FormData;
@@ -160,7 +168,7 @@ export async function handleAI(request: Request, user: { id: number }, segments:
       return json(await changeConversation(user.id, cid, data.title, false));
     }
   }
-  if (segments.length === 3 && segments[2] === 'export' && method === 'GET') return exportConversation(user.id, cid, args.get('format'));
+  if (segments.length === 3 && segments[2] === 'export' && method === 'GET') return exportConversation(user.id, cid, args.get('format'), args.get('turn') ?? undefined);
   if (segments.length === 3 && segments[2] === 'preview' && method === 'GET') return json(await previewConversation(user.id, cid));
   if (segments.length === 5 && segments[2] === 'messages' && method === 'POST') {
     if (segments[4] === 'edit') return json(await truncateConversation(user.id, cid, segments[3]));

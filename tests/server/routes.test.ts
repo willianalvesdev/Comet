@@ -37,7 +37,7 @@ after(async () => {
 
 test('API contracts preserve authorization, CSRF, account isolation and JSON errors', async () => {
     const first = new Client(), second = new Client();
-    assert.equal((await first.call('/api/finance/dashboard')).status,401);
+    assert.equal((await first.call('/api/finance/chart')).status,401);
     assert.equal((await first.call('/api/ai/conversations')).status,401);
     assert.equal((await first.call('/api/auth/login','POST',new URLSearchParams())).status,400);
     for (const [index,client] of [first,second].entries()) {
@@ -59,12 +59,18 @@ test('API contracts preserve authorization, CSRF, account isolation and JSON err
     assert.equal(history.transactions[0].amount,'10.20');
     const otherHistory = await (await second.call('/api/finance/transactions')).json();
     assert.equal(otherHistory.transactions.length,0);
+    const chart=await (await first.call('/api/finance/chart?period=max')).json();
+    assert.equal(chart.series.balance.points.at(-1).close,10.2);
+    const otherChart=await (await second.call('/api/finance/chart?period=max')).json();
+    assert.deepEqual(otherChart.series.balance.points,[]);
+    assert.equal(otherChart.summary.balance.amount,'0.00');
+    assert.equal((await first.call('/api/finance/chart?period=invalid')).status,400);
     assert.equal((await first.call('/api/finance/transactions','POST',JSON.stringify(payload),'application/json')).status,200);
     assert.equal((await first.call('/api/finance/transactions','POST',JSON.stringify({...payload,amount:'20.40'}),'application/json')).status,409);
     assert.equal((await first.call('/api/finance/transactions','POST','{','application/json')).status,400);
     assert.equal((await first.call('/api/finance/transactions','POST','{}','application/json',false)).status,400);
     assert.equal((await first.call('/api/auth/login','POST','{}','application/json')).status,404);
-    assert.equal((await first.call('/api/finance/dashboard','POST','{}','application/json')).status,405);
+    assert.equal((await first.call('/api/finance/chart','POST','{}','application/json')).status,405);
     assert.equal((await first.call('/api/unknown')).status,404);
     assert.equal((await first.call('/api/ai/conversations/0')).status,422);
     assert.equal((await first.call('/api/ai/conversations/99999999999')).status,404);
@@ -73,5 +79,5 @@ test('API contracts preserve authorization, CSRF, account isolation and JSON err
     assert.ok(profile);
     const loggedOut = await first.call('/logout','POST');
     assert.equal(loggedOut.status,303);
-    assert.equal((await first.call('/api/finance/dashboard')).status,401);
+    assert.equal((await first.call('/api/finance/chart')).status,401);
 });

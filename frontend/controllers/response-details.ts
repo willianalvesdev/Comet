@@ -1,5 +1,4 @@
 import { requiredElement, optionalElement, present, elementList, eventElement } from './dom';
-import { record } from './api-data';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
     const scroller = requiredElement(document, '.workspace__content', HTMLElement);
     function icon(domain: string) {
@@ -56,47 +55,46 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     }
     tabs.addEventListener('click',event=>{const button=eventElement(event.target)?.closest<HTMLElement>('[data-chat-view]');if(button)view(button.dataset.chatView);}, {signal: scope.signal});
     renderLinks(null);
-    const panel = document.createElement('aside'); panel.className='computer-sources-panel'; panel.hidden=true;
-    panel.setAttribute('aria-label','Fontes da resposta');
+    const panel=document.createElement('aside');panel.className='computer-sources-panel';panel.id='computer-sources-menu';panel.setAttribute('popover','auto');panel.setAttribute('aria-label','Fontes da resposta');scope.append(panel);
+    const collapse=document.createElement('button');collapse.type='button';collapse.className='workspace__header-button sources-menu-toggle';collapse.hidden=true;
+    collapse.setAttribute('aria-label','Abrir fontes');collapse.setAttribute('aria-expanded','false');collapse.setAttribute('aria-controls',panel.id);collapse.innerHTML='<i aria-hidden="true"></i>';
+    const options=optionalElement(header,'.chat-options-toggle',HTMLElement);if(options)options.after(collapse);else header.append(collapse);
+    let latestArticle:HTMLElement|null=null,panelVisible=false,cardOpen=true;
+    function positionPanel() {
+        if(!panelVisible)return;
+        const r=collapse.getBoundingClientRect();
+        const top=Math.min(r.bottom+8,innerHeight-160);
+        panel.style.setProperty('--sources-menu-top',Math.max(8,top)+'px');
+        panel.style.top=Math.max(8,top)+'px';
+        panel.style.left=Math.max(8,Math.min(r.right-panel.getBoundingClientRect().width,innerWidth-panel.getBoundingClientRect().width-8))+'px';
+    }
     function updateSourcesFade() {
-        const list = optionalElement(panel, '.sources-card__list', HTMLElement);
-        list?.classList.toggle('is-scrolled', list.scrollTop > 0);
+        const list=optionalElement(panel,'.sources-card__list',HTMLElement);if(!list)return;
+        list.classList.toggle('is-scrolled',list.scrollTop>1);
+        list.classList.toggle('has-overflow',list.scrollHeight-list.clientHeight-list.scrollTop>1);
     }
-    new ResizeObserver(updateSourcesFade).observe(panel);
-    const collapse = document.createElement('button'); collapse.className='sources-panel-toggle'; collapse.type='button';
-    collapse.setAttribute('aria-label','Recolher painel de fontes');
-    collapse.innerHTML='<img src="/static/img/icons/collapse-panel.svg" alt="">';
-    scope.append(panel,collapse);
-    let latestArticle: HTMLElement | null=null, panelVisible=false, panelPreference=true, cardOpen=true;
-    const panelStateKey='ascenda-sources-panel-'+optionalElement(document,'[data-user-id]',HTMLElement)?.dataset.userId;
-    try {
-        const state=record(JSON.parse(localStorage.getItem(panelStateKey) || '{}'));
-        panelPreference=state.visible!==false;cardOpen=state.expanded!==false;
-    } catch {}
-    function savePanelState() {
-        try {localStorage.setItem(panelStateKey,JSON.stringify({visible:panelPreference,expanded:cardOpen}));} catch {}
+    new ResizeObserver(()=>{positionPanel();updateSourcesFade();}).observe(panel);
+    function setPanelVisible(value:boolean) {
+        panelVisible=value;
+        if(value&&!panel.matches(':popover-open'))panel.showPopover();
+        if(!value&&panel.matches(':popover-open'))panel.hidePopover();
+        collapse.setAttribute('aria-expanded',String(value));collapse.setAttribute('aria-label',value?'Fechar fontes':'Abrir fontes');
+        positionPanel();updateSourcesFade();
     }
-    function setPanelVisible(value: boolean, remember=false) {
-        panelVisible=value; panel.hidden=!value;
-        workspace.classList.toggle('has-source-panel',value);
-        collapse.classList.toggle('is-collapsed',!value);
-        collapse.setAttribute('aria-label',value?'Recolher painel de fontes':'Expandir painel de fontes');
-        collapse.setAttribute('aria-expanded',String(value));
-        if (remember) { panelPreference=value;savePanelState(); }
-        window.dispatchEvent(new Event('resize'));
-    }
-    collapse.addEventListener('click',()=>setPanelVisible(!panelVisible,true), {signal: scope.signal});
+    panel.addEventListener('toggle',()=>{panelVisible=panel.matches(':popover-open');collapse.setAttribute('aria-expanded',String(panelVisible));positionPanel();updateSourcesFade();},{signal:scope.signal});
+    collapse.addEventListener('click',()=>setPanelVisible(!panelVisible),{signal:scope.signal});
+    scope.listen(window,'resize',positionPanel);
     function reset() {
         latestArticle=null;showSources(null,{},false);collapse.hidden=true;view('answer');
     }
-    function showSources(article: HTMLElement | null,value: Research,visible=true,remember=false) {
+    function showSources(article: HTMLElement | null,value: Research,visible=false) {
         renderLinks(value);
         const sources=validSources(value.sources);
         const card=document.createElement('details');card.className='sources-card';card.open=cardOpen;
         card.classList.toggle('sources-card--empty',!sources.length);
         card.addEventListener('toggle',()=>{
             if (!card.isConnected || !scope.active) return;
-            cardOpen=card.open;savePanelState();
+            cardOpen=card.open;requestAnimationFrame(updateSourcesFade);
         }, {signal: scope.signal});
         const heading=document.createElement('summary');
         const label=document.createElement('span');label.textContent='Fontes';
@@ -105,6 +103,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const total=document.createElement('span');total.textContent=String(sources.length);compact.append(total);
         const arrow=document.createElement('i');arrow.className='ui-arrow';arrow.setAttribute('aria-hidden','true');
         heading.append(label);if(sources.length)heading.append(compact);heading.append(arrow);card.append(heading);
+        const query=document.createElement('p');query.className='sources-card__query';query.textContent='Resultados para "'+(value.query || article?.previousElementSibling?.querySelector('.computer-message__text')?.textContent || '')+'"';card.append(query);
         const list=document.createElement('div');list.className='sources-card__list';
         list.tabIndex=0;list.setAttribute('role','region');list.setAttribute('aria-label','Fontes pesquisadas');
         list.addEventListener('scroll',updateSourcesFade,{...{passive:true}, signal: scope.signal});
@@ -114,21 +113,43 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             const publisher=document.createElement('span');publisher.className='sources-card__publisher';publisher.textContent=source.domain.replace(/^www\./,'');
             const title=document.createElement('span');title.className='sources-card__title';title.textContent=source.title;
             content.append(publisher,title);
+            if(source.excerpt){const excerpt=document.createElement('span');excerpt.className='sources-card__excerpt';excerpt.textContent=source.excerpt;content.append(excerpt);}
             link.append(icon(source.domain),content);list.append(link);
         }
         if (!sources.length) { const empty=document.createElement('p');empty.textContent='As fontes citadas da pesquisa aparecerão aqui.';list.append(empty); }
-        card.append(list);panel.replaceChildren(card);setPanelVisible(visible,remember);
+        card.append(list);panel.replaceChildren(card);setPanelVisible(visible);
     }
     function research(article: HTMLElement,value: Research | undefined,completed=false) {
         elementList(article, '.computer-research,.computer-sources,.computer-source-list,.computer-search-suggestions', HTMLElement).forEach(e=>e.remove());
         if(!value)return;
         const sources=validSources(value.sources);
-        if(!completed) {
-            const thinking=optionalElement(article, '.computer-thinking', HTMLElement);
-            if(thinking){thinking.hidden=false;thinking.classList.add('is-thinking');requiredElement(thinking, 'summary > span', HTMLElement).textContent=['searching','reading'].includes(value.state || '')?'Pesquisando':'Pensando';}
-        }
-        if(value.state==='failed'||value.state==='empty'){
-            const warning=document.createElement('p');warning.className='computer-research';warning.textContent=value.error||'A pesquisa não retornou fontes verificáveis.';article.prepend(warning);
+        const thinking=optionalElement(article, '.computer-thinking', HTMLElement);
+        const content=optionalElement(article, '.computer-thinking__content', HTMLElement);
+        if(thinking && content) {
+            thinking.hidden=false;
+            if(!completed) {thinking.classList.add('is-thinking');requiredElement(thinking,'summary > span',HTMLElement).textContent='Pensando';}
+            const previous=optionalElement(content,'.computer-research-step',HTMLDetailsElement);
+            const step=document.createElement('details');step.className='computer-research-step';step.open=previous?.open ?? true;
+            const pending=!completed && ['searching','reading'].includes(value.state || '');step.classList.toggle('is-searching',pending);
+            const summary=document.createElement('summary');
+            const label=document.createElement('span');label.textContent='Pesquisando'+(value.seconds!=null?' '+Math.round(value.seconds)+' s':'');summary.append(label);
+            const list=document.createElement('ul');
+            for(const query of value.queries || (value.query?[value.query]:[])) {const item=document.createElement('li');item.className='computer-research-query';item.textContent=query;list.append(item);}
+            const sourceItems=sources.map(source=>{
+                const item=document.createElement('li'),link=document.createElement('a'),title=document.createElement('span'),domain=document.createElement('span');
+                item.className='computer-research-source';link.href=source.url;link.target='_blank';link.rel='noopener noreferrer';
+                title.className='computer-research-source__title';title.textContent=source.title;
+                domain.className='computer-research-source__domain';domain.textContent=source.domain;
+                link.append(icon(source.domain),title,domain);item.append(link);list.append(item);return item;
+            });
+            if(sources.length>3){
+                const item=document.createElement('li'),more=document.createElement('button');more.type='button';more.className='computer-research-more';
+                let expanded=previous?.dataset.expanded==='true';
+                const update=()=>{step.dataset.expanded=String(expanded);sourceItems.forEach((source,index)=>source.hidden=index>=3&&!expanded);more.textContent=expanded?'Mostrar menos':'+'+(sources.length-3)+' mais';more.setAttribute('aria-expanded',String(expanded));};
+                more.addEventListener('click',()=>{expanded=!expanded;update();},{signal:scope.signal});update();item.append(more);list.append(item);
+            }
+            if(value.state==='failed'||value.state==='empty'){const item=document.createElement('li');item.textContent=value.error||'A pesquisa não retornou fontes verificáveis.';list.append(item);}
+            step.append(summary,list);if(previous)previous.replaceWith(step);else content.prepend(step);
         }
         if(sources.length){
             const actions=optionalElement(article, '.computer-message__actions', HTMLElement);
@@ -137,12 +158,12 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             [...new Set(sources.map(s=>s.domain))].slice(0,3).forEach(domain=>logos.append(icon(domain)));
             const count=document.createElement('span');count.textContent=sources.length+(sources.length===1?' fonte':' fontes');
             trigger.append(logos,count);trigger.setAttribute('aria-label','Abrir '+count.textContent);
-            trigger.addEventListener('click',()=>{cardOpen=true;collapse.hidden=false;showSources(article,value,true,true);}, {signal: scope.signal});actions?.append(trigger);
+            trigger.addEventListener('click',()=>{cardOpen=true;collapse.hidden=false;showSources(article,value,true);}, {signal: scope.signal});actions?.append(trigger);
         }
         if (sources.length && (!latestArticle?.isConnected || latestArticle===article || (latestArticle.compareDocumentPosition(article) & Node.DOCUMENT_POSITION_FOLLOWING))) {
             latestArticle=article;
             collapse.hidden=false;
-            showSources(article,value,panelPreference);
+            showSources(article,value,panelVisible);
         }
         if(value.suggestions){
             const widget=document.createElement('iframe');widget.className='computer-search-suggestions';widget.title='Sugestões de pesquisa do Google';

@@ -10,14 +10,14 @@ export default function mount({scope,fetch,setTimeout}: PageContext) {
     function refresh() {notices.hidden=!list.childElementCount;}
     requiredElement(notices,'.export-notices__clear',HTMLButtonElement).addEventListener('click',()=>{list.replaceChildren();refresh();},{signal:scope.signal});
     scope.listen(window,'chat:export',async event=>{
-        const {id,title,format}=event.detail,key=id+':'+format;if(pending.has(key))return;pending.add(key);
+        const {id,title,format,turnId}=event.detail,key=id+':'+format+':'+(turnId||'');if(pending.has(key))return;pending.add(key);
         const notice=document.createElement('div');notice.className='export-notice';notice.dataset.state='pending';
         notice.innerHTML='<i class="export-notice__icon" aria-hidden="true"></i><div><p>Exportando tópico…</p><small></small></div><button type="button" aria-label="Dispensar notificação"><i class="ui-icon-x" aria-hidden="true"></i></button>';
         requiredElement(notice,'small',HTMLElement).textContent=title;list.prepend(notice);refresh();
         requiredElement(notice,'button',HTMLButtonElement).addEventListener('click',()=>{notice.remove();refresh();},{signal:scope.signal});
         const label=requiredElement(notice,'p',HTMLElement),detail=requiredElement(notice,'small',HTMLElement);
         try {
-            const response=await fetch('/api/ai/conversations/'+encodeURIComponent(id)+'/export?format='+format,{credentials:'same-origin',cache:'no-store'});
+            const response=await fetch('/api/ai/conversations/'+encodeURIComponent(id)+'/export?format='+format+(turnId?'&turn='+encodeURIComponent(turnId):''),{credentials:'same-origin',cache:'no-store'});
             if (!response.ok) {
                 let message='Não foi possível exportar o chat.';
                 try {message=apiError(record(await response.json()),message);}catch{}

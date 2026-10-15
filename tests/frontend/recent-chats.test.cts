@@ -51,7 +51,7 @@ async function fixture(width = 1280) {
             const title=testObject(request.postDataJSON()).title;const chat=chats.find(chat=>chat.id===match[1]);assert.ok(chat);assert.equal(typeof title,'string');if(typeof title!=='string')throw new Error('Invalid title');chat.title=title;
             return route.fulfill({json:{title}});
         }
-        if(url.pathname==='/api/finance/dashboard') return route.fulfill({json:{summary:Object.fromEntries(['balance','income','expense'].map(key=>[key,{amount:key==='expense'?'20.00':'100.00',difference:'10.00',percentage:'10.00',series:[0,50,100]}])),chart:{currency:'BRL',kind:'balance',points:[{time:1670000000,open:0,high:100,low:0,close:100,volume:100},{time:1700100000,open:100,high:120,low:100,close:120,volume:20}],intraday:[]}}});
+        if(url.pathname==='/api/finance/chart') return route.fulfill({json:{currency:'BRL',asOf:'2026-10-13',start:'2026-09-01',end:'2026-10-13',interval:'day',summary:Object.fromEntries(['balance','income','expense'].map(key=>[key,{amount:key==='expense'?'20.00':'100.00',difference:'10.00',percentage:'10.00',series:[0,50,100]}])),series:Object.fromEntries(['balance','income','expense'].map(key=>[key,{label:key,baseline:0,points:[{date:'2026-09-01',clock:null,open:0,high:100,low:0,close:100,volume:100},{date:'2026-10-13',clock:null,open:100,high:120,low:100,close:120,volume:20}]}]))}});
         if(url.pathname==='/api/finance/transactions')return route.fulfill({json:{transactions:[{id:'1',description:'Salário real',kind:'income',amount:'100.00',occurred_on:'2026-09-01',category:'Trabalho'}],next_cursor:null}});
         if(url.pathname==='/api/news')return route.fulfill({json:{articles:[],has_more:false,page:1}});
         if(url.pathname==='/api/ai/models')return route.fulfill({json:{models:[{id:'gemini',configured:true},{id:'qwen3:1.7b',configured:true},{id:'qwen3:4b',configured:true},{id:'qwen3:8b',configured:true},{id:'qwen3:4b-instruct-2507-q4_K_M',configured:true}]}});
@@ -72,8 +72,9 @@ test('recentes: cabeçalho recolhe, atalho navega e seleção usa os SVGs corret
     const f=await fixture();const p=f.page;
     try {
         assert.equal(await p.locator('.recent-chats__row').count(),3);
-        for (const [trigger, menu] of [['.sessions__preferences', '#sessions-sort'], ['.sidebar__profile', '#profile-menu'], ['#recent-chats .sessions__row button', '#sessions-menu']]) {
+        for (const [trigger, menu] of [['[aria-label="Ordenar recentes"]', '#sessions-sort'], ['.sidebar__profile', '#profile-menu'], ['#recent-chats .sessions__row button', '#sessions-menu']]) {
             const button = p.locator(trigger).first();
+            if (trigger.includes('Ordenar recentes')) await p.locator('.sessions').filter({has:p.locator('#recent-chats')}).locator('summary').hover();
             await button.click();
             assert.equal(await p.locator(menu).evaluate(e => e.matches(':popover-open')), true, trigger);
             await button.click();
@@ -184,11 +185,11 @@ test('navegação mantém o mesmo documento e lateral entre todas as telas', asy
         await p.waitForFunction(()=>!requiredElement(document, ".home__input", HTMLTextAreaElement).readOnly);
         assert(!await p.locator('.sources-panel-toggle').isVisible());
         assert.equal(await p.locator('.sidebar__new-chat .sidebar__link').first().evaluate(e=>e.getBoundingClientRect().height),40);
-        assert.equal(await p.locator('.computer-intro h1').evaluate(e=>getComputedStyle(e).flexDirection),'row');
+        assert.equal(await p.locator('.computer-intro h1').evaluate(e=>getComputedStyle(e).flexDirection),'column');
         await p.locator('.anonymous-toggle').click();
-        assert.equal(await p.locator('.home__composer').evaluate(e=>getComputedStyle(e).borderTopStyle),'dashed');
+        assert.equal(await p.locator('.home__composer').evaluate(e=>getComputedStyle(e).borderTopStyle),'solid');
         assert(await p.locator('.workspace__content').evaluate(e=>e.scrollHeight<=e.clientHeight));
-        await p.locator('.anonymous-close').click();
+        await p.locator('.anonymous-toggle').click();
         assert.equal(await p.locator('.computer-chat-title').count(),0);
         if(process.env.QA_CHAT_SCREENSHOT)await p.screenshot({path:process.env.QA_CHAT_SCREENSHOT});
         assert.deepEqual(f.errors,[]);
@@ -388,63 +389,6 @@ test('lateral usa scroll nativo e oculta notificações ao recolher', async () =
     } finally {await f.context.close();}
 });
 
-test('finanças anima valor e variação ao abrir e mudar período', async () => {
-    const f=await fixture();const p=f.page;
-    try {
-        await p.emulateMedia({reducedMotion:'no-preference'});
-        await p.evaluate(async()=>{await window.WorkspaceNavigation.go('/financas.html');});
-        await p.waitForFunction(()=>requiredElement(document, ".finance-page", HTMLElement).getAttribute('aria-busy')==='false');
-        assert.equal(await p.locator('#market-change').getAttribute('data-trend'),'neutral');
-        assert.match(await p.locator('#market-change').textContent() ?? '',/0,00/);
-        assert.equal(await p.locator('#market-price').evaluate(e=>e.getAnimations({subtree:true}).length),0);
-        await p.waitForFunction(()=>optionalElement(document, "#market-price .market-digit", HTMLElement));
-        await p.waitForFunction(()=>elementList(document, ".market-digit > span", HTMLElement).length===0);
-        assert.equal(await p.locator('.finance-tabs').count(),0);
-        await p.locator('[data-range="5Y"]').click();
-        assert.notEqual(await p.locator('#market-change').getAttribute('data-trend'),'neutral');
-        await p.waitForFunction(()=>optionalElement(document, "#market-change .market-digit", HTMLElement));
-        await p.waitForFunction(()=>elementList(document, ".market-digit > span", HTMLElement).length===0);
-        const result=await p.evaluate(()=>{
-            const points=[{time:chartTimestamp(1700000000),open:100,high:120,low:90,close:110,volume:100},{time:chartTimestamp(1700100000),open:110,high:130,low:100,close:120,volume:120}];
-            window.CometChart.setData({points,currency:'BRL'});
-            window.CometChart.setData({points:points.map(p=>({...p,close:p.close+5})),currency:'BRL'});
-            return {text:requiredElement(document, "#market-price", HTMLElement).textContent,animations:requiredElement(document, "#market-price", HTMLElement).getAnimations({subtree:true}).length};
-        });
-        assert.match(result.text,/125,00/);
-        assert.equal(result.animations,0);
-        assert.deepEqual(f.errors,[]);
-    } finally {await f.context.close();}
-});
-
-
-test('finanças exibe dados recebidos e estados vazios sem demonstrações', async () => {
-    const f=await fixture();const p=f.page;
-    try {
-        await p.evaluate(()=>window.WorkspaceNavigation.go('/financas.html'));
-        await p.waitForFunction(()=>requiredElement(document, ".finance-page", HTMLElement).getAttribute('aria-busy')==='false');
-        assert.match(await p.locator('[data-finance-total="balance"] .finance-total__values p').textContent() ?? '',/100,00/);
-        assert.equal(await p.locator('.transfer-row').count(),1);
-        assert.match(await p.locator('.transfer-row').textContent() ?? '',/Salário real/);
-        assert.equal(await p.locator('script[src*="chart-demo"]').count(),0);
-        await p.route('**/api/finance/transactions',route=>route.fulfill({json:{transactions:[],next_cursor:null}}));
-        await p.route('**/api/finance/dashboard',route=>route.fulfill({json:{summary:Object.fromEntries(['balance','income','expense'].map(key=>[key,{amount:'0.00',difference:'0.00',percentage:null,series:[0]}])),chart:{currency:'BRL',kind:'balance',points:[],intraday:[]}}}));
-        await p.evaluate(()=>dispatchEvent(new Event('finance:changed')));
-        await p.waitForFunction(()=>requiredElement(document, ".finance-page", HTMLElement).getAttribute('aria-busy')==='false');
-        assert.equal(await p.locator('.transfer-row').count(),0);
-        assert.match(await p.locator('.finance-status').textContent() ?? '',/Nenhuma transação/);
-        assert(!await p.locator('.transfer-more').isVisible());
-        assert.match(await p.locator('[data-finance-total="balance"] .finance-total__values p').textContent() ?? '',/0,00/);
-        assert(!await p.locator('#chart-state').isVisible());
-        assert.equal(await p.locator('.finance-total--zero').count(),3);
-        assert.deepEqual(await p.locator('.finance-total__change').allTextContents(),['0%','0%','0%']);
-        assert.equal(await p.locator('.market-change').getAttribute('data-trend'),'neutral');
-        assert.match(await p.locator('.market-change').textContent() ?? '',/0,00.*0%/);
-        assert(await p.locator('#market-chart canvas').count() > 0);
-        assert.deepEqual(f.errors,[]);
-    } finally {await f.context.close();}
-});
-
-
 test('finanças pagina transações e mostra erro quando o banco está indisponível', async () => {
     const f=await fixture();const p=f.page;
     try {
@@ -458,11 +402,11 @@ test('finanças pagina transações e mostra erro quando o banco está indispon�
         await p.waitForFunction(()=>elementList(document, ".transfer-row", HTMLElement).length===2);
         assert.match(await p.locator('.transfer-row').last().textContent() ?? '',/Mercado/);
         assert(!await p.locator('.transfer-more').isVisible());
-        await p.route('**/api/finance/dashboard',route=>route.fulfill({status:503,json:{error:'Banco indisponível'}}));
+        await p.route('**/api/finance/chart*',route=>route.fulfill({status:503,json:{error:'Banco indisponível'}}));
         await p.evaluate(()=>dispatchEvent(new Event('finance:changed')));
-        await p.waitForFunction(()=>requiredElement(document, ".finance-status", HTMLElement).textContent==='Banco indisponível');
-        assert.match(await p.locator('[data-finance-total="balance"] .finance-total__values p').textContent() ?? '',/100,00/);
-        assert.match(await p.locator('.finance-total__comparison').first().textContent() ?? '',/indisponíveis/);
+        await p.waitForFunction(()=>document.querySelector('.finance-chart-error')?.textContent?.includes('Banco indisponível'));
+        assert.match(await p.locator('[data-finance-total="balance"] .finance-total__values span:first-child').textContent() ?? '',/100,00/);
+        assert.match(await p.locator('.finance-chart-error').innerText(),/Banco indisponível/);
         assert.deepEqual(f.errors,[]);
     } finally {await f.context.close();}
 });
@@ -702,7 +646,8 @@ test('chat restaura anexos e fontes com os campos da API',async()=>{
         assert.equal(await p.locator('.sources-card__title').textContent(),'Fonte de teste');
         assert.equal(await p.locator('.sources-card__source p, .sources-card__source small').count(),0);
         const source=p.locator('.sources-card__source');
-        assert.equal(await source.evaluate(e=>e.getBoundingClientRect().height),52);
+        assert.ok(await source.evaluate(e=>e.getBoundingClientRect().height)>=52);
+        assert.equal(await source.locator('.sources-card__excerpt').textContent(),'Trecho da fonte');
         assert.equal(await source.evaluate(e=>getComputedStyle(e).padding),'8px');
         assert.equal(await p.locator('.sources-card__list').evaluate(e=>getComputedStyle(e).gap),'4px');
         await source.hover();
@@ -757,14 +702,17 @@ test('Comet: pesquisa web, fontes e histórico financeiro recolhível', async ()
         await p.goto(nextServer.origin + '/financas.html');
         const toggle = p.locator('.finance-panel-toggle'), history = p.locator('#finance-history-panel');
         await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
-        await p.locator('.chart-range[data-range="MAX"]').click();
+        await p.locator('[data-range="max"]').click();
+        await p.waitForSelector('.finance-chart-column[aria-busy="false"]');
         assert.equal(await p.locator('.chart-statistics dd').count(), 6);
-        assert.match(await p.locator('[data-chart-stat="closing"]').innerText(), /120,00/);
-        assert.match(await p.locator('[data-chart-stat="volume"]').innerText(), /120,00/);
-        await p.locator('.chart-range[data-range="MAX"]').hover();
+        assert.match(await p.locator('.chart-statistics dd').nth(3).ariaSnapshot(), /120,00/);
+        assert.match(await p.locator('.chart-statistics dd').nth(1).ariaSnapshot(), /120,00/);
+        await p.locator('.chart-toolbar').hover();
         assert(!(await p.locator('#chart-tooltip').isVisible()));
         const chart = p.locator('.finance-chart-column');
         const width = await chart.evaluate(e => e.getBoundingClientRect().width);
+        const summaryTop=(await p.locator('.finance-total').first().boundingBox())!.y,historyTop=(await p.locator('.transfer-card').boundingBox())!.y;assert(Math.abs(summaryTop-historyTop)<2);
+        assert(await p.locator('.transfer-avatar').first().textContent());await p.screenshot({path:path.join(root,'artifacts/finance-recent-style.png'),fullPage:true});
         await toggle.click(); assert(!(await history.isVisible()));
         await p.waitForFunction(() => {
             const chart = document.querySelector('.finance-chart-column')?.getBoundingClientRect();
@@ -786,280 +734,6 @@ test('Comet: pesquisa web, fontes e histórico financeiro recolhível', async ()
             const composer = document.querySelector('.finance-composer')?.getBoundingClientRect();
             return history && !history.hidden && chart && composer && Math.abs(chart.left - composer.left) < 1 && Math.abs(chart.width - composer.width) < 1;
         });
-        assert.deepEqual(f.errors, []);
-    } finally { await f.context.close(); }
-});
-
-test('finanças: planilha usa dados reais, compartilha período e volta ao gráfico', async () => {
-    const f = await fixture(), p = f.page;
-    try {
-        await p.goto(nextServer.origin + '/financas.html');
-        await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
-        await p.locator('[data-range="MAX"]').click();
-        await p.getByRole('button', {name:'Planilha',exact:true}).click();
-        const rows = p.locator('.finance-sheet tbody tr');
-        assert.equal(await rows.count(), 2);
-        assert.match(await rows.first().locator('td').nth(3).innerText(), /120,00/);
-        assert.match(await rows.first().locator('td').nth(4).innerText(), /20,00/);
-        assert(!(await p.locator('.chart-stage').isVisible()));
-        assert(!(await p.locator('.market-summary').isVisible()));
-        assert(!(await p.locator('.chart-statistics').isVisible()));
-        assert.equal(await p.locator('.finance-sheet-page-label').innerText(), 'Página 1 de 1');
-        assert(await p.locator('[data-sheet-page="next"]').isDisabled());
-        await p.locator('[data-range="1D"]').click();
-        assert.equal(await rows.count(), 1);
-        await p.screenshot({path:path.join(root,'artifacts/finance-sheet-desktop.png')});
-        await p.setViewportSize({width:390,height:844});
-        assert(await p.locator('.finance-sheet').isVisible());
-        assert(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-        await p.locator('.finance-sheet').evaluate(sheet => {
-            const scroller = document.querySelector('.workspace__content');
-            if (scroller) scroller.scrollTop += sheet.getBoundingClientRect().top - 180;
-        });
-        await p.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
-        await p.screenshot({path:path.join(root,'artifacts/finance-sheet-mobile.png')});
-        await p.getByRole('button', {name:'Gráfico',exact:true}).click();
-        assert(await p.locator('.chart-stage').isVisible());
-        assert.equal(await p.locator('[data-range="1D"]').getAttribute('aria-pressed'), 'true');
-        await p.evaluate(() => window.CometChart.setData({kind:'balance',currency:'BRL',points:[],demo:false}));
-        await p.getByRole('button', {name:'Planilha',exact:true}).click();
-        assert.equal(await rows.count(), 0);
-        assert(await p.locator('.finance-sheet-empty').isVisible());
-        await p.evaluate(() => window.CometChart.setData({kind:'balance', currency:'BRL', points:Array.from({length:25}, (_, index) => ({time:(1700000000 + index * 86400) as import('lightweight-charts').UTCTimestamp,open:index,high:index+1,low:index,close:index+1,volume:1})),demo:false}));
-        await p.locator('[data-range="MAX"]').click();
-        assert.equal(await rows.count(), 10);
-        assert(!(await p.locator('.chart-wordmark').isVisible()));
-        assert(await p.locator('.finance-sheet').evaluate(el => el.scrollWidth <= el.clientWidth + 1));
-        await p.locator('.finance-sheet').evaluate(sheet => {
-            const scroller = document.querySelector('.workspace__content');
-            if (scroller) scroller.scrollTop += sheet.getBoundingClientRect().top + 80;
-        });
-        await p.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
-        const sticky = await p.evaluate(() => ({
-            header: document.querySelector('.workspace__header')?.getBoundingClientRect().bottom ?? 0,
-            toolbar: document.querySelector('.chart-toolbar')?.getBoundingClientRect().top ?? 0,
-            toolbarBottom: document.querySelector('.chart-toolbar')?.getBoundingClientRect().bottom ?? 0,
-            columns: document.querySelector('.finance-sheet thead th')?.getBoundingClientRect().top ?? 0
-        }));
-        assert(Math.abs(sticky.toolbar - sticky.header) < 2, JSON.stringify(sticky));
-        assert(Math.abs(sticky.columns - sticky.toolbarBottom) < 2);
-        await p.screenshot({path:path.join(root,'artifacts/finance-sheet-sticky-mobile.png')});
-
-        assert.equal(await p.locator('.finance-sheet-page-label').innerText(), 'Página 1 de 3');
-        await p.locator('[data-sheet-page="next"]').click();
-        assert.equal(await p.locator('.finance-sheet-page-label').innerText(), 'Página 2 de 3');
-        await p.locator('[data-sheet-page="next"]').click();
-        assert.equal(await rows.count(), 5);
-        assert(await p.locator('[data-sheet-page="next"]').isDisabled());
-        await p.locator('[data-sheet-page="previous"]').click();
-        assert.equal(await p.locator('.finance-sheet-page-label').innerText(), 'Página 2 de 3');
-        await p.locator('[data-sheet-page="first"]').click();
-        assert.equal(await p.locator('.finance-sheet-page-label').innerText(), 'Página 1 de 3');
-        await p.locator('[data-sheet-page="next"]').click();
-        await p.locator('[data-range="1D"]').click();
-        assert.equal(await p.locator('.finance-sheet-page-label').innerText(), 'Página 1 de 1');
-        assert.deepEqual(f.errors, []);
-    } finally { await f.context.close(); }
-});
-
-test('gráfico: hover livre por minuto e cartão abaixo do cursor', async () => {
-    const f = await fixture(), p = f.page;
-    try {
-        await p.goto(nextServer.origin + '/financas.html');
-        await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
-        await p.evaluate(() => window.CometChart.setData({currency:'BRL',kind:'balance',points:Array.from({length:4}, (_,i) => ({time:(1700000000+i*86400) as import('lightweight-charts').UTCTimestamp,open:i,close:i+1,low:i,high:i+1,volume:10}))}));
-        await p.locator('[data-range="MAX"]').click();
-        await p.locator('#market-chart').scrollIntoViewIfNeeded();
-        const box = await p.locator('#market-chart').boundingBox(); assert(box);
-        const x = box.x + box.width * .4, y = box.y + 100;
-        await p.mouse.move(x,y);
-        const tooltip = p.locator('#chart-tooltip');
-        await tooltip.waitFor({state:'visible'});
-        assert.deepEqual(await tooltip.locator('dt').allTextContents(), ['Fechar','Abrir','Máxima','Mínima','Volume']);
-        assert.equal(await tooltip.locator('dd').count(), 5);
-        assert(!(await p.locator('.chart-selection-result').isVisible()));
-        const closing = await tooltip.locator('[data-tooltip-value="close"]').innerText();
-        const first = await tooltip.locator('time').innerText();
-        const firstLine = await p.locator('.chart-hover-line').evaluate(el => el.getBoundingClientRect().left);
-        await p.mouse.move(x+2,y);
-        assert.notEqual(await tooltip.locator('time').innerText(), first);
-        assert.equal(await tooltip.locator('[data-tooltip-value="close"]').innerText(), closing);
-        const secondLine = await p.locator('.chart-hover-line').evaluate(el => el.getBoundingClientRect().left);
-        assert(Math.abs(secondLine-firstLine-2)<1);
-        const tip = await tooltip.boundingBox(); assert(tip);
-        assert(tip.x > x && tip.y > y);
-        await p.mouse.wheel(0, -100);
-        await p.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
-        await p.mouse.move(box.x + 4, box.y + 20);
-        const axisClip = {x:box.x, y:box.y + 80, width:50, height:200};
-        const axisBefore = await p.screenshot({clip:axisClip});
-        await p.mouse.move(x, y);
-        await p.mouse.down();
-        await p.mouse.move(x, y+80, {steps:5});
-        await p.mouse.up();
-        await p.mouse.move(box.x + 4, box.y + 20);
-        await p.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
-        assert.deepEqual(await p.screenshot({clip:axisClip}), axisBefore);
-
-        await p.locator('[data-range="MAX"]').hover();
-        assert(!(await tooltip.isVisible()));
-        assert(!(await p.locator('.chart-hover-line').isVisible()));
-        assert.deepEqual(f.errors, []);
-    } finally { await f.context.close(); }
-});
-
-test('gráfico: horários não se repetem e zoom preserva a escala lateral', async () => {
-    const f = await fixture(), p = f.page;
-    try {
-        await p.addInitScript(() => {
-            let frame = 0;
-            const tick = () => { frame++; requestAnimationFrame(tick); }; requestAnimationFrame(tick);
-            const draw = CanvasRenderingContext2D.prototype.fillText;
-            CanvasRenderingContext2D.prototype.fillText = function(text, x, y, maxWidth) {
-                const labels: string[] = this.canvas.dataset.frame === String(frame) ? JSON.parse(this.canvas.dataset.labels || '[]') : [];
-                labels.push(text); this.canvas.dataset.frame = String(frame); this.canvas.dataset.labels = JSON.stringify(labels);
-                if (maxWidth === undefined) draw.call(this,text,x,y); else draw.call(this,text,x,y,maxWidth);
-            };
-        });
-        await p.goto(nextServer.origin + '/financas.html');
-        await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
-        await p.evaluate(() => {
-            const clocks = ['08:00:00','08:00:00','09:15:00','09:15:00','00:05:00'];
-            const movements = [-100,-70,-90,-40,-20].map((close,i,values) => {
-                const open = i ? values[i-1] : 0, occurred_on = i === 4 ? '2026-10-02' : '2026-10-01';
-                return {time:chartTimestamp(Date.parse(occurred_on+'T'+clocks[i]+'-03:00')/1000),occurred_on,occurred_time:clocks[i],open,close,low:Math.min(open,close),high:Math.max(open,close),volume:Math.abs(close-open)};
-            });
-            window.CometChart.setData({kind:'balance',points:[{time:chartTimestamp(Date.UTC(2026,9,1)/1000),open:0,high:0,low:-100,close:-40,volume:200},{time:chartTimestamp(Date.UTC(2026,9,2)/1000),open:-40,high:-20,low:-40,close:-20,volume:20}],movements});
-        });
-        await p.locator('[data-range="MAX"]').click();
-        const host = p.locator('#market-chart'); await host.scrollIntoViewIfNeeded();
-        const box = await host.boundingBox(); assert(box);
-        assert(box.height < 325);
-        await p.mouse.move(box.x+2,box.y+5);
-        await p.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
-        const labels = await p.locator('#market-chart tr:last-child canvas').evaluateAll(canvases => canvases.flatMap(canvas => JSON.parse(canvas.getAttribute('data-labels') || '[]')) as string[]);
-        const nonempty = labels.filter(label => label.trim());
-        assert(nonempty.some(label => label.includes('08:00')), JSON.stringify(nonempty));
-        assert.equal(new Set(nonempty).size,nonempty.length,JSON.stringify(nonempty));
-        assert(!nonempty.some(label => label.includes('1970')));
-        const clip = {x:box.x,y:box.y+60,width:50,height:box.height-95};
-        const before = await p.screenshot({clip});
-        await p.mouse.move(box.x+box.width*.7,box.y+130); await p.mouse.wheel(0,-300);
-        await p.mouse.move(box.x+2,box.y+5);
-        await p.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
-        assert.deepEqual(await p.screenshot({clip}),before);
-        await p.screenshot({path:path.join(root,'artifacts/finance-clock-zoom.png')});
-        assert.deepEqual(f.errors,[]);
-    } finally { await f.context.close(); }
-});
-
-test('gráfico: seleção compara saldos e escala evita intervalos mínimos', async () => {
-    const f = await fixture(), p = f.page;
-    try {
-        await p.addInitScript(() => {
-            const draw = CanvasRenderingContext2D.prototype.fillText;
-            CanvasRenderingContext2D.prototype.fillText = function(text, x, y, maxWidth) {
-                const labels: string[] = JSON.parse(this.canvas.dataset.testLabels || '[]');
-                labels.push(text); this.canvas.dataset.testLabels = JSON.stringify(labels.slice(-100));
-                if (maxWidth === undefined) draw.call(this, text, x, y); else draw.call(this, text, x, y, maxWidth);
-            };
-        });
-        await p.goto(nextServer.origin + '/financas.html');
-        await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
-        const setValues = async (values: number[]) => {
-            await p.evaluate(values => window.CometChart.setData({currency:'BRL',kind:'balance',points:values.map((value,i) => ({time:(1700000000+i*86400) as import('lightweight-charts').UTCTimestamp,open:value,close:value,low:value,high:value,volume:10}))}), values);
-            await p.locator('[data-range="MAX"]').click();
-            await p.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
-        };
-        await setValues([100,110,90,130]);
-        await p.locator('#market-chart').scrollIntoViewIfNeeded();
-        const box = await p.locator('#market-chart').boundingBox(); assert(box);
-        const left = box.x+95, right=box.x+box.width-10, y=box.y+120;
-        const result = p.locator('.chart-selection-result');
-        const drag = async (from:number,to:number) => { await p.mouse.move(from,y); await p.mouse.down(); await p.mouse.move(to,y,{steps:8}); };
-        await drag(left,right);
-        assert.match(await result.innerText(), /Ganho:.*30,00.*30%/);
-        assert.equal(await p.locator('.chart-hover-line').evaluate(e => getComputedStyle(e).borderLeftColor), await result.evaluate(e => getComputedStyle(e).color));
-        assert(await p.locator('.chart-selection-band').isVisible());
-        await p.screenshot({path:path.join(root,'artifacts/finance-selection.png')});
-        await p.mouse.up();
-        await drag(right,left);
-        assert.match(await result.innerText(), /Ganho:.*30,00.*30%/);
-        await p.mouse.up();
-        await setValues([100,90,80,70]);
-        await drag(left,right);
-        assert.match(await result.innerText(), /Perda:.*30,00.*-30%/);
-        await p.mouse.up();
-        await setValues([0,10,30,50]);
-        await drag(left,right);
-        assert.match(await result.innerText(), /Ganho:.*50,00/);
-        assert(!/NaN|Infinity|%/.test(await result.innerText()));
-        await p.mouse.up();
-        await setValues([-1010,-1010,-1010,-1010]);
-        await drag(left,right);
-        assert.match(await result.innerText(), /Sem variação/);
-        await p.mouse.up();
-        const labels = await p.locator('#market-chart canvas').evaluateAll(canvases => canvases.flatMap(canvas => JSON.parse(canvas.getAttribute('data-test-labels') || '[]')));
-        const prices = labels.filter((label:unknown):label is string => typeof label === 'string').map(label => Number(label.replaceAll('.','').replace(',','.'))).filter(value => value < -900 && value > -1100);
-        assert(prices.length > 2);
-        assert(Math.max(...prices)-Math.min(...prices) >= 10);
-        await p.mouse.move((left+right)/2,y); await p.mouse.wheel(0,-150);
-        await p.locator('[data-range="MAX"]').hover();
-        assert(!(await result.isVisible()));
-        assert.deepEqual(f.errors, []);
-    } finally { await f.context.close(); }
-});
-
-
-test('gráfico: cada transação aparece mesmo no mesmo dia e com saldo negativo', async () => {
-    const f = await fixture(), p = f.page;
-    try {
-        const day = Date.UTC(2026,9,1)/1000;
-        const movements = [-100,-70,-90,-40].map((close,i,values) => {
-            const open = i ? values[i-1] : 0;
-            return {time:day,open,close,high:Math.max(open,close),low:Math.min(open,close),volume:Math.abs(close-open)};
-        });
-        const points = [{time:day,open:0,close:-40,high:0,low:-100,volume:200}, {time:day+86400,open:-40,close:-40,high:-40,low:-40,volume:0}];
-        await p.route('**/api/finance/dashboard', route => route.fulfill({json:{as_of:'2026-10-02',summary:Object.fromEntries(['balance','income','expense'].map(key => [key,{amount:key==='balance'?'-40.00':key==='income'?'80.00':'120.00',difference:'0.00',percentage:null,series:[0,-40]}])),chart:{currency:'BRL',kind:'balance',points,movements,intraday:[]}}}));
-        await p.goto(nextServer.origin + '/financas.html');
-        await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
-        await p.locator('[data-range="MAX"]').click();
-        const host = p.locator('#market-chart');
-        await host.scrollIntoViewIfNeeded();
-        await host.focus();
-        await host.press('Home');
-        assert.match(await p.locator('#market-price').innerText(), /0,00/);
-        for (const value of ['100,00','70,00','90,00','40,00']) {
-            await host.press('ArrowRight');
-            assert.match(await p.locator('#market-price').innerText(), new RegExp('-R\\$.*'+value));
-        }
-        const box = await host.boundingBox(); assert(box);
-        const y = box.y+100;
-        const positions = new Map<number,number>();
-        for (let x=box.x+70; x<box.x+box.width-5; x+=12) {
-            await p.mouse.move(x,y);
-            const label = await p.locator('#chart-tooltip time').innerText();
-            const match = label.match(/Movimentação (\d+)/);
-            if (match && !positions.has(Number(match[1]))) positions.set(Number(match[1]),x);
-        }
-        assert.deepEqual([...positions.keys()], [1,2,3,4]);
-        assert(!/UTC|1970/.test(await p.locator('#chart-tooltip time').innerText()));
-        const drag = async (from:number,to:number) => {
-            const fromX = positions.get(from), toX = positions.get(to);
-            assert(fromX !== undefined && toX !== undefined);
-            await p.mouse.move(fromX,y); await p.mouse.down();
-            await p.mouse.move(toX,y);
-            assert.match(await p.locator('.chart-selection-result').innerText(), /Ganho:.*30,00.*30%/);
-            await p.mouse.up();
-        };
-        await drag(1,2); await drag(2,1);
-        await p.mouse.move(box.x+4,box.y+10);
-        await p.screenshot({path:path.join(root,'artifacts/finance-transactions.png')});
-        await p.locator('[data-finance-view="sheet"]').click();
-        assert.equal(await p.locator('.finance-sheet tbody tr').count(),2);
-        assert.match(await p.locator('.finance-sheet tbody tr').last().innerText(), /200,00/);
-        await p.locator('[data-range="1D"]').click();
-        assert.equal(await p.locator('.finance-sheet tbody tr').count(),2);
         assert.deepEqual(f.errors, []);
     } finally { await f.context.close(); }
 });
@@ -1213,7 +887,7 @@ test('ordenar: teclado compartilhado e alinhamento do chat', async () => {
         await p.keyboard.press('Escape');
         await p.waitForFunction(()=>document.querySelector('.recent-chats__sort')?.getAttribute('aria-expanded')==='false');
         await p.locator('.sidebar').hover();
-        await p.locator('.sessions__preferences').click();
+        await p.locator('[aria-label="Ordenar recentes"]').click();
         await p.waitForFunction(()=>document.activeElement?.hasAttribute('data-order'));
         await p.keyboard.press('End');
         assert.equal(await p.locator(':focus').getAttribute('data-order'), 'activity');
@@ -1313,82 +987,36 @@ test('descobrir: cards responsivos, clima noturno e unidades persistentes', asyn
 });
 
 
-test('fontes: topo fixo, scroll interno discreto e brilho do ditado dentro da caixa',async()=>{
-    const f=await fixture(1600);const p=f.page;
-    try {
-        const research={state:'complete',query:'consulta',sources:Array.from({length:20},(_,i)=>({title:'Fonte de pesquisa '+i,url:'https://example.com/report/'+i,domain:'example.com',excerpt:'Trecho detalhado da fonte para consultar as informações que foram usadas na resposta.'}))};
-        await p.route('**/api/ai/conversations/1',route=>route.fulfill({json:{conversation:{id:'1',title:'Histórico',created_at:'2026-09-30',updated_at:'2026-09-30'},active:false,before:null,turns:[{id:'turn-1',message:'Analise',answer:'Resposta salva',thinking:'',created_at:'2026-09-30T12:00:00Z',status:'completed',metadata:{research}}]}}));
-        await p.goto(nextServer.origin + '/novo.html?conversation=1');
-        await p.locator('.computer-sources').click();
-        const list=p.locator('.sources-card__list'), heading=p.locator('.sources-card > summary');
-        const top=await heading.evaluate(e=>e.getBoundingClientRect().top);
-        assert.equal(await p.locator('.computer-sources-panel').evaluate(e=>e.getBoundingClientRect().height),384);
-        assert.equal(await heading.evaluate(e=>getComputedStyle(e).padding),'16px 8px');
-        assert(await list.evaluate(e=>e.scrollHeight>e.clientHeight));
-        await list.evaluate(e=>e.scrollTop=200);
-        await p.waitForFunction(()=>document.querySelector('.sources-card__list')?.classList.contains('is-scrolled'));
-        assert.equal(await heading.evaluate(e=>e.getBoundingClientRect().top),top);
-        assert.equal(await p.locator('.computer-sources-panel').evaluate(e=>e.scrollTop),0);
-        assert.equal(await list.evaluate(e=>getComputedStyle(e,'::-webkit-scrollbar').width),'4px');
-        assert.equal(await list.evaluate(e=>getComputedStyle(e).getPropertyValue('--sources-fade-top').trim()),'2rem');
-        assert(await p.locator('.computer-sources-panel').evaluate(e=>e.getBoundingClientRect().bottom<=innerHeight));
-        await p.waitForFunction(()=>{
-            const page=requiredElement(document,'.computer-page',HTMLElement), composer=requiredElement(document,'.computer-composer',HTMLElement);
-            return Math.abs(page.getBoundingClientRect().left+parseFloat(getComputedStyle(page).paddingLeft)-composer.getBoundingClientRect().left)<1;
-        });
-        await p.screenshot({path:'artifacts/sources-fixed-header.png'});
-        await heading.click();assert(!await list.isVisible());await heading.click();assert(await list.isVisible());
-        for(const width of [1600,390]) {
-            await p.setViewportSize({width,height:800});
-            assert(await p.locator('.computer-sources-panel').evaluate(e=>e.getBoundingClientRect().right<=innerWidth && e.getBoundingClientRect().bottom<=innerHeight));
-        }
-        await p.locator('.home__composer').evaluate(e=>e.classList.add('is-dictating'));
-        const inset=await p.locator('.home__composer').evaluate(e=>getComputedStyle(e,'::after').inset);
-        assert.equal(inset,'1px');
-        assert.deepEqual(f.errors,[]);
-    } finally {await f.context.close();}
+test('fontes: menu da header sem deslocar chat, resultados e fades nos dois extremos',async()=>{
+ const f=await fixture(1280),p=f.page;
+ try {
+  const research={state:'complete',query:'Consulta de teste',sources:Array.from({length:20},(_,i)=>({title:'Fonte de pesquisa '+i,url:'https://example.com/report/'+i,domain:'example.com',excerpt:'Trecho detalhado da fonte usada para responder à pesquisa.'}))};
+  await p.route('**/api/ai/conversations/1',route=>route.fulfill({json:{conversation:{id:'1',title:'Histórico'},active:false,before:null,turns:[{id:'turn-1',message:'Analise',answer:'Resposta salva',thinking:'',created_at:'2026-09-30T12:00:00Z',status:'completed',metadata:{research}}]}}));
+  await p.goto(nextServer.origin+'/novo.html?conversation=1');
+  const toggle=p.locator('.sources-menu-toggle'),panel=p.locator('.computer-sources-panel'),list=p.locator('.sources-card__list');
+  await toggle.waitFor();assert.equal(await p.locator('.sources-panel-toggle').count(),0);assert.equal(await panel.isVisible(),false);
+  for(const width of [1280,390]) {
+   await p.setViewportSize({width,height:844});
+   const gap=await toggle.evaluate(e=>{const previous=e.previousElementSibling!.getBoundingClientRect();return e.getBoundingClientRect().left-previous.right;});
+   assert.equal(gap,8,'header buttons must use spacing-2');
+   const before=await p.locator('.computer-composer').boundingBox();await toggle.click();
+   assert.equal(await toggle.getAttribute('aria-expanded'),'true');assert.equal(await panel.isVisible(),true);
+   const after=await p.locator('.computer-composer').boundingBox();assert.deepEqual(after,before);
+   const bounds=await panel.boundingBox();assert.ok(bounds&&bounds.x>=8&&bounds.x+bounds.width<=width-8&&bounds.y+bounds.height<=844);
+   assert.equal(await p.locator('.sources-card__query').textContent(),'Resultados para "Consulta de teste"');
+   assert.ok(await list.evaluate(e=>e.scrollHeight>e.clientHeight));
+   await list.evaluate(e=>e.scrollTop=0);await p.waitForFunction(()=>document.querySelector('.sources-card__list')?.classList.contains('has-overflow'));
+   await list.evaluate(e=>e.scrollTop=200);await p.waitForFunction(()=>document.querySelector('.sources-card__list')?.classList.contains('is-scrolled'));
+   assert.notEqual(await list.evaluate(e=>getComputedStyle(e).maskImage),'none');
+   await list.evaluate(e=>e.scrollTop=e.scrollHeight);await p.waitForFunction(()=>!document.querySelector('.sources-card__list')?.classList.contains('has-overflow'));
+   assert.equal(await list.evaluate(e=>getComputedStyle(e).backdropFilter),'none');
+   await p.screenshot({path:'artifacts/ui-current/sources-header-'+width+'.png'});
+   await p.keyboard.press('Escape');await p.waitForFunction(()=>document.querySelector('.sources-menu-toggle')?.getAttribute('aria-expanded')==='false');
+  }
+  await p.goto(nextServer.origin+'/novo.html?new=1');assert.equal(await p.locator('.sources-menu-toggle').isVisible(),false);
+  assert.deepEqual(f.errors,[]);
+ }finally{await f.context.close();}
 });
-
-
-test('fontes: últimas fontes automáticas e painel oculto no novo chat',async()=>{
-    const f=await fixture(1600);const p=f.page;
-    try {
-        await p.goto(nextServer.origin + '/novo.html?new=1');
-        const panel=p.locator('.computer-sources-panel'),toggle=p.locator('.sources-panel-toggle');
-        assert(!await toggle.isVisible());assert(!await panel.isVisible());
-        await p.route('**/api/ai/conversations/1',route=>route.fulfill({json:{conversation:{id:'1',title:'Histórico',created_at:'2026-09-30',updated_at:'2026-09-30'},active:false,before:null,turns:[1,2].map(i=>({id:'turn-'+i,message:'Analise '+i,answer:'Resposta '+i,thinking:'',created_at:'2026-09-30T12:00:00Z',status:'completed',metadata:{research:{state:'complete',sources:[{title:'Fonte '+i,url:'https://example.com/'+i,domain:'example.com',excerpt:'Trecho '+i}]}}}))}}));
-        await p.goto(nextServer.origin + '/novo.html?conversation=1');
-        await p.waitForFunction(()=>document.querySelector('.sources-card__title')?.textContent==='Fonte 2');
-        assert(await panel.isVisible());
-        assert.equal(await p.locator('.chat-links__title').textContent(),'Fonte 2');
-        await p.evaluate(()=>{
-            const article=document.querySelectorAll<HTMLElement>('.computer-message--assistant')[1];
-            window.ComputerResponseDetails.research(article,{state:'empty',sources:[]},true);
-        });
-        assert.equal(await p.locator('.sources-card__title').textContent(),'Fonte 2');
-        assert.equal(await p.locator('.chat-links__title').textContent(),'Fonte 2');
-        await p.reload();
-        await p.waitForFunction(()=>document.querySelector('.sources-card__title')?.textContent==='Fonte 2');
-        assert(await panel.isVisible());assert.equal(await panel.evaluate(e=>e.getBoundingClientRect().height),384);
-        await p.locator('[data-chat-view="links"]').click();assert(await toggle.isVisible());
-        await toggle.click();assert(!await panel.isVisible());
-        await p.reload();
-        await p.waitForFunction(()=>document.querySelector('.sources-card__title')?.textContent==='Fonte 2');
-        assert(!await panel.isVisible());assert(await toggle.isVisible());
-        assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('ascenda-sources-panel-7') || '{}').visible),false);
-        await toggle.click();assert(await panel.isVisible());
-        await p.locator('.sources-card > summary').click();
-        await p.waitForFunction(()=>JSON.parse(localStorage.getItem('ascenda-sources-panel-7') || '{}').expanded===false);
-        await p.reload();
-        await p.waitForFunction(()=>document.querySelector('.sources-card__title')?.textContent==='Fonte 2');
-        assert(await panel.isVisible());assert(!await p.locator('.sources-card__list').isVisible());
-        await p.goto(nextServer.origin + '/novo.html?new=1');
-        await p.waitForFunction(()=>document.querySelector('.sources-card--empty'));
-        assert(!await panel.isVisible());assert(!await toggle.isVisible());assert.equal(await p.locator('.sources-card__source').count(),0);
-        assert.deepEqual(f.errors,[]);
-    } finally {await f.context.close();}
-});
-
 
 test('aprender: altura acompanha largura e fontes sem precisar digitar', async () => {
     const f=await fixture(1600),p=f.page;
@@ -1610,15 +1238,16 @@ test('prévia: Busca, link clicável, hover contínuo e opções fixas no chat s
     const f=await fixture(1600),p=f.page;
     try {
         await p.route('**/api/ai/conversations/2',route=>route.fulfill({json:{conversation:{id:'2',title:'Outra conversa',created_at:'2026-09-29',updated_at:'2026-09-29'},active:false,before:null,turns:[]}}));
-        await p.route('**/api/ai/conversations/2/preview',route=>route.fulfill({json:{message:'Consulta de teste',answer:'Resposta pesquisada.',created_at:'2026-09-29T12:00:00Z',has_search:true}}));
+        await p.route('**/api/ai/conversations/2/preview',route=>route.fulfill({json:{message:'Consulta de teste',answer:'Resposta pesquisada.',created_at:'2026-09-29T12:00:00Z',has_search:false}}));
         await p.locator('#recent-chats [data-id="2"] .sessions__link').hover();
         const preview=p.locator('.chat-preview');
         await preview.waitFor({state:'visible'});
         await preview.hover();await p.waitForTimeout(300);
-        assert(await preview.isVisible());assert(await preview.locator('.chat-preview__search').isVisible());
+        assert(await preview.isVisible());assert(await preview.locator('.chat-preview__search').isVisible());assert((await preview.locator('.chat-preview__search i').evaluate(el=>getComputedStyle(el).maskImage)).includes('search'));
         assert.equal(await preview.locator('a').getAttribute('href'),nextServer.origin+'/novo.html?conversation=2');
         await preview.locator('a').click();
         await p.waitForURL('**/novo.html?conversation=2');
+        assert.equal(await p.locator('.local-model-name').evaluate(el=>getComputedStyle(el).fontWeight),'500');
         await p.locator('#recent-chats [data-id="2"] .sessions__link[aria-current]').waitFor();
         await p.mouse.move(1500,700);
         assert.equal(await p.locator('#recent-chats [data-id="2"] .sessions__more').evaluate(e=>getComputedStyle(e).opacity),'1');
@@ -1662,4 +1291,492 @@ test('opções do chat: título, fixar, renomear, excluir e três exportações 
         await p.locator('.sidebar__new-chat a[aria-label="Novo chat"]').click();await p.waitForURL('**/novo.html?new=1');await trigger.waitFor({state:'hidden'});assert(!await trigger.isVisible());
         assert.deepEqual(f.errors,[]);
     } finally {await f.context.close();}
+});
+
+
+test('ditado: bolinhas, brilho e encerramento preservam o texto',async()=>{
+ const f=await fixture();const p=f.page;
+ try {
+  await p.addInitScript(() => {
+   class Recognition {
+    onstart: (()=>void)|null=null; onend:(()=>void)|null=null;
+    start(){this.onstart?.();} stop(){this.onend?.();} abort(){this.onend?.();}
+   }
+   Object.defineProperty(window,'SpeechRecognition',{value:Recognition,configurable:true});
+   Object.defineProperty(navigator.mediaDevices,'getUserMedia',{value:async()=>{throw new Error('Unavailable in test');},configurable:true});
+  });
+  await p.goto(nextServer.origin+'/novo.html');
+  await p.locator('.home__input').fill('Texto preservado');
+  await p.locator('.home__microphone').click();
+  await p.waitForFunction(()=>document.querySelector('.home__composer.is-dictating'));
+  assert.equal(await p.locator('.dictation-equalizer circle').count(),145);
+  assert.equal(await p.locator('.dictation-equalizer').isVisible(),true);
+  assert.equal(await p.locator('.dictation-glow').evaluate(e=>getComputedStyle(e).pointerEvents),'none');
+  assert.equal(await p.locator('.dictation-glow__spin').evaluate(e=>getComputedStyle(e).animationName),'none');
+  await p.locator('.home__send').click();
+  assert.equal(await p.locator('.home__input').inputValue(),'Texto preservado');
+  assert.equal(await p.locator('.home__composer.is-dictating').count(),0);
+  assert.equal(await p.locator('.dictation-equalizer').isVisible(),false);
+  assert.deepEqual(f.errors,[]);
+ } finally {await f.context.close();}
+});
+
+
+test('menu mobile: abrir não desloca o conteúdo',async()=>{
+ const f=await fixture(390);const p=f.page;
+ try {
+  for(const route of ['/recentes.html','/novo.html','/financas.html']) {
+   await p.goto(nextServer.origin+route);
+   const content=p.locator('.workspace__content');
+   const before=await content.boundingBox();
+   await p.locator('.workspace__menu-toggle').count().then(async count=>{
+    if(count) await p.locator('.workspace__menu-toggle').click();
+    else await p.locator('.sidebar__toggle').evaluate((e:HTMLElement)=>e.click());
+   });
+   const after=await content.boundingBox();
+   assert.ok(before&&after);
+   assert.equal(after.x,before.x,route);
+   assert.equal(after.width,before.width,route);
+  }
+ } finally { await f.context.close(); }
+});
+
+
+test('tema claro: pesos maiores, lateral sem borda e blur gradual',async()=>{
+ const f=await fixture();const p=f.page;
+ try {
+  await p.evaluate(()=>document.documentElement.dataset.theme='light');
+  assert.equal(await p.locator('body').evaluate(e=>getComputedStyle(e).fontWeight),'500');
+  assert.equal(await p.locator('.sidebar').evaluate(e=>getComputedStyle(e).borderRightWidth),'0px');
+  const handle=p.locator('.sidebar__resize');const box=await handle.boundingBox();assert.ok(box);
+  const before=await p.locator('.sidebar').boundingBox();assert.ok(before);
+  await p.mouse.move(box.x+3,box.y+100);await p.mouse.down();await p.mouse.move(box.x+63,box.y+100);await p.mouse.up();
+  const after=await p.locator('.sidebar').boundingBox();assert.ok(after);assert.ok(after.width>before.width);
+  assert.equal(await p.locator('.sidebar__new-chat').evaluate(e=>getComputedStyle(e,'::before').backdropFilter),'none');
+  assert.equal(await p.locator('.sidebar__new-chat').evaluate(e=>getComputedStyle(e,'::after').backdropFilter),'blur(5px)');
+  assert.match(await p.locator('.sidebar__new-chat').evaluate(e=>getComputedStyle(e,'::after').maskImage),/linear-gradient/);
+  await p.evaluate(()=>document.documentElement.dataset.theme='dark');
+  assert.equal(await p.locator('body').evaluate(e=>getComputedStyle(e).fontWeight),'450');
+ } finally {await f.context.close();}
+});
+
+
+test('riscos: extremos desfocados e proximidade nítida',async()=>{
+ const f=await fixture();const p=f.page;
+ try {
+  await p.goto(nextServer.origin+'/novo.html');
+  await p.locator('.computer-messages').evaluate(e=>{
+   (e as HTMLElement).hidden=false;
+   for(let i=0;i<16;i++) {const message=document.createElement('div');message.className='computer-message computer-message--user';message.style.minHeight='160px';message.innerHTML='<div class="computer-message__text">Mensagem '+i+'</div>';e.append(message);}
+   document.querySelector('.computer-page')?.classList.add('has-conversation');
+  });
+  const marks=p.locator('.message-navigator__mark');await marks.last().waitFor({state:'attached'});
+  await p.locator('.workspace__content').evaluate(e=>{e.scrollTop=(e.scrollHeight-e.clientHeight)/2;});
+  await p.waitForFunction(()=>parseFloat((document.querySelector('.message-navigator__mark') as HTMLElement)?.style.getPropertyValue('--mark-blur'))>0);
+  await marks.first().hover();
+  assert.equal(await marks.first().evaluate(e=>(e as HTMLElement).style.getPropertyValue('--mark-blur')),'0.00px');
+  assert.equal(await marks.nth(1).evaluate(e=>(e as HTMLElement).style.getPropertyValue('--mark-blur')),'0.00px');
+  assert.ok(await marks.last().evaluate(e=>parseFloat((e as HTMLElement).style.getPropertyValue('--mark-blur')))>0);
+  await marks.last().hover();
+  const preview=p.locator('.message-navigator__list button:not([hidden])');
+  await preview.hover();
+  assert.equal(await preview.evaluate(e=>getComputedStyle(e).backgroundColor),'rgba(0, 0, 0, 0)');
+  assert.equal(await marks.last().evaluate(e=>(e as HTMLElement).style.getPropertyValue('--mark-blur')),'0.00px');
+ } finally {await f.context.close();}
+});
+
+
+test('chats laterais: ícone e título alinhados sem sobreposição',async()=>{
+ const f=await fixture();
+ try {
+  const link=f.page.locator('.sidebar .sessions__link').first();
+  const icon=await link.locator('.sessions__chat-icon').boundingBox();
+  const title=await link.locator('.sessions__title').boundingBox();
+  assert.ok(icon&&title);
+  assert.equal(icon.width,await link.evaluate(e=>parseFloat(getComputedStyle(e).getPropertyValue('--icon-medium'))));
+  assert.equal(Math.round(title.x-icon.x-icon.width),8);
+  assert.ok(Math.abs(icon.y+icon.height/2-title.y-title.height/2)<1);
+ } finally {await f.context.close();}
+});
+
+
+test('acadêmico: alternar páginas repetidamente mantém tela e controles',async()=>{
+ const f=await fixture();const p=f.page;
+ try {
+  for(let i=0;i<4;i++) {
+   for(const route of ['/novo.html?new=1','/financas.html','/recentes.html','/descobrir.html']) {
+    await p.evaluate(url=>window.WorkspaceNavigation.go(url),route);
+    await p.evaluate(()=>window.WorkspaceNavigation.go('/academico.html'));
+    assert.equal(await p.locator('.study-page').isVisible(),true,JSON.stringify(f.errors));
+    await p.locator('.home__input').fill('Pergunta de estudo');
+    assert.equal(await p.locator('.home__send').isEnabled(),true);
+   }
+  }
+  assert.deepEqual(f.errors,[]);
+ } finally {await f.context.close();}
+});
+
+
+test('acadêmico: falha de inicialização mostra recuperação e permite repetir',async()=>{
+ const f=await fixture();const p=f.page;
+ try {
+  await p.evaluate(()=>{
+   const query=Element.prototype.querySelector;
+   Element.prototype.querySelector=function(this:Element,selector:string) {
+    if(selector==='.study-topic-list') {Element.prototype.querySelector=query;throw new Error('Falha simulada de inicialização');}
+    return query.call(this,selector);
+   } as typeof Element.prototype.querySelector;
+  });
+  await p.evaluate(()=>window.WorkspaceNavigation.go('/academico.html'));
+  await p.getByRole('button',{name:'Tentar novamente',exact:true}).click();
+  await p.locator('.study-page').waitFor({state:'visible'});
+  await p.locator('.home__input').fill('Teste após recuperação');
+  assert.equal(await p.locator('.home__send').isEnabled(),true);
+ } finally {await f.context.close();}
+});
+
+
+test('cabeçalhos: hover, ordenação de fixados e novo chat',async()=>{
+ const f=await fixture();const p=f.page;
+ try {
+  await p.evaluate(()=>localStorage.setItem('ascenda-pinned-7',JSON.stringify({'1':{id:'1',title:'Zebra',updated_at:'2026-09-28'},'2':{id:'2',title:'Abelha',updated_at:'2026-09-29'}})));
+  await p.reload();
+  const pinned=p.locator('.sessions').filter({has:p.locator('#pinned-chats')});
+  const recent=p.locator('.sessions').filter({has:p.locator('#recent-chats')});
+  await p.mouse.move(900,600);
+  await p.waitForFunction(()=>getComputedStyle(document.querySelector('.sessions__toggle')!).opacity==='0');
+  await p.locator('.sidebar__logo').hover();
+  await p.waitForFunction(()=>getComputedStyle(document.querySelector('.sessions__toggle')!).opacity==='1');
+  assert.equal(await recent.locator('.sessions__preferences').evaluate(e=>getComputedStyle(e).opacity),'0');
+  await pinned.locator('summary').hover();
+  await pinned.locator('.sessions__preferences').click();
+  await p.locator('#pinned-sort [data-order="name"]').click();
+  assert.equal(await p.locator('#pinned-chats .sessions__title').first().textContent(),'Outra conversa');
+  assert.equal(await p.evaluate(()=>localStorage.getItem('ascenda-pinned-7-order')),'name');
+  assert.equal(await pinned.locator('.sessions__new').count(),0);
+  await recent.locator('summary').hover();
+  await recent.locator('.sessions__new').click();
+  await p.locator('.computer-page').waitFor({state:'visible'});
+  assert.deepEqual(f.errors,[]);
+ } finally {await f.context.close();}
+});
+
+
+test('resposta em andamento preserva hover dos cabeçalhos',async()=>{
+ const f=await fixture();const p=f.page;
+ try {
+  await p.evaluate(()=>{window.ComputerSessions.setBusy(true);document.body.classList.add('chat-is-loading');});
+  await p.mouse.move(900,600);
+  await p.waitForFunction(()=>getComputedStyle(document.querySelector('.sessions__preferences')!).opacity==='0');
+  const summary=p.locator('.sessions').filter({has:p.locator('#recent-chats')}).locator('summary');
+  await summary.hover();
+  assert.equal(await summary.locator('.sessions__preferences').isEnabled(),true);
+  assert.equal(await summary.locator('.sessions__toggle').isEnabled(),true);
+  await p.waitForFunction(()=>getComputedStyle(document.querySelector('[aria-label="Ordenar recentes"]')!).opacity==='1');
+  assert.equal(await p.locator('#recent-chats .sessions__more').first().isDisabled(),true);
+ } finally {await f.context.close();}
+});
+
+
+test('riscos: primeiro no topo e último no fim do chat',async()=>{
+ const f=await fixture();const p=f.page;
+ try {
+  await p.goto(nextServer.origin+'/novo.html');
+  await p.locator('.computer-messages').evaluate(e=>{
+   document.querySelector('.computer-page')?.classList.add('has-conversation');
+   (e as HTMLElement).hidden=false;
+   for(let i=0;i<8;i++){const m=document.createElement('div');m.className='computer-message computer-message--user';m.style.minHeight='240px';m.innerHTML='<div class="computer-message__text">Mensagem '+i+'</div>';e.append(m);}
+  });
+  await p.locator('.message-navigator__mark').last().waitFor({state:'attached'});
+  await p.locator('.workspace__content').evaluate(e=>{e.scrollTop=e.scrollHeight;e.dispatchEvent(new Event('scroll'));});
+  await p.waitForFunction(()=>document.querySelector('.message-navigator__mark:last-child')?.getAttribute('aria-current')==='true');
+  await p.locator('.workspace__content').evaluate(e=>{e.scrollTop=0;e.dispatchEvent(new Event('scroll'));});
+  await p.waitForFunction(()=>document.querySelector('.message-navigator__mark:first-child')?.getAttribute('aria-current')==='true');
+  assert.equal(await p.locator('.message-navigator__mark[aria-current="true"]').count(),1);
+ } finally {await f.context.close();}
+});
+
+
+test('anônimo: perfil sincronizado, dados ocultos e conversa descartada ao sair',async()=>{
+ const f=await fixture();const p=f.page;
+ try {
+  const payloads:Record<string,unknown>[]=[];
+  await p.route('**/api/ai/chat',route=>{payloads.push(testObject(route.request().postDataJSON()));return route.fulfill({contentType:'application/x-ndjson',body:[{type:'conversation',conversation_id:null,turn_id:'private-turn',provider:'gemini'},{type:'delta',text:'Resposta temporária'},{type:'done',metadata:{}}].map(v=>JSON.stringify(v)).join('\n')+'\n'});});
+  await p.locator('.sidebar__profile').click();await p.getByRole('switch',{name:'Modo anônimo'}).click();
+  await p.waitForFunction(()=>document.body.classList.contains('is-anonymous'));
+  assert.equal(await p.locator('.sidebar').isVisible(),true);
+  assert.equal(await p.locator('.sidebar__nav').isVisible(),true);
+  assert.equal(await p.locator('.sidebar__link[aria-label="Finanças"]').isVisible(),true);
+  assert.equal(await p.locator('.sidebar__profile-info').isVisible(),true);
+  assert.equal(await p.locator('.sidebar__avatar').first().evaluate(e=>getComputedStyle(e,'::after').maskImage.includes('anonymous')),true);
+  assert.equal(await p.locator('.profile-anonymous').getAttribute('aria-checked'),'true');
+  assert.equal(await p.locator('.home__composer').evaluate(e=>getComputedStyle(e).borderTopStyle),'solid');
+  await p.locator('.home__input').fill('Pergunta privada');await p.locator('.home__send').click();
+  await p.waitForFunction(()=>document.querySelector('.computer-message--assistant .computer-message__text')?.textContent==='Resposta temporária');
+  assert.equal(payloads[0].anonymous,true);assert.equal(payloads[0].conversation_id,null);assert.deepEqual(payloads[0].history,[]);
+  await p.locator('.sidebar__link[aria-label="Novo chat"]').click();
+  assert.equal(await p.locator('.computer-messages').textContent(),'');
+  assert.equal(await p.locator('.attachment-toggle').isVisible(),true);
+  assert.equal(await p.locator('.attachment-toggle').isEnabled(),true);
+  await p.locator('.home__input').fill('Segunda privada');await p.locator('.home__send').click();
+  await p.waitForFunction(()=>document.querySelectorAll('.sidebar .sessions__row[data-id^="anonymous-"]').length===2);
+  assert.deepEqual(payloads[1].history,[]);
+  await p.locator('.sidebar .sessions__link').filter({hasText:'Pergunta privada'}).click();
+  assert.equal(await p.locator('.computer-message--user').first().textContent().then(t=>t?.includes('Pergunta privada')),true);
+  await p.locator('.home__input').fill('Continuação privada');await p.locator('.home__send').click();
+  await p.waitForFunction(()=>document.querySelectorAll('.computer-message--assistant').length===2);
+  assert.equal((payloads[2].history as unknown[]).length,2);
+  assert.equal(await p.evaluate(()=>Object.values(sessionStorage).some(v=>String(v).includes('Segunda privada'))),false);
+  await p.screenshot({path:'artifacts/ui-current/anonymous-multiple-chats.png'});
+  assert.equal(await p.locator('.anonymous-toggle').isVisible(),false);
+  await p.locator('.sidebar__profile').click();
+  await p.getByRole('switch',{name:'Modo anônimo'}).click();
+  assert.equal(await p.locator('.computer-messages').textContent(),'');
+  assert.equal(await p.locator('.home__input').inputValue(),'');
+  assert.equal(await p.locator('.sidebar__nav').isVisible(),true);
+  assert.equal(await p.locator('.profile-anonymous').getAttribute('aria-checked'),'false');
+  assert.equal(await p.locator('.sidebar .sessions__row[data-id^="anonymous-"]').count(),0);
+  assert.equal(await p.locator('.sidebar__profile-email').textContent(),'Tester');
+  await p.locator('.anonymous-toggle').click();
+  await p.locator('.sidebar__link[aria-label="Novo chat"]').click();
+  await p.waitForFunction(()=>document.body.classList.contains('is-anonymous') && document.querySelector('.profile-anonymous')?.getAttribute('aria-checked')==='true');
+  assert.equal(await p.locator('.computer-messages').textContent(),'');
+  assert.deepEqual(f.errors,[]);
+ } finally {await f.context.close();}
+});
+
+
+test('resposta: PDF individual, gaps iguais e aparência anônima',async()=>{
+ const f=await fixture();const p=f.page;
+ try {
+  await p.route('**/api/ai/conversations/1',route=>route.fulfill({json:{conversation:{id:'1',title:'Conversa teste'},active:false,before:null,turns:[{id:'123',created_at:'2026-10-14T12:00:00Z',message:'Minha pergunta',answer:'Resposta para exportar',thinking:'',status:'completed',attachments:[],metadata:{}}]}}));
+  let exportURL='';
+  await p.route('**/api/ai/conversations/1/export?*',route=>{exportURL=route.request().url();return route.fulfill({contentType:'application/pdf',headers:{'Content-Disposition':"attachment; filename*=UTF-8''resposta.pdf"},body:'%PDF-1.7\nfixture'});});
+  await p.evaluate(()=>window.WorkspaceNavigation.go('/novo.html?conversation=1'));
+  const download=p.locator('.computer-download');await download.waitFor({state:'visible'});
+  const boxes=await p.locator('.computer-message__actions > button').evaluateAll(es=>es.slice(0,5).map(e=>{const r=e.getBoundingClientRect();return {x:r.x,width:r.width};}));
+  assert.equal(boxes.length,5);assert.deepEqual(boxes.slice(1).map((r,i)=>r.x-boxes[i].x-boxes[i].width),[4,4,4,4]);
+  const [file]=await Promise.all([p.waitForEvent('download'),download.click()]);assert.equal(file.suggestedFilename(),'resposta.pdf');assert.equal(new URL(exportURL).searchParams.get('turn'),'123');
+  assert.equal(await p.locator('.computer-composer').evaluate(e=>getComputedStyle(e,'::before').backdropFilter),'none');
+  assert.equal(await p.locator('.anonymous-toggle').isVisible(),false);
+  await p.locator('.sidebar__profile').click();
+  await p.getByRole('switch',{name:'Modo anônimo'}).click();
+  await p.locator('.sidebar__profile').click();
+  fs.mkdirSync(path.join(root,'artifacts/ui-current'),{recursive:true});
+  await p.screenshot({path:path.join(root,'artifacts/ui-current/anonymous-desktop.png')});
+  assert.equal(await p.locator('.profile-anonymous').getAttribute('aria-checked'),'true');
+  await p.getByRole('switch',{name:'Modo anônimo'}).click();
+  assert.equal(await p.locator('.computer-message').count(),0);
+  await p.screenshot({path:path.join(root,'artifacts/ui-current/new-chat-desktop.png')});
+  const centered = await p.locator('.home__composer').evaluate(e=>{const r=e.getBoundingClientRect();const viewport=document.querySelector('.workspace__content')!.getBoundingClientRect();return Math.abs(r.y+r.height/2-(viewport.y+viewport.height/2));});
+  assert.ok(centered<2, 'composer must be vertically centered: '+centered);
+  assert.equal(await p.locator('.anonymous-toggle').isVisible(),true);
+  assert.match(await p.locator('.web-search-toggle').evaluate(e=>getComputedStyle(e).getPropertyValue('corner-shape')),/^(round|superellipse\(1\))$/);
+  const logo=await p.locator('.computer-intro__animated-logo').boundingBox();assert.ok(logo&&logo.width===34&&logo.height===28);
+  await p.setViewportSize({width:390,height:844});
+  await p.locator('.anonymous-toggle').click();
+  await p.locator('.workspace__menu-toggle').click();
+  assert.equal(await p.locator('.sidebar').isVisible(),true);
+  await p.screenshot({path:path.join(root,'artifacts/ui-current/anonymous-mobile.png')});
+  assert.deepEqual(f.errors,[]);
+ } finally {await f.context.close();}
+});
+
+
+test('sombras sem blur, hover sem tooltip e menu diagonal',async()=>{
+ const f=await fixture();const p=f.page;
+ const sharp = require('sharp') as (input:Buffer)=>{removeAlpha():{raw():{toBuffer():Promise<Buffer>}}};
+ try {
+  const link=p.locator('.sidebar .sessions__link').first();
+  await link.hover(); await p.waitForTimeout(800);
+  assert.equal(await link.getAttribute('title'),null);
+  assert.equal(await link.getAttribute('data-tooltip'),null);
+  assert.equal(await p.locator('.site-tooltip:popover-open').count(),0);
+  const trigger=p.locator('.sidebar .sessions__more').first();await trigger.click();
+  const button=await trigger.boundingBox(),menu=await p.locator('.sessions-menu').boundingBox();
+  assert.ok(button&&menu);assert.ok(Math.abs(menu.x-button.x)<2);assert.ok(Math.abs(menu.y-button.y-button.height-6)<2);
+  await p.screenshot({path:'artifacts/ui-current/chat-menu-diagonal.png'});
+  const shadowClip={x:menu.x,y:menu.y+menu.height,width:menu.width,height:12};
+  const shadowOn=await p.screenshot({clip:shadowClip});
+  const shadowOverride=await p.addStyleTag({content:'.sessions-menu {box-shadow:none!important}'});
+  const shadowOff=await p.screenshot({clip:shadowClip});await shadowOverride.evaluate(e=>e.parentNode?.removeChild(e));
+  const shadowA=await sharp(shadowOn).removeAlpha().raw().toBuffer(),shadowB=await sharp(shadowOff).removeAlpha().raw().toBuffer();
+  let shadowPixels=0;for(let i=0;i<shadowA.length;i++)if(Math.abs(shadowA[i]-shadowB[i])>2)shadowPixels++;
+  assert.ok(shadowPixels>50,'menu shadow must render outside its border');
+  await p.keyboard.press('Escape');
+  await p.route('**/api/ai/conversations/1',route=>route.fulfill({json:{conversation:{id:'1',title:'Teste blur'},active:false,before:null,turns:[{id:'blur-turn',created_at:'2026-10-14T12:00:00Z',message:'Teste de blur',answer:'Texto da resposta para testar a sobreposição. '.repeat(100),thinking:'',status:'completed',attachments:[],metadata:{}}]}}));
+  await p.evaluate(()=>window.WorkspaceNavigation.go('/novo.html?conversation=1'));
+  await p.locator('.computer-page.has-conversation').waitFor();
+  for(const selector of ['.computer-composer','.sidebar__new-chat','.sidebar__footer','.sidebar .sessions__link','.sources-card']) {
+   assert.equal(await p.locator(selector).first().evaluate(e=>getComputedStyle(e,'::before').backdropFilter),'none');
+   assert.equal(await p.locator(selector).first().evaluate(e=>getComputedStyle(e,'::after').backdropFilter),'none');
+  }
+  await p.screenshot({path:'artifacts/ui-current/chat-fade-no-blur.png'});
+  assert.deepEqual(f.errors,[]);
+ } finally {await f.context.close();}
+});
+
+
+test('composer: cápsula e microfone redondos, fontes em linha e blur sem blocos',async()=>{
+ const f=await fixture();const p=f.page;
+ const sharp = require('sharp') as (input:Buffer)=>{removeAlpha():{raw():{toBuffer():Promise<Buffer>}}};
+ const difference=async(a:Buffer,b:Buffer)=>{const first=await sharp(a).removeAlpha().raw().toBuffer(),second=await sharp(b).removeAlpha().raw().toBuffer();let changed=0;for(let i=0;i<first.length;i++)if(Math.abs(first[i]-second[i])>3)changed++;return changed;};
+ try {
+  await p.route('https://www.google.com/s2/favicons?*',route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><rect width="16" height="16" fill="#168b94"/><circle cx="8" cy="8" r="4" fill="white"/></svg>'}));
+  const sources=Array.from({length:6},(_,i)=>({url:'https://source'+i+'.example/report',domain:'source'+i+'.example',title:'Fonte '+i}));
+  await p.route('**/api/ai/conversations/1',route=>route.fulfill({json:{conversation:{id:'1',title:'Teste visual'},active:false,before:null,turns:[{id:'visual-turn',created_at:'2026-10-14T12:00:00Z',message:'Confira as fontes',answer:'Resposta com seis fontes de pesquisa.',thinking:'',status:'completed',attachments:[],metadata:{research:{state:'complete',sources}}}]}}));
+  await p.evaluate(()=>window.WorkspaceNavigation.go('/novo.html?conversation=1'));
+  await p.locator('.computer-sources').waitFor();
+  await p.waitForFunction(()=>[...document.querySelectorAll<HTMLImageElement>('.computer-source-icons img')].every(i=>i.complete&&i.naturalWidth>0));
+  for(const width of [1280,390]) {
+   await p.setViewportSize({width,height:844});
+   for(const theme of ['dark','light']) {
+    await p.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
+    for(const mode of ['.model-picker','.computer-provider']) {
+     await p.locator('.provider-toggle '+mode).click();
+     const geometry=await p.locator('.provider-toggle').evaluate(e=>{
+      const group=e.getBoundingClientRect(),pill=e.querySelector('.provider-toggle__indicator')!,r=pill.getBoundingClientRect(),style=getComputedStyle(pill);
+      const selected=e.querySelector('button[aria-pressed="true"]')!.getBoundingClientRect();
+      return {gapTop:r.top-group.top,gapBottom:group.bottom-r.bottom,x:r.x-selected.x,width:r.width-selected.width,shape:style.getPropertyValue('corner-shape'),radius:parseFloat(style.borderTopLeftRadius),height:r.height,shadow:style.boxShadow};
+     });
+     assert.equal(geometry.gapTop,2);assert.equal(geometry.gapBottom,2);
+     assert.ok(Math.abs(geometry.x)<1&&Math.abs(geometry.width)<1);
+     assert.match(geometry.shape,/^(round|superellipse\(1\))$/);assert.ok(geometry.radius>=geometry.height/2);assert.equal(geometry.shadow,'none');
+    }
+    await p.locator('.home__input').fill('Mensagem de teste');
+    await p.locator('.home__send').hover();
+    assert.equal(await p.locator('.home__send .ui-arrow').evaluate(e=>getComputedStyle(e).color),'rgb(255, 255, 255)');
+    if(width===1280){
+      const nav=p.locator('.sidebar__link[aria-label="Finanças"]');await nav.hover();const navColor=await nav.evaluate(e=>getComputedStyle(e).backgroundColor);
+      const row=p.locator('.sidebar .sessions__row').first();await row.hover();assert.equal(await row.evaluate(e=>getComputedStyle(e).backgroundColor),navColor);
+      if(theme==='dark')assert.equal(await p.locator('.sidebar').evaluate(e=>{const probe=document.createElement('span');probe.style.background='var(--sidebar-surface)';e.append(probe);const expected=getComputedStyle(probe).backgroundColor;probe.remove();return getComputedStyle(e).backgroundColor===expected;}),true);
+    }
+    await p.locator('.home__microphone').hover();
+    const mic=await p.locator('.home__microphone').evaluate(e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return {width:r.width,height:r.height,radius:parseFloat(s.borderTopLeftRadius),shape:s.getPropertyValue('corner-shape')};});
+    assert.equal(mic.width,mic.height);assert.ok(mic.radius>=mic.height/2);assert.match(mic.shape,/^(round|superellipse\(1\))$/);
+    const source=await p.locator('.computer-sources').evaluate(e=>{const label=e.lastElementChild!,r=label.getBoundingClientRect(),button=e.getBoundingClientRect();return {height:r.height,line:parseFloat(getComputedStyle(label).lineHeight),right:r.right,buttonRight:button.right,whiteSpace:getComputedStyle(e).whiteSpace};});
+    assert.equal(source.whiteSpace,'nowrap');assert.ok(source.height<=source.line+1);assert.ok(source.right<=source.buttonRight);
+    const icons=await p.locator('.computer-source-icons img').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height,shape:getComputedStyle(e).getPropertyValue('corner-shape')};}));
+    assert.equal(icons.length,3);for(const icon of icons){assert.equal(icon.width,16);assert.equal(icon.height,16);assert.match(icon.shape,/^(round|superellipse\(1\))$/);}
+    if(width<1100)assert.equal(await p.locator('.computer-sources-panel').evaluate(e=>getComputedStyle(e).borderTopLeftRadius),await p.locator('.sources-card').evaluate(e=>getComputedStyle(e).borderTopLeftRadius));
+    await p.screenshot({path:'artifacts/ui-current/composer-rounded-'+width+'-'+theme+'.png'});
+   }
+  }
+  await p.setViewportSize({width:1280,height:844});
+  await p.evaluate(()=>document.documentElement.dataset.theme='dark');
+  await p.mouse.move(900,100);
+  const r=await p.locator('.sidebar .sessions__link').first().boundingBox();assert.ok(r);
+  const clip={x:r.x+r.width-26,y:r.y+8,width:20,height:20};
+  const blurOn=await p.screenshot({clip});
+  const disabled=await p.addStyleTag({content:'.sidebar .sessions__link::after {content:none!important}'});
+  const blurOff=await p.screenshot({clip});await disabled.evaluate(e=>e.parentNode?.removeChild(e));
+  assert.ok(await difference(blurOn,blurOff)<20,'blur must not paint a rectangle on an empty part of a short title');
+  const group=p.locator('.provider-toggle'),groupBox=await group.boundingBox();assert.ok(groupBox);
+  const shadowOn=await group.screenshot();
+  const noShadow=await p.addStyleTag({content:'.provider-toggle__indicator {box-shadow:none!important}'});
+  const shadowOff=await group.screenshot();await noShadow.evaluate(e=>e.parentNode?.removeChild(e));
+  assert.equal(await difference(shadowOn,shadowOff),0,'capsule must have no shadow');
+  await p.emulateMedia({reducedMotion:'no-preference'});
+  await p.locator('.provider-toggle .model-picker').click();
+  await p.waitForFunction(()=>{const group=document.querySelector('.provider-toggle')!,pill=group.querySelector('.provider-toggle__indicator')!.getBoundingClientRect(),selected=group.querySelector('button[aria-pressed="true"]')!.getBoundingClientRect();return Math.abs(pill.x-selected.x)<.1&&Math.abs(pill.width-selected.width)<.1;});
+  await p.screenshot({path:'artifacts/ui-current/composer-capsule-final.png'});
+  assert.deepEqual(f.errors,[]);
+ } finally {await f.context.close();}
+});
+
+
+test('não lido persiste e trocar de chat durante a resposta não solicita parada',async()=>{
+ const f=await fixture(),p=f.page;let cancellations=0;
+ try {
+  await p.route('**/api/ai/chat/cancel',route=>{cancellations++;return route.fulfill({json:{stopped:true}});});
+  await p.route('**/api/ai/conversations?*',route=>route.fulfill({json:{conversations:[{id:'1',title:'Primeira conversa',updated_at:'2026-10-14T12:00:00Z',last_response_at:'2026-10-14T12:00:00Z'},{id:'2',title:'Outra conversa',updated_at:'2026-10-13T12:00:00Z'}],next_offset:null}}));
+  await p.route(/\/api\/ai\/conversations\/[12]$/,route=>{const id=route.request().url().split('/').pop();return route.fulfill({json:{conversation:{id,title:id==='1'?'Primeira conversa':'Outra conversa',last_response_at:'2026-10-14T12:00:00Z'},active:false,before:null,turns:[{id:'turn-'+id,message:'Pergunta '+id,answer:'Resposta concluída '+id,thinking:'',status:'completed',created_at:'2026-10-14T12:00:00Z',metadata:{}}]}});});
+  await p.goto(nextServer.origin+'/novo.html?new=1');
+  await p.evaluate(()=>{
+   window.ComputerSessions.markRead('1','2026-10-14T12:00:00Z',true);
+   window.ComputerService.prototype.chat=async(_payload:ChatRequest,onDelta:(text:string)=>void,signal:AbortSignal,_thinking:((text:string)=>void)|undefined,onConversation:((event:ConversationEvent)=>void)|undefined)=>new Promise<void>((_resolve,reject)=>{
+    onConversation?.({type:'conversation',conversation_id:'1',turn_id:'active-turn',provider:'gemini'});onDelta('Resposta em andamento');
+    signal.addEventListener('abort',()=>reject(new DOMException('Aborted','AbortError')),{once:true});
+   });
+  });
+  await p.locator('.home__input').fill('Continue ao trocar');await p.locator('.home__send').click();
+  await p.waitForFunction(()=>document.querySelector('.home__composer')?.classList.contains('is-responding'));
+  await p.locator('.sidebar .sessions__row[data-id="2"] .sessions__link').click();
+  await p.waitForFunction(()=>document.querySelector('.computer-message--assistant')?.textContent?.includes('Resposta concluída 2'));
+  assert.equal(cancellations,0);
+  await p.locator('.sidebar .sessions__row[data-id="1"] .sessions__more').click();
+  await p.locator('.sessions-menu').getByRole('button',{name:'Marcar como não lida',exact:true}).click();
+  assert.equal(await p.locator('.sidebar .sessions__row[data-id="1"] .sessions__unread').count(),1);
+  await p.waitForTimeout(4300);
+  assert.equal(await p.locator('.sidebar .sessions__row[data-id="1"] .sessions__unread').count(),1);
+  await p.locator('.sidebar .sessions__row[data-id="1"] .sessions__link').click();
+  await p.waitForFunction(()=>!document.querySelector('.sidebar .sessions__row[data-id="1"] .sessions__unread'));
+  assert.deepEqual(f.errors,[]);
+ }finally{await f.context.close();}
+});
+
+
+test('pesquisa dentro do pensamento preserva consultas e fontes ao concluir',async()=>{
+ const f=await fixture();const p=f.page;
+ try {
+  const research={state:'complete',seconds:3,query:'Salários no Brasil',queries:['salários tecnologia Brasil','salários 2026'],sources:[{title:'Relatório',url:'https://example.com/report',domain:'example.com'}]};
+  await p.route('**/api/ai/conversations/1',route=>route.fulfill({json:{conversation:{id:'1',title:'Pesquisa'},active:false,before:null,turns:[{id:'search-turn',message:'Pesquise salários',answer:'Resposta salva',thinking:'',created_at:'2026-10-15T12:00:00Z',status:'completed',metadata:{research}}]}}));
+  await p.goto(nextServer.origin+'/novo.html?conversation=1');
+  const thinking=p.locator('.computer-thinking');await thinking.locator(':scope > summary').click();
+  const step=thinking.locator('.computer-research-step');assert.match(await step.locator('summary').textContent()||'',/Pesquisando 3 s/);
+  assert.equal(await step.locator('li').count(),3);assert.equal(await step.locator('a').getAttribute('href'),'https://example.com/report');
+  assert.equal(await p.locator('.computer-thinking__logo,.model-icon--ollama').count(),0);
+  await p.evaluate(()=>window.ComputerResponseDetails.research(document.querySelector('.computer-message--assistant') as HTMLElement,{state:'complete',query:'Consulta',sources:Array.from({length:5},(_,i)=>({title:'Fonte '+i,url:'https://example.com/'+i,domain:'example.com'}))},true));
+  assert.equal(await step.locator('.computer-research-source:visible').count(),3);
+  await step.getByRole('button',{name:'+2 mais',exact:true}).click();
+  assert.equal(await step.locator('.computer-research-source:visible').count(),5);
+  await step.getByRole('button',{name:'Mostrar menos',exact:true}).click();
+  assert.equal(await step.locator('.computer-research-source:visible').count(),3);
+  assert.equal(await step.locator('ul').evaluate(e=>getComputedStyle(e).fontSize),'14px');
+  await step.locator('summary').click();assert.equal(await step.locator('ul').isVisible(),false);await step.locator('summary').click();
+
+  await p.evaluate(()=>window.ComputerResponseDetails.research(document.querySelector('.computer-message--assistant') as HTMLElement,{state:'searching',query:'Nova consulta',queries:['Nova consulta']}));
+  assert.match(await step.locator('summary').textContent()||'',/Pesquisando/);
+  assert.equal(await thinking.locator(':scope > summary > span').textContent(),'Pensando');
+  await p.evaluate(()=>window.ComputerResponseDetails.research(document.querySelector('.computer-message--assistant') as HTMLElement,{state:'empty',query:'Nova consulta'},true));
+  assert.match(await step.textContent()||'',/não retornou fontes/);
+ } finally {await f.context.close();}
+});
+
+
+test('títulos laterais usam fade sem fundo e conversas usam 16px',async()=>{
+ const f=await fixture();const p=f.page;
+ try {
+  const link=p.locator('.sidebar .sessions__link').first();
+  await link.locator('.sessions__title > span').evaluate(e=>e.textContent='Um título muito longo para verificar o recorte do menu lateral sem blocos de cor');
+  await link.hover();
+  const title=link.locator('.sessions__title');
+  assert.notEqual(await title.evaluate(e=>getComputedStyle(e).maskImage),'none');
+  assert.equal(await link.evaluate(e=>getComputedStyle(e,'::after').content),'none');
+  const textBox=await title.boundingBox(),moreBox=await link.locator('..').locator('.sessions__more').boundingBox();
+  assert.ok(textBox&&moreBox&&textBox.x+textBox.width<=moreBox.x);
+  assert.equal(await link.evaluate(e=>getComputedStyle(e).fontSize),'16px');
+  await p.screenshot({path:path.join(root,'artifacts/ui-current/sidebar-title-fade.png')});
+  await p.route('**/api/ai/conversations/1',route=>route.fulfill({json:{conversation:{id:'1',title:'Teste'},active:false,before:null,turns:[{id:'font-turn',message:'Pergunta',answer:'Resposta',thinking:'',created_at:'2026-10-15T12:00:00Z',status:'completed',metadata:{}}]}}));
+  await p.goto(nextServer.origin+'/novo.html?conversation=1');
+  await p.locator('.computer-message--assistant').waitFor();
+  for(const selector of ['.computer-message--user .computer-message__text','.computer-message--assistant .computer-message__text','.home__input']) assert.equal(await p.locator(selector).first().evaluate(e=>getComputedStyle(e).fontSize),'16px');
+ } finally {await f.context.close();}
+});
+
+
+test('respostas renderizam negrito seguro e preservam código e citações',async()=>{
+ const f=await fixture();const p=f.page;
+ try {
+  const answer='**Política Social**: texto **com fonte [1]**. <img src=x onerror=alert(1)> '+String.fromCharCode(96)+'**código**'+String.fromCharCode(96)+' e **incompleto';
+  await p.route('**/api/ai/conversations/1',route=>route.fulfill({json:{conversation:{id:'1',title:'Teste'},active:false,before:null,turns:[{id:'bold-turn',message:'Pergunta',answer,thinking:'',created_at:'2026-10-15T12:00:00Z',status:'completed',metadata:{research:{sources:[{title:'Fonte',url:'https://example.com/source',domain:'example.com'}]}}}]}}));
+  await p.goto(nextServer.origin+'/novo.html?conversation=1');
+  const body=p.locator('.computer-message--assistant > .computer-message__text');await body.waitFor();
+  assert.deepEqual(await body.locator('strong').allTextContents(),['Política Social','com fonte [1]']);
+  assert.equal(await body.locator('strong .computer-citation').getAttribute('href'),'https://example.com/source');
+  assert.equal(await body.locator('img').count(),0);
+  assert.ok((await body.textContent())?.includes('**código**'));
+  assert.ok((await body.textContent())?.includes('**incompleto'));
+  assert.equal(await body.locator('strong').first().evaluate(e=>getComputedStyle(e).fontWeight),'700');
+ } finally {await f.context.close();}
 });

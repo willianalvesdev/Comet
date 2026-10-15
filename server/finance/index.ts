@@ -1,13 +1,13 @@
 import { availableProviders, structuredFinancial } from '../ai';
 import { ApiError, json, readJson } from '../http';
-import { dashboard, executeActions, history, receive } from './repository';
+import { chartOverview, executeActions, history, receive } from './repository';
 import { prepareInterpretation, requestData, SCHEMA, SYSTEM, validateInterpretation } from './interpretation';
 
 export async function handleFinance(request: Request, user: { id: number; nome: string; email: string }, segments: string[]): Promise<Response | null> {
   if (segments.length !== 1) return null;
   const [route] = segments, method = request.method;
-  if (!['dashboard', 'transactions', 'interpret', 'actions'].includes(route)) return null;
-  if (method === 'GET' && route === 'dashboard') return json(await dashboard(user.id));
+  if (!['chart', 'transactions', 'interpret', 'actions'].includes(route)) return null;
+  if (method === 'GET' && route === 'chart') return json(await chartOverview(user.id, new URL(request.url).searchParams));
   if (method === 'GET' && route === 'transactions') {
     const args = new URL(request.url).searchParams, rawLimit = args.get('limit') ?? '30';
     const limit = /^\d+$/.test(rawLimit) ? Number(rawLimit) : NaN;

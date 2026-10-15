@@ -61,7 +61,7 @@
     min-height: 26px;
     padding: var(--spacing-1) var(--spacing-2);
     border: 1px solid var(--border);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-full); corner-shape: round;
     background: transparent;
     color: var(--text-secondary);
     font: inherit;

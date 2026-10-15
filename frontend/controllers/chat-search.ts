@@ -1,14 +1,15 @@
 import { optionalElement, requiredElement, errorMessage, eventElement, elementList } from './dom';
 import { apiError, conversationsData } from './api-data';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
-    const notification = optionalElement(document, '.sidebar__top .sidebar__notification', HTMLButtonElement);
-    if (!notification) return;
+    const actions = optionalElement(document, '.sidebar__top-actions', HTMLElement);
+    if (!actions) return;
     const trigger = document.createElement('button');
     trigger.type = 'button'; trigger.className = 'sidebar__search';
     trigger.title = 'Pesquisar chats'; trigger.setAttribute('aria-label', 'Pesquisar chats');
     trigger.setAttribute('aria-haspopup', 'dialog');
     trigger.innerHTML = '<i class="chat-search__icon" aria-hidden="true"></i>';
-    notification.before(trigger);
+    actions.append(trigger);
+    scope.cleanup(() => trigger.remove());
     const dialog = document.createElement('dialog');
     dialog.className = 'chat-search'; dialog.setAttribute('aria-label', 'Pesquisar chats');
     dialog.innerHTML = '<div class="chat-search__field"><i class="chat-search__icon" aria-hidden="true"></i><input type="search" placeholder="Pesquisar chats" aria-label="Pesquisar chats" maxlength="100" autocomplete="off"></div><div class="chat-search__body"><h2>Chats</h2><p class="chat-search__status" role="status"></p><div class="chat-search__results"></div><button class="chat-search__more" type="button" hidden>Mostrar mais</button></div>';

@@ -1,3 +1,4 @@
+import { userInitials } from '../../shared/user-initials';
 import { optionalElement, requiredElement, formField, present, elementList, errorMessage } from './dom';
 import { record, stringValue, numberValue, booleanValue, optionalString, apiError } from './api-data';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
@@ -7,9 +8,9 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
  const names=['full_name','username','name','occupation','about','summary','company','birth_date','gender','response_length','formatting'];
  let version=0, enabled=true, location='', dirty=false, loading=false, opener: HTMLElement | null=null;
  function render(raw: unknown){const data=record(raw); names.forEach(name=>formField(form,name).value=stringValue(data[name] ?? '')||''); requiredElement(form, '[name=name]', HTMLInputElement).placeholder=stringValue(data.account_name); requiredElement(present(dialog), '.settings-account-email', HTMLElement).textContent=stringValue(data.email);
- requiredElement(present(dialog), '.settings-account-avatar', HTMLElement).textContent=(stringValue(data.full_name)||'?').slice(0,1).toUpperCase();
+ requiredElement(present(dialog), '.settings-account-avatar', HTMLElement).textContent=userInitials(stringValue(data.full_name)||'?');
  elementList(document, '.sidebar__profile-label', HTMLElement).forEach(el=>{el.textContent=stringValue(data.full_name);el.title=stringValue(data.full_name);});
- elementList(document, '.sidebar__avatar', HTMLElement).forEach(el=>el.textContent=(stringValue(data.full_name)||'?').slice(0,1).toUpperCase());
+ elementList(document, '.sidebar__avatar', HTMLElement).forEach(el=>el.textContent=userInitials(stringValue(data.full_name)||'?'));
  version=numberValue(data.version); enabled=booleanValue(data.memory_enabled); location=optionalString(data.location)||''; toggle.setAttribute('aria-checked',String(enabled)); locationButton.textContent=location?'Remover':'Compartilhar'; requiredElement(present(dialog), '#settings-location-status', HTMLElement).textContent=location?'Localização aproximada compartilhada.':'Compartilhe sua localização para personalizar as respostas.'; }
  async function request(method='GET',payload?: Record<string,string|number|boolean>):Promise<unknown>{const response=await fetch('/api/ai/personalization',{method,credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json','X-CSRFToken':(optionalElement(document, 'meta[name="csrf-token"]', HTMLMetaElement)?.content || optionalElement(document, 'input[name="csrf_token"]', HTMLInputElement)?.value || '')},body:payload?JSON.stringify(payload):undefined});const data:unknown=await response.json();if(!response.ok)throw new Error(apiError(data,'Não foi possível salvar as configurações.'));return data;}
  async function load(){loading=true;fieldset.disabled=true;status.textContent='Carregando…';reload.hidden=true;try{render(await request());dirty=false;fieldset.disabled=false;status.textContent='';}catch(error){status.textContent=errorMessage(error);reload.hidden=false;}finally{loading=false;}}

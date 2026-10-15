@@ -1,3 +1,4 @@
+import type { FinanceOverview, FinanceSeries, Metric, ChartInterval } from '../../shared/finance-chart';
 import { isRecord } from './dom';
 export function record(value: unknown): Record<string, unknown> {
     if (!isRecord(value)) throw new Error('Resposta inválida do servidor.');
@@ -64,27 +65,11 @@ export function chatEventData(value:unknown):ChatEvent {
         default:throw new Error('Evento inválido na resposta.');
     }
 }
-export function chartPointData(value:unknown):ChartPoint {
-    const data=record(value);
-    return {time:chartTimestamp(numberValue(data.time)),open:numberValue(data.open),high:numberValue(data.high),low:numberValue(data.low),close:numberValue(data.close),volume:numberValue(data.volume),occurred_on:optionalString(data.occurred_on),occurred_time:data.occurred_time == null ? null : stringValue(data.occurred_time)};
-}
-export function financeCardData(value:unknown):FinanceCard {
-    const data=record(value);
-    return {amount:stringValue(data.amount),difference:stringValue(data.difference),percentage:data.percentage===null?null:typeof data.percentage==='number'?String(numberValue(data.percentage)):stringValue(data.percentage),series:arrayValue(data.series,numberValue)};
-}
-export function financeDashboardData(value:unknown):FinanceDashboard {
-    const data=record(value),summary=record(data.summary),chart=record(data.chart);
-    return {as_of:stringValue(data.as_of ?? ''),summary:{balance:financeCardData(summary.balance),income:financeCardData(summary.income),expense:financeCardData(summary.expense)},chart:{currency:optionalString(chart.currency),kind:optionalString(chart.kind),points:arrayValue(chart.points,chartPointData),intraday:arrayValue(chart.intraday ?? [],chartPointData),movements:arrayValue(chart.movements ?? [],chartPointData)}};
-}
 export function financeHistoryData(value:unknown):FinanceHistory {
     const data=record(value);
     return {next_cursor:data.next_cursor==null?null:stringValue(data.next_cursor),transactions:arrayValue(data.transactions,value=>{const item=record(value);if(item.kind!=='income'&&item.kind!=='expense')throw new Error('Transação inválida.');return {id:stringValue(item.id),kind:item.kind,amount:stringValue(item.amount),description:stringValue(item.description),category:stringValue(item.category),occurred_on:stringValue(item.occurred_on),occurred_time:item.occurred_time == null ? null : stringValue(item.occurred_time),currency:stringValue(item.currency ?? 'BRL'),deleted_at:item.deleted_at == null ? null : stringValue(item.deleted_at)};})};
 }
 
-export function chartTimestamp(value:number):import('lightweight-charts').UTCTimestamp {
- if(!Number.isInteger(value)||value<0)throw new Error('Invalid timestamp');
- return value as import('lightweight-charts').UTCTimestamp;
-}
 export interface NewsArticle {id:string;url:string;title:string;image:string;published_at:string;description:string;source:string;sources:{name:string;url:string}[]}
 export function newsData(value:unknown) {
  const data=record(value);
@@ -107,4 +92,15 @@ export function researchState(value:unknown):ResearchState|undefined {
  if(value==null)return undefined;
  if(value==='searching'||value==='reading'||value==='complete'||value==='empty'||value==='failed')return value;
  throw new Error('Invalid research state');
+}
+
+export function financeOverviewData(value:unknown):FinanceOverview {
+ const data=record(value),series=record(data.series),summary=record(data.summary);
+ const keys:Metric[]=['balance','income','expense'];
+ const decimal=(value:unknown)=>{const text=stringValue(value);if(!/^-?\d+(?:\.\d+)?$/.test(text)||!Number.isFinite(Number(text)))throw new Error('Valor financeiro inválido.');return text;};
+ const day=(value:unknown)=>{const text=stringValue(value);if(!/^\d{4}-\d{2}-\d{2}$/.test(text)||!Number.isFinite(Date.parse(text)))throw new Error('Data financeira inválida.');return text;};
+ if(data.currency!=='BRL'||!['movement','day','week','month'].includes(stringValue(data.interval)))throw new Error('Dados financeiros inválidos.');
+ return {currency:'BRL',asOf:day(data.asOf),start:day(data.start),end:day(data.end),interval:data.interval as ChartInterval,
+  summary:Object.fromEntries(keys.map(key=>{const card=record(summary[key]);return [key,{amount:decimal(card.amount),difference:decimal(card.difference),percentage:card.percentage===null?null:decimal(card.percentage),series:arrayValue(card.series,numberValue)}];})) as FinanceOverview['summary'],
+  series:Object.fromEntries(keys.map(key=>{const seriesData=record(series[key]);const parsed:FinanceSeries={label:stringValue(seriesData.label),baseline:numberValue(seriesData.baseline),points:arrayValue(seriesData.points,item=>{const point=record(item);return {date:day(point.date),clock:point.clock===null?null:stringValue(point.clock),open:numberValue(point.open),high:numberValue(point.high),low:numberValue(point.low),close:numberValue(point.close),volume:numberValue(point.volume)};})};return [key,parsed];})) as FinanceOverview['series']};
 }

@@ -53,7 +53,7 @@
     content: "";
     display: inline-block;
     width: 1.5px;
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-full); corner-shape: round;
     height: 1em;
     margin-left: 3px;
     vertical-align: -0.1em;
@@ -94,9 +94,9 @@
     min-height: var(--input-lg);
     padding: var(--spacing-3) var(--spacing-6);
     border: 1px solid transparent;
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-full); corner-shape: round;
     font-size: var(--font-size-3);
-    font-weight: 500;
+    font-weight: var(--weight-500);
     line-height: 1.3;
     color: var(--text-white);
     transition: transform var(--duration-normal) ease, background-color var(--duration-normal) ease;
@@ -125,8 +125,8 @@
 .hero__action--primary {
     border: 1px solid color-mix(in srgb, var(--accent) 70%, transparent);
     background-color: color-mix(in srgb, var(--accent) 50%, transparent);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
 }
 
 .hero__action--secondary {
@@ -329,7 +329,7 @@
     width: var(--spacing-12);
     height: var(--spacing-9);
     border: 1px solid rgb(255 255 255 / .08);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-full); corner-shape: round;
     background: var(--odin-dark-300);
     color: var(--odin-dark-1000);
 }
@@ -340,7 +340,7 @@
 }
 .landing-menu nav { display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-4); margin-top: var(--spacing-10); }
 .landing-menu nav a { color: inherit; text-decoration: none; font-size: var(--spacing-5); }
-.landing-menu nav button { margin-top: var(--spacing-6); height: var(--spacing-9); padding: 0 var(--spacing-6); border: 0; border-radius: var(--radius-full); background: var(--odin-dark-1000); color: var(--odin-light-2000); font: inherit; }
+.landing-menu nav button { margin-top: var(--spacing-6); height: var(--spacing-9); padding: 0 var(--spacing-6); border: 0; border-radius: var(--radius-full); corner-shape: round; background: var(--odin-dark-1000); color: var(--odin-light-2000); font: inherit; }
 @media (max-width: 760px) {
     .site-header__inner { margin-inline: var(--spacing-5); }
     .site-header__login { display: none; }

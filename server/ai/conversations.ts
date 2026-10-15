@@ -1,3 +1,4 @@
+import { ApiError } from '../http';
 import { query, transaction } from '../db';
 import { AIError, id, iso, packMessage, unpackMessage, packResponse, unpackResponse, type ChatPayload, type Message, type Metadata } from './types';
 import { attachmentMessage, publicAttachment, readAttachment, removeAttachment } from './attachments';
@@ -25,9 +26,11 @@ export async function previewConversation(userId: number, cid: string) {
   const [row] = await query<StoredTurn>('SELECT pergunta,resposta,pensamento,criado_em FROM computer_mensagens WHERE conversa_id=$1 ORDER BY id LIMIT 1', [cid]);
   return row ? { message: unpackMessage(row.pergunta)[0].slice(0, 500), answer: row.resposta.slice(0, 900), created_at: iso(row.criado_em), has_search: Boolean(unpackResponse(row.pensamento)[1].research) } : { message: '', answer: '', created_at: null, has_search: false };
 }
-export async function getConversationExport(userId: number, cid: string) {
+export async function getConversationExport(userId: number, cid: string, turnId?: string) {
   const conversation = await owned({ query }, userId, cid);
-  const rows = await query<StoredTurn>('SELECT id,pergunta,resposta,pensamento,estado,criado_em FROM computer_mensagens WHERE conversa_id=$1 ORDER BY id', [cid]);
+  if (turnId !== undefined) id(turnId);
+  const rows = await query<StoredTurn>('SELECT id,pergunta,resposta,pensamento,estado,criado_em FROM computer_mensagens WHERE conversa_id=$1' + (turnId !== undefined ? ' AND id=$2' : '') + ' ORDER BY id', turnId !== undefined ? [cid, turnId] : [cid]);
+  if (turnId !== undefined && !rows.length) throw new ApiError(404, 'Mensagem não encontrada.');
   return { title: conversation.titulo, turns: rows.map(row => {
     const metadata = unpackResponse(row.pensamento)[1];
     const research = metadata.research;
