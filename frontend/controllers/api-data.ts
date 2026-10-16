@@ -42,7 +42,7 @@ export function researchData(value: unknown): Research {
 }
 export function metadataData(value:unknown, includeVersions = true):ResponseMetadata {
     const data=record(value ?? {});
-    return {answered_at:optionalString(data.answered_at),versions:includeVersions && data.versions!=null?arrayValue(data.versions,value=>{const version=record(value);return {answer:stringValue(version.answer),thinking:stringValue(version.thinking),metadata:metadataData(version.metadata,false)};}):undefined,provider:optionalString(data.provider),research:data.research==null?undefined:researchData(data.research),thinking_seconds:data.thinking_seconds==null?data.thinking_seconds:numberValue(data.thinking_seconds),elapsed_seconds:data.elapsed_seconds==null?undefined:numberValue(data.elapsed_seconds),instant:data.instant==null?undefined:booleanValue(data.instant)};
+    return {error:optionalString(data.error),error_code:optionalString(data.error_code),answered_at:optionalString(data.answered_at),versions:includeVersions && data.versions!=null?arrayValue(data.versions,value=>{const version=record(value);return {answer:stringValue(version.answer),thinking:stringValue(version.thinking),metadata:metadataData(version.metadata,false)};}):undefined,provider:optionalString(data.provider),research:data.research==null?undefined:researchData(data.research),thinking_seconds:data.thinking_seconds==null?data.thinking_seconds:numberValue(data.thinking_seconds),elapsed_seconds:data.elapsed_seconds==null?undefined:numberValue(data.elapsed_seconds),instant:data.instant==null?undefined:booleanValue(data.instant)};
 }
 export function turnData(value:unknown):Turn {
     const data=record(value);
@@ -85,8 +85,9 @@ export function weatherData(value:unknown) {
  return {current:{temperature_2m:numberValue(current.temperature_2m),weather_code:numberValue(current.weather_code),is_day:current.is_day === 0 ? 0 : 1},daily:{time:arrayValue(daily.time,stringValue),weather_code:arrayValue(daily.weather_code,numberValue),temperature_2m_max:arrayValue(daily.temperature_2m_max,numberValue),temperature_2m_min:arrayValue(daily.temperature_2m_min,numberValue)}};
 }
 
+export function isOpenRouterModel(value:unknown):value is string {return typeof value==='string' && /^openrouter:[a-zA-Z0-9][a-zA-Z0-9._-]*\/[a-zA-Z0-9][a-zA-Z0-9._:-]*:free$/.test(value) && value.length<=200;}
 export function isLocalModel(value:unknown):value is LocalModel {
- return typeof value==='string' && value!=='gemini' && value!=='qwen' && value.length<=200 && !value.includes('://') && !value.toLowerCase().includes('cloud') && /^[A-Za-z0-9][A-Za-z0-9_.:/-]*$/.test(value);
+ return typeof value==='string' && value!=='gemini' && value!=='qwen' && !value.startsWith('openrouter:') && value.length<=200 && !value.includes('://') && !value.toLowerCase().includes('cloud') && /^[A-Za-z0-9][A-Za-z0-9_.:/-]*$/.test(value);
 }
 export function researchState(value:unknown):ResearchState|undefined {
  if(value==null)return undefined;

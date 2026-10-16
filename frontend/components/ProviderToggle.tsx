@@ -14,12 +14,13 @@ export function ProviderToggle() {
         const target = Number(computer);
         let previous = performance.now();
         function paint() {
+            const collapsed = 36;
             const widths = labels.map(label => Math.max(36, label.scrollWidth));
             const progress = current.value;
             element.style.setProperty('--provider-progress', String(progress));
-            element.style.setProperty('--gemini-width', `${36 + (widths[0] - 36) * (1 - progress)}px`);
-            element.style.setProperty('--computer-width', `${36 + (widths[1] - 36) * progress}px`);
-            element.style.setProperty('--indicator-x', `${36 * progress}px`);
+            element.style.setProperty('--gemini-width', `${collapsed + (widths[0] - collapsed) * (1 - progress)}px`);
+            element.style.setProperty('--computer-width', `${collapsed + (widths[1] - collapsed) * progress}px`);
+            element.style.setProperty('--indicator-x', `${collapsed * progress}px`);
             element.style.setProperty('--indicator-width', `${widths[0] + (widths[1] - widths[0]) * progress}px`);
         }
         function frame(now: number) {
@@ -49,7 +50,7 @@ export function ProviderToggle() {
         return () => { cancelAnimationFrame(current.frame); observer.disconnect(); reduced.removeEventListener('change', settle); };
     }, [computer]);
 
-    return <div ref={group} className="composer-provider-group provider-toggle">
+    return <div ref={group} className="composer-provider-group provider-toggle" role="group" aria-label="Modo da mensagem">
         <span className="provider-toggle__indicator" aria-hidden="true" />
         <button className="model-picker" type="button" aria-label="Usar Pesquisar" aria-pressed={!computer} disabled={busy}>
             <span className="provider-toggle__content"><i className="model-icon model-icon--search" aria-hidden="true" /><span className="provider-toggle__label">Pesquisar</span></span>

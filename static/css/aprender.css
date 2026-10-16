@@ -1,5 +1,6 @@
+@font-face { font-family:"FK Grotesk Neue"; src:url("../fonts/fk-grotesk/FKGroteskNeue.woff2") format("woff2"); font-weight:200; font-style:normal; font-display:swap; }
 .study-page { width: min(1200px, 75%); height: calc(100svh - var(--header-height)); margin: 0 auto; padding: var(--spacing-6) 0; display: grid; grid-template-rows: minmax(80px, 1fr) auto auto auto; gap: var(--spacing-7); }
-.study-title { display: flex; align-items: center; justify-content: center; gap: var(--spacing-4); margin: 0; font-size: clamp(30px, 5.8svh, 52px); font-weight: var(--font-weight-regular); line-height: 1.2; color: var(--text); }
+.study-title { display: flex; align-items: center; justify-content: center; gap: var(--spacing-4); margin: 0; font-size: clamp(30px, 5.8svh, 52px); font-family:"FK Grotesk Neue", var(--font-body); font-weight:200; line-height: 1.2; color: var(--text); }
 .study-logo { width: 3.9em; height: .9em; background: var(--text); mask: url('../img/logos/comet-wordmark.svg') center/contain no-repeat; flex-shrink: 0; }
 .workspace .study-page .study-composer { padding: var(--spacing-5) var(--spacing-4) 14px; }
 .study-page .home__input { resize: none; min-height: 70px; }
@@ -12,7 +13,7 @@
 .study-topics h2 { font-size: var(--font-size-3); font-weight: var(--font-weight-regular); }
 .study-carousel { position: relative; }
 .study-list-controls { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
-.study-list-controls button { position: absolute; top: 50%; transform: translateY(-50%); pointer-events: auto; display: grid; place-items: center; width: var(--input-lg); height: var(--input-lg); border: 1px solid var(--border); border-radius: var(--radius-full); corner-shape: round; background: var(--surface); color: var(--text); opacity: 1; visibility: visible; transition: opacity 300ms ease, visibility 0s; }
+.study-list-controls button { position: absolute; top: 50%; transform: translateY(-50%); pointer-events: auto; display: grid; place-items: center; width: var(--input-lg); height: var(--input-lg); border: 1px solid var(--border); border-radius: var(--radius-full); background: var(--surface); color: var(--text); opacity: 1; visibility: visible; transition: opacity 300ms ease, visibility 0s; }
 .study-list-controls [data-topic-direction="-1"] { left: -20px; }
 .study-list-controls [data-topic-direction="1"] { right: -20px; }
 .study-list-controls button:disabled { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 300ms ease, visibility 0s 300ms; }

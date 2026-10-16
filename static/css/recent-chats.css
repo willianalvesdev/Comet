@@ -61,7 +61,7 @@
     min-height: 26px;
     padding: var(--spacing-1) var(--spacing-2);
     border: 1px solid var(--border);
-    border-radius: var(--radius-full); corner-shape: round;
+    border-radius: var(--radius-full);
     background: transparent;
     color: var(--text-secondary);
     font: inherit;
@@ -110,20 +110,21 @@
     margin: 0;
     border: 1px solid var(--border);
     border-radius: var(--radius-4);
+
     background: transparent;
     cursor: pointer;
 }
 
 .recent-chats__checkbox:checked, .recent-chats__checkbox:indeterminate {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: var(--control-selected);
+    border-color: var(--control-selected);
 }
 
 .recent-chats__checkbox:checked::before, .recent-chats__checkbox:indeterminate::before {
     content: "";
     width: 100%;
     height: 100%;
-    background: var(--odin-light-0);
+    background: var(--control-on-selected);
     mask: url('../img/icons/check.svg') center/contain no-repeat;
 }
 
@@ -346,3 +347,6 @@
 }
 .recent-chats__sort-menu button:hover, .recent-chats__sort-menu button:focus-visible { background: var(--surface-hover); }
 .recent-chats__sort-menu [aria-checked="false"] i { visibility: hidden; }
+
+.recent-chats__checkbox:not(:disabled):hover { border-color:var(--text-secondary); }
+.recent-chats__checkbox:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }

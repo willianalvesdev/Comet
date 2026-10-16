@@ -1,3 +1,4 @@
+import { isLocalModel } from './api-data';
 import { optionalElement, requiredElement, errorMessage, elementList } from './dom';
 import { apiError, attachmentData } from './api-data';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
@@ -38,73 +39,39 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         toggle.disabled=locked||uploading;window.dispatchEvent(new Event('attachments:changed'));
     }
     const page = composer.closest('.computer-page');
-    let inline = false;
-    let menuMotion: Animation | null = null;
-    scope.cleanup(() => menuMotion?.cancel());
-    function syncMenuHeight() {
-        composer.style.setProperty('--attachment-menu-height', inline && !menu.hidden ? `${menu.offsetHeight + parseFloat(getComputedStyle(menu).marginTop)}px` : '0px');
-    }
+    menu.setAttribute('popover', 'auto');
+    menu.hidden = false;
+    toggle.popoverTargetElement = menu;
     function position() {
-        if (inline || !menu.matches(':popover-open')) return;
+        if (!menu.matches(':popover-open')) return;
         const rect = toggle.getBoundingClientRect();
+        const below = !!page && !page.classList.contains('has-conversation');
+        const top = below ? composer.getBoundingClientRect().bottom + 8 : Math.max(12, rect.top - menu.offsetHeight - 8);
         menu.style.left = Math.max(12, Math.min(rect.left, innerWidth - menu.offsetWidth - 12)) + 'px';
-        menu.style.top = Math.max(12, rect.top - menu.offsetHeight - 8) + 'px';
+        menu.style.top = top + 'px';
+        menu.style.maxHeight = below ? Math.max(0, innerHeight - top - 12) + 'px' : '';
+        menu.style.setProperty('--menu-origin', below ? 'top left' : 'bottom left');
     }
     function reflect(open: boolean) {
         toggle.setAttribute('aria-expanded', String(open));
         toggle.setAttribute('aria-label', open ? 'Fechar opções da mensagem' : 'Adicionar arquivos ou imagens');
-        composer.classList.toggle('is-options-open', inline && open);
-        syncMenuHeight();
     }
     function setMenu(open: boolean) {
-        if (inline) {
-            if ((toggle.getAttribute('aria-expanded') === 'true') === open) return;
-            const height = menu.hidden ? 0 : menu.offsetHeight;
-            const margin = menu.hidden ? 0 : parseFloat(getComputedStyle(menu).marginTop);
-            menuMotion?.cancel();
-            menu.inert = !open;
-            menu.hidden = false;
-            const target = open ? menu.offsetHeight : 0;
-            if (matchMedia('(prefers-reduced-motion: reduce)').matches) menu.hidden = !open;
-            else {
-                menuMotion = menu.animate([{height:height+'px',marginTop:margin+'px'},{height:target+'px',marginTop:open?'16px':'0px'}],{duration:220,easing:'cubic-bezier(.16,1,.3,1)'});
-                menuMotion.onfinish = () => { menu.hidden = !open; menuMotion = null; syncMenuHeight(); };
-            }
-        }
-        else if (open) menu.showPopover();
+        if (open) menu.showPopover();
         else if (menu.matches(':popover-open')) menu.hidePopover();
-        reflect(open);
-        position();
+        reflect(open); position();
     }
-    function syncMode() {
-        const next = !!page && !page.classList.contains('has-conversation');
-        if (next === inline && (inline || menu.hasAttribute('popover'))) return;
-        setMenu(false);
-        menuMotion?.cancel(); menuMotion = null;
-        menu.inert = false;
-        inline = next;
-        composer.classList.toggle('has-inline-options', inline);
-        toggle.popoverTargetElement = inline ? null : menu;
-        if (inline) { menu.removeAttribute('popover'); menu.hidden = true; menu.style.removeProperty('left'); menu.style.removeProperty('top'); }
-        else { menu.setAttribute('popover', 'auto'); menu.hidden = false; }
-    }
-    syncMode();
-    if (page) new MutationObserver(syncMode).observe(page, {attributes:true, attributeFilter:['class']});
-    toggle.addEventListener('click', () => { if (inline) setMenu(toggle.getAttribute('aria-expanded') !== 'true'); }, {signal: scope.signal});
-    menu.addEventListener('toggle', () => { if (!inline) { reflect(menu.matches(':popover-open')); position(); } }, {signal: scope.signal});
-    scope.listen(document, 'pointerdown', event => {
-        if (inline && !composer.contains(event.target instanceof Node ? event.target : null)) setMenu(false);
-    });
+    menu.addEventListener('toggle', () => { reflect(menu.matches(':popover-open')); position(); }, {signal:scope.signal});
     composer.addEventListener('keydown', event => {
-        if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') { setMenu(false); toggle.focus(); event.stopPropagation(); }
-    }, {signal: scope.signal});
+        if (event.key === 'Escape' && menu.matches(':popover-open')) { setMenu(false); toggle.focus(); event.stopPropagation(); }
+    }, {signal:scope.signal});
     scope.listen(window, 'sessions:new', () => setMenu(false));
     scope.listen(window, 'sessions:open', () => setMenu(false));
     scope.listen(window, 'resize', position);
-    new ResizeObserver(() => {
-        if (inline) syncMenuHeight();
-        else position();
-    }).observe(menu);
+    scope.listen(window, 'scroll', position, true);
+    const observer = new ResizeObserver(position);
+    observer.observe(menu); observer.observe(composer);
+    scope.cleanup(() => observer.disconnect());
     requiredElement(menu, '[data-upload-files]', HTMLElement).addEventListener('click', () => { setMenu(false); picker.click(); }, {signal: scope.signal});
     async function upload(selected: File[]){
         if(!selected.length)return;
@@ -118,7 +85,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
                 const response=await fetch('/api/ai/attachments',{method:'POST',credentials:'same-origin',signal:controller.signal,headers:{'X-CSRFToken':requiredElement(document, 'meta[name="csrf-token"]', HTMLMetaElement).content},body});
                 const raw:unknown=await response.json();if(!response.ok)throw new Error(apiError(raw,'Não foi possível anexar o arquivo.'));const data=attachmentData(raw);if(expected!==version)return;
                 if(data.kind==='image')previews.set(data.id,URL.createObjectURL(file));
-                files.push(data);window.ComputerModels?.select('gemini');render();
+                files.push(data);if(isLocalModel(window.ComputerModels?.selected()))window.ComputerModels?.select('gemini');render();
             }
             status.textContent='';
         }catch(error){if(expected===version&&(error instanceof Error ? error.name : '')!=='AbortError')status.textContent=errorMessage(error);}

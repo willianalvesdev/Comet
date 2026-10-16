@@ -2,6 +2,7 @@ import { memo, useLayoutEffect, useState } from 'react';
 import type { BootstrapData } from './types';
 import { Sidebar, SidebarBackdrop, Settings } from './components/WorkspaceParts';
 import LandingPage from './components/LandingPage';
+import PrivacyPage from './pages/PrivacyPage';
 import ComputerPage from './pages/ComputerPage';
 import RecentChatsPage from './pages/RecentChatsPage';
 import DiscoverPage from './pages/DiscoverPage';
@@ -9,16 +10,16 @@ import LearnPage from './pages/LearnPage';
 import FinancePage from './pages/FinancePage';
 import { mountControllers } from './runtime/lifecycle';
 import { sharedControllers, workspaceControllers, pageControllers } from './runtime/controllers';
-import { routes } from './routes';
+import { routes, isPublicPage } from './routes';
 
-const pages = {index:LandingPage, computer:ComputerPage, recentes:RecentChatsPage, descobrir:DiscoverPage, aprender:LearnPage, graficos:FinancePage};
+const pages = {index:LandingPage, privacidade:PrivacyPage, computer:ComputerPage, recentes:RecentChatsPage, descobrir:DiscoverPage, aprender:LearnPage, graficos:FinancePage};
 const WorkspaceShell = memo(function WorkspaceShell({data}: {data: BootstrapData}) {
     return <><Sidebar data={data} /><SidebarBackdrop /><Settings data={data} /></>;
 });
 
 export default function App({bootstrap, revision, onReady}: {bootstrap:BootstrapData; revision:number; onReady:()=>void}) {
     const [shell] = useState(bootstrap);
-    const workspace = bootstrap.page !== 'index';
+    const workspace = !isPublicPage(bootstrap.page);
     useLayoutEffect(() => {
         const collapsed = document.body.classList.contains('is-sidebar-collapsed');
         document.body.className = workspace ? 'workspace sidebar-ready' : '';

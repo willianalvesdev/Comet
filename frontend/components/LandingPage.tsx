@@ -1,32 +1,12 @@
-import { useRef } from 'react';
+import SiteHeader from './SiteHeader';
 import type { BootstrapData } from '../types';
 import { ChatComposer } from './WorkspaceParts';
 
 export default function LandingPage({ bootstrap }: { bootstrap: BootstrapData }) {
-    const mobileMenu = useRef<HTMLDialogElement>(null);
     return (<>
 <div className="page-background" aria-hidden="true"></div>
-    <header className="site-header">
-        <div className="site-header__inner">
-            <a className="site-header__brand" href="#" aria-label="Comet — início">
-                <img className="site-header__logo" src="/static/img/logos/textlogo.svg" alt="Comet" />
-            </a>
-            <nav className="site-header__nav" aria-label="Navegação principal">
-                <a href="#inicio">Início</a>
-                <a href="#contato">Contato</a>
-                <a href="#sobre">Sobre a Comet</a>
-            </nav>
-            <button className="site-header__login" type="button" data-auth-open="login">Iniciar Sessão</button>
-            <button className="site-header__menu-toggle" type="button" aria-label="Abrir menu" aria-haspopup="dialog" onClick={() => mobileMenu.current?.showModal()}><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M2 6.5h14M2 11.5h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg></button>
-        </div>
-    </header>
-    <dialog className="landing-menu" ref={mobileMenu} aria-label="Menu principal">
-        <div className="landing-menu__header"><img src="/static/img/logos/textlogo.svg" alt="Comet" /><button type="button" aria-label="Fechar menu" onClick={() => mobileMenu.current?.close()}><i className="ui-icon-x" aria-hidden="true"></i></button></div>
-        <nav aria-label="Navegação móvel" onClick={() => mobileMenu.current?.close()}>
-            <a href="#inicio">Início</a><a href="#contato">Contato</a><a href="#sobre">Sobre a Comet</a>
-            <button type="button" data-auth-open="login">Iniciar Sessão</button>
-        </nav>
-    </dialog>
+<div className="landing-grain" aria-hidden="true"></div>
+    <SiteHeader home />
     <main id="inicio">
         <section className="hero" aria-labelledby="hero-title">
             <h1 id="hero-title">O novo Comet<br />para navegador</h1>
@@ -37,17 +17,43 @@ export default function LandingPage({ bootstrap }: { bootstrap: BootstrapData })
             <ChatComposer composerClass="hero__composer" demo />
 
             <div className="hero__actions">
-                <button className="hero__action hero__action--primary" type="button" data-auth-open="signup">Criar uma conta</button>
-                <a className="hero__action hero__action--secondary" href="#sobre">Sobre o Site</a>
+                <button className="site-header__login hero__signup" type="button" data-auth-open="signup">Criar conta</button>
             </div>
 
         </section>
     </main>
+    <footer className="landing-footer">
+        <div className="landing-footer__inner">
+            <div className="landing-footer__brand">
+                <a href="#inicio" aria-label="Comet — início"><img src="/static/img/logos/logo.svg" alt="Comet" width="44" height="44" /></a>
+            </div>
+            <nav className="landing-footer__column" aria-label="Explore o Comet">
+                <h2>Explore</h2>
+                <a href="/novo.html">Pesquisar</a>
+                <a href="/financas.html">Finanças</a>
+                <a href="/academico.html">Acadêmico</a>
+                <a href="/descobrir.html">Descobrir</a>
+            </nav>
+            <nav className="landing-footer__column" aria-label="Sobre o Comet">
+                <h2>Comet</h2>
+                <a href="#sobre">Sobre a Comet</a>
+                <a href="/privacidade.html#contato">Contato</a>
+                <button type="button" data-auth-open="signup">Criar conta</button>
+                <button type="button" data-auth-open="login">Iniciar sessão</button>
+            </nav>
+            <nav className="landing-footer__column" aria-label="Privacidade">
+                <h2>Privacidade</h2>
+                <a href="/privacidade.html">Política de Privacidade</a>
+                <button type="button" onClick={() => window.dispatchEvent(new Event('cookies:manage'))}>Preferências de cookies</button>
+            </nav>
+            <div className="landing-footer__bottom"><span>Comet © {new Date().getFullYear()}</span></div>
+        </div>
+    </footer>
     <dialog className="auth" aria-labelledby="auth-entry-title" aria-describedby="auth-entry-policy">
         <button className="auth__close" type="button" aria-label="Fechar janela"><i className="ui-icon-x" aria-hidden="true"></i></button>
         <section className="auth__panel" data-auth-panel="entry">
             <h2 className="auth__title" id="auth-entry-title" tabIndex={-1}>Entre ou cadastre-se para desbloquear todo o potencial do Comet</h2>
-            <p className="auth__policy" id="auth-entry-policy">Escolha como você quer continuar.</p>
+            <p className="auth__policy" id="auth-entry-policy">Escolha como você quer continuar. <a href="/privacidade.html">Política de Privacidade</a>.</p>
             <div className="auth__options">
                 <button className="auth__provider auth__provider--google" type="button" data-auth-provider="google"><i aria-hidden="true"></i>Continuar com o Google</button>
                 <button className="auth__provider auth__provider--github" type="button" data-auth-provider="github"><i aria-hidden="true"></i>Continuar com o GitHub</button>
@@ -63,7 +69,7 @@ export default function LandingPage({ bootstrap }: { bootstrap: BootstrapData })
             <button className="auth__dismiss" type="button" data-auth-close>Fechar</button>
         </section>
         <section className="auth__panel auth__panel--verify" data-auth-panel="verify" hidden>
-            <img className="auth__verification-icon" src="/static/img/icons/email-verification.svg" alt="" width="80" height="80" />
+            <i className="auth__verification-icon" aria-hidden="true" />
             <h2 className="auth__title" id="auth-verify-title" tabIndex={-1}>Verifique o seu e-mail</h2>
             <p className="auth__policy" id="auth-verify-policy">Enviamos um código de seis dígitos para<br /><span data-auth-destination></span></p>
             <form className="auth__form auth__form--verify" data-auth-verify action="/api/auth/email/verify" method="post">

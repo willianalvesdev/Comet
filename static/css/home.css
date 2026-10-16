@@ -53,7 +53,7 @@
 }
 
 .home__input::placeholder {
-    color: var(--text-secondary);
+    color: var(--text-tertiary);
     opacity: 1;
 }
 
@@ -75,7 +75,7 @@
     min-height: 36px;
     padding: 7px var(--spacing-3);
     border: 1px solid transparent;
-    border-radius: var(--radius-full); corner-shape: round;
+    border-radius: var(--radius-full);
     background: transparent;
     color: var(--text-secondary);
     font-size: var(--font-size-4);
@@ -106,7 +106,7 @@
 
 .home__microphone {
     border-radius: var(--radius-full);
-    corner-shape: round;
+
     width: var(--input-md);
     height: var(--input-md);
     background: transparent;

@@ -49,8 +49,8 @@ html:has(.auth[open]) { overflow: hidden; }
 .auth__message { color: var(--red); font-size: var(--font-size-4); line-height: 1.5; margin: var(--spacing-2) 0 0; text-align: left; }
 .auth__message:empty { display: none; }
 .auth__dismiss { margin-top: var(--spacing-10); border: 0; padding: var(--spacing-2); background: transparent; color: var(--text-secondary); font-size: var(--font-size-3); }
-.auth__verification-icon { display: block; margin: 0 auto var(--spacing-5); }
-:root[data-theme="light"] .auth__verification-icon { filter: brightness(.3); }
+.auth__verification-icon { display: block; width:80px; height:80px; margin: 0 auto var(--spacing-5); background:var(--text); mask:url('../img/icons/email-verification.svg') center / contain no-repeat; }
+
 .auth__form--verify { width: min(100%, 380px); margin: var(--spacing-10) auto 0; gap: var(--spacing-5); }
 .auth__digits { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--spacing-4); padding: 0; margin: 0; min-width: 0; border: 0; }
 .auth__digits input:not([type="hidden"]) { height: 64px; padding: 0; text-align: center; font-size: var(--font-size-2); }

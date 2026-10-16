@@ -1159,7 +1159,7 @@ test('Next: logo e novo chat repetido preservam navegação e sessão', async ()
     } finally {await f.context.close();}
 });
 
-for (const width of [1280, 390]) test(`novo chat: opções expandem a caixa e alinham a lateral (${width}px)`, async () => {
+for (const width of [1280, 390]) test(`novo chat: opções abrem abaixo sem expandir a caixa (${width}px)`, async () => {
     const f = await fixture(width); const p = f.page;
     try {
         await p.goto(nextServer.origin+'/novo.html?new=1');
@@ -1169,8 +1169,9 @@ for (const width of [1280, 390]) test(`novo chat: opções expandem a caixa e al
         await toggle.click();
         assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
         assert.equal(await p.locator('#attachment-menu').isVisible(), true);
-        const expanded = await composer.boundingBox(); assert.ok(expanded && expanded.height > before.height + 80);
-        assert.equal(await p.locator('#attachment-menu').evaluate(el => getComputedStyle(el).position), 'static');
+        const expanded = await composer.boundingBox(); assert.ok(expanded && Math.abs(expanded.height-before.height)<1);
+        const menuBounds=await p.locator('#attachment-menu').boundingBox();assert.ok(menuBounds && menuBounds.y>=before.y+before.height && menuBounds.y+menuBounds.height<=844);
+        assert.equal(await p.locator('#attachment-menu').evaluate(el => getComputedStyle(el).position), 'fixed');
         await p.locator('.web-search-toggle').click();
         assert.equal(await p.locator('.web-search-toggle').getAttribute('aria-pressed'), 'false');
         await p.screenshot({path:path.join(root,'artifacts/composer-expanded-'+width+'.png')});
@@ -1178,14 +1179,11 @@ for (const width of [1280, 390]) test(`novo chat: opções expandem a caixa e al
         assert.equal(await p.locator('#attachment-menu').isVisible(), false);
         await toggle.click(); await p.keyboard.press('Escape');
         assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
-        if (width < 640) { await p.locator('.workspace__menu-toggle').click(); await p.waitForTimeout(500); }
-        const centers = await p.locator('.sidebar__logo, .sidebar__search, .sidebar__notification, .sidebar__top > .sidebar__toggle').evaluateAll(els => els.map(el => { const r=el.getBoundingClientRect();return r.top+r.height/2; }));
-        assert.equal(centers.length, 4); assert.ok(Math.max(...centers)-Math.min(...centers)<1, JSON.stringify(centers));
         assert.deepEqual(f.errors, []);
     } finally { await f.context.close(); }
 });
 
-test('anexos: menu flutuante em conversas e Acadêmico, painel somente no novo chat', async () => {
+test('anexos: menu flutuante em conversas e Acadêmico, menu abaixo no novo chat', async () => {
     const f = await fixture(), p = f.page;
     try {
         await p.route('**/api/ai/conversations/1', route => route.fulfill({json:{conversation:{id:'1',title:'Conversa'},active:false,before:null,turns:[{id:'1',created_at:'2026-10-01T12:00:00Z',message:'Olá',answer:'Olá, como posso ajudar?',thinking:'',status:'completed',metadata:{}}]}}));
@@ -1201,7 +1199,7 @@ test('anexos: menu flutuante em conversas e Acadêmico, painel somente no novo c
         }
         await p.goto(nextServer.origin + '/novo.html?new=1');
         await p.locator('.attachment-toggle').click();
-        assert.equal(await p.locator('#attachment-menu').getAttribute('popover'), null);
+        assert.equal(await p.locator('#attachment-menu').getAttribute('popover'), 'auto');
         assert.equal(await p.locator('[data-upload-files]').evaluate(el => getComputedStyle(el).borderTopWidth), '0px');
         assert.deepEqual(f.errors, []);
     } finally { await f.context.close(); }
@@ -1779,4 +1777,168 @@ test('respostas renderizam negrito seguro e preservam código e citações',asyn
   assert.ok((await body.textContent())?.includes('**incompleto'));
   assert.equal(await body.locator('strong').first().evaluate(e=>getComputedStyle(e).fontWeight),'700');
  } finally {await f.context.close();}
+});
+
+
+test('OpenRouter: catálogo gratuito, preferência, anexos e envio com o modelo escolhido',async()=>{
+ const f=await fixture();const p=f.page;
+ try {
+  const models=[{"id":"openrouter:nvidia/nemotron-3.5-super-vl:free","name":"Nemotron 3.5 Super VL","configured":true},{"id":"openrouter:nvidia/nemotron-3.5-lightning:free","name":"Nemotron 3.5 Lightning","configured":true},{"id":"openrouter:nvidia/nemotron-3.5-content-safety:free","name":"Nemotron 3.5 Content Safety","configured":true},{"id":"openrouter:nvidia/nemotron-3-ultra-550b-a55b:free","name":"Nemotron 3 Ultra 550B A55B","configured":true},{"id":"openrouter:nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free","name":"Nemotron 3 Nano Omni 30B A3B Reasoning","configured":true},{"id":"openrouter:nvidia/nemotron-3-super-120b-a12b:free","name":"Nemotron 3 Super 120B A12B","configured":true},{"id":"openrouter:thinkingmachines/inkling-small:free","name":"Inkling Small","configured":true},{"id":"openrouter:thinkingmachines/inkling:free","name":"Inkling","configured":true},{"id":"openrouter:cohere/north-mini-code:free","name":"North Mini Code","configured":true},{"id":"openrouter:google/gemma-4-26b-a4b-it:free","name":"Gemma 4 26B A4B","configured":true},{"id":"openrouter:google/gemma-4-31b-it:free","name":"Gemma 4 31B","configured":true},{"id":"qwen3:1.7b","name":"Local","configured":true}];
+  await p.route('**/api/ai/models',route=>route.fulfill({json:{models,openrouter_configured:true,openrouter_error:null,default_remote_model:models[0].id,default_model:'qwen3:1.7b'}}));
+  await p.goto(nextServer.origin+'/novo.html?new=1');
+  await p.waitForFunction(()=>window.ComputerModels.selected()==='openrouter:nvidia/nemotron-3.5-super-vl:free');
+  const trigger=p.locator('.local-model-picker');await trigger.click();
+  assert.equal(await p.locator('.model-menu [data-provider]').count(),11);
+  assert.equal(await trigger.locator('.model-icon').count(),0);
+  assert.deepEqual(await p.locator('.model-company').allTextContents(),['NVIDIA','Thinking Machines','Cohere','Google']);
+  assert.equal(await p.locator('.model-menu .model-icon--nvidia').count(),6);
+  assert.equal(await p.locator('.model-menu .model-icon--gemini').count(),2);
+  for(const icon of await p.locator('.model-menu .model-icon').all()) assert.ok((await icon.evaluate(el=>getComputedStyle(el).backgroundImage)).includes('.svg'));
+  await p.locator('.model-menu [data-provider="openrouter:google/gemma-4-31b-it:free"]').click();
+  assert.equal(await trigger.locator('.local-model-name').textContent(),'Gemma 4 31B');
+  assert.equal(await p.evaluate(()=>window.ComputerModels.error()),'');
+  await p.reload();await p.waitForFunction(()=>window.ComputerModels.selected()==='openrouter:google/gemma-4-31b-it:free');
+  for(const width of [1280,390]) {await p.setViewportSize({width,height:844});await trigger.click();const bounds=await p.locator('.model-menu').boundingBox();assert.ok(bounds&&bounds.x>=12&&bounds.x+bounds.width<=width-12);await p.screenshot({path:path.join(root,'artifacts/ui-current/openrouter-models-'+width+'.png')});await p.keyboard.press('Escape');}
+  await p.route('**/api/ai/attachments',route=>route.fulfill({json:{id:'a'.repeat(32),name:'documento.txt',kind:'file',size:5}}));
+  await p.locator('#attachment-input').setInputFiles({name:'documento.txt',mimeType:'text/plain',buffer:Buffer.from('teste')});
+  await p.waitForFunction(()=>window.ComputerAttachments.files().length===1);assert.equal(await p.evaluate(()=>window.ComputerModels.selected()),'openrouter:google/gemma-4-31b-it:free');
+  let sent:Record<string,unknown>|undefined;
+  await p.route('**/api/ai/chat',route=>{sent=testObject(route.request().postDataJSON());return route.fulfill({contentType:'application/x-ndjson',body:[{type:'conversation',conversation_id:'1',turn_id:'test-turn',provider:'openrouter:google/gemma-4-31b-it:free'},{type:'delta',text:'Resposta do modelo escolhido'},{type:'done',metadata:{provider:'openrouter:google/gemma-4-31b-it:free'}}].map(v=>JSON.stringify(v)).join('\n')+'\n'});});
+  await p.locator('.home__input').fill('Olá');await p.locator('.home__send').click();await p.waitForFunction(()=>document.querySelector('.computer-message--assistant .computer-message__text')?.textContent==='Resposta do modelo escolhido');
+  assert.equal(sent?.provider,'openrouter:google/gemma-4-31b-it:free');assert.deepEqual(sent?.attachments,['a'.repeat(32)]);assert.deepEqual(f.errors,[]);
+ } finally {await f.context.close();}
+});
+
+
+test('falha de autenticação mantém a causa no histórico',async()=>{
+ const f=await fixture();const p=f.page;
+ try {
+  await p.route('**/api/ai/conversations/1',route=>route.fulfill({json:{conversation:{id:'1',title:'Falha'},active:false,before:null,turns:[{id:'failed-turn',message:'Olá',answer:'',thinking:'',created_at:'2026-10-15T12:00:00Z',status:'failed',metadata:{error_code:'provider_auth',error:'A chave deste modelo não foi aceita. Confira a configuração da API.'}}]}}));
+  await p.goto(nextServer.origin+'/novo.html?conversation=1');
+  await p.getByText('A chave deste modelo não foi aceita. Confira a configuração da API.',{exact:true}).waitFor();
+  assert.equal(await p.getByText('Resposta interrompida. O conteúdo salvo não foi incluído no contexto das próximas mensagens.',{exact:true}).count(),0);
+ } finally {await f.context.close();}
+});
+
+
+test('novo chat: cápsula animada e ícones dos modos em ambos os temas e tamanhos',async()=>{
+ const f=await fixture(),p=f.page;
+ try {
+  await p.goto(nextServer.origin+'/novo.html?new=1');
+  await p.waitForFunction(()=>window.ComputerModels && !window.ComputerModels.error());
+  const fonts=await p.evaluate(async()=>{
+   const text=await document.fonts.load('16px "PPLX Sans"');
+   const display=await document.fonts.load('24px "PPLX Serif"');
+   return [text.length,display.length,text[0]?.status,display[0]?.status];
+  });
+  assert.deepEqual(fonts,[1,1,'loaded','loaded']);
+  for(const width of [1280,390]) for(const theme of ['dark','light']) {
+   await p.setViewportSize({width,height:844});await p.evaluate(t=>document.documentElement.dataset.theme=t,theme);
+   for(const mode of ['Pesquisar','Computer']) {
+    await p.getByRole('button',{name:'Usar '+mode,exact:true}).click();
+    await p.waitForTimeout(450);
+    const buttons=p.locator('.home__composer .provider-toggle > button');
+    assert.deepEqual((await buttons.allTextContents()).map(t=>t.trim()),['Pesquisar','Computer']);
+    assert.equal(await buttons.filter({hasText:mode}).getAttribute('aria-pressed'),'true');
+    const geometry=await p.locator('.home__composer .provider-toggle').evaluate(el=>{
+     const group=el.getBoundingClientRect(),pill=el.querySelector('.provider-toggle__indicator')!,r=pill.getBoundingClientRect(),selected=el.querySelector('[aria-pressed="true"]')!.getBoundingClientRect();
+     const icons=[...el.querySelectorAll<HTMLElement>('.provider-toggle__content > i')].map(i=>({width:i.getBoundingClientRect().width,display:getComputedStyle(i).display,mask:getComputedStyle(i).maskImage}));
+     return {gap:r.top-group.top,width:r.width-selected.width,x:r.x-selected.x,icons};
+    });
+    assert.equal(geometry.gap,2);assert.ok(Math.abs(geometry.width)<1 && Math.abs(geometry.x)<1);
+    for(const icon of geometry.icons){assert.equal(icon.width,16);assert.notEqual(icon.display,'none');assert.notEqual(icon.mask,'none');}
+    assert.equal(await p.evaluate(()=>window.ComputerModels.selected().startsWith('qwen')),mode==='Computer');
+    await p.screenshot({path:path.join(root,'artifacts/ui-current/mode-switch-'+width+'-'+theme+'-'+mode+'.png')});
+   }
+  }
+  await p.emulateMedia({reducedMotion:'no-preference'});
+  const progress=await p.evaluate(async()=>{
+   const group=document.querySelector<HTMLElement>('.home__composer .provider-toggle')!;
+   group.querySelector<HTMLButtonElement>('.model-picker')!.click();
+   const values:number[]=[];for(let i=0;i<40;i++){await new Promise(requestAnimationFrame);values.push(Number(group.style.getPropertyValue('--provider-progress')));}
+   return values;
+  });
+  assert.ok(progress.some(v=>v>0.01&&v<0.99),'capsule must animate between modes');
+  assert.ok(progress.at(-1)!<0.01,'capsule must settle on Pesquisa');
+  assert.deepEqual(f.errors,[]);
+ }finally{await f.context.close();}
+});
+
+
+test('chat: tipografia PPLX, metadados abaixo e duração compacta',async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  const turns=[100,3661,40].map((seconds,i)=>({id:String(i+1),created_at:'2026-10-15T12:00:00Z',message:'Mensagem de teste',answer:'Resposta de teste',thinking:'Análise',status:'completed',metadata:{thinking_seconds:seconds,research:{state:'complete',sources:[{url:'https://example.com',title:'Fonte',domain:'example.com'}]}}}));
+  await p.route('**/api/ai/conversations/1',r=>r.fulfill({json:{conversation:{id:'1',title:'Teste'},active:false,before:null,turns}}));
+  await p.goto(nextServer.origin+'/novo.html?conversation=1');
+  await p.locator('.computer-message--assistant').first().waitFor();
+  for(const label of ['Pensou por 1m 40s','Pensou por 1h 1m 1s','Pensou por 40s'])assert.ok(await p.getByText(label,{exact:true}).count());
+  for(const width of [1280,390]){
+   await p.setViewportSize({width,height:844});
+   const user=p.locator('.computer-message--user').first();await user.hover();
+   const b=await user.boundingBox(),a=await user.locator('.computer-user-actions').boundingBox();assert.ok(b&&a&&a.y>=b.y+b.height-1&&Math.abs(a.x+a.width-b.x-b.width)<2);
+   for(const sel of ['.computer-user-time','.response-time','.computer-sources'])for(const size of await p.locator(sel).evaluateAll(es=>es.map(e=>getComputedStyle(e).fontSize)))assert.equal(size,'12px');
+   assert.match(await p.locator('.computer-message--assistant > .computer-message__text').first().evaluate(e=>getComputedStyle(e).fontFamily),/PPLX Serif/);
+   await p.screenshot({path:path.join(root,'artifacts/ui-current/restored-chat-'+width+'.png')});
+  }
+  assert.deepEqual(f.errors,[]);
+ }finally{await f.context.close();}
+});
+
+
+test('Markdown: títulos, código literal e ícone Novo visível',async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  const answer='### Dados **verificáveis**:\nTexto <img src=x onerror=alert(1)>\n\n### Considerações:\nTexto\n\n'+String.fromCharCode(96).repeat(3)+'txt\n### Código literal\n'+String.fromCharCode(96).repeat(3);
+  await p.route('**/api/ai/conversations/1',r=>r.fulfill({json:{conversation:{id:'1',title:'Teste'},active:false,before:null,turns:[{id:'1',created_at:'2026-10-15T12:00:00Z',message:'Teste',answer,thinking:'',status:'completed',metadata:{}}]}}));
+  await p.goto(nextServer.origin+'/novo.html?conversation=1');
+  const body=p.locator('.computer-message--assistant > .computer-message__text');await body.waitFor();
+  assert.deepEqual(await body.locator('h3').allTextContents(),['Dados verificáveis:','Considerações:']);
+  assert.equal(await body.locator('h3 strong').textContent(),'verificáveis');assert.equal(await body.locator('img').count(),0);
+  assert.ok((await body.textContent())?.includes('### Código literal'));
+  const icons=await p.locator('.sidebar__new-icon,.sidebar__finance-icon').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return {w:r.width,h:r.height,mask:getComputedStyle(e).maskImage};}));
+  assert.ok(icons[0].w>0&&icons[0].h>0);assert.equal(icons[0].w,icons[1].w);assert.equal(icons[0].h,icons[1].h);assert.notEqual(icons[0].mask,'none');
+  await p.screenshot({path:path.join(root,'artifacts/ui-current/markdown-heading-icons.png')});assert.deepEqual(f.errors,[]);
+ }finally{await f.context.close();}
+});
+
+
+test('perfil: alternar modo anônimo mantém o menu aberto',async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  await p.locator('.sidebar__profile').click();
+  for(const enabled of [true,false,true,false]){
+   await p.getByRole('switch',{name:'Modo anônimo'}).click();
+   await p.waitForFunction(value=>document.querySelector('.profile-anonymous')?.getAttribute('aria-checked')===String(value),enabled);
+   await p.waitForFunction(()=>document.querySelector('#profile-menu')?.matches(':popover-open'));
+   assert.equal(await p.locator('.sidebar__profile').getAttribute('aria-expanded'),'true');
+  }
+  await p.keyboard.press('Escape');assert.equal(await p.locator('#profile-menu').evaluate(e=>e.matches(':popover-open')),false);
+  assert.deepEqual(f.errors,[]);
+ }finally{await f.context.close();}
+});
+
+test('sidebar: degradês únicos só nas bordas com conteúdo fora da vista',async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  await p.locator('.sidebar__nav').evaluate(nav=>{
+   const list=nav.querySelector('#recent-chats')!;
+   const row=list.querySelector('.sessions__row')!;
+   for(let index=0;index<20;index++)list.append(row.cloneNode(true));
+   nav.scrollTop=0;
+  });
+  await p.waitForFunction(()=>document.querySelector('.sidebar')?.classList.contains('has-nav-overflow'));
+  assert.equal(await p.locator('.sidebar').evaluate(e=>e.classList.contains('is-nav-scrolled')),false);
+  for(const selector of ['.sidebar__new-chat','.sidebar__footer']){
+   for(const pseudo of ['::before','::after'])assert.equal(await p.locator(selector).evaluate((e,pseudo)=>getComputedStyle(e,pseudo).content,pseudo),'none');
+  }
+  await p.locator('.sidebar__nav').evaluate(e=>e.scrollTop=100);
+  await p.waitForFunction(()=>document.querySelector('.sidebar')?.classList.contains('is-nav-scrolled'));
+  await p.screenshot({path:path.join(root,'artifacts/ui-current/sidebar-single-fade.png')});
+  await p.locator('.sidebar__nav').evaluate(e=>e.scrollTop=e.scrollHeight);
+  await p.waitForFunction(()=>!document.querySelector('.sidebar')?.classList.contains('has-nav-overflow'));
+  await p.locator('.sidebar__nav').evaluate(e=>e.scrollTop=0);
+  await p.waitForFunction(()=>!document.querySelector('.sidebar')?.classList.contains('is-nav-scrolled'));
+  assert.deepEqual(f.errors,[]);
+ }finally{await f.context.close();}
 });

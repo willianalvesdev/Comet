@@ -1,326 +1,42 @@
-@font-face {
-    font-family: "Kalice";
-    src: url("../fonts/kalice/kalicetrial-regular.otf") format("opentype");
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Kalice";
-    src: url("../fonts/kalice/kalicetrial-italic.otf") format("opentype");
-    font-weight: 400;
-    font-style: italic;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Kalice";
-    src: url("../fonts/kalice/kalicetrial-medium.otf") format("opentype");
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Kalice";
-    src: url("../fonts/kalice/kalicetrial-mediumitalic.otf") format("opentype");
-    font-weight: 500;
-    font-style: italic;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Kalice";
-    src: url("../fonts/kalice/kalicetrial-bold.otf") format("opentype");
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Kalice";
-    src: url("../fonts/kalice/kalicetrial-bolditalic.otf") format("opentype");
-    font-weight: 700;
-    font-style: italic;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Kalice";
-    src: url("../fonts/kalice/kalicetrial-extrabold.otf") format("opentype");
-    font-weight: 800;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Kalice";
-    src: url("../fonts/kalice/kalicetrial-extrabolditalic.otf") format("opentype");
-    font-weight: 800;
-    font-style: italic;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Kalice";
-    src: url("../fonts/kalice/kalicetrial-black.otf") format("opentype");
-    font-weight: 900;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Kalice";
-    src: url("../fonts/kalice/kalicetrial-blackitalic.otf") format("opentype");
-    font-weight: 900;
-    font-style: italic;
-    font-display: swap;
-}
+@font-face { font-family:"PPLX Sans"; src:url("../fonts/pplx/PPLX-Sans.woff2") format("woff2"); font-weight:100 900; font-style:normal; font-display:swap; }
+@font-face { font-family:"PPLX Sans-Mono"; src:url("../fonts/pplx/PPLX-Sans-Mono.woff2") format("woff2"); font-weight:100 900; font-style:normal; font-display:swap; }
+@font-face { font-family:"PPLX Serif"; src:url("../fonts/pplx/PPLX-Serif.woff2") format("woff2"); font-weight:100 900; font-style:normal; font-display:swap; }
 
 :root {
-    /* Paleta completa, preservada para ajustes de tema. */
-    --odin-light-500:  #e2e2e2;
-    --odin-light-600:  #dcdcdc;
-    --odin-light-700:  #d5d5d5;
-    --odin-light-1000: #1f1f1f;
-    --odin-dark-50: #121212;
-    --odin-dark-600: #353535;
-    --odin-dark-700: #3b3b3b;
-    --ifrit-light-50: #fcf1f1;
-    --ifrit-light-100: #fdd2d3;
-    --ifrit-light-200: #ffabae;
-    --ifrit-light-300: #fd848d;
-    --ifrit-light-400: #f46776;
-    --ifrit-light-500: #cd495a;
-    --ifrit-light-600: #a23544;
-    --ifrit-light-700: #792b34;
-    --ifrit-light-800: #522024;
-    --ifrit-light-900: #330f13;
-    --ifrit-dark-50: #fff2f2;
-    --ifrit-dark-100: #fececf;
-    --ifrit-dark-200: #f7abad;
-    --ifrit-dark-300: #e7848a;
-    --ifrit-dark-500: #c34a58;
-    --ifrit-dark-600: #a63143;
-    --ifrit-dark-700: #792b34;
-    --ifrit-dark-800: #5c1420;
-    --ifrit-dark-900: #330f13;
-    --phoenix-light-50: #ffede5;
-    --phoenix-light-100: #ffd5c1;
-    --phoenix-light-200: #ffb08b;
-    --phoenix-light-300: #ff874e;
-    --phoenix-light-400: #eb7035;
-    --phoenix-light-500: #bf5421;
-    --phoenix-light-600: #97431a;
-    --phoenix-light-700: #713417;
-    --phoenix-light-800: #4b2614;
-    --phoenix-light-900: #28170e;
-    --phoenix-dark-50: #fff2ed;
-    --phoenix-dark-100: #fcd0bc;
-    --phoenix-dark-200: #f5ae8d;
-    --phoenix-dark-300: #e28a60;
-    --phoenix-dark-400: #d57141;
-    --phoenix-dark-500: #ba5525;
-    --phoenix-dark-600: #9a3d10;
-    --phoenix-dark-700: #713417;
-    --phoenix-dark-800: #522109;
-    --phoenix-dark-900: #28170e;
-    --titan-light-50: #ffefde;
-    --titan-light-100: #fcd6a6;
-    --titan-light-200: #f8b85b;
-    --titan-light-300: #e39b22;
-    --titan-light-400: #c58300;
-    --titan-light-500: #a36c03;
-    --titan-light-600: #825503;
-    --titan-light-700: #623f02;
-    --titan-light-800: #422b06;
-    --titan-light-900: #251905;
-    --titan-dark-50: #fff3e5;
-    --titan-dark-100: #f7d3a6;
-    --titan-dark-200: #eab56c;
-    --titan-dark-300: #d1953a;
-    --titan-dark-400: #bc811e;
-    --titan-dark-500: #a06a07;
-    --titan-dark-600: #7c5209;
-    --titan-dark-700: #623f02;
-    --titan-dark-800: #3e2d15;
-    --titan-dark-900: #231a0b;
-    --sylph-light-50: #f0f2db;
-    --sylph-light-100: #dae49c;
-    --sylph-light-200: #b8c95e;
-    --sylph-light-300: #9db138;
-    --sylph-light-400: #82961d;
-    --sylph-light-500: #6b7d0d;
-    --sylph-light-600: #536300;
-    --sylph-light-700: #3f4a05;
-    --sylph-light-800: #2c3208;
-    --sylph-light-900: #1b1d08;
-    --sylph-dark-50: #f4f7da;
-    --sylph-dark-100: #d8dea9;
-    --sylph-dark-200: #bbc57d;
-    --sylph-dark-300: #9ba850;
-    --sylph-dark-400: #859531;
-    --sylph-dark-500: #6a7c08;
-    --sylph-dark-600: #526200;
-    --sylph-dark-700: #3e4a00;
-    --sylph-dark-800: #2c3400;
-    --sylph-dark-900: #1b1d05;
-    --garuda-light-50: #d9f7d6;
-    --garuda-light-100: #c0ebbd;
-    --garuda-light-200: #8ed88d;
-    --garuda-light-300: #63bf66;
-    --garuda-light-400: #44aa4c;
-    --garuda-light-500: #18882d;
-    --garuda-light-600: #016b1d;
-    --garuda-light-700: #0c5218;
-    --garuda-light-800: #0b3811;
-    --garuda-light-900: #0a2007;
-    --garuda-dark-50: #eaf9e8;
-    --garuda-dark-100: #bbe5b8;
-    --garuda-dark-200: #94cd92;
-    --garuda-dark-300: #73b572;
-    --garuda-dark-500: #328439;
-    --garuda-dark-600: #136a22;
-    --garuda-dark-700: #0c5218;
-    --garuda-dark-800: #02390c;
-    --garuda-dark-900: #0a2007;
-    --shiva-light-50: #ddf6f8;
-    --shiva-light-100: #b1eaef;
-    --shiva-light-200: #72d3dc;
-    --shiva-light-300: #3abbc6;
-    --shiva-light-400: #00a1ac;
-    --shiva-light-500: #01838c;
-    --shiva-light-700: #0c4f54;
-    --shiva-light-800: #0f3639;
-    --shiva-light-900: #071f21;
-    --shiva-dark-50: #e7f2f3;
-    --shiva-dark-100: #bdd9dd;
-    --shiva-dark-200: #90bfc5;
-    --shiva-dark-300: #64a6af;
-    --shiva-dark-500: #22808c;
-    --shiva-dark-600: #1a636c;
-    --shiva-dark-700: #0c4f54;
-    --shiva-dark-800: #0c3236;
-    --shiva-dark-900: #081d20;
-    --leviathan-light-50: #e9f2fc;
-    --leviathan-light-100: #bcdbfa;
-    --leviathan-light-200: #87c4f8;
-    --leviathan-light-300: #57adec;
-    --leviathan-light-400: #1595da;
-    --leviathan-light-500: #007ebb;
-    --leviathan-light-600: #006495;
-    --leviathan-light-700: #004c73;
-    --leviathan-light-800: #003451;
-    --leviathan-light-900: #061e2e;
-    --leviathan-dark-50: #eef4fc;
-    --leviathan-dark-100: #c6ddf7;
-    --leviathan-dark-200: #9dc3ec;
-    --leviathan-dark-300: #77aadc;
-    --leviathan-dark-400: #5691c7;
-    --leviathan-dark-500: #3778ac;
-    --leviathan-dark-600: #1e608f;
-    --leviathan-dark-700: #004c73;
-    --leviathan-dark-800: #09334f;
-    --leviathan-dark-900: #091d2e;
-    --fenrir-light-50: #f0f0f9;
-    --fenrir-light-100: #d1d3fc;
-    --fenrir-light-200: #b1b8fc;
-    --fenrir-light-300: #8e9cf6;
-    --fenrir-light-400: #6c82ea;
-    --fenrir-light-500: #4a69d4;
-    --fenrir-light-600: #3053b3;
-    --fenrir-light-700: #1f3d8c;
-    --fenrir-light-800: #172a63;
-    --fenrir-light-900: #111a3b;
-    --fenrir-dark-50: #f4f4ff;
-    --fenrir-dark-100: #d6d8fd;
-    --fenrir-dark-200: #b7bcfb;
-    --fenrir-dark-300: #939def;
-    --fenrir-dark-400: #7989e7;
-    --fenrir-dark-500: #596fd0;
-    --fenrir-dark-600: #3c57b3;
-    --fenrir-dark-700: #1f3d8c;
-    --fenrir-dark-800: #182d6a;
-    --fenrir-dark-900: #0f1a3e;
-    --ramuh-light-50: #f5eefa;
-    --ramuh-light-100: #e6cff7;
-    --ramuh-light-200: #d4aff3;
-    --ramuh-light-300: #c18fed;
-    --ramuh-light-400: #ab70e3;
-    --ramuh-light-500: #9354d3;
-    --ramuh-light-600: #7a3abb;
-    --ramuh-light-700: #5f269a;
-    --ramuh-light-800: #431673;
-    --ramuh-light-900: #290c46;
-    --ramuh-dark-50: #faf3ff;
-    --ramuh-dark-100: #e5d0f5;
-    --ramuh-dark-200: #d1acef;
-    --ramuh-dark-300: #be8ce9;
-    --ramuh-dark-400: #a96ee0;
-    --ramuh-dark-500: #9151d1;
-    --ramuh-dark-600: #7737ba;
-    --ramuh-dark-700: #5f269a;
-    --ramuh-dark-800: #43196e;
-    --ramuh-dark-900: #280f41;
-    --jenova-light-50: #f8eef3;
-    --jenova-light-100: #ffcce9;
-    --jenova-light-200: #ffa4da;
-    --jenova-light-300: #f47fc8;
-    --jenova-light-400: #d958ab;
-    --jenova-light-500: #c24397;
-    --jenova-light-600: #a12c7b;
-    --jenova-light-700: #7d1f5e;
-    --jenova-light-800: #561741;
-    --jenova-light-900: #301024;
-    --jenova-dark-50: #fff1f9;
-    --jenova-dark-100: #fac9e4;
-    --jenova-dark-200: #f1a3d1;
-    --jenova-dark-300: #e381bc;
-    --jenova-dark-400: #d163a7;
-    --jenova-dark-500: #b94891;
-    --jenova-dark-600: #9c3077;
-    --jenova-dark-700: #7d1f5e;
-    --jenova-dark-800: #591342;
-    --jenova-dark-900: #330d25;
-    --shiva-dark-1000: #0b1316;
-
-    /* Palette primitives */
-    --odin-light-0:    #ffffff;
-    --odin-light-100:  #fcfcfc;
-    --odin-light-200:  #f8f8f8;
-    --odin-light-300:  #f0f0f0;
-    --odin-light-400:  #e9e9e9;
-    --odin-light-2000: #161616;
-    --odin-dark-0: #000000;
-    --odin-dark-100: #161616;
-    --odin-dark-200: #1d1d1d;
-    --odin-dark-300: #232323;
-    --odin-dark-400: #292929;
-    --odin-dark-500: #2f2f2f;
-    --odin-dark-1000: #fcfcfc;
-    --ifrit-dark-400: #dc6973;
-    --garuda-dark-400: #539e55;
-    --shiva-light-600: #016a71;
-    --shiva-dark-400: #4e99a3;
-
     /* Theme roles: surfaces, foreground, borders and accent */
-    --bg: var(--odin-dark-50);
-    --surface: var(--odin-dark-100);
-    --surface-hover: var(--odin-dark-200);
-    --surface-hover-strong: var(--odin-dark-300);
-    --surface-selected: var(--odin-dark-400);
-    --text: var(--odin-dark-1000);
-    --text-white: var(--odin-light-0);
-    --green: var(--garuda-dark-400);
-    --red: var(--ifrit-dark-400);
-    --accent-brand: #20808d;
-    --sidebar-surface: #101010;
-    --accent: var(--accent-brand);
-    --border: rgb(from var(--text) r g b / .1);
-    --border-focus: rgb(from var(--text) r g b / .2);
-    --text-secondary: rgb(from var(--text) r g b / .65);
-    --text-tertiary: rgb(from var(--text) r g b / .35);
+    --background-primary: #171717;
+    --background-secondary: #1f1f1f;
+    --background-tertiary: #242424;
+    --bg: var(--background-primary);
+    --surface: var(--background-secondary);
+    --surface-hover: var(--background-secondary);
+    --surface-hover-strong: var(--background-tertiary);
+    --surface-selected: var(--background-tertiary);
+    --text: #e8e8e8;
+    --text-secondary: #cdcdcd;
+    --text-tertiary: #afafaf;
+    --text-quaternary: #919191;
+    --text-inverted: #afafaf;
+    --control-selected: var(--text);
+    --control-on-selected: var(--bg);
+    --control-track: #919191;
+    --control-segment: var(--background-tertiary);
+    --icon-primary: var(--text);
+    --icon-secondary: var(--text-secondary);
+    --icon-tertiary: var(--text-tertiary);
+    --icon-inverted: var(--text-inverted);
+    --text-white: #ffffff;
+    --blue: #0285ff;
+    --red: #ff8583;
+    --orange: #ff9e6c;
+    --green: #40c977;
+    --turquoise: #20808d;
+
+    --accent-brand: var(--turquoise);
+    --accent: var(--turquoise);
+    --sidebar-surface: #141414;
+    --border: rgb(from var(--text) r g b / .05);
+    --border-focus: rgb(from var(--text) r g b / .1);
 
     /* Elevation: layered shadows with progressively wider blur */
     --shadow-hairline-width: 1px;
@@ -337,7 +53,7 @@
     /* Typography */
     --weight-300: 300;
     --font-weight-light: var(--weight-300);
-    --weight-400: 450;
+    --weight-400: 400;
     --font-weight-regular: var(--weight-400);
     --weight-500: 500;
     --font-weight-medium: var(--weight-500);
@@ -349,11 +65,11 @@
     --font-weight-extrabold: var(--weight-800);
     --weight-900: 900;
     --font-weight-black: var(--weight-900);
-    --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --font-heading: "Kalice", Georgia, serif;
+    --font-body: "PPLX Sans", Arial, sans-serif;
+    --font-heading: "PPLX Serif", Georgia, serif;
     --font-ui: var(--font-body);
     --font-prose: var(--font-heading);
-    --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --font-mono: "PPLX Sans-Mono", Consolas, monospace;
     --font-size-0: 18px;
     --font-size-1: 72px;
     --font-size-2: 24px;
@@ -380,13 +96,13 @@
     --spacing-0-5: .125rem;
     --spacing-1-5: .375rem;
     --spacing-2-5: .625rem;
-    --radius-2: 2.6999999999999997px;
-    --radius-4: 5.3999999999999995px;
-    --radius-6: 8.1px;
-    --radius-8: 10.799999999999999px;
-    --radius-12: 16.2px;
-    --radius-16: 21.599999999999998px;
-    --radius-24: 32.4px;
+    --radius-2: 2px;
+    --radius-4: 4px;
+    --radius-6: 6px;
+    --radius-8: 8px;
+    --radius-12: 12px;
+    --radius-16: 16px;
+    --radius-24: 24px;
     --radius-full: 9999px;
     --input-2xs: 14px;
     --input-xs: 16px;
@@ -408,7 +124,7 @@
     --margin-inline-2: var(--spacing-10);
     --gap: var(--spacing-12);
     --gap-half: var(--spacing-6);
-    --header-height: 68px;
+    --header-height: 72px;
     --sources-panel-width: 320px;
     --sources-panel-space: 392px;
     --recents-panel-width: 320px;
@@ -417,29 +133,31 @@
 }
 
 :root[data-theme="light"] {
-    --weight-300: 400;
-    --weight-400: 500;
-    --weight-500: 600;
-    --weight-600: 700;
-    --weight-700: 800;
-    --weight-800: 900;
-    --weight-900: 900;
-    --shadow-sm: 0 0 0 var(--shadow-hairline-width) color-mix(in srgb,#071f21 5%,#0000),0 1px 0 0 color-mix(in srgb,#071f21 1%,#0000),0 1px 1px 0 color-mix(in srgb,#071f21 5%,#0000),0 0 2px 0 color-mix(in srgb,#071f21 8%,#0000),0 2px 6px -2px color-mix(in srgb,#071f21 8%,#0000);
-    --shadow-md: 0 0 0 var(--shadow-hairline-width) color-mix(in srgb,#071f21 8%,#0000),0 1px 0 0 color-mix(in srgb,#071f21 2%,#0000),0 1px 2px 0 color-mix(in srgb,#071f21 1%,#0000),0 2px 6px -2px color-mix(in srgb,#071f21 14%,#0000),0 6px 20px -5px color-mix(in srgb,#071f21 10%,#0000);
-    --shadow-lg: 0 0 0 var(--shadow-hairline-width) color-mix(in srgb,#071f21 8%,#0000),0 1px 0 0 color-mix(in srgb,#071f21 2%,#0000),0 1px 4px 0 color-mix(in srgb,#071f21 1%,#0000),0 2px 8px -1px color-mix(in srgb,#071f21 16%,#0000),0 10px 40px -6px color-mix(in srgb,#071f21 14%,#0000);
-    --bg: var(--odin-light-200);
-    --sidebar-surface: var(--surface);
-    --surface: var(--odin-light-100);
-    --surface-hover: var(--odin-light-300);
-    --surface-hover-strong: var(--odin-light-400);
-    --surface-selected: var(--odin-light-400);
+    --shadow-sm: 0 0 0 var(--shadow-hairline-width) color-mix(in srgb,#0d0d0d 5%,#0000),0 1px 0 0 color-mix(in srgb,#0d0d0d 1%,#0000),0 1px 1px 0 color-mix(in srgb,#0d0d0d 5%,#0000),0 0 2px 0 color-mix(in srgb,#0d0d0d 8%,#0000),0 2px 6px -2px color-mix(in srgb,#0d0d0d 8%,#0000);
+    --shadow-md: 0 0 0 var(--shadow-hairline-width) color-mix(in srgb,#0d0d0d 8%,#0000),0 1px 0 0 color-mix(in srgb,#0d0d0d 2%,#0000),0 1px 2px 0 color-mix(in srgb,#0d0d0d 1%,#0000),0 2px 6px -2px color-mix(in srgb,#0d0d0d 14%,#0000),0 6px 20px -5px color-mix(in srgb,#0d0d0d 10%,#0000);
+    --shadow-lg: 0 0 0 var(--shadow-hairline-width) color-mix(in srgb,#0d0d0d 8%,#0000),0 1px 0 0 color-mix(in srgb,#0d0d0d 2%,#0000),0 1px 4px 0 color-mix(in srgb,#0d0d0d 1%,#0000),0 2px 8px -1px color-mix(in srgb,#0d0d0d 16%,#0000),0 10px 40px -6px color-mix(in srgb,#0d0d0d 14%,#0000);
+    --background-primary: #ffffff;
+    --background-secondary: #e8e8e8;
+    --background-tertiary: #f3f3f3;
+    --bg: var(--background-primary);
+    --surface: var(--background-tertiary);
+    --sidebar-surface: var(--background-tertiary);
+    --surface-hover: var(--background-secondary);
+    --surface-hover-strong: var(--background-secondary);
+    --surface-selected: var(--background-secondary);
     --border: rgb(from var(--text) r g b / .12);
     --border-focus: rgb(from var(--text) r g b / .25);
-    --text: var(--odin-light-2000);
-    --text-secondary: rgb(from var(--text) r g b / .65);
-    --text-tertiary: rgb(from var(--text) r g b / .45);
-    --text-white: var(--odin-dark-0);
-    --accent: var(--shiva-light-600);
+    --control-track: #cdcdcd;
+    --control-segment: var(--background-primary);
+    --text: #0d0d0d;
+    --text-secondary: #5d5d5d;
+    --text-tertiary: #8f8f8f;
+    --text-inverted: #8f8f8f;
+    --text-white: #0d0d0d;
+    --red: #e02e2a;
+    --orange: #e25507;
+    --green: #008635;
+    --accent: var(--turquoise);
     --panel-shadow: var(--shadow-sm);
     color-scheme: light;
 }
@@ -488,7 +206,7 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-    border-radius: var(--radius-full); corner-shape: round;
+    border-radius: var(--radius-full);
     background: color-mix(in srgb, var(--text-secondary) 14%, transparent);
 }
 
@@ -498,7 +216,7 @@ html {
 
 ::selection {
     background-color: color-mix(in srgb, var(--accent) 20%, transparent);
-    color: var(--shiva-dark-400);
+    color: var(--accent);
 }
 
 body {
@@ -590,22 +308,22 @@ button:not(:disabled) {
     position: fixed;
     inset: 0 0 auto;
     z-index: 100;
-    height: var(--header-height);
+    height: 56px;
     background-color: transparent;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     color: var(--text);
     font-family: var(--font-body);
-    font-size: var(--font-size-3);
+    font-size: var(--font-size-4);
     font-weight: var(--font-weight-regular);
     line-height: 1.2;
     transition: background-color var(--duration-normal) ease;
 }
 
 .site-header.is-scrolled {
-    background-color: color-mix(in srgb, var(--bg) 80%, transparent);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
+    background-color: color-mix(in srgb, var(--bg) 90%, transparent);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -657,7 +375,7 @@ button:not(:disabled) {
     justify-self: end;
     padding: var(--spacing-2) calc(var(--gap) / 2);
     border: 1px solid var(--border);
-    border-radius: var(--radius-full); corner-shape: round;
+    border-radius: var(--radius-full);
     background-color: var(--text);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
@@ -791,8 +509,3 @@ code, pre, kbd {
 
 
 /* Broader radii compensate for the flatter shoulders of continuous corners. */
-@supports (corner-shape: squircle) {
-    :root { --radius-2: 4.05px; --radius-4: 8.1px; --radius-6: 12.15px; --radius-8: 16.2px; --radius-12: 24.3px; --radius-16: 32.4px; --radius-24: 48.6px; }
-    *, *::before, *::after { corner-shape: squircle; }
-    [class~="tw:rounded-round"], [class~="tw:rounded-full"], .sidebar__avatar, .home__send, .profile-anonymous__switch, .profile-anonymous__switch::before { corner-shape: round; }
-}

@@ -1,4 +1,5 @@
-import { AIError, isObject, type Event, type Message } from './types';
+import { streamOpenRouter } from './openrouter';
+import { AIError, isOpenRouterModel, isObject, type Event, type Message } from './types';
 import { aiConfig, streamGemini, streamLocal, strictJSON } from './providers';
 import { allowsWeb, requiresWeb, searchQuery, groundingMetadata, searxSearch, evidenceContext, type Research, type Source } from './research';
 import { readWebPage } from './web-reader';
@@ -10,7 +11,7 @@ const toolPrompt = '\nAntes da resposta final, você pode usar UMA ferramenta po
 function generate(messages: Message[], provider: string, context: string, signal: AbortSignal) {
     const date = new Intl.DateTimeFormat('pt-BR', {dateStyle:'short',timeStyle:'short',timeZone:'America/Sao_Paulo'}).format(new Date());
     const system: Message = {role:'system',content:`Data real desta conversa: ${date} (America/Sao_Paulo). Não use a data de treinamento como data atual.\n${assistantPrompt}\n${context}`};
-    return provider === 'gemini' ? streamGemini([system,...messages],signal) : streamLocal(provider === 'qwen' ? aiConfig().model : provider,[system,...messages],signal);
+    return isOpenRouterModel(provider) ? streamOpenRouter(provider,[system,...messages],signal) : provider === 'gemini' ? streamGemini([system,...messages],signal) : streamLocal(provider === 'qwen' ? aiConfig().model : provider,[system,...messages],signal);
 }
 
 export function publicQuery(value: string) {

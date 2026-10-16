@@ -4,6 +4,7 @@
     isolation: isolate;
     gap: 0;
     padding: 2px;
+    background: var(--bg);
     --provider-progress: 0;
     --gemini-width: 94px;
     --computer-width: 36px;
@@ -17,9 +18,9 @@
     width: var(--indicator-width);
     border: 1px solid var(--border);
     border-radius: inherit;
-    corner-shape: inherit;
+
     box-shadow: none;
-    background: color-mix(in srgb, var(--text) 6%, var(--surface));
+    background: var(--control-segment);
     pointer-events: none;
 }
 .composer-provider-group.provider-toggle > button {
@@ -47,7 +48,7 @@
 .provider-toggle .model-picker .provider-toggle__label { opacity: calc(1 - var(--provider-progress)); }
 .provider-toggle .computer-provider .provider-toggle__label { opacity: var(--provider-progress); }
 .composer-provider-group.provider-toggle > button:not(:disabled):hover { background: transparent; color: var(--text); }
-.hero .provider-toggle__indicator { background: rgb(253, 251, 250); }
+.hero .provider-toggle__indicator { background: #ffffff; }
 .model-menu { --menu-origin: bottom right; }
 .attachment-menu[popover], #profile-menu { --menu-origin: bottom left; }
 .home__composer.has-inline-options > .attachment-menu { overflow: hidden; }

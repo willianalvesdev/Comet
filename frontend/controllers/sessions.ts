@@ -10,7 +10,9 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     let selected = new URL(location.href).searchParams.get('conversation'), busy = false, nextOffset: number | null = null, target: Conversation | null = null, opener: HTMLElement | null = null;
     const section = document.createElement('details');
     section.className = 'sessions'; section.open = true;
-    section.innerHTML = `<summary>Recentes<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></summary><div class="sessions__list"></div><p class="sessions__status" role="status"></p><div class="sessions__tools"><button type="button" data-action="more" hidden>Mais chats</button><button type="button" data-action="refresh" hidden>Tentar novamente</button></div>`;
+    section.innerHTML = `<summary>Recentes<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+<path d="M9.29289 18.7071C8.90237 18.3166 8.90237 17.6834 9.29289 17.2929L14.5858 12L9.29289 6.70711C8.90237 6.31658 8.90237 5.68342 9.29289 5.29289C9.68342 4.90237 10.3166 4.90237 10.7071 5.29289L16.7071 11.2929C16.8946 11.4804 17 11.7348 17 12C17 12.2652 16.8946 12.5196 16.7071 12.7071L10.7071 18.7071C10.3166 19.0976 9.68342 19.0976 9.29289 18.7071Z" fill="currentColor"/>
+</svg></summary><div class="sessions__list"></div><p class="sessions__status" role="status"></p><div class="sessions__tools"><button type="button" data-action="more" hidden>Mais chats</button><button type="button" data-action="refresh" hidden>Tentar novamente</button></div>`;
     const pinKey = 'ascenda-pinned-' + optionalElement(document, '[data-user-id]', HTMLElement)?.dataset.userId;
     const stateKey = 'ascenda-sidebar-' + optionalElement(document, '[data-user-id]', HTMLElement)?.dataset.userId;
     let savedState: Record<string,unknown> = {};

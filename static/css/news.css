@@ -147,7 +147,7 @@
     height: var(--input-md);
     padding: 0;
     border: 0;
-    border-radius: var(--radius-full); corner-shape: round;
+    border-radius: var(--radius-full);
     color: var(--text);
     background: transparent;
     cursor: pointer;

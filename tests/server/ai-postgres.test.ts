@@ -14,7 +14,7 @@ import { chatResponse, handleAI } from '../../server/ai';
 
 const users: number[] = [];
 const originalFetch = globalThis.fetch;
-const originalEnv = Object.fromEntries(['GEMINI_API_KEY','GEMINI_MODEL','GEMINI_FALLBACK_MODELS','OLLAMA_BASE_URL','OLLAMA_MODEL','ATTACHMENTS_DIR'].map(key => [key,process.env[key]]));
+const originalEnv = Object.fromEntries(['OPENROUTER_API_KEY','GEMINI_API_KEY','GEMINI_MODEL','GEMINI_FALLBACK_MODELS','OLLAMA_BASE_URL','OLLAMA_MODEL','ATTACHMENTS_DIR'].map(key => [key,process.env[key]]));
 let attachmentRoot: string;
 const errorCode = (code: string) => (error: unknown) => error instanceof AIError && error.code === code;
 const payload = (message = 'Mensagem', conversation_id: string | null = null, extra: Partial<ChatPayload> = {}) => validateChat({message, conversation_id, request_id:randomUUID(),provider:'gemini',web_search:false,...extra});
@@ -264,4 +264,29 @@ test('export: conversa inteira inclui mais de 30 turnos e exige o proprietário'
   assert.equal(data.turns.length,35);assert.equal(data.turns[34].answer,'Resposta 35');
   assert.equal(JSON.stringify(data).includes('Pensamento'),false);
   await assert.rejects(getConversationExport(users[1],turn.conversation_id!),errorCode('conversation_missing'));
+});
+
+
+test('OpenRouter persists the selected free model and documents without switching to Gemini',async()=>{
+ process.env.OPENROUTER_API_KEY='test-only-key';
+ const provider='openrouter:nvidia/nemotron-3.5-lightning:free';
+ globalThis.fetch=async(url,init)=>{
+  if(String(url).endsWith('/models'))return Response.json({data:[{id:'nvidia/nemotron-3.5-lightning:free',name:'Saved model',context_length:32768,pricing:{prompt:'0',completion:'0'},architecture:{input_modalities:['text'],output_modalities:['text']},supported_parameters:[]}]});
+  assert.equal(String(url),'https://openrouter.ai/api/v1/chat/completions');const sent=JSON.parse(String(init?.body));assert.equal(sent.model,'nvidia/nemotron-3.5-lightning:free');assert.ok(JSON.stringify(sent.messages).includes('Conteúdo do documento'));
+  return new Response('data: '+JSON.stringify({choices:[{delta:{content:'Resposta preservada'},finish_reason:'stop'}]})+'\n\ndata: [DONE]\n\n',{headers:{'content-type':'text/event-stream'}});
+ };
+ const file=await uploadAttachment(users[0],new File(['Conteúdo do documento'],'nota.txt',{type:'text/plain'}));
+ const result=await events(await chatResponse(request(),users[0],payload('Analise o documento',null,{provider,attachments:[file.id]})));
+ assert.equal(result.at(-1)?.type,'done');const cid=String(result[0].conversation_id);
+ const restored=await getConversation(users[0],cid,null);assert.equal(restored.turns[0].metadata.provider,provider);assert.equal(restored.turns[0].answer,'Resposta preservada');assert.equal(restored.turns[0].attachments[0].name,'nota.txt');
+});
+
+
+test('provider authentication failure is retained when reopening an empty failed reply',async()=>{
+ globalThis.fetch=async()=>new Response('',{status:401});
+ const output=await events(await chatResponse(request(),users[0],payload('Autenticação')));
+ assert.equal(output.at(-1)?.code,'provider_auth');
+ const saved=await getConversation(users[0],String(output[0].conversation_id),null);
+ assert.equal(saved.turns[0].status,'failed');assert.equal(saved.turns[0].answer,'');
+ assert.equal(saved.turns[0].metadata.error_code,'provider_auth');assert.equal(saved.turns[0].metadata.error,output.at(-1)?.error);
 });

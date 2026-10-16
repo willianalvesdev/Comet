@@ -4,10 +4,14 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     const trigger = requiredElement(document, ".sidebar__profile", HTMLButtonElement);
     elementList(menu, '[data-profile-submenu="news"], [aria-controls="profile-news"], #profile-news', HTMLElement).forEach(element => element.remove());
     const anonymous = requiredElement(menu, '.profile-anonymous', HTMLButtonElement);
-    scope.listen(anonymous, 'click', () => {
-        menu.hidePopover();
+    scope.listen(anonymous, 'click', async () => {
         if (document.querySelector('.computer-page')) window.dispatchEvent(new Event('chat:toggle-anonymous'));
-        else void window.WorkspaceNavigation.go('/novo.html?new=1&anonymous=1');
+        else {
+            await window.WorkspaceNavigation.go('/novo.html?new=1&anonymous=1');
+            const nextMenu = document.querySelector<HTMLElement>('#profile-menu');
+            if (nextMenu && !nextMenu.matches(':popover-open')) nextMenu.showPopover();
+            nextMenu?.querySelector<HTMLButtonElement>('.profile-anonymous')?.focus({preventScroll:true});
+        }
     });
     scope.listen(window, 'chat:anonymous', event => {
         anonymous.setAttribute('aria-checked', String(event.detail));
@@ -60,7 +64,12 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             else { menu.hidePopover(); trigger.focus(); }
         }
     }, {signal: scope.signal});
+    const workspace = requiredElement(document, ".workspace", HTMLElement);
+    const sidebarState = () => ["is-sidebar-collapsed", "is-sidebar-resizing"].map(name => workspace.classList.contains(name)).join();
+    let previousSidebarState = sidebarState();
     new MutationObserver(() => {
-        if (menu.matches(":popover-open")) menu.hidePopover();
-    }).observe(requiredElement(document, ".workspace", HTMLElement), {attributes:true, attributeFilter:["class"]});
+        const nextState = sidebarState();
+        if (nextState !== previousSidebarState && menu.matches(":popover-open")) menu.hidePopover();
+        previousSidebarState = nextState;
+    }).observe(workspace, {attributes:true, attributeFilter:["class"]});
 }

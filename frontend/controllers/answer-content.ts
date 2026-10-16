@@ -2,9 +2,13 @@ export function renderAnswer(body: HTMLElement, text: string, sources: ResearchS
     const fragment = document.createDocumentFragment();
     // Create DOM nodes, never interpret model output as HTML; keep code literal.
     let end = 0;
-    for (const match of text.matchAll(/```[\s\S]*?(?:```|$)|`[^`\n]*`|\\([*\\])|\*\*([^\n]+?)\*\*|\[(\d{1,2})\](?!\()/g)) {
+    for (const match of text.matchAll(/```[\s\S]*?(?:```|(?![\s\S]))|`[^`\n]*`|\\([*\\])|\*\*([^\n]+?)\*\*|\[(\d{1,2})\](?!\()|^ {0,3}(#{1,6})[ \t]+([^\n]+)$/gm)) {
         fragment.append(document.createTextNode(text.slice(end, match.index)));
-        if (match[1]) fragment.append(document.createTextNode(match[1]));
+        if (match[4]) {
+            const heading = document.createElement('h'+match[4].length);
+            renderAnswer(heading, match[5].replace(/[ \t]+#+[ \t]*$/, ''), sources);
+            fragment.append(heading);
+        } else if (match[1]) fragment.append(document.createTextNode(match[1]));
         else if (match[2]) {
             const strong = document.createElement('strong');
             renderAnswer(strong, match[2], sources);

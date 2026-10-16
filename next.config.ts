@@ -21,6 +21,7 @@ const config: NextConfig = {
     async redirects() {
         return [
             {source:'/index.html', destination:'/', permanent:false},
+            {source:'/privacidade', destination:'/privacidade.html', permanent:false},
             {source:'/computer.html', destination:'/novo.html', permanent:false},
             {source:'/graficos.html', destination:'/financas.html', permanent:false},
             {source:'/aprender.html', destination:'/academico.html', permanent:false},

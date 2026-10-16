@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { BootstrapData } from './types';
-import { routes, titles } from './routes';
+import { routes, titles, isPublicPage } from './routes';
 
 const App = dynamic(() => import('./App'), {ssr: false, loading: () => <div role="status" className="tw:grid tw:min-h-screen tw:place-items-center">Carregando página…</div>});
 
@@ -37,7 +37,7 @@ export default function NextApplication() {
                 const data = await response.json() as BootstrapData;
                 if (controller.signal.aborted) return;
                 if (page === 'index' && data.user) { location.assign('/principal.html'); return; }
-                if (page !== 'index' && !data.user) { location.assign('/?login=1'); return; }
+                if (!isPublicPage(page) && !data.user) { location.assign('/?login=1'); return; }
                 let meta = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]');
                 if (!meta) { meta = document.createElement('meta'); meta.name = 'csrf-token'; document.head.append(meta); }
                 meta.content = data.csrfToken;
@@ -96,5 +96,5 @@ export default function NextApplication() {
     if (error) return <main className="tw:mx-auto tw:flex tw:min-h-screen tw:max-w-xl tw:flex-col tw:items-center tw:justify-center tw:gap-4 tw:p-8" role="alert"><p>{error}</p><button type="button" onClick={() => setReload(value => value + 1)}>Tentar novamente</button></main>;
     if (!view) return <div role="status" className="tw:grid tw:min-h-screen tw:place-items-center">Carregando…</div>;
     const {bootstrap, revision} = view;
-    return <PageRecovery revision={revision} onRetry={() => setReload(value => value + 1)} onFailure={ready}><App key={`${bootstrap.page === 'index' ? 'landing' : 'workspace'}-${bootstrap.user?.id ?? 'guest'}`} bootstrap={bootstrap} revision={revision} onReady={ready} /></PageRecovery>;
+    return <PageRecovery revision={revision} onRetry={() => setReload(value => value + 1)} onFailure={ready}><App key={`${isPublicPage(bootstrap.page) ? 'landing' : 'workspace'}-${bootstrap.user?.id ?? 'guest'}`} bootstrap={bootstrap} revision={revision} onReady={ready} /></PageRecovery>;
 }

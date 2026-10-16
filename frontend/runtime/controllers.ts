@@ -33,6 +33,7 @@ export const sharedControllers = [cookies, theme, tooltips];
 export const workspaceControllers = [sidebar, profileMenu, chatSearch, sessions, chatPreview, settings, notifications, exportNotices];
 export const pageControllers: Record<PageName, PageFactory[]> = {
     index: [header, typewriter, auth],
+    privacidade: [header],
     computer: [computerService, modelMenu, responseDetails, attachments, chatOptions, computer, chatGreeting, messageNavigator, dictation],
     recentes: [recentChats],
     aprender: [computerService, modelMenu, attachments, aprender, dictation],

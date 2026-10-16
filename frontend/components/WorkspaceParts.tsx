@@ -18,7 +18,7 @@ export function Sidebar({ data }: { data: BootstrapData }) {
         </div>
 
         <div className="sidebar__new-chat">
-            <a className="sidebar__link" href="./novo.html?new=1" aria-current={data.activePage === 'computer' && !data.conversationId ? 'page' : undefined} aria-label="Novo chat" title="Novo chat"><span className="sidebar__new-icon" aria-hidden="true"></span><span className="sidebar__label">Novo</span></a>
+            <a className="sidebar__link" href="./novo.html?new=1" aria-current={data.activePage === 'computer' && !data.conversationId ? 'page' : undefined} aria-label="Novo chat" title="Novo chat"><span className="sidebar__icon sidebar__new-icon" aria-hidden="true"></span><span className="sidebar__label">Novo Chat</span></a>
 
             <a className="sidebar__link" href="./financas.html" aria-current={data.activePage === 'graficos' ? 'page' : undefined} aria-label="Finanças" title="Finanças"><span className="sidebar__icon sidebar__finance-icon" aria-hidden="true"></span>
                 <span className="sidebar__label">Finanças</span>
@@ -47,8 +47,12 @@ export function Sidebar({ data }: { data: BootstrapData }) {
             <div className="profile-menu__main">
                 <div className="profile-menu__identity"><span className="sidebar__avatar">{userInitials(user.nome)}</span><div><span>{user.nome}</span><small>{user.email}</small></div></div>
                 <button className="profile-menu__item profile-anonymous" type="button" role="switch" aria-checked="false" aria-label="Modo anônimo"><i className="profile-anonymous__icon" aria-hidden="true"></i><span>Anônima</span><span className="profile-anonymous__switch" aria-hidden="true"></span></button>
-                <button className="profile-menu__item" type="button" data-profile-submenu="appearance" aria-expanded="false" aria-controls="profile-appearance"><i className="profile-menu__icon profile-menu__icon--dark" aria-hidden="true"></i><span>Aparência<small data-theme-label>Escuro</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-                <button className="profile-menu__item" type="button" data-profile-submenu="language" aria-expanded="false" aria-controls="profile-language"><i className="profile-menu__icon profile-menu__icon--language" aria-hidden="true"></i><span>Idioma<small>Português (Brasil)</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+                <button className="profile-menu__item" type="button" data-profile-submenu="appearance" aria-expanded="false" aria-controls="profile-appearance"><i className="profile-menu__icon profile-menu__icon--dark" aria-hidden="true"></i><span>Aparência<small data-theme-label>Escuro</small></span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+<path d="M9.29289 18.7071C8.90237 18.3166 8.90237 17.6834 9.29289 17.2929L14.5858 12L9.29289 6.70711C8.90237 6.31658 8.90237 5.68342 9.29289 5.29289C9.68342 4.90237 10.3166 4.90237 10.7071 5.29289L16.7071 11.2929C16.8946 11.4804 17 11.7348 17 12C17 12.2652 16.8946 12.5196 16.7071 12.7071L10.7071 18.7071C10.3166 19.0976 9.68342 19.0976 9.29289 18.7071Z" fill="currentColor"/>
+</svg></button>
+                <button className="profile-menu__item" type="button" data-profile-submenu="language" aria-expanded="false" aria-controls="profile-language"><i className="profile-menu__icon profile-menu__icon--language" aria-hidden="true"></i><span>Idioma<small>Português (Brasil)</small></span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+<path d="M9.29289 18.7071C8.90237 18.3166 8.90237 17.6834 9.29289 17.2929L14.5858 12L9.29289 6.70711C8.90237 6.31658 8.90237 5.68342 9.29289 5.29289C9.68342 4.90237 10.3166 4.90237 10.7071 5.29289L16.7071 11.2929C16.8946 11.4804 17 11.7348 17 12C17 12.2652 16.8946 12.5196 16.7071 12.7071L10.7071 18.7071C10.3166 19.0976 9.68342 19.0976 9.29289 18.7071Z" fill="currentColor"/>
+</svg></button>
 
                 <button className="profile-menu__item" type="button" data-open-settings><i className="settings-icon" style={{'--icon': 'url(/static/img/icons/settings-settings.svg)'} as CSSProperties} aria-hidden="true"></i><span>Todas as configurações</span></button>
 <div className="profile-menu__divider"></div>
@@ -128,12 +132,14 @@ export function Settings({ data }: { data: BootstrapData }) {
 <div id="notifications-panel" popover="auto" aria-label="Notificações">
  <header><span>Notificações</span><button type="button" className="notifications-more" aria-label="Opções de notificações" aria-expanded="false"><i className="settings-icon" style={{'--icon': "url('/static/img/icons/news-more.svg')"} as CSSProperties} aria-hidden="true"></i></button></header>
  <div className="notifications-options" hidden><button type="button" data-notification-settings><i className="settings-icon" style={{'--icon': "url('/static/img/icons/settings-settings.svg')"} as CSSProperties} aria-hidden="true"></i>Configurações</button><button type="button" data-notification-clear><i className="settings-icon" style={{'--icon': "url('/static/img/icons/trash.svg')"} as CSSProperties} aria-hidden="true"></i>Excluir tudo lido</button></div>
- <div className="notifications-empty"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M2 14h5l3 4h4l3-4h5"/></svg><p>Suas notificações<br />aparecerão aqui</p></div><p className="notifications-status" role="status"></p>
+ <div className="notifications-empty"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+<path fillRule="evenodd" clipRule="evenodd" d="M3.80094 9.60322C4.25738 5.41917 7.79108 2.25 12 2.25C16.2088 2.25 19.7425 5.41916 20.199 9.60322L20.8731 15.7831C21.0022 16.9665 20.0754 18 18.8849 18H16.8424C16.2874 20.1565 14.3298 21.75 12 21.75C9.67015 21.75 7.71253 20.1565 7.15747 18H5.11498C3.92455 18 2.99767 16.9665 3.12677 15.7831L3.80094 9.60322ZM9.27197 18C9.74598 19.0328 10.7892 19.75 12 19.75C13.2107 19.75 14.2539 19.0328 14.7279 18H9.27197ZM12 4.25C8.8117 4.25 6.1349 6.65066 5.78914 9.82011L5.11498 16L18.8849 16L18.2108 9.82011C17.865 6.65066 15.1882 4.25 12 4.25Z" fill="currentColor"/>
+</svg><p>Suas notificações<br />aparecerão aqui</p></div><p className="notifications-status" role="status"></p>
 </div>
     </>);
 }
 
-export function ChatToolbar({ webSearch = true, attachments = true }: { webSearch?: boolean; attachments?: boolean }) {
+export function ChatToolbar({ webSearch = true, attachments = true, providerToggle = true }: { webSearch?: boolean; attachments?: boolean; providerToggle?: boolean }) {
     return (
 <div className="home__toolbar tw:flex tw:items-center tw:justify-between">
                         <div className="home__modes tw:flex tw:items-center tw:min-w-0 tw:rounded-round" role="group" aria-label="Modo da mensagem">
@@ -141,11 +147,13 @@ export function ChatToolbar({ webSearch = true, attachments = true }: { webSearc
                             <button className="attachment-toggle" type="button" aria-expanded="false" aria-controls="attachment-menu" aria-label="Adicionar arquivos ou imagens"><i className="attachment-plus" aria-hidden="true"></i></button>
                             <input id="attachment-input" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.docx,.txt,.md,.csv,.json,.py,.js,.html,.css,.log" hidden />
 </>}
-                            <ProviderToggle />
+                            {providerToggle && <ProviderToggle />}
                         </div>
                         <div className="home__actions tw:relative tw:flex tw:shrink-0 tw:items-center">
 
-<button className="local-model-picker" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="computer-model-menu" hidden><i className="model-icon model-icon--gemini" aria-hidden="true"></i><span className="local-model-name">1.7b</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+<button className="local-model-picker" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="computer-model-menu" hidden><span className="local-model-name">1.7b</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+<path d="M5.29289 9.29289C5.68342 8.90237 6.31658 8.90237 6.70711 9.29289L12 14.5858L17.2929 9.29289C17.6834 8.90237 18.3166 8.90237 18.7071 9.29289C19.0976 9.68342 19.0976 10.3166 18.7071 10.7071L12.7071 16.7071C12.5196 16.8946 12.2652 17 12 17C11.7348 17 11.4804 16.8946 11.2929 16.7071L5.29289 10.7071C4.90237 10.3166 4.90237 9.68342 5.29289 9.29289Z" fill="currentColor"/>
+</svg></button>
                             <div className="model-menu" id="computer-model-menu" popover="auto" role="menu" aria-label="Modelos locais"></div>
 <ComposerActions />
                         </div>
@@ -153,14 +161,14 @@ export function ChatToolbar({ webSearch = true, attachments = true }: { webSearc
     );
 }
 
-export function ChatComposer({ composerClass = "", placeholder = "Pergunte qualquer coisa", readonly = false, webSearch = true, attachments = true, demo = false }: { composerClass?: string; placeholder?: string; readonly?: boolean; webSearch?: boolean; attachments?: boolean; demo?: boolean }) {
+export function ChatComposer({ composerClass = "", placeholder = "Pergunte qualquer coisa", readonly = false, webSearch = true, attachments = true, providerToggle = true, demo = false }: { composerClass?: string; placeholder?: string; readonly?: boolean; webSearch?: boolean; attachments?: boolean; providerToggle?: boolean; demo?: boolean }) {
     return (
 <form className={`home__composer ${composerClass}`} aria-label={demo ? "Exemplo de registro financeiro" : "Escrever uma mensagem"} onSubmit={demo ? event => event.preventDefault() : undefined}>
     <p className="home__dictation-status" role="status" aria-live="polite" id="dictation-status"></p>
     <div className="attachment-list" aria-label="Arquivos anexados" hidden></div>
     <p className="attachment-status" role="status"></p>
     {demo ? <p className="home__input"><span className="sr-only">Exemplos de registros financeiros.</span><span className="hero__typewriter" data-typewriter aria-hidden="true">Gastei R$ 67 no mercado hoje.</span></p> : <textarea className="home__input" aria-label="Mensagem" placeholder={placeholder} rows={2} maxLength={8000} readOnly={readonly}></textarea>}
-{demo ? <div inert><ChatToolbar webSearch={webSearch} attachments={attachments} /></div> : <ChatToolbar webSearch={webSearch} attachments={attachments} />}
+{demo ? <div inert><ChatToolbar webSearch={webSearch} attachments={attachments} providerToggle={providerToggle} /></div> : <ChatToolbar webSearch={webSearch} attachments={attachments} providerToggle={providerToggle} />}
 {attachments && <div id="attachment-menu" className="attachment-menu" hidden><button type="button" data-upload-files><i aria-hidden="true"></i>Enviar arquivos ou imagens</button>{webSearch && <><button type="button" className="web-search-toggle" aria-pressed="true"><i aria-hidden="true"></i>Pesquisa na web<span className="web-search-check" aria-hidden="true"></span></button></>}</div>}
 </form>
     );

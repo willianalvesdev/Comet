@@ -9,6 +9,8 @@ const messages = {
   attachment_total: 'Os arquivos juntos devem ter até 30 mil caracteres de texto. Envie menos arquivos.',
   invalid_personalization: 'Confira os campos e os limites de tamanho da personalização.',
   personalization_changed: 'A memória mudou desde que você abriu esta página. Recarregue para ver a versão atual antes de salvar.',
+  openrouter_missing: 'Configure OPENROUTER_API_KEY no servidor para usar os modelos gratuitos.',
+  model_images: 'Este modelo não aceita imagens. Escolha um modelo com suporte a imagens.',
   provider_missing: 'Configure a chave do modelo escolhido no servidor para começar.',
   provider_auth: 'A chave deste modelo não foi aceita. Confira a configuração da API.',
   provider_quota: 'O limite de uso ou os créditos deste modelo acabaram. Tente mais tarde ou escolha outro modelo.',
@@ -44,10 +46,11 @@ export function id(value: unknown): string {
   if (typeof value !== 'string' || !/^[0-9]{1,20}$/.test(value) || BigInt(value) < 1n || BigInt(value) > 9223372036854775807n) throw new AIError('invalid_request', 422);
   return value;
 }
+export function isOpenRouterModel(value: unknown): value is string { return typeof value === 'string' && /^openrouter:[a-zA-Z0-9][a-zA-Z0-9._-]*\/[a-zA-Z0-9][a-zA-Z0-9._:-]*:free$/.test(value) && value.length <= 200; }
 export function isLocalModel(value: unknown): value is string {
-  return typeof value === 'string' && !['gemini', 'qwen'].includes(value) && value.length <= 200 && !value.includes('://') && !value.toLowerCase().includes('cloud') && /^[A-Za-z0-9][A-Za-z0-9_.:/-]*$/.test(value);
+  return typeof value === 'string' && !['gemini', 'qwen'].includes(value) && !value.startsWith('openrouter:') && value.length <= 200 && !value.includes('://') && !value.toLowerCase().includes('cloud') && /^[A-Za-z0-9][A-Za-z0-9_.:/-]*$/.test(value);
 }
-export const isProvider = (value: unknown): value is string => value === 'gemini' || value === 'qwen' || isLocalModel(value);
+export const isProvider = (value: unknown): value is string => value === 'gemini' || value === 'qwen' || isOpenRouterModel(value) || isLocalModel(value);
 export function validateChat(raw: Record<string, unknown>): ChatPayload {
   const allowed = ['conversation_id', 'message', 'request_id', 'provider', 'attachments', 'regenerate', 'web_search', 'anonymous', 'history'];
   if (Object.keys(raw).some(key => !allowed.includes(key)) || !['conversation_id', 'message', 'request_id'].every(key => key in raw)) throw new AIError('invalid_request', 422);
@@ -58,7 +61,7 @@ export function validateChat(raw: Record<string, unknown>): ChatPayload {
   if (!isProvider(provider) || !Array.isArray(tokens) || tokens.length > 4 || tokens.some(token => typeof token !== 'string' || !/^[a-f0-9]{32}$/.test(token)) || new Set(tokens).size !== tokens.length) throw new AIError('invalid_request', 422);
   const cid = raw.conversation_id === null ? null : id(raw.conversation_id);
   if (typeof raw.message !== 'string' || !raw.message.trim() || raw.message.length > 8000 || raw.message.includes('\0') || typeof raw.request_id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(raw.request_id)) throw new AIError('invalid_request', 422);
-  const result: ChatPayload = { conversation_id: cid, message: raw.message.trim(), request_id: raw.request_id, provider: tokens.length ? 'gemini' : provider, attachments: tokens };
+  const result: ChatPayload = { conversation_id: cid, message: raw.message.trim(), request_id: raw.request_id, provider: tokens.length && !isOpenRouterModel(provider) ? 'gemini' : provider, attachments: tokens };
   if (raw.web_search !== undefined) result.web_search = raw.web_search as boolean;
   if (raw.regenerate !== undefined) {
     if (!cid) throw new AIError('invalid_request', 422);

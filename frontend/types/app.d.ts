@@ -24,7 +24,7 @@ interface Conversation { last_response_at?: string | null; id: string; title: st
 interface ResearchSource { title: string; url: string; domain: string; snippet?: string; image?: string; excerpt?: string; published_at?: string; date_approximate?: boolean; evidence_type?: string; read_status?: string; }
 interface Research { error?: string; query?: string; sources?: ResearchSource[]; suggestions?: string; status?: string; state?: ResearchState; seconds?: number; queries?: string[]; engine?: string; }
 interface ResponseVersion { answer: string; thinking: string; metadata: ResponseMetadata; }
-interface ResponseMetadata { answered_at?: string; versions?: ResponseVersion[]; provider?: string; research?: Research; thinking_seconds?: number | null; elapsed_seconds?: number; instant?: boolean; }
+interface ResponseMetadata { error?: string; error_code?: string; answered_at?: string; versions?: ResponseVersion[]; provider?: string; research?: Research; thinking_seconds?: number | null; elapsed_seconds?: number; instant?: boolean; }
 interface Turn { id: string | null; message: string; answer: string; thinking: string; status: 'running' | 'completed' | 'interrupted' | 'failed'; created_at: string; metadata?: ResponseMetadata; attachments?: Attachment[]; }
 interface ConversationList { conversations: Conversation[]; next_offset: number | null; }
 interface ConversationHistory { conversation: Conversation; turns: Turn[]; before: string | null; active: boolean; has_more?: boolean; }

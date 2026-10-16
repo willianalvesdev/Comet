@@ -1,3 +1,4 @@
+import { isLocalModel } from './api-data';
 import { requiredElement, optionalElement, errorMessage, present, elementList } from './dom';
 import { record, numberValue, apiError, stringValue } from './api-data';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
@@ -100,7 +101,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     const jump = document.createElement('button');
     jump.type = 'button'; jump.className = 'computer-jump'; jump.hidden = true;
     jump.setAttribute('aria-label', 'Descer para a última mensagem');
-    jump.innerHTML = '<img src="/static/img/icons/scroll-down.svg" alt="">';
+    jump.innerHTML = '<i aria-hidden="true"></i>';
     page.append(jump);
     function updateJump() {
         jump.hidden = present(conversation).hidden || nearLatest();
@@ -118,9 +119,9 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     try { durations = Object.fromEntries(Object.entries(record(JSON.parse(localStorage.getItem(durationKey) || '{}'))).map(([id,value])=>[id,numberValue(value)])); } catch {}
     function thoughtLabel(seconds: number | null | undefined) {
         if (!Number.isFinite(seconds)) return 'Pensamento concluído';
-        const total = Math.max(1, Math.round(seconds ?? 0)), minutes = Math.floor(total / 60), rest = total % 60;
-        return minutes ? 'Pensou por ' + minutes + (minutes === 1 ? ' minuto e ' : ' minutos e ') + rest + (rest === 1 ? ' segundo' : ' segundos')
-            : 'Pensou por ' + total + (total === 1 ? ' segundo' : ' segundos');
+        const total = Math.max(1, Math.round(seconds ?? 0));
+        const hours = Math.floor(total / 3600), minutes = Math.floor(total % 3600 / 60), rest = total % 60;
+        return 'Pensou por ' + [hours ? hours+'h' : '', minutes ? minutes+'m' : '', rest ? rest+'s' : ''].filter(Boolean).join(' ');
     }
     const feedback = new Map<string|HTMLElement,string|null>();
     const copyTimers = new WeakMap<HTMLButtonElement,number>();
@@ -157,7 +158,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             button.dataset.feedback=kind; actions.append(button);
         }
         const rewriteButton=document.createElement('button');rewriteButton.type='button';rewriteButton.className='computer-rewrite';rewriteButton.setAttribute('aria-label','Reescrever resposta');rewriteButton.title='Reescrever resposta';rewriteButton.innerHTML='<i aria-hidden="true"></i>';rewriteButton.addEventListener('click',()=>rewrite(article), {signal: scope.signal});
-        const download=document.createElement('button');download.type='button';download.className='computer-download';download.setAttribute('aria-label','Baixar pergunta e resposta em PDF');download.title='Baixar pergunta e resposta em PDF';download.innerHTML='<i aria-hidden="true" style="--action-icon:url(/static/img/icons/download-answer.svg)"></i>';
+        const download=document.createElement('button');download.type='button';download.className='computer-download';download.setAttribute('aria-label','Baixar pergunta e resposta em PDF');download.title='Baixar pergunta e resposta em PDF';download.innerHTML='<i aria-hidden="true" style="--action-icon:url(/static/img/icons/library/download.svg)"></i>';
         download.addEventListener('click',()=>{
             if (!currentId || !article.dataset.turn) { status.textContent='Esta resposta ainda não está salva para exportação.'; return; }
             window.dispatchEvent(new CustomEvent('chat:export',{detail:{id:currentId,title:currentTitle||'Resposta',format:'pdf',turnId:article.dataset.turn}}));
@@ -374,7 +375,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             if (turn.status !== 'running') addResponseInfo(assistant.article, original);
             assistant.body.hidden = !turn.answer;
             if (turn.status === 'interrupted' || turn.status === 'failed') {
-                warning(assistant, 'Resposta interrompida. O conteúdo salvo não foi incluído no contexto das próximas mensagens.');
+                warning(assistant, turn.metadata?.error || (turn.answer ? 'Resposta interrompida. O conteúdo salvo não foi incluído no contexto das próximas mensagens.' : 'Não foi possível gerar a resposta. Tente novamente ou escolha outro modelo.'));
             } else if (turn.status === 'running') warning(assistant, 'Resposta em andamento. O histórico será atualizado automaticamente.');
         }
         showConversation();
@@ -551,7 +552,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const text = rewriting ? rewriting.message : present(input).value.trim() || (attached.length ? 'Analise os arquivos anexados.' : '');
         if (!text) { present(input).focus(); return; }
         if (text.length > 8000) { note.textContent = 'Escreva uma mensagem com até 8.000 caracteres.'; return; }
-        if(attached.length)models.select('gemini');
+        if(attached.length&&isLocalModel(models.selected()))models.select('gemini');
         if (models.error()) { note.textContent = models.error(); return; }
         const payload: ChatRequest = { conversation_id: currentId, message: text, request_id: crypto.randomUUID(), provider: models.selected() };
         payload.web_search = optionalElement(document, '.web-search-toggle', HTMLButtonElement)?.getAttribute('aria-pressed') !== 'false';
@@ -657,7 +658,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             if (!answer && !thinking.text.length) thinking.details.hidden = true;
             if(rewriting){renderTurns(turns,true);}
             else if (!persisted) { user.article.remove(); assistant.article.remove(); showConversation(); }
-            else warning(assistant, 'Resposta interrompida. Reabra a conversa para conferir o conteúdo salvo.');
+            else warning(assistant, errorMessage(error));
             if(!rewriting){present(input).value = text; present(input).dispatchEvent(new Event('input', { bubbles: true }));}
             note.textContent = timedOut ? 'A resposta demorou mais que o esperado.'
                 : (error instanceof Error ? error.name : '') === 'AbortError' ? 'Resposta interrompida.' : errorMessage(error);
