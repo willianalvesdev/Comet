@@ -1,3 +1,5 @@
+import { conversationPath } from '../routes';
+import { showLoading } from './loading-indicator';
 import { optionalElement, requiredElement, elementList, errorMessage, present, eventElement, setupSortMenu } from './dom';
 import { conversationsData } from './api-data';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
@@ -51,7 +53,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.className = 'recent-chats__checkbox';
             checkbox.setAttribute('aria-label', `Selecionar ${chat.title}`); checkbox.disabled = !loaded;
             checkbox.addEventListener('change', () => { if (checkbox.checked) selected.add(chat.id); else selected.delete(chat.id); updateSelection(); }, {signal: scope.signal});
-            const link = document.createElement('a'); link.className = 'recent-chats__link'; link.href = '/novo.html?conversation=' + encodeURIComponent(chat.id);
+            const link = document.createElement('a'); link.className = 'recent-chats__link'; link.href = conversationPath(chat.id);
             const kind = document.createElement('span'); kind.className = 'recent-chats__kind'; kind.textContent = 'Chat'; if (sessions.isUnread(chat)) kind.setAttribute('aria-label', 'Resposta não lida');
             const name = document.createElement('span'); name.className = 'recent-chats__name'; name.textContent = chat.title; name.title = chat.title;
             const time = document.createElement('time'); time.dateTime = chat.updated_at; time.textContent = timeLabel(chat.updated_at);
@@ -70,13 +72,15 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     }
     async function load() {
         if (loading) return;
-        loading = true; loaded = false; retry.hidden = true; status.textContent = 'Carregando conversas…'; list.setAttribute('aria-busy', 'true');
+        loading = true; loaded = false; retry.hidden = true; showLoading(status, 'Carregando conversas'); list.setAttribute('aria-busy', 'true');
         chats = []; selected.clear(); render();
         try {
             let offset: number | null = 0;
             do {
                 const result = conversationsData(await sessions.request('/api/ai/conversations?offset=' + offset));
+                if (!scope.active) return;
                 chats.push(...result.conversations);
+                render();
                 offset = result.next_offset;
             } while (offset !== null);
             loaded = true; render();

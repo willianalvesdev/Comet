@@ -1,4 +1,4 @@
-export type PageName = 'index' | 'privacidade' | 'computer' | 'recentes' | 'descobrir' | 'aprender' | 'graficos';
+export type PageName = 'index' | 'privacidade' | 'computer' | 'recentes' | 'descobrir' | 'aprender' | 'graficos' | 'cripto';
 export interface BootstrapData {
     page: PageName;
     activePage: string;

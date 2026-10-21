@@ -123,12 +123,13 @@ test('local news search drops old and undated results and reports complete sourc
   assert.match(modelContext,/dados externos não confiáveis/);
 });
 
-test('Gemini search sources reach the UI and explicit opt-out never searches', async () => {
+test('Gemini uses Tavily sources in the UI and explicit opt-out never searches', async () => {
   configure();
   let searches=0;
   globalThis.fetch = async (_url,init) => {
     const body=JSON.parse(String(init!.body));
-    if (body.tools) {searches++;return sse({candidates:[{content:{parts:[{text:'Evidência'}]},groundingMetadata:{groundingChunks:[{web:{uri:'https://example.com/news',title:'Notícia'}}]},finishReason:'STOP'}]});}
+    if(String(_url)==='https://api.tavily.com/search'){searches++;return Response.json({results:[{url:'https://example.com/news',title:'Notícia',content:'Evidência'}]});}
+    assert.equal(body.tools,undefined);
     return sse(geminiChunk('Resposta final'));
   };
   const result = await collect(generateResponse([{role:'user',content:'Pesquise notícias'}],'gemini','',true,AbortSignal.timeout(3000),async()=>{throw new Error('Página não disponível no teste');}));

@@ -1,19 +1,25 @@
+import {artifactDownload} from './artifacts';
+import {artifactData} from '../../shared/artifacts';
 import { freeModels, requireFreeModel, defaultFreeModel, openRouterConfigured, structuredOpenRouter } from './openrouter';
 import { isOpenRouterModel } from './types';
 import { ApiError, json, readJson } from '../http';
 import { exportConversation } from './exports';
 import { readAttachment, uploadAttachment } from './attachments';
-import { beginTurn, changeConversation, getConversation, listConversations, previewConversation, saveTurn, truncateConversation, type Turn } from './conversations';
+import { beginTurn, getConversationArtifact, changeConversation, getConversation, listConversations, previewConversation, saveTurn, truncateConversation, type Turn } from './conversations';
 import { getPersonalization, personalizationContext, remember, updatePersonalization } from './personalization';
 import { aiConfig, localModels, structured } from './providers';
-import { generateResponse } from './search';
+import { generateResponse, publicQuery, searchEngine } from './search';
+import {tavilyImages} from './tavily';
+import {searxImages} from './research';
 import { AIError, validateChat, type ChatPayload } from './types';
 
+const activeImageSearches = new Set<number>();
 const activeUsers = new Set<number>();
-function claim(userId: number) {
-  if (activeUsers.has(userId) || activeUsers.size >= 2) throw new AIError('busy', 429);
-  activeUsers.add(userId);
-  return () => { activeUsers.delete(userId); };
+const activeArtifactDownloads = new Set<number>();
+function claim(userId: number, active = activeUsers) {
+  if (active.has(userId) || active.size >= 2) throw new AIError('busy', 429);
+  active.add(userId);
+  return () => { active.delete(userId); };
 }
 export async function availableProviders() {
   let models: string[] = [];
@@ -56,8 +62,16 @@ async function* chatEvents(userId: number, payload: ChatPayload, signal: AbortSi
     turn.response_meta = { provider };
     yield { type: 'conversation', conversation_id: turn.conversation_id, turn_id: turn.turn_id, created_at: turn.created_at, attachments: turn.attachments, provider };
     let checkpoint = performance.now();
-    for await (const event of generateResponse(turn.messages, provider, context, payload.web_search ?? true, signal)) {
+    for await (const event of generateResponse(turn.messages, provider, context, payload.web_search ?? true, signal, undefined, searchEngine(payload.provider))) {
       signal.throwIfAborted();
+      if(event.type==='artifact') {
+        if(event.artifact) {
+          if(payload.anonymous)event.artifact.expires_at=new Date(Date.now()+86400000).toISOString();
+          turn.response_meta.artifacts=[...(Array.isArray(turn.response_meta.artifacts)?turn.response_meta.artifacts:[]),event.artifact];
+          await saveTurn(userId,turn,answer,thinking,'running');
+        }
+        yield event;continue;
+      }
       if (event.type === 'search') {
         const { type: _, ...research } = event;
         turn.response_meta.research = research;
@@ -142,6 +156,25 @@ export async function handleAI(request: Request, user: { id: number }, segments:
     const active = activeResponses.get(user.id + ':' + data.request_id);
     active?.abort(); return json({stopped:!!active});
   }
+  if (route === 'images' && method === 'GET') {
+    const params=new URL(request.url).searchParams,engine=params.get('engine')??'searxng';
+    if(!['tavily','searxng'].includes(engine))throw new AIError('invalid_request',422);
+    const raw=params.get('q')??'';
+    if(!raw.trim()||raw.length>350)throw new AIError('invalid_request',422);
+    const query=publicQuery(raw);
+    if(activeImageSearches.has(user.id)||activeImageSearches.size>=8)throw new AIError('busy',429);
+    activeImageSearches.add(user.id);
+    try{return json({query,images:await (engine==='tavily'?tavilyImages:searxImages)(query,request.signal)});}
+    catch(error){if(request.signal.aborted)throw error;throw new ApiError(503,'Não foi possível buscar imagens. Tente novamente.');}
+    finally{activeImageSearches.delete(user.id);}
+  }
+  if(route==='artifacts/render'&&method==='POST') {
+    const data=await readJson(request);let artifact;
+    try{artifact=artifactData(data.artifact);}catch{throw new ApiError(422,'Dados do arquivo inválidos.');}
+    if(!artifact.expires_at)throw new ApiError(422,'Use o download vinculado à conversa.');
+    const release=claim(user.id,activeArtifactDownloads);
+    try{return await artifactDownload(artifact,typeof data.format==='string'?data.format:null);}finally{release();}
+  }
   if (route === 'models' && method === 'GET') return json(await modelList());
   if (route === 'attachments' && method === 'POST') {
     let form: FormData;
@@ -177,6 +210,7 @@ export async function handleAI(request: Request, user: { id: number }, segments:
       return json(await changeConversation(user.id, cid, data.title, false));
     }
   }
+  if(segments.length===4&&segments[2]==='artifacts'&&method==='GET')return artifactDownload(await getConversationArtifact(user.id,cid,segments[3]),args.get('format'));
   if (segments.length === 3 && segments[2] === 'export' && method === 'GET') return exportConversation(user.id, cid, args.get('format'), args.get('turn') ?? undefined);
   if (segments.length === 3 && segments[2] === 'preview' && method === 'GET') return json(await previewConversation(user.id, cid));
   if (segments.length === 5 && segments[2] === 'messages' && method === 'POST') {

@@ -70,7 +70,7 @@ export async function requireUser(request: Request): Promise<User> {
 }
 export async function bootstrap(request: Request): Promise<Response> {
     const page = new URL(request.url).searchParams.get('page') || 'computer';
-    if (!['index','privacidade','computer','recentes','descobrir','aprender','graficos'].includes(page)) throw new ApiError(400,'Página inválida.');
+    if (!['index','privacidade','computer','recentes','descobrir','aprender','graficos','cripto'].includes(page)) throw new ApiError(400,'Página inválida.');
     const user = await currentUser(request);
     if (!user && page !== 'index' && page !== 'privacidade') throw new ApiError(401,'Entre novamente para acessar sua conta.');
     const token = csrfToken(request);

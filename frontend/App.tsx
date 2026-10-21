@@ -1,25 +1,20 @@
+import type { PageModule } from './runtime/pages';
+import { mountWorkspaceCache } from './controllers/workspace-cache';
 import { memo, useLayoutEffect, useState } from 'react';
 import type { BootstrapData } from './types';
 import { Sidebar, SidebarBackdrop, Settings } from './components/WorkspaceParts';
-import LandingPage from './components/LandingPage';
-import PrivacyPage from './pages/PrivacyPage';
-import ComputerPage from './pages/ComputerPage';
-import RecentChatsPage from './pages/RecentChatsPage';
-import DiscoverPage from './pages/DiscoverPage';
-import LearnPage from './pages/LearnPage';
-import FinancePage from './pages/FinancePage';
 import { mountControllers } from './runtime/lifecycle';
-import { sharedControllers, workspaceControllers, pageControllers } from './runtime/controllers';
+import { sharedControllers, workspaceControllers } from './runtime/controllers';
 import { routes, isPublicPage } from './routes';
 
-const pages = {index:LandingPage, privacidade:PrivacyPage, computer:ComputerPage, recentes:RecentChatsPage, descobrir:DiscoverPage, aprender:LearnPage, graficos:FinancePage};
 const WorkspaceShell = memo(function WorkspaceShell({data}: {data: BootstrapData}) {
     return <><Sidebar data={data} /><SidebarBackdrop /><Settings data={data} /></>;
 });
 
-export default function App({bootstrap, revision, onReady}: {bootstrap:BootstrapData; revision:number; onReady:()=>void}) {
+export default function App({bootstrap, revision, onReady, pageModule}: {bootstrap:BootstrapData; revision:number; onReady:()=>void; pageModule:PageModule}) {
     const [shell] = useState(bootstrap);
     const workspace = !isPublicPage(bootstrap.page);
+    useLayoutEffect(() => mountWorkspaceCache(workspace ? bootstrap.user?.id : undefined), [bootstrap.user?.id, workspace]);
     useLayoutEffect(() => {
         const collapsed = document.body.classList.contains('is-sidebar-collapsed');
         document.body.className = workspace ? 'workspace sidebar-ready' : '';
@@ -30,12 +25,12 @@ export default function App({bootstrap, revision, onReady}: {bootstrap:Bootstrap
     useLayoutEffect(() => {
         document.querySelectorAll<HTMLAnchorElement>('.sidebar__link').forEach(link => {
             const page = routes[new URL(link.href).pathname];
-            if (page === bootstrap.page) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
+            if ((page === bootstrap.page || page === 'graficos' && bootstrap.page === 'cripto') && !(page === 'computer' && bootstrap.conversationId)) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
         });
-        const dispose = mountControllers(pageControllers[bootstrap.page]);
+        const dispose = mountControllers(pageModule.controllers);
         onReady();
         return dispose;
-    }, [revision, bootstrap.page, onReady]);
-    const Page = pages[bootstrap.page];
+    }, [revision, bootstrap.page, onReady, pageModule]);
+    const Page = pageModule.default;
     return <>{workspace && <WorkspaceShell data={shell} />}<Page key={revision} bootstrap={bootstrap} /></>;
 }

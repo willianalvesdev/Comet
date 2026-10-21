@@ -1,0 +1,50 @@
+import assert = require('node:assert/strict');
+import fs = require('node:fs');
+import path = require('node:path');
+import {buildSync} from 'esbuild';
+import {test} from 'node:test';
+import {chromium} from 'playwright';
+
+const root = path.resolve(__dirname, '../..');
+const script = buildSync({stdin:{contents:"import mount from './frontend/controllers/sidebar'; import {mountController} from './frontend/runtime/lifecycle'; window.mountSidebar = () => mountController(mount);",resolveDir:root},bundle:true,write:false,format:'iife'}).outputFiles[0].text;
+type SidebarWindow = Window & {mountSidebar:()=>()=>void; disposeSidebar:()=>void};
+for (const theme of ['light','dark']) test(`sidebar edge: ${theme}, pointer, keyboard and remount`,async()=>{
+    const browser=await chromium.launch({executablePath:process.env.BROWSER_PATH || 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true});
+    const page=await browser.newPage({viewport:{width:1280,height:800}});
+    try {
+        await page.route('http://comet.test/**',route=>route.fulfill({contentType:'text/html',body:`<html data-theme="${theme}"><body class="workspace"><aside class="sidebar"><button class="sidebar__toggle">Menu</button><nav class="sidebar__nav"></nav></aside><button class="workspace__menu-toggle">Menu</button><div class="sidebar-backdrop" hidden></div><main class="workspace__content"></main></body></html>`}));
+        await page.goto('http://comet.test/');
+        for (const name of ['globals','principal']) await page.addStyleTag({content:fs.readFileSync(path.join(root,'static/css',name+'.css'),'utf8')});
+        await page.evaluate(()=>{window.CometStorage={getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)};});
+        await page.addScriptTag({content:script});
+        await page.evaluate(()=>{const w=window as unknown as SidebarWindow;w.disposeSidebar=w.mountSidebar();});
+        assert.equal(await page.locator('.sidebar').evaluate(e=>getComputedStyle(e).borderRightWidth),'1px');
+        const handle=page.locator('.sidebar__resize');
+        const initialWidth=(await page.locator('.sidebar').boundingBox())!.width;
+        const box=await handle.boundingBox();assert.ok(box);
+        await page.mouse.move(box.x+3,200);
+        assert.equal(await handle.evaluate(e=>getComputedStyle(e).appearance),'none');
+        await page.mouse.down();await page.mouse.move(box.x+53,200);
+        assert.equal(await page.locator('body').evaluate(e=>e.classList.contains('is-sidebar-resizing')),true);
+        assert.equal(Math.round((await page.locator('.sidebar').boundingBox())!.width),initialWidth+50);
+        await page.mouse.up();
+        assert.equal(await page.locator('body').evaluate(e=>e.classList.contains('is-sidebar-resizing')),false);
+        await page.keyboard.press('Tab');await handle.focus();await page.keyboard.press('ArrowLeft');
+        await page.waitForFunction(width=>Math.round(document.querySelector('.sidebar')!.getBoundingClientRect().width)===width,initialWidth+30);
+        assert.equal(await handle.evaluate(e=>e.matches(':focus-visible')),true);
+        assert.notEqual(await page.locator('.sidebar').evaluate(e=>getComputedStyle(e).boxShadow),'none');
+        await page.locator('.sidebar__toggle').click();assert.equal(await handle.isVisible(),false);
+        assert.equal(await page.locator('.sidebar').evaluate(e=>getComputedStyle(e).borderRightWidth),'1px');
+        await page.locator('.sidebar__toggle').click();await page.waitForTimeout(350);
+        const next=await handle.boundingBox();assert.ok(next);
+        await page.mouse.move(next.x+3,200);await page.mouse.down();
+        await page.evaluate(()=>{(window as unknown as SidebarWindow).disposeSidebar();});
+        assert.equal(await handle.count(),0);
+        assert.equal(await page.locator('body').evaluate(e=>e.classList.contains('is-sidebar-resizing')),false);
+        await page.mouse.up();
+        await page.evaluate(()=>{const w=window as unknown as SidebarWindow;w.disposeSidebar=w.mountSidebar();});
+        assert.equal(await handle.count(),1);
+        await page.setViewportSize({width:390,height:800});assert.equal(await handle.isVisible(),false);
+        await page.evaluate(()=>{(window as unknown as SidebarWindow).disposeSidebar();});
+    } finally {await browser.close();}
+});

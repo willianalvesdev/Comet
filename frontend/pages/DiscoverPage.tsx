@@ -36,3 +36,7 @@ export default function DiscoverPage({ bootstrap }: { bootstrap: BootstrapData }
         </div>
     );
 }
+
+import controller0 from '../controllers/news';
+import controller1 from '../controllers/weather';
+export const controllers: PageFactory[] = [controller0, controller1];

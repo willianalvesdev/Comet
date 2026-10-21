@@ -1,3 +1,4 @@
+import { showLoading } from './loading-indicator';
 import { requiredElement, elementList, present, optionalElement, eventElement, isRecord, errorMessage } from './dom';
 import { NewsArticle, apiError, newsData } from './api-data';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
@@ -175,7 +176,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const version = generation;
         feed.setAttribute('aria-busy', 'true');
         more.disabled = true;
-        more.textContent = 'Carregando…';
+        showLoading(more, 'Carregando notícias');
         retry.hidden = true;
         if (!seen.size) showSkeletons();
         const targetCount = seen.size + 12;

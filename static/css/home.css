@@ -249,8 +249,8 @@
     width: var(--input-xs);
     height: var(--input-xs);
     background: currentColor;
-    mask: url('../img/icons/pause.svg') center / contain no-repeat;
-    -webkit-mask: url('../img/icons/pause.svg') center / contain no-repeat;
+    mask: url('../img/icons/library/stop.svg') center / contain no-repeat;
+    -webkit-mask: url('../img/icons/library/stop.svg') center / contain no-repeat;
 }
 
 .home__toolbar.is-dictating .home__send .ui-arrow {

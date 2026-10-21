@@ -132,3 +132,5 @@ export default function PrivacyPage({bootstrap}: {bootstrap: BootstrapData}) {
         </main>
     </div>;
 }
+import controller0 from '../controllers/header';
+export const controllers: PageFactory[] = [controller0];

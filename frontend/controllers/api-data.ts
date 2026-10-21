@@ -1,3 +1,4 @@
+import {artifactData} from '../../shared/artifacts';
 import type { FinanceOverview, FinanceSeries, Metric, ChartInterval } from '../../shared/finance-chart';
 import { isRecord } from './dom';
 export function record(value: unknown): Record<string, unknown> {
@@ -42,7 +43,7 @@ export function researchData(value: unknown): Research {
 }
 export function metadataData(value:unknown, includeVersions = true):ResponseMetadata {
     const data=record(value ?? {});
-    return {error:optionalString(data.error),error_code:optionalString(data.error_code),answered_at:optionalString(data.answered_at),versions:includeVersions && data.versions!=null?arrayValue(data.versions,value=>{const version=record(value);return {answer:stringValue(version.answer),thinking:stringValue(version.thinking),metadata:metadataData(version.metadata,false)};}):undefined,provider:optionalString(data.provider),research:data.research==null?undefined:researchData(data.research),thinking_seconds:data.thinking_seconds==null?data.thinking_seconds:numberValue(data.thinking_seconds),elapsed_seconds:data.elapsed_seconds==null?undefined:numberValue(data.elapsed_seconds),instant:data.instant==null?undefined:booleanValue(data.instant)};
+    return {artifacts:data.artifacts==null?undefined:arrayValue(data.artifacts,artifactData),error:optionalString(data.error),error_code:optionalString(data.error_code),answered_at:optionalString(data.answered_at),versions:includeVersions && data.versions!=null?arrayValue(data.versions,value=>{const version=record(value);return {answer:stringValue(version.answer),thinking:stringValue(version.thinking),metadata:metadataData(version.metadata,false)};}):undefined,provider:optionalString(data.provider),research:data.research==null?undefined:researchData(data.research),thinking_seconds:data.thinking_seconds==null?data.thinking_seconds:numberValue(data.thinking_seconds),elapsed_seconds:data.elapsed_seconds==null?undefined:numberValue(data.elapsed_seconds),instant:data.instant==null?undefined:booleanValue(data.instant)};
 }
 export function turnData(value:unknown):Turn {
     const data=record(value);
@@ -60,6 +61,7 @@ export function chatEventData(value:unknown):ChatEvent {
         case 'delta':case 'thinking':return {type:data.type,text:stringValue(data.text)};
         case 'error':return {type:'error',error:stringValue(data.error)};
         case 'done':return {type:'done',metadata:metadataData(data.metadata)};
+        case 'artifact':if(!['creating','complete','failed'].includes(stringValue(data.state)))throw new Error('Estado de arquivo inválido.');return {type:'artifact',state:data.state as ArtifactEvent['state'],artifact:data.artifact==null?undefined:artifactData(data.artifact),message:optionalString(data.message)};
         case 'search':return {type:'search',...researchData(data)};
         case 'conversation':return {type:'conversation',conversation_id:data.conversation_id===null?null:stringValue(data.conversation_id),turn_id:stringValue(data.turn_id),title:optionalString(data.title),created_at:optionalString(data.created_at),provider:optionalString(data.provider),attachments:data.attachments==null?[]:arrayValue(data.attachments,attachmentData)};
         default:throw new Error('Evento inválido na resposta.');

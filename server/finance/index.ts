@@ -1,9 +1,11 @@
+import { handleCrypto } from './crypto';
 import { availableProviders, structuredFinancial } from '../ai';
 import { ApiError, json, readJson } from '../http';
 import { chartOverview, executeActions, history, receive } from './repository';
 import { prepareInterpretation, requestData, SCHEMA, SYSTEM, validateInterpretation } from './interpretation';
 
 export async function handleFinance(request: Request, user: { id: number; nome: string; email: string }, segments: string[]): Promise<Response | null> {
+  if (segments[0] === 'crypto') return handleCrypto(request,user.id,segments);
   if (segments.length !== 1) return null;
   const [route] = segments, method = request.method;
   if (!['chart', 'transactions', 'interpret', 'actions'].includes(route)) return null;

@@ -1,3 +1,4 @@
+import { workspaceGet } from './workspace-cache';
 import { optionalElement, isRecord, present } from './dom';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
  const label=optionalElement(document, '[data-chat-greeting]', HTMLElement);if(!label)return;
@@ -35,5 +36,5 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
  scope.listen(window, 'chat:anonymous',event=>{anonymous=event.detail;render(currentName);});
  new ResizeObserver(fit).observe(present(label.parentElement));document.fonts.ready.then(fit);
  render(currentName);
- if (!anonymous) fetch('/api/ai/personalization',{credentials:'same-origin',cache:'no-store'}).then(response=>response.ok?response.json():null).then((profile:unknown)=>{if(isRecord(profile)){const name=profile.name||profile.account_name;if(typeof name==='string'&&name){try{localStorage.setItem(nameKey,name);}catch{}if(name!==currentName)render(name);}}}).catch(()=>{});
+ if (!anonymous) workspaceGet('/api/ai/personalization', 60000).then((profile:unknown)=>{if(scope.active && isRecord(profile)){const name=profile.name||profile.account_name;if(typeof name==='string'&&name){try{localStorage.setItem(nameKey,name);}catch{}if(name!==currentName)render(name);}}}).catch(()=>{});
 }

@@ -109,7 +109,7 @@ async function pdf(data: Prepared): Promise<Buffer> {
         try {
             doc.registerFont('body', 'Times-Roman');
             doc.registerFont('bold', 'Times-Bold');
-            doc.registerFont('heading', asset('fonts', 'kalice', 'kalicetrial-bold.otf'));
+            doc.registerFont('heading', asset('fonts', 'pplx', 'PPLX-Serif-Beta-v0-VF.ttf'));
             doc.registerFont('italic', 'Times-Italic');
             doc.registerFont('sans', 'Helvetica');
             doc.registerFont('sans-bold', 'Helvetica-Bold');

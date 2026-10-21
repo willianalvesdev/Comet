@@ -1,3 +1,4 @@
+import { showLoading } from './loading-indicator';
 import { isLocalModel } from './api-data';
 import { optionalElement, requiredElement, errorMessage, elementList } from './dom';
 import { apiError, attachmentData } from './api-data';
@@ -78,7 +79,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         if(locked||uploading){status.textContent='Aguarde a operação atual antes de anexar arquivos.';return;}
         if(files.length+selected.length>4){status.textContent='Anexe até 4 arquivos por mensagem.';return;}
         if(selected.some(file=>file.size>8*1024*1024)){status.textContent='Cada arquivo pode ter até 8 MB.';return;}
-        const expected=version;controller=new AbortController();uploading=true;status.textContent='Preparando anexos…';render();
+        const expected=version;controller=new AbortController();uploading=true;showLoading(status, 'Preparando anexos');render();
         try{
             for(const file of selected){
                 const body=new FormData();body.append('file',file);

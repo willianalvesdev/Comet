@@ -1,3 +1,4 @@
+import { showLoading } from './loading-indicator';
 import { optionalElement, requiredElement, present } from './dom';
 import { createFinancialConversationState } from './financial-context';
 import { executeFinancialActions, refreshFinancialContext, rememberFinancialExecution, FinancialExecutionRejected } from './financial-execution';
@@ -60,7 +61,7 @@ export default function mount({scope, fetch, requestAnimationFrame, ResizeObserv
         const text = present(input).value.trim();
         if (busy || !text) return;
         busy = true; send.disabled = true; present(input).readOnly = true;
-        responseCard.hidden = false; status.textContent = 'Conferindo transações…';
+        responseCard.hidden = false; showLoading(status, 'Conferindo transações');
         try {
             if (pending && pending.text !== text) {
                 await confirmPending();

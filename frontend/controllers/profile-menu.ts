@@ -7,7 +7,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     scope.listen(anonymous, 'click', async () => {
         if (document.querySelector('.computer-page')) window.dispatchEvent(new Event('chat:toggle-anonymous'));
         else {
-            await window.WorkspaceNavigation.go('/novo.html?new=1&anonymous=1');
+            await window.WorkspaceNavigation.go('/new?new=1&anonymous=1');
             const nextMenu = document.querySelector<HTMLElement>('#profile-menu');
             if (nextMenu && !nextMenu.matches(':popover-open')) nextMenu.showPopover();
             nextMenu?.querySelector<HTMLButtonElement>('.profile-anonymous')?.focus({preventScroll:true});
@@ -16,7 +16,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     scope.listen(window, 'chat:anonymous', event => {
         anonymous.setAttribute('aria-checked', String(event.detail));
         elementList(document, '.sidebar__logo, .sidebar__link[aria-label="Novo chat"]', HTMLAnchorElement).forEach(link => {
-            if (event.detail) { link.dataset.normalHref ??= link.getAttribute('href') || '/novo.html?new=1'; link.href = '/novo.html?new=1&anonymous=1'; }
+            if (event.detail) { link.dataset.normalHref ??= link.getAttribute('href') || '/new?new=1'; link.href = '/new?new=1&anonymous=1'; }
             else if (link.dataset.normalHref) { link.setAttribute('href', link.dataset.normalHref); delete link.dataset.normalHref; }
         });
     });

@@ -1,6 +1,16 @@
+import {citationPreviews} from './citations';
+import {chatArtifacts} from './chat-artifacts';
+import {positionTableHeaders} from './answer-content';
+import {chatImages} from './chat-images';
 import { requiredElement, optionalElement, present, elementList, eventElement } from './dom';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
+    const citations=citationPreviews({scope,setTimeout,MutationObserver});
     const scroller = requiredElement(document, '.workspace__content', HTMLElement);
+    let tableFrame=false;
+    const updateTables=()=>{if(tableFrame)return;tableFrame=true;requestAnimationFrame(()=>{tableFrame=false;positionTableHeaders(scroller);});};
+    scope.listen(scroller,'scroll',updateTables,{passive:true});
+    new ResizeObserver(updateTables).observe(scroller);
+    new MutationObserver(updateTables).observe(scroller,{childList:true,subtree:true,characterData:true});
     function icon(domain: string) {
         const image = document.createElement('img'); image.width = image.height = 16; image.alt = '';
         image.referrerPolicy = 'no-referrer'; image.loading = 'lazy';
@@ -21,22 +31,31 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     const workspace = requiredElement(document, '.workspace', HTMLElement);
     const chatPage=requiredElement(document, '.computer-page', HTMLElement), header=requiredElement(document, '.computer-header', HTMLElement);
     let tabs=optionalElement(document, '.chat-tabs', HTMLElement), linksPage=optionalElement(document, '.chat-links', HTMLElement);
-    if(!tabs){tabs=document.createElement('nav');tabs.className='chat-tabs';tabs.hidden=true;tabs.setAttribute('aria-label','Visualização da resposta');tabs.innerHTML='<button type="button" data-chat-view="answer" aria-current="page"><i class="chat-tab-logo" aria-hidden="true"></i>Resposta</button><button type="button" data-chat-view="links" hidden><i class="chat-tab-links" aria-hidden="true"></i>Links</button>';header.append(tabs);}
+    if(!tabs){tabs=document.createElement('nav');tabs.className='chat-tabs';tabs.hidden=true;tabs.setAttribute('aria-label','Visualização da resposta');tabs.innerHTML='<button type="button" data-chat-view="answer" aria-current="page"><i class="chat-tab-logo" aria-hidden="true"></i>Resposta</button><button type="button" data-chat-view="images" hidden><i class="chat-tab-images" aria-hidden="true"></i>Imagens</button><button type="button" data-chat-view="links" hidden><i class="chat-tab-links" aria-hidden="true"></i>Links</button>';header.append(tabs);}
     if(!linksPage){linksPage=document.createElement('section');linksPage.className='chat-links';linksPage.hidden=true;linksPage.setAttribute('aria-label','Links pesquisados');chatPage.after(linksPage);}
-    let answerScroll=0, activeResearch: Research | null=null;
+    let imagesPage=optionalElement(document,'.chat-images',HTMLElement);
+    if(!imagesPage){imagesPage=document.createElement('section');imagesPage.className='chat-images';imagesPage.hidden=true;imagesPage.setAttribute('aria-label','Imagens pesquisadas');chatPage.after(imagesPage);}
+    if(!tabs.querySelector('[data-chat-view="images"]')){const button=document.createElement('button');button.type='button';button.dataset.chatView='images';button.hidden=true;button.innerHTML='<i class="chat-tab-images" aria-hidden="true"></i>Imagens';tabs.querySelector('[data-chat-view="links"]')?.before(button);}
+    const images=chatImages(imagesPage,{scope,fetch});
+    scope.cleanup(()=>{images.reset();workspace.classList.remove('showing-chat-links','showing-chat-images');});
+    const researchQuery=(value:Research|null)=>(value?.query||value?.queries?.at(-1)||'').trim().slice(0,350);
+    let answerScroll=0, activeResearch: Research | null=null,activeView='answer';
     function renderLinks(value: Research | null){
+        const queryChanged=researchQuery(activeResearch)!==researchQuery(value)||activeResearch?.engine!==value?.engine;
         activeResearch=value;present(linksPage).replaceChildren();
+        const query=researchQuery(value);requiredElement(present(tabs),'[data-chat-view="images"]',HTMLButtonElement).hidden=!query;
+        if(queryChanged){images.reset();if(activeView==='images'){if(query)void images.show(query,value?.engine==='Tavily'?'tavily':'searxng');else view('answer');}}
         const title=document.createElement('p');title.className='chat-links__query';title.textContent=value?.query?'Resultados da pesquisa para: '+value.query:'Links consultados nesta resposta';present(linksPage).append(title);
         const sources=validSources(value?.sources);
         requiredElement(present(tabs), '[data-chat-view="links"]', HTMLButtonElement).hidden = !sources.length;
         if (!sources.length && workspace.classList.contains('showing-chat-links')) view('answer');
         if(!sources.length){const empty=document.createElement('p');empty.textContent='Esta resposta não tem links de pesquisa.';present(linksPage).append(empty);return;}
         for(const source of sources){
-            const result=document.createElement('article');result.className='chat-links__result';
-            const publisher=document.createElement('a');publisher.className='chat-links__publisher';publisher.href=source.url;publisher.target='_blank';publisher.rel='noopener noreferrer';
+            const result=document.createElement('a');result.className='chat-links__result';result.href=source.url;result.target='_blank';result.rel='noopener noreferrer';
+            const publisher=document.createElement('span');publisher.className='chat-links__publisher';
             const identity=document.createElement('span'),domain=document.createElement('span'),url=document.createElement('span');
             domain.textContent=source.domain;url.className='chat-links__url';url.textContent=source.url;identity.append(domain,url);publisher.append(icon(source.domain),identity);
-            const title=document.createElement('a');title.className='chat-links__title';title.textContent=source.title;title.href=source.url;title.target='_blank';title.rel='noopener noreferrer';result.append(publisher,title);
+            const title=document.createElement('span');title.className='chat-links__title';title.textContent=source.title;result.append(publisher,title);
             if(source.excerpt){const excerpt=document.createElement('p');excerpt.textContent=source.excerpt;result.append(excerpt);}
             const evidence=document.createElement('small');
             evidence.textContent=source.evidence_type==='page'?'Página consultada':source.evidence_type==='grounding'?'Evidência do Google':'Resumo da busca';
@@ -46,12 +65,15 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         }
     }
     function view(name: string | undefined){
-        const links=name==='links' && validSources(activeResearch?.sources).length > 0;
-        if (!links) name='answer';
-        if(links){answerScroll=scroller.scrollTop;renderLinks(activeResearch);}
-        chatPage.hidden=links;present(linksPage).hidden=!links;workspace.classList.toggle('showing-chat-links',links);
-        elementList(present(tabs), 'button', HTMLButtonElement).forEach(button=>{if(button.dataset.chatView===name)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
-        scroller.scrollTo({top:links?0:answerScroll,behavior:'instant'});
+        if(name==='links'&&!validSources(activeResearch?.sources).length||name==='images'&&!researchQuery(activeResearch)||!['answer','links','images'].includes(name||''))name='answer';
+        if(name===activeView)return;
+        if(activeView==='answer')answerScroll=scroller.scrollTop;
+        activeView=name!;
+        chatPage.hidden=name!=='answer';present(linksPage).hidden=name!=='links';present(imagesPage).hidden=name!=='images';
+        workspace.classList.toggle('showing-chat-links',name==='links');workspace.classList.toggle('showing-chat-images',name==='images');
+        elementList(present(tabs),'button',HTMLButtonElement).forEach(button=>{if(button.dataset.chatView===name)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
+        if(name==='images')void images.show(researchQuery(activeResearch),activeResearch?.engine==='Tavily'?'tavily':'searxng');
+        scroller.scrollTo({top:name==='answer'?answerScroll:0,behavior:'instant'});
     }
     tabs.addEventListener('click',event=>{const button=eventElement(event.target)?.closest<HTMLElement>('[data-chat-view]');if(button)view(button.dataset.chatView);}, {signal: scope.signal});
     renderLinks(null);
@@ -60,6 +82,9 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     collapse.setAttribute('aria-label','Abrir fontes');collapse.setAttribute('aria-expanded','false');collapse.setAttribute('aria-controls',panel.id);collapse.innerHTML='<i aria-hidden="true"></i>';
     const options=optionalElement(header,'.chat-options-toggle',HTMLElement);if(options)options.after(collapse);else header.append(collapse);
     let latestArticle:HTMLElement|null=null,panelVisible=false,cardOpen=true;
+    const sourceHost=document.createElement('div');
+    const artifacts=chatArtifacts({scope,fetch,ResizeObserver,requestAnimationFrame},()=>{collapse.hidden=!artifacts.hasFiles()&&!validSources(activeResearch?.sources).length;collapse.setAttribute('aria-label',artifacts.hasFiles()?'Abrir artefatos e fontes':'Abrir fontes');positionPanel();});
+    panel.append(artifacts.section,sourceHost);
     function positionPanel() {
         if(!panelVisible)return;
         const r=collapse.getBoundingClientRect();
@@ -85,7 +110,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     collapse.addEventListener('click',()=>setPanelVisible(!panelVisible),{signal:scope.signal});
     scope.listen(window,'resize',positionPanel);
     function reset() {
-        latestArticle=null;showSources(null,{},false);collapse.hidden=true;view('answer');
+        citations.reset();images.reset();artifacts.reset();latestArticle=null;showSources(null,{},false);collapse.hidden=true;view('answer');
     }
     function showSources(article: HTMLElement | null,value: Research,visible=false) {
         renderLinks(value);
@@ -117,7 +142,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             link.append(icon(source.domain),content);list.append(link);
         }
         if (!sources.length) { const empty=document.createElement('p');empty.textContent='As fontes citadas da pesquisa aparecerão aqui.';list.append(empty); }
-        card.append(list);panel.replaceChildren(card);setPanelVisible(visible);
+        card.append(list);sourceHost.replaceChildren(card);card.hidden=!sources.length&&artifacts.hasFiles();setPanelVisible(visible);
     }
     function research(article: HTMLElement,value: Research | undefined,completed=false) {
         elementList(article, '.computer-research,.computer-sources,.computer-source-list,.computer-search-suggestions', HTMLElement).forEach(e=>e.remove());
@@ -160,9 +185,9 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             trigger.append(logos,count);trigger.setAttribute('aria-label','Abrir '+count.textContent);
             trigger.addEventListener('click',()=>{cardOpen=true;collapse.hidden=false;showSources(article,value,true);}, {signal: scope.signal});actions?.append(trigger);
         }
-        if (sources.length && (!latestArticle?.isConnected || latestArticle===article || (latestArticle.compareDocumentPosition(article) & Node.DOCUMENT_POSITION_FOLLOWING))) {
+        if ((sources.length || researchQuery(value)) && (!latestArticle?.isConnected || latestArticle===article || (latestArticle.compareDocumentPosition(article) & Node.DOCUMENT_POSITION_FOLLOWING))) {
             latestArticle=article;
-            collapse.hidden=false;
+            collapse.hidden=!sources.length&&!artifacts.hasFiles();
             showSources(article,value,panelVisible);
         }
         if(value.suggestions){
@@ -172,6 +197,6 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             article.append(widget);
         }
     }
-    window.ComputerResponseDetails={research,reset};
+    window.ComputerResponseDetails={research,reset,artifacts:artifacts.register};
     reset();
 }

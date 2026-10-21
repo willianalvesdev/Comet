@@ -12,12 +12,14 @@ As citações `[n]` são associadas à lista numerada de fontes da própria resp
 
 ## Pesquisa e ferramentas
 
-`server/ai/search.ts` coordena até cinco passagens do modelo. Antes de começar a resposta final, ele pode solicitar pesquisa, leitura de uma fonte já encontrada ou cálculo aritmético. Não há execução de JavaScript, shell, SQL ou operações bancárias pelo chat.
+`server/ai/search.ts` coordena as passagens do modelo sem teto fixo de rodadas, dentro do prazo operacional da resposta. Antes de começar a resposta final, ele pode solicitar pesquisa, leitura de uma fonte já encontrada ou cálculo aritmético. Não há execução de JavaScript, shell, SQL ou operações bancárias pelo chat.
 
-- Até três buscas por resposta e 90 segundos de orçamento para iniciar operações de pesquisa/leitura; a resposta completa continua com limite de cinco minutos.
-- SearXNG fornece até 60 candidatos por consulta, com deduplicação e diversidade de domínios. Entram até seis novas fontes por busca, no máximo 18 por resposta.
-- Até seis páginas são consultadas, no máximo três simultaneamente. Cada leitura tem limite de sete segundos, 768 KB, três redirecionamentos e 16 mil caracteres extraídos. São enviados ao modelo trechos selecionados pela relevância para a consulta, respeitando o orçamento de contexto.
-- Gemini mantém a pesquisa Google e usa os vínculos de grounding disponíveis, além da tentativa de leitura das fontes.
+- Não há teto fixo de quantidade de buscas, leituras ou rodadas. A resposta completa conserva o prazo operacional de cinco minutos e o cancelamento pelo usuário. Chamadas idênticas repetidas são interrompidas para evitar ciclos sem progresso.
+- SearXNG fornece até 60 candidatos por consulta, com deduplicação e diversidade de domínios. Todas as fontes válidas retornadas pelo adaptador são incorporadas, com deduplicação, sem teto total por resposta.
+- Três páginas são lidas antecipadamente por busca, no máximo três simultaneamente; o modelo pode solicitar as demais sem um teto total de leituras. Cada leitura tem limite de sete segundos, 768 KB, três redirecionamentos e 16 mil caracteres extraídos. São enviados ao modelo trechos selecionados pela relevância para a consulta, respeitando o orçamento de contexto.
+- Pesquisar (Gemini e modelos remotos) usa Tavily Search via REST, inclusive na aba Imagens. Computer (Ollama) mantém SearXNG. A escolha usa o modo/modelo solicitado, antes de adaptações para anexos. Não há troca silenciosa de motor em caso de falha.
+- Tavily recebe apenas a consulta pública filtrada, nunca a conversa completa ou a chave do modelo. Usa busca `basic`, até oito resultados, sem resposta sintetizada ou conteúdo bruto; mantém IDs estáveis para as citações do Comet.
+- `TAVILY_API_KEY` é opcional e exclusiva do servidor. Sem ela, o Comet usa `X-Tavily-Access-Mode: keyless`, documentado no [guia Tavily](https://tavily.com/agent-setup/SKILL.md), sujeito a limites. Uma chave configurada usa sua própria cota. Quota, autenticação e indisponibilidade aparecem como limitação da pesquisa. Não há instalação do CLI no runtime.
 - Páginas que exigem JavaScript, login, formatos não suportados ou recusam acesso continuam como resumos de busca, com essa limitação indicada na interface. Não há contorno desses bloqueios.
 - Fontes mantêm IDs estáveis durante todas as consultas e aparecem em eventos de progresso. Conteúdo externo é tratado como dado não confiável.
 - A leitura aceita apenas HTTPS público, verifica todos os endereços DNS e fixa o endereço aprovado na conexão. Cada redirecionamento repete a validação. Não envia cookies, autorização ou credenciais a páginas externas.
@@ -33,4 +35,15 @@ A memória automática continua local à conta, desativável e editável. Corre�
 
 ## Validação
 
-Os testes cobrem transmissão antes do fim da geração, cancelamento e persistência, pesquisa complementar, estabilidade das citações, orçamento de ferramentas, bloqueio de endereços privados, extração de páginas, cálculos restritos, memória, teclado, celular, movimento reduzido e cliques rápidos. As chamadas de modelos nesses testes usam respostas controladas, não medem a qualidade dos modelos instalados.
+Os testes cobrem transmissão antes do fim da geração, cancelamento e persistência, pesquisa complementar, estabilidade das citações, pesquisa além dos limites antigos, bloqueio de endereços privados, extração de páginas, cálculos restritos, memória, teclado, celular, movimento reduzido e cliques rápidos. As chamadas de modelos nesses testes usam respostas controladas, não medem a qualidade dos modelos instalados.
+
+
+## Validação Tavily — 20/10/2026
+
+Build de produção aprovado. Passaram 21 testes de servidor (pesquisa, provedores, imagens e Tavily) e quatro cenários de navegador (alinhamento e rolagem de Finanças, roteamento e falhas da aba Imagens, em desktop e celular). A consulta real pelo gerador de pesquisa retornou seis fontes Tavily; a rota de imagens retornou cinco imagens. A validação real parou antes da geração do modelo, que foi coberta com respostas simuladas. O acesso utilizado foi keyless; uma primeira consulta de imagens retornou lista vazia, situação tratada pela interface, e a consulta seguinte trouxe resultados. Não há garantia de resultados ou cota ilimitada.
+
+## Citações e instruções — 20/10/2026
+
+Citações adjacentes aparecem como uma etiqueta de domínio com contagem de fontes adicionais. O clique abre a fonte selecionada; hover ou foco abre uma prévia com título, trecho e navegação entre as fontes. O painel cabe em telas pequenas, aceita teclado e fecha ao trocar de chat. Conteúdo externo é inserido como texto e links inseguros não viram citações clicáveis. O inventário dos prompts está em [instrucoes-ia-comet.md](instrucoes-ia-comet.md).
+
+Validação desta alteração: build de produção e 27 testes de servidor aprovados. Quatro cenários de navegador aprovados, cobrindo citações e Markdown em 1280 e 390 px, temas claro/escuro, navegação por teclado, clique abrindo a fonte, descarte do painel ao trocar de chat ou remover a citação, IDs acima de 99 e conteúdo não confiável. Os testes de pesquisa usam respostas simuladas; não avaliam a qualidade das respostas de um modelo real.

@@ -29,21 +29,21 @@ export default function LandingPage({ bootstrap }: { bootstrap: BootstrapData })
             </div>
             <nav className="landing-footer__column" aria-label="Explore o Comet">
                 <h2>Explore</h2>
-                <a href="/novo.html">Pesquisar</a>
-                <a href="/financas.html">Finanças</a>
-                <a href="/academico.html">Acadêmico</a>
-                <a href="/descobrir.html">Descobrir</a>
+                <a href="/new">Pesquisar</a>
+                <a href="/finance">Finanças</a>
+                <a href="/academic">Acadêmico</a>
+                <a href="/discover">Descobrir</a>
             </nav>
             <nav className="landing-footer__column" aria-label="Sobre o Comet">
                 <h2>Comet</h2>
                 <a href="#sobre">Sobre a Comet</a>
-                <a href="/privacidade.html#contato">Contato</a>
+                <a href="/privacy#contato">Contato</a>
                 <button type="button" data-auth-open="signup">Criar conta</button>
                 <button type="button" data-auth-open="login">Iniciar sessão</button>
             </nav>
             <nav className="landing-footer__column" aria-label="Privacidade">
                 <h2>Privacidade</h2>
-                <a href="/privacidade.html">Política de Privacidade</a>
+                <a href="/privacy">Política de Privacidade</a>
                 <button type="button" onClick={() => window.dispatchEvent(new Event('cookies:manage'))}>Preferências de cookies</button>
             </nav>
             <div className="landing-footer__bottom"><span>Comet © {new Date().getFullYear()}</span></div>
@@ -53,7 +53,7 @@ export default function LandingPage({ bootstrap }: { bootstrap: BootstrapData })
         <button className="auth__close" type="button" aria-label="Fechar janela"><i className="ui-icon-x" aria-hidden="true"></i></button>
         <section className="auth__panel" data-auth-panel="entry">
             <h2 className="auth__title" id="auth-entry-title" tabIndex={-1}>Entre ou cadastre-se para desbloquear todo o potencial do Comet</h2>
-            <p className="auth__policy" id="auth-entry-policy">Escolha como você quer continuar. <a href="/privacidade.html">Política de Privacidade</a>.</p>
+            <p className="auth__policy" id="auth-entry-policy">Escolha como você quer continuar. <a href="/privacy">Política de Privacidade</a>.</p>
             <div className="auth__options">
                 <button className="auth__provider auth__provider--google" type="button" data-auth-provider="google"><i aria-hidden="true"></i>Continuar com o Google</button>
                 <button className="auth__provider auth__provider--github" type="button" data-auth-provider="github"><i aria-hidden="true"></i>Continuar com o GitHub</button>
@@ -87,3 +87,8 @@ export default function LandingPage({ bootstrap }: { bootstrap: BootstrapData })
     </dialog>
     </>);
 }
+
+import controller0 from '../controllers/header';
+import controller1 from '../controllers/typewriter';
+import controller2 from '../controllers/auth';
+export const controllers: PageFactory[] = [controller0, controller1, controller2];

@@ -1,5 +1,5 @@
 export const dynamicParams = false;
 export function generateStaticParams() {
-    return ['novo', 'recentes', 'descobrir', 'academico', 'financas', 'privacidade'].map(page => ({page: page + '.html'}));
+    return ['new', 'recent', 'discover', 'academic', 'finance', 'privacy'].map(page => ({page}));
 }
 export default function WorkspacePage() { return null; }

@@ -1,22 +1,6 @@
 import { requiredElement, optionalElement, present, errorMessage } from './dom';
 import { apiError, financeHistoryData } from './api-data';
 export default function mount({scope, fetch}: PageContext) {
-    const historyToggle = requiredElement(document, '.finance-panel-toggle', HTMLButtonElement);
-    const historyPanel = requiredElement(document, '#finance-history-panel', HTMLElement);
-    const layout = requiredElement(document, '.finance-layout', HTMLElement);
-    let historyCollapsed = false;
-    function updateHistoryVisibility(hasTransactions: boolean) {
-        historyToggle.hidden = !hasTransactions;
-        historyPanel.hidden = !hasTransactions || historyCollapsed;
-        layout.classList.toggle('is-history-collapsed', historyPanel.hidden);
-        historyToggle.setAttribute('aria-expanded', String(!historyPanel.hidden));
-        historyToggle.setAttribute('aria-label', historyPanel.hidden ? 'Expandir painel de recentes' : 'Recolher painel de recentes');
-    }
-    historyToggle.addEventListener('click', () => {
-        historyCollapsed = !historyCollapsed;
-        updateHistoryVisibility(true);
-    }, {signal: scope.signal});
-
     const page = optionalElement(document, '.finance-page', HTMLElement);
     if (!page) return;
     const list = requiredElement(page, '.transfer-list', HTMLElement);
@@ -41,10 +25,9 @@ export default function mount({scope, fetch}: PageContext) {
             description.append(title,detail);
             const values=document.createElement('div');values.className='transfer-values';
             const amount=document.createElement('span');amount.textContent=(item.kind==='expense'?'−':'+')+money.format(Number(item.amount));
-            const kind=document.createElement('span');kind.className='transfer-change transfer-change--'+item.kind;kind.textContent=item.kind==='expense'?'Despesa':'Receita';values.append(amount,kind);
+            values.append(amount);
             row.append(avatar,description,values);list.append(row);
         }
-        updateHistoryVisibility(list.children.length > 0);
         cursor=data.next_cursor;more.hidden=!cursor;
         status.textContent=list.children.length?'':'Nenhuma transação registrada.';
     }

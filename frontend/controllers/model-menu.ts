@@ -1,3 +1,5 @@
+import { showLoading } from './loading-indicator';
+import { workspaceGet } from './workspace-cache';
 import { optionalElement, isRecord, present, requiredElement, eventElement } from './dom';
 import { isOpenRouterModel, isLocalModel, record, arrayValue, stringValue, booleanValue } from './api-data';
 import { composerState } from '../components/composer-state';
@@ -45,7 +47,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             }
             present(menu).append(option);
         }
-        if (computerMode && !options.length) { const message = document.createElement('p'); message.textContent = localError; present(menu).append(message); }
+        if (computerMode && !options.length) { const message = document.createElement('p'); if (localError === 'Carregando os modelos do Ollama…') showLoading(message, 'Carregando modelos do Ollama'); else message.textContent = localError; present(menu).append(message); }
         if(!computerMode&&remoteError){const message=document.createElement('p');message.textContent=remoteError;present(menu).append(message);}
         geminiOption.setAttribute('aria-checked', String(selected === 'gemini'));
         requiredElement(present(trigger), '.local-model-name', HTMLElement).textContent = name;
@@ -56,14 +58,15 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
 
     }
     function position() {
-        const rect = present(trigger).getBoundingClientRect(), width = Math.min(360, innerWidth-24);
+        const rect = present(trigger).getBoundingClientRect(), width = Math.min(280, innerWidth-24);
         present(menu).style.width = width + 'px';
+        present(menu).style.maxHeight = Math.max(0,Math.min(350,rect.top-20))+'px';
         present(menu).style.left = Math.max(12, Math.min(rect.right-width, innerWidth-width-12))+'px';
         present(menu).style.top = Math.max(12, rect.top-present(menu).offsetHeight-8)+'px';
     }
-    function refreshModels(): Promise<void> {
+    function refreshModels(force = false): Promise<void> {
         if (loading) return loading;
-        loading = new window.ComputerService().get('/api/ai/models').then(raw => {
+        loading = workspaceGet('/api/ai/models', 15000, force).then(raw => {
             if (!scope.active) return;
             const result = record(raw);
             const models = arrayValue(result.models, value => {const m=record(value);return {id:stringValue(m.id),name:typeof m.name==='string'?m.name:stringValue(m.id),configured:booleanValue(m.configured)};});
@@ -97,12 +100,12 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     }
     async function open() {
         if (!scope.active || present(trigger).disabled) return;
-        if(!availability || (isLocalModel(selected)||!selected ? localError : remoteEnabled&&remoteError)) await refreshModels();
+        if(!availability || isLocalModel(selected) || !selected || (remoteEnabled && remoteError)) await refreshModels(true);
         if(!scope.active||present(trigger).disabled)return;update();
         present(menu).showPopover(); position(); visibleOptions().find(option=>option.dataset.provider===selected)?.focus({preventScroll:true});
     }
     gemini.addEventListener('click',()=>{ selected=remote; savePreference(); update(); }, {signal: scope.signal});
-    computer.addEventListener('click',()=>{ selected=local; savePreference(); update(); void refreshModels(); }, {signal: scope.signal});
+    computer.addEventListener('click',()=>{ selected=local; savePreference(); update(); void refreshModels(true); }, {signal: scope.signal});
     trigger.addEventListener('click',event=>{event.preventDefault();if(menu.matches(':popover-open')) menu.hidePopover(); else void open();}, {signal: scope.signal});
     trigger.addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();open();}}, {signal: scope.signal});
     menu.addEventListener('toggle',()=>trigger.setAttribute('aria-expanded',String(menu.matches(':popover-open'))), {signal: scope.signal});
@@ -119,12 +122,14 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             options[e.key==='Home'?0:e.key==='End'?options.length-1:(i+(e.key==='ArrowUp'?-1:1)+options.length)%options.length].focus();
         }
     }, {signal: scope.signal});
+    new ResizeObserver(()=>{if(menu.matches(':popover-open'))position();}).observe(menu);
     scope.listen(window, 'resize',()=>{if(menu.matches(':popover-open'))position();});
     scope.listen(window, 'scroll',()=>{if(menu.matches(':popover-open'))position();},true);
     window.ComputerModels={
+        whenReady:()=>loading || refreshModels(),
         selected:()=>selected,
         select:value=>{if(value==='qwen')value=local;if(value==='gemini'&&remoteEnabled)value=remote;if(value==='gemini'||[...options,...remoteOptions].some(o=>o.dataset.provider===value)){selected=value;if(isLocalModel(value))local=value;else remote=value;update();}},
-        error:()=>!availability?'Carregando modelos. Aguarde um instante.':isLocalModel(selected)||!selected ? localError : isOpenRouterModel(selected) ? remoteError || (!availability?.[selected]?'Este modelo está indisponível. Escolha outro modelo.':'') : availability&&!availability.gemini?'Configure a chave do Gemini no servidor para começar.':'',
+        error:()=>!availability?remoteError || 'Carregando modelos. Aguarde um instante.':isLocalModel(selected)||!selected ? localError : isOpenRouterModel(selected) ? remoteError || (!availability?.[selected]?'Este modelo está indisponível. Escolha outro modelo.':'') : availability&&!availability.gemini?'Configure a chave do Gemini no servidor para começar.':'',
         setBusy:value=>{composerState.update({busy:value});trigger.disabled=value;if(value&&menu.matches(':popover-open'))menu.hidePopover();}
     };
     update();

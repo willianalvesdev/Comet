@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { afterEach, test } from 'node:test';
 import { randomUUID } from 'node:crypto';
 import { generateResponse, publicQuery } from '../../server/ai/search';
+import {evidenceContext} from '../../server/ai/research';
 import { calculate } from '../../server/ai/calculator';
 import { pageText, publicAddress, publicURL, readWebPage } from '../../server/ai/web-reader';
 import { chatResponse } from '../../server/ai/index';
@@ -58,24 +59,43 @@ test('research reads pages, revises its search and keeps citation IDs stable',as
     assert.match(contexts[1],/Página consultada/);
     assert.equal(events.map(event=>event.type==='delta'?event.text:'').join(''),'Primeiro fato [1]. Segundo fato [2].');
 });
-test('tool loops stop, web opt-out is enforced, and greetings do not force a search',async()=>{
-    process.env.SEARXNG_URL='http://127.0.0.1:8888';let searches=0,generations=0;
+test('research exceeds former search, read, source and round caps; web opt-out remains enforced',async()=>{
+    process.env.SEARXNG_URL='http://127.0.0.1:8888';let searches=0,generations=0,reads=0;
     globalThis.fetch=async(url,init)=>{
         const target=new URL(String(url));
-        if(target.port==='8888'){searches++;return Response.json({results:[]});}
-        if(target.pathname==='/api/show')return Response.json({capabilities:[]});
+        if(target.port==='8888'){searches++;return Response.json({results:Array.from({length:3},(_,i)=>({url:`https://source${searches}-${i}.org/article`,title:`Fonte ${searches}-${i}`,content:'Evidência verificada.'}))});}
+        if(target.pathname==='/api/show')return Response.json({capabilities:[],model_info:{'qwen.context_length':32768}});
         const system=JSON.parse(String(init?.body)).messages[0].content;
+        assert.doesNotMatch(system,/Orçamento de ferramentas encerrado|quando houver orçamento/);
         generations++;
-        return response(system.includes('Orçamento de ferramentas encerrado')?'Evidências insuficientes.':`<web_search>{"query":"consulta ${generations}"}</web_search>`);
+        return response(system.includes('web estão desativadas')||generations>8?'Resposta concluída.':`<web_search>{"query":"consulta ${generations}"}</web_search>`);
     };
-    await collect(generateResponse([{role:'user',content:'Pesquise evidências'}],'qwen','',true,AbortSignal.timeout(4000)));
-    assert.equal(searches,3);assert.equal(generations,5);
+    const events=await collect(generateResponse([{role:'user',content:'Pesquise evidências'}],'qwen','',true,AbortSignal.timeout(10000),async()=>{reads++;return 'Página consultada.';}));
+    assert.equal(searches,9);assert.equal(generations,9);assert.equal(reads,27);
+    const final=events.filter(e=>e.type==='search'&&e.state==='complete').at(-1) as Extract<Event,{type:'search'}>;
+    assert.equal((final.sources as unknown[]).length,27);
     searches=0;generations=0;
     await collect(generateResponse([{role:'user',content:'Não pesquise; responda diretamente.'}],'qwen','',true,AbortSignal.timeout(4000)));
     assert.equal(searches,0);
     globalThis.fetch=async url=>String(url).endsWith('/api/show')?Response.json({capabilities:[]}):response('Olá!');
-    const events=await collect(generateResponse([{role:'user',content:'Oi'}],'qwen','',true,AbortSignal.timeout(4000)));
-    assert.deepEqual(events,[{type:'delta',text:'Olá!'}]);
+    const greeting=await collect(generateResponse([{role:'user',content:'Oi'}],'qwen','',true,AbortSignal.timeout(4000)));
+    assert.deepEqual(greeting,[{type:'delta',text:'Olá!'}]);
+});
+test('research cancellation and repeated-call protection terminate faulty models',async()=>{
+    process.env.SEARXNG_URL='http://127.0.0.1:8888';const abort=new AbortController();let n=0;
+    globalThis.fetch=async url=>{
+        const target=new URL(String(url));if(target.port==='8888'){if(++n===7)abort.abort();return Response.json({results:[]});}
+        if(target.pathname==='/api/show')return Response.json({capabilities:[]});
+        return response(`<web_search>{"query":"consulta ${n}"}</web_search>`);
+    };
+    await assert.rejects(collect(generateResponse([{role:'user',content:'Pesquise dados'}],'qwen','',true,abort.signal)));assert.equal(n,7);
+    globalThis.fetch=async url=>String(url).endsWith('/api/show')?Response.json({capabilities:[]}):response('<calculate>{"expression":"1+1"}</calculate>');
+    await assert.rejects(collect(generateResponse([{role:'user',content:'Calcule'}],'qwen','',false,AbortSignal.timeout(4000))),/resposta/i);
+});
+test('evidence window preserves original IDs and can revisit older sources',()=>{
+    const result={sources:Array.from({length:120},(_,i)=>({url:`https://example.com/${i}`,domain:'example.com',title:'Fonte '+(i+1),content:'Evidência '.repeat(300)})),queries:[],suggestions:''};
+    const context=evidenceContext(result,6000,1);
+    assert.match(context,/"source":1,/);assert.match(context,/"source":120,/);assert.match(context,/"total_sources":120/);assert.ok(context.length<9000);
 });
 test('real answer deltas arrive before model completion and are not duplicated',async()=>{
     let release!:()=>void;let ended=false;

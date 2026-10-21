@@ -23,7 +23,7 @@ async function fixture(width=1280,reduced=false) {
     const page=await context.newPage(),errors:string[]=[];
     page.on('pageerror',error=>errors.push(error.message));
     await page.goto(server.origin+'/novo.html?new=1');
-    await page.waitForFunction(()=>!!window.ComputerModels && !!window.ComputerAttachments && document.querySelector('.home__composer.has-inline-options'));
+    await page.waitForFunction(()=>!!window.ComputerModels && !!window.ComputerAttachments && document.querySelector('.home__composer'));
     await page.waitForTimeout(100);
     return {context,page,errors};
 }
@@ -130,4 +130,24 @@ for (const width of [1280, 390]) test(`pesquisa, fontes e caixa fechada est�ve
         assert.equal(await p.locator('.model-picker').evaluate(e => getComputedStyle(e).backgroundColor), 'rgba(0, 0, 0, 0)');
         assert.deepEqual(errors, []);
     } finally {await context.close();}
+});
+
+for(const width of [1280,390])test(`model menu fits long, short and error content at ${width}px`,async()=>{
+ const f=await fixture(width,true),p=f.page;
+ try{
+  let models=Array.from({length:18},(_,i)=>({id:`qwen3:${i+1}b`,configured:true}));
+  let localError='';
+  await p.route('**/api/ai/models',route=>route.fulfill({json:{models:[{id:'gemini',configured:true},...models],local_error:localError}}));
+  await p.locator('.computer-provider').click();await p.locator('.local-model-picker').click();
+  const menu=p.locator('.model-menu');await menu.waitFor();assert.equal(await menu.locator('[data-provider]').count(),18);
+  const tall=(await menu.boundingBox())!.height;assert(tall<=350);assert(await menu.evaluate(e=>e.scrollHeight>e.clientHeight));
+  await p.keyboard.press('Escape');models=[models[0]];await p.locator('.local-model-picker').click();
+  await p.waitForFunction(()=>document.querySelectorAll('.model-menu [data-provider]').length===1);
+  const short=(await menu.boundingBox())!.height;assert(short<tall&&short<100);
+  await p.keyboard.press('Escape');models=[];localError='Não foi possível conectar ao Ollama. Abra o aplicativo e tente novamente.';await p.locator('.local-model-picker').click();await menu.getByText(localError).waitFor();
+  const bounds=(await menu.boundingBox())!,trigger=(await p.locator('.local-model-picker').boundingBox())!;
+  assert(bounds.height<140);assert(bounds.y>=12);assert(Math.abs(bounds.y+bounds.height-(trigger.y-8))<2);assert(bounds.x>=12&&bounds.x+bounds.width<=width-12);
+  await p.screenshot({path:path.resolve(__dirname,`../model-menu-error-${width}.png`)});
+  assert.deepEqual(f.errors,[]);
+ }finally{await f.context.close();}
 });

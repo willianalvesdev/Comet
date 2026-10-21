@@ -1,3 +1,4 @@
+import {artifactContext,artifactData,type Artifact} from '../../shared/artifacts';
 import { ApiError } from '../http';
 import { query, transaction } from '../db';
 import { AIError, id, iso, packMessage, unpackMessage, packResponse, unpackResponse, type ChatPayload, type Message, type Metadata } from './types';
@@ -75,14 +76,14 @@ export async function beginTurn(userId: number, payload: ChatPayload): Promise<T
         if (!original) throw new AIError('conversation_missing', 404);
         [text, tokens] = unpackMessage(original.pergunta);
       }
-      const previous = await db.query<StoredTurn>("SELECT pergunta,resposta FROM computer_mensagens WHERE conversa_id=$1 AND estado='completed'" + (payload.regenerate ? ' AND id<$2' : '') + ' ORDER BY id DESC LIMIT 19', payload.regenerate ? [cid, payload.regenerate] : [cid]);
+      const previous = await db.query<StoredTurn>("SELECT pergunta,resposta,pensamento FROM computer_mensagens WHERE conversa_id=$1 AND estado='completed'" + (payload.regenerate ? ' AND id<$2' : '') + ' ORDER BY id DESC LIMIT 19', payload.regenerate ? [cid, payload.regenerate] : [cid]);
       const { message: current, files } = await attachmentMessage(userId, text, tokens);
       const messages: Message[] = [];
       let hasAttachments = Boolean(tokens.length);
       for (const row of previous.reverse()) {
         const [oldText, oldTokens] = unpackMessage(row.pergunta);
         hasAttachments ||= Boolean(oldTokens.length);
-        messages.push((await attachmentMessage(userId, oldText, oldTokens)).message, { role: 'assistant', content: row.resposta });
+        messages.push((await attachmentMessage(userId, oldText, oldTokens)).message, { role: 'assistant', content: row.resposta+artifactContext((unpackResponse(row.pensamento)[1].artifacts as Artifact[]|undefined)) });
       }
       messages.push(current);
       while (messages.length > 1 && (messages.length > 39 || messages.reduce((n, m) => n + m.content.length, 0) > 48000 || messages.reduce((n, m) => n + (m.images?.length || 0), 0) > 4)) messages.splice(0, 2);
@@ -157,4 +158,14 @@ export async function truncateConversation(userId: number, cid: string, tid: str
   });
   await cleanupAttachments(userId, removed);
   return { conversation_id: cid };
+}
+
+export async function getConversationArtifact(userId:number,cid:string,artifactId:string):Promise<Artifact> {
+  if(!/^[a-f0-9]{32}$/.test(artifactId))throw new ApiError(404,'Arquivo não encontrado.');
+  await owned({query},userId,cid);
+  const rows=await query<{pensamento:string}>('SELECT pensamento FROM computer_mensagens WHERE conversa_id=$1 AND pensamento LIKE $2',[cid,'%'+artifactId+'%']);
+  for(const row of rows){const metadata=unpackResponse(row.pensamento)[1];const versions=Array.isArray(metadata.versions)?metadata.versions:[];
+    for(const m of [metadata,...versions.map(v=>v.metadata)])if(m&&Array.isArray(m.artifacts))for(const raw of m.artifacts)if(raw?.id===artifactId)return artifactData(raw);
+  }
+  throw new ApiError(404,'Arquivo não encontrado.');
 }

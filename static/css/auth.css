@@ -46,7 +46,7 @@ html:has(.auth[open]) { overflow: hidden; }
 .auth__submit:disabled, .auth__provider:disabled { opacity: .5; cursor: default; }
 .auth__submit--email:disabled { background: var(--surface); color: var(--text-secondary); opacity: .7; }
 .auth[aria-busy="true"] .auth__submit, .auth[aria-busy="true"] .auth__provider { cursor: wait; }
-.auth__message { color: var(--red); font-size: var(--font-size-4); line-height: 1.5; margin: var(--spacing-2) 0 0; text-align: left; }
+.auth__message { color: var(--red); font-size: var(--font-size-4); line-height: 1.5; margin: var(--spacing-2) 0 0; }
 .auth__message:empty { display: none; }
 .auth__dismiss { margin-top: var(--spacing-10); border: 0; padding: var(--spacing-2); background: transparent; color: var(--text-secondary); font-size: var(--font-size-3); }
 .auth__verification-icon { display: block; width:80px; height:80px; margin: 0 auto var(--spacing-5); background:var(--text); mask:url('../img/icons/email-verification.svg') center / contain no-repeat; }

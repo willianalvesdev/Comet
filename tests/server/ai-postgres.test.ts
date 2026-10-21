@@ -1,3 +1,5 @@
+import {createArtifact} from '../../server/ai/artifacts';
+import {getConversationArtifact} from '../../server/ai/conversations';
 import assert from 'node:assert/strict';
 import { after, afterEach, before, test } from 'node:test';
 import { randomUUID } from 'node:crypto';
@@ -289,4 +291,32 @@ test('provider authentication failure is retained when reopening an empty failed
  const saved=await getConversation(users[0],String(output[0].conversation_id),null);
  assert.equal(saved.turns[0].status,'failed');assert.equal(saved.turns[0].answer,'');
  assert.equal(saved.turns[0].metadata.error_code,'provider_auth');assert.equal(saved.turns[0].metadata.error,output.at(-1)?.error);
+});
+
+test('artifacts persist with response, remain private, survive regeneration and disappear on deletion',async()=>{
+ const artifact=await createArtifact({kind:'spreadsheet',name:'Lista',sheets:[{name:'Dados',columns:['Item','Valor'],rows:[['Café',12]]}]});
+ const turn=await beginTurn(users[0],payload('Crie uma planilha'));turn.response_meta.artifacts=[artifact];await saveTurn(users[0],turn,'Planilha criada','','completed');
+ assert.equal((await getConversation(users[0],turn.conversation_id!,null)).turns[0].metadata.artifacts instanceof Array,true);
+ assert.deepEqual(await getConversationArtifact(users[0],turn.conversation_id!,artifact.id),artifact);
+ await assert.rejects(getConversationArtifact(users[1],turn.conversation_id!,artifact.id),errorCode('conversation_missing'));
+ const next=await beginTurn(users[0],payload('Altere o valor para 15',turn.conversation_id));assert.match(next.messages[1].content,/Café/);await saveTurn(users[0],next,'Ok','','completed');
+ const regenerated=await beginTurn(users[0],payload('Reescrever',turn.conversation_id,{regenerate:turn.turn_id}));await saveTurn(users[0],regenerated,'Nova resposta','','completed');
+ assert.deepEqual(await getConversationArtifact(users[0],turn.conversation_id!,artifact.id),artifact);
+ const result=await handleAI(new Request('http://localhost/api/ai/conversations/'+turn.conversation_id+'/artifacts/'+artifact.id+'?format=xlsx'),{id:users[0]},['conversations',turn.conversation_id!,'artifacts',artifact.id]);assert.equal(result?.status,200);
+ await changeConversation(users[0],turn.conversation_id!,null,true);await assert.rejects(getConversationArtifact(users[0],turn.conversation_id!,artifact.id),errorCode('conversation_missing'));
+});
+
+
+test('anonymous artifacts are transient, expire and never enter the saved history',async()=>{
+ const before=await query<{total:string}>('SELECT COUNT(*) AS total FROM computer_conversas WHERE usuario_id=$1',[users[0]]);
+ globalThis.fetch=async()=>Response.json({candidates:[{content:{parts:[{text:JSON.stringify({artifacts:[{kind:'text',name:'privado',extension:'txt',content:'Dados fictícios privados'}]})}]},finishReason:'STOP'}]});
+ const output=await events(await chatResponse(request(),users[0],payload('Crie um arquivo privado',null,{anonymous:true})));
+ assert.equal(output.at(-1)?.type,'done');const artifact=output.find(e=>e.type==='artifact'&&e.artifact)?.artifact;
+ assert(artifact);assert(Date.parse(artifact.expires_at)>Date.now());assert(Date.parse(artifact.expires_at)<=Date.now()+86400000);
+ assert.equal(output.find(e=>e.type==='conversation')?.conversation_id,null);
+ assert.deepEqual(await query('SELECT COUNT(*) AS total FROM computer_conversas WHERE usuario_id=$1',[users[0]]),before);
+ const download=(value:unknown)=>handleAI(new Request('http://localhost/api/ai/artifacts/render',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({artifact:value,format:'txt'})}),{id:users[0]},['artifacts','render']);
+ const response=await download(artifact);assert.equal(await response?.text(),'Dados fictícios privados');assert.equal(response?.headers.get('cache-control'),'private, no-store');
+ await assert.rejects(download({...artifact,expires_at:'2000-01-01T00:00:00Z'}),/expirou/);
+ await assert.rejects(download({...artifact,expires_at:undefined}),/download vinculado/);
 });

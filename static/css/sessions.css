@@ -131,7 +131,7 @@
 
 .sessions__status {
     padding-inline: var(--spacing-2);
-    color: var(--text-quarternary);
+    color: var(--text-quaternary);
     font-size: var(--font-size-4);
 }
 
@@ -299,7 +299,7 @@
 .chat-preview__question {
     color: var(--text);
     text-decoration: none;
-    font-size: var(--font-size-3);
+    font-size: var(--font-size-4);
     line-height: 1.4;
     -webkit-line-clamp: 2;
 }
@@ -437,10 +437,10 @@
 
 .sidebar-recents i {
     display: block;
-    width: 18px;
-    height: 18px;
+    width: var(--icon-medium);
+    height: var(--icon-medium);
     background: currentColor;
-    mask: url('../img/icons/recentes.svg') center / contain no-repeat;
+    mask: url('../img/icons/chat.svg') center / contain no-repeat;
 }
 
 .sidebar-recents:hover, .sidebar-recents[aria-expanded="true"] {
@@ -705,8 +705,8 @@
 }
 .chat-preview__search[hidden] { display: none; }
 .chat-preview__search i {
-    width: 16px;
-    height: 16px;
+    width: var(--icon-tiny);
+    height: var(--icon-tiny);
     background: currentColor;
     mask: url('../img/icons/settings-settings-search.svg') center/contain no-repeat;
 }
@@ -716,15 +716,7 @@
 
 .sidebar .sessions__link { display: flex; align-items: center; gap: 8px; }
 .sidebar .sessions__link > .sessions__title { flex: 1; min-width: 0; }
-.sessions__chat-icon {
-    display: block;
-    flex: 0 0 var(--icon-medium);
-    width: var(--icon-medium);
-    height: var(--icon-medium);
-    background: currentColor;
-    color: var(--text);
-    mask: url('../img/icons/chat.svg') center / contain no-repeat;
-}
+
 
 .sessions__new { display: grid; place-items: center; flex: 0 0 var(--input-sm); width: var(--input-sm); height: var(--input-sm); border-radius: var(--radius-8); color: inherit; }
 .sessions__new i { width: 18px; height: 18px; background: currentColor; mask: url('../img/icons/novo-chat.svg') center / contain no-repeat; }

@@ -52,7 +52,7 @@ async function fixture(width = 1280) {
             return route.fulfill({json:{title}});
         }
         if(url.pathname==='/api/finance/chart') return route.fulfill({json:{currency:'BRL',asOf:'2026-10-13',start:'2026-09-01',end:'2026-10-13',interval:'day',summary:Object.fromEntries(['balance','income','expense'].map(key=>[key,{amount:key==='expense'?'20.00':'100.00',difference:'10.00',percentage:'10.00',series:[0,50,100]}])),series:Object.fromEntries(['balance','income','expense'].map(key=>[key,{label:key,baseline:0,points:[{date:'2026-09-01',clock:null,open:0,high:100,low:0,close:100,volume:100},{date:'2026-10-13',clock:null,open:100,high:120,low:100,close:120,volume:20}]}]))}});
-        if(url.pathname==='/api/finance/transactions')return route.fulfill({json:{transactions:[{id:'1',description:'Salário real',kind:'income',amount:'100.00',occurred_on:'2026-09-01',category:'Trabalho'}],next_cursor:null}});
+        if(url.pathname==='/api/finance/transactions')return route.fulfill({json:{transactions:[{id:'1',description:'Salário real',kind:'income',amount:'100.00',occurred_on:'2026-09-01',category:'Trabalho'},{id:'2',description:'Mercado',kind:'expense',amount:'20.00',occurred_on:'2026-09-02',category:'Alimentação'}],next_cursor:null}});
         if(url.pathname==='/api/news')return route.fulfill({json:{articles:[],has_more:false,page:1}});
         if(url.pathname==='/api/ai/models')return route.fulfill({json:{models:[{id:'gemini',configured:true},{id:'qwen3:1.7b',configured:true},{id:'qwen3:4b',configured:true},{id:'qwen3:8b',configured:true},{id:'qwen3:4b-instruct-2507-q4_K_M',configured:true}]}});
         if(url.pathname.startsWith('/api/')) return route.fulfill({json:{}});
@@ -331,15 +331,16 @@ test('rolagem nativa funciona na página e lateral sem atravessar a header', asy
 });
 
 
-test('carregar histórico não esmaece os controles ao entrar no chat', async () => {
+test('lista pendente não bloqueia os controles do novo chat', async () => {
     const f=await fixture();const p=f.page;
     let release:()=>void=()=>{throw new Error("Uninitialized resolver");};
     const pending=new Promise<void>(resolve=>release=resolve);
     try {
+        await p.clock.install(); await p.clock.fastForward(10001);
         await p.route('**/api/ai/conversations?offset=0',async route=>{await pending;await route.fulfill({json:{conversations:[],next_offset:null}});});
         await p.evaluate(()=>window.WorkspaceNavigation.go('/novo.html?new=1'));
-        assert(await p.locator('.model-picker').isDisabled());
-        for(const selector of ['.model-picker','.home__microphone','.sessions__heading']) {
+        assert(!await p.locator('.model-picker').isDisabled());
+        for(const selector of ['.model-picker','.home__microphone']) {
             assert.equal(await p.locator(selector).first().evaluate(e=>getComputedStyle(e).opacity),'1');
         }
         release();
@@ -687,7 +688,7 @@ test('respostas: versões preservam texto, fontes e horário ao recarregar', asy
 });
 
 
-test('Comet: pesquisa web, fontes e histórico financeiro recolhível', async () => {
+test('Comet: pesquisa web, fontes e painel financeiro sempre visível', async () => {
     const f = await fixture(), p = f.page;
     try {
         await p.goto(nextServer.origin + '/novo.html');
@@ -700,7 +701,8 @@ test('Comet: pesquisa web, fontes e histórico financeiro recolhível', async ()
         assert.match(await web.locator('i').evaluate(e => getComputedStyle(e).maskImage), /settings-settings-search(?:\.[\w-]+)?\.svg/);
         assert(!await p.evaluate(() => [...document.fonts].some(font => /Serrif|Geist/i.test(font.family))));
         await p.goto(nextServer.origin + '/financas.html');
-        const toggle = p.locator('.finance-panel-toggle'), history = p.locator('#finance-history-panel');
+        const history = p.locator('#finance-history-panel');
+        assert.equal(await p.locator('.finance-panel-toggle').count(),0);
         await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
         await p.locator('[data-range="max"]').click();
         await p.waitForSelector('.finance-chart-column[aria-busy="false"]');
@@ -709,23 +711,16 @@ test('Comet: pesquisa web, fontes e histórico financeiro recolhível', async ()
         assert.match(await p.locator('.chart-statistics dd').nth(1).ariaSnapshot(), /120,00/);
         await p.locator('.chart-toolbar').hover();
         assert(!(await p.locator('#chart-tooltip').isVisible()));
-        const chart = p.locator('.finance-chart-column');
-        const width = await chart.evaluate(e => e.getBoundingClientRect().width);
-        const summaryTop=(await p.locator('.finance-total').first().boundingBox())!.y,historyTop=(await p.locator('.transfer-card').boundingBox())!.y;assert(Math.abs(summaryTop-historyTop)<2);
+        assert.equal(await p.locator('.transfer-change').count(),0);
+        assert.equal(await p.locator('.transfer-values').count(),2);
+        assert.equal(await p.locator('[data-kind=income] .transfer-values').evaluate(el=>getComputedStyle(el).color),'rgb(64, 201, 119)');
+        assert.equal(await p.locator('[data-kind=expense] .transfer-values').evaluate(el=>getComputedStyle(el).color),'rgb(255, 133, 131)');
+        assert(!/Despesa|Receita/.test(await history.innerText()));
         assert(await p.locator('.transfer-avatar').first().textContent());await p.screenshot({path:path.join(root,'artifacts/finance-recent-style.png'),fullPage:true});
-        await toggle.click(); assert(!(await history.isVisible()));
-        await p.waitForFunction(() => {
-            const chart = document.querySelector('.finance-chart-column')?.getBoundingClientRect();
-            const composer = document.querySelector('.finance-composer')?.getBoundingClientRect();
-            return chart && composer && Math.abs(chart.left - composer.left) < 1 && Math.abs(chart.width - composer.width) < 1;
-        });
-        assert(Math.abs(await chart.evaluate(e => e.getBoundingClientRect().width) - width) < 1);
-        await toggle.click(); assert(await history.isVisible());
         await p.route('**/api/finance/transactions', route => route.fulfill({json:{transactions:[],next_cursor:null}}));
         await p.reload();
         await p.waitForFunction(() => document.querySelector('.finance-page')?.getAttribute('aria-busy') === 'false');
-        assert(!(await history.isVisible()));
-        assert(!(await toggle.isVisible()));
+        assert(await history.isVisible());
         await p.unroute('**/api/finance/transactions');
         await p.evaluate(() => window.dispatchEvent(new CustomEvent('finance:changed')));
         await p.waitForFunction(() => {
@@ -1307,6 +1302,7 @@ test('ditado: bolinhas, brilho e encerramento preservam o texto',async()=>{
   await p.locator('.home__input').fill('Texto preservado');
   await p.locator('.home__microphone').click();
   await p.waitForFunction(()=>document.querySelector('.home__composer.is-dictating'));
+  assert.match(await p.locator('.home__microphone').evaluate(e=>getComputedStyle(e,'::before').maskImage),/stop[^/]*\.svg/);
   assert.equal(await p.locator('.dictation-equalizer circle').count(),145);
   assert.equal(await p.locator('.dictation-equalizer').isVisible(),true);
   assert.equal(await p.locator('.dictation-glow').evaluate(e=>getComputedStyle(e).pointerEvents),'none');

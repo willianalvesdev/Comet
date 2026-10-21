@@ -38,3 +38,10 @@ export default function LearnPage(_props: { bootstrap: BootstrapData }) {
         </div>
     );
 }
+
+import controller0 from '../controllers/computer-service';
+import controller1 from '../controllers/model-menu';
+import controller2 from '../controllers/attachments';
+import controller3 from '../controllers/aprender';
+import controller4 from '../controllers/dictation';
+export const controllers: PageFactory[] = [controller0, controller1, controller2, controller3, controller4];

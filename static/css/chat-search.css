@@ -19,9 +19,9 @@
 
 .chat-search__icon {
     display: block;
-    flex: 0 0 var(--icon-medium);
-    width: var(--icon-medium);
-    height: var(--icon-medium);
+    flex: 0 0 var(--icon-small-medium);
+    width: var(--icon-small-medium);
+    height: var(--icon-small-medium);
     background: currentColor;
     mask: url('../img/icons/settings-settings-search.svg') center/contain no-repeat;
 }

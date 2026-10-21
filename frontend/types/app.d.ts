@@ -24,30 +24,32 @@ interface Conversation { last_response_at?: string | null; id: string; title: st
 interface ResearchSource { title: string; url: string; domain: string; snippet?: string; image?: string; excerpt?: string; published_at?: string; date_approximate?: boolean; evidence_type?: string; read_status?: string; }
 interface Research { error?: string; query?: string; sources?: ResearchSource[]; suggestions?: string; status?: string; state?: ResearchState; seconds?: number; queries?: string[]; engine?: string; }
 interface ResponseVersion { answer: string; thinking: string; metadata: ResponseMetadata; }
-interface ResponseMetadata { error?: string; error_code?: string; answered_at?: string; versions?: ResponseVersion[]; provider?: string; research?: Research; thinking_seconds?: number | null; elapsed_seconds?: number; instant?: boolean; }
+interface ResponseMetadata { artifacts?:import('../../shared/artifact-types').Artifact[]; error?: string; error_code?: string; answered_at?: string; versions?: ResponseVersion[]; provider?: string; research?: Research; thinking_seconds?: number | null; elapsed_seconds?: number; instant?: boolean; }
 interface Turn { id: string | null; message: string; answer: string; thinking: string; status: 'running' | 'completed' | 'interrupted' | 'failed'; created_at: string; metadata?: ResponseMetadata; attachments?: Attachment[]; }
 interface ConversationList { conversations: Conversation[]; next_offset: number | null; }
 interface ConversationHistory { conversation: Conversation; turns: Turn[]; before: string | null; active: boolean; has_more?: boolean; }
 interface ChatRequest { web_search?: boolean; history?: {role:'user'|'assistant';content:string}[]; messages?: {role:'user'|'assistant';content:string}[]; message?: string; conversation_id: string | null; request_id: string; provider: ModelProvider; anonymous?: boolean; attachments?: string[]; regenerate?: string; }
 interface ConversationEvent { type: 'conversation'; conversation_id: string | null; turn_id: string; title?: string; created_at?: string; attachments?: Attachment[]; provider?: string; }
 interface SearchEvent extends Research { type: 'search'; }
-type ChatEvent = {type:'delta'|'thinking';text:string} | {type:'error';error:string} | {type:'done';metadata?:ResponseMetadata} | ConversationEvent | SearchEvent;
+interface ArtifactEvent {type:'artifact';state:'creating'|'complete'|'failed';artifact?:import('../../shared/artifact-types').Artifact;message?:string;}
+type ChatEvent = ArtifactEvent | {type:'delta'|'thinking';text:string} | {type:'error';error:string} | {type:'done';metadata?:ResponseMetadata} | ConversationEvent | SearchEvent;
 interface ComputerServiceApi {
-    get(path: string): Promise<unknown>;
+    get(path: string, signal?: AbortSignal): Promise<unknown>;
     list(offset?: number | null): Promise<ConversationList>;
-    load(id: string, before?: string | null): Promise<ConversationHistory>;
-    chat(payload: ChatRequest, onDelta: (text:string)=>void, signal: AbortSignal, onThinking?: (text:string)=>void, onConversation?: (event:ConversationEvent)=>void, onResearch?: (event:SearchEvent)=>void, onDone?: (metadata:ResponseMetadata)=>void): Promise<void>;
+    load(id: string, before?: string | null, signal?: AbortSignal): Promise<ConversationHistory>;
+    chat(payload: ChatRequest, onDelta: (text:string)=>void, signal: AbortSignal, onThinking?: (text:string)=>void, onConversation?: (event:ConversationEvent)=>void, onResearch?: (event:SearchEvent)=>void, onDone?: (metadata:ResponseMetadata)=>void, onArtifact?: (event:ArtifactEvent)=>void): Promise<void>;
 }
 interface Window {
+    CometCryptoQuestion?: {message:string;provider:ModelProvider};
     CometStudyQuestion?: {message:string;attachments:Attachment[];provider:ModelProvider};
     WorkspaceNavigation: {go(destination:string|URL,replace?:boolean):Promise<void>;replaceURL?(destination:string|URL):void};
     CometStorage: {getItem(name:string):string|null;setItem(name:string,value:string):void};
     ComputerService: new () => ComputerServiceApi;
-    ComputerModels: {selected():ModelProvider;select(value:string):void;error():string;setBusy(value:boolean):void};
+    ComputerModels: { whenReady(): Promise<void>;selected():ModelProvider;select(value:string):void;error():string;setBusy(value:boolean):void};
     ComputerAttachments: {files():Attachment[];busy():boolean;clear():void;restore(items:Attachment[]):void;setBusy(value:boolean):void};
     ComputerAttachmentCard: (file:Attachment,onRemove?:()=>void)=>HTMLDivElement;
     ComputerSessions: {runAction(item:Conversation,action:string,origin:HTMLElement):void;isUnread(chat:Conversation):boolean;markRead(id:string,version?:string|null,force?:boolean):void;render(items:Conversation[],append?:boolean,hasMore?:boolean):void;select(id:string|null,title?:string):void;setBusy(value:boolean):void;openOptions(item:Conversation,button:HTMLElement):void;request(path:string,method?:string,body?:unknown):Promise<unknown>;isPinned(id:string):boolean};
-    ComputerResponseDetails: {research(article:HTMLElement,value?:Research,complete?:boolean):void;reset():void};
+    ComputerResponseDetails: {artifacts(article:HTMLElement,files:import('../../shared/artifact-types').Artifact[],state?:string,message?:string):void;research(article:HTMLElement,value?:Research,complete?:boolean):void;reset():void};
     CometNewsPreferences?: {topics:string[];languages:string};
 }
 interface WindowEventMap {
@@ -82,6 +84,7 @@ interface SpeechRecognitionSession {
  abort():void;
 }
 interface Window {
+    CometCryptoQuestion?: {message:string;provider:ModelProvider};
     CometStudyQuestion?: {message:string;attachments:Attachment[];provider:ModelProvider};
  SpeechRecognition?:new()=>SpeechRecognitionSession;
  webkitSpeechRecognition?:new()=>SpeechRecognitionSession;

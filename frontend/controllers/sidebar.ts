@@ -77,6 +77,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         present(workspace).classList.remove('is-sidebar-resizing');
         if (resize.hasPointerCapture(pointer)) resize.releasePointerCapture(pointer);
     }
+    scope.cleanup(() => { stopResize(); resize.remove(); });
     resize.addEventListener('pointerdown', event => {
         if (event.button !== 0 || smallScreen.matches) return;
         event.preventDefault();

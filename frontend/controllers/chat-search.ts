@@ -1,3 +1,4 @@
+import { conversationPath } from '../routes';
 import { optionalElement, requiredElement, errorMessage, eventElement, elementList } from './dom';
 import { apiError, conversationsData } from './api-data';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
@@ -46,7 +47,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             for (const chat of data.conversations) {
                 const link = document.createElement('a');
                 link.className = 'chat-search__result';
-                link.href = '/novo.html?conversation=' + encodeURIComponent(chat.id);
+                link.href = conversationPath(chat.id);
                 link.title = chat.title;
                 const title = document.createElement('span');
                 title.className = 'chat-search__title'; title.textContent = chat.title;

@@ -1,19 +1,23 @@
+import { workspaceGet, clearWorkspaceCache } from './workspace-cache';
 import { apiError, conversationsData, historyData, chatEventData } from './api-data';
 import { present, requiredElement } from './dom';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
     const connectionError = 'Não foi possível conectar à Computer. Confira se o Comet está aberto e tente novamente.';
     class ComputerService {
-        async get(path: string): Promise<unknown> {
-            const response = await fetch(path, { credentials: 'same-origin', cache: 'no-store' }).catch(() => { throw new Error(connectionError); });
+        async get(path: string, signal?: AbortSignal): Promise<unknown> {
+            if (path === '/api/ai/models') return workspaceGet(path, 15000);
+            if (path.startsWith('/api/ai/conversations?')) return workspaceGet(path, 10000);
+            const response = await fetch(path, { credentials: 'same-origin', cache: 'no-store', signal }).catch(error => { if (error?.name === 'AbortError') throw error; throw new Error(connectionError); });
             const result: unknown = await response.json().catch(() => ({}));
-            if (!response.ok) throw new Error(apiError(result, connectionError));
+            if (response.status === 401) clearWorkspaceCache(false);
+            if (!response.ok) throw Object.assign(new Error(apiError(result, connectionError)), {status:response.status});
             return result;
         }
         list(offset: number | null = 0) { return this.get(`/api/ai/conversations?offset=${offset}`).then(conversationsData); }
-        load(id:string, before:string|null = null) {
-            return this.get(`/api/ai/conversations/${encodeURIComponent(id)}${before ? `?before=${encodeURIComponent(before)}` : ''}`).then(historyData);
+        load(id:string, before:string|null = null, signal?: AbortSignal) {
+            return this.get(`/api/ai/conversations/${encodeURIComponent(id)}${before ? `?before=${encodeURIComponent(before)}` : ''}`, signal).then(historyData);
         }
-        async chat(payload:ChatRequest, onDelta:(text:string)=>void, signal:AbortSignal, onThinking?: (text:string)=>void, onConversation?:(event:ConversationEvent)=>void, onResearch?:(event:SearchEvent)=>void, onDone?:(metadata:ResponseMetadata)=>void) {
+        async chat(payload:ChatRequest, onDelta:(text:string)=>void, signal:AbortSignal, onThinking?: (text:string)=>void, onConversation?:(event:ConversationEvent)=>void, onResearch?:(event:SearchEvent)=>void, onDone?:(metadata:ResponseMetadata)=>void,onArtifact?:(event:ArtifactEvent)=>void) {
             const regenerating = !!payload.regenerate && !payload.anonymous;
             const endpoint = regenerating ? `/api/ai/conversations/${encodeURIComponent(present(payload.conversation_id))}/messages/${encodeURIComponent(present(payload.regenerate))}/regenerate` : '/api/ai/chat';
             const body = regenerating ? {request_id:payload.request_id,provider:payload.provider,web_search:payload.web_search} : payload;
@@ -44,6 +48,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
                 catch { throw new Error('A resposta foi interrompida. Tente novamente.'); }
                 if (event.type === 'error') throw new Error(event.error || connectionError);
                 if (event.type === 'done') { finished = true; onDone?.(event.metadata || {}); return; }
+                if(event.type==='artifact'){onArtifact?.(event);return;}
                 if (event.type === 'search') { onResearch?.(event); return; }
                 if (event.type === 'conversation') { onConversation?.(event); return; }
                 if (event.type === 'thinking') {
@@ -60,7 +65,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
                 while (!finished) {
                     const { value, done } = await reader.read();
                     buffer += decoder.decode(value, { stream: !done });
-                    if (buffer.length > 131072) throw new Error('A resposta foi interrompida. Tente novamente.');
+                    if (buffer.length > 1048576) throw new Error('A resposta foi interrompida. Tente novamente.');
                     let end = 0;
                     while ((end = buffer.indexOf('\n')) !== -1) {
                         const line = buffer.slice(0, end);

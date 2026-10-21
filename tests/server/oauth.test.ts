@@ -10,6 +10,7 @@ import { ApiError } from '../../server/http';
 const origin='http://127.0.0.1:5001';
 const emails:string[]=[],states:string[]=[],ips:string[]=[];
 let subject=0, email='', verified=true, failProvider=false, exchanges=0, lastVerifier='';
+const diagnostics: unknown[][] = [];
 const hash=(value:string)=>createHash('sha256').update(value).digest('hex');
 function account() {email='oauth-'+randomUUID()+'@example.com';emails.push(email);subject=100000+emails.length;verified=true;return email;}
 async function begin(provider='github') {
@@ -22,6 +23,7 @@ async function finish(flow: Awaited<ReturnType<typeof begin>>, provider='github'
     return finishOAuth(new Request(origin+'/api/auth/'+provider+'/callback?state='+flow.state+'&code=provider-code',{headers:{cookie:flow.jar}}),provider);
 }
 before(()=>{
+    mock.method(console,'warn',(...values:unknown[])=>{diagnostics.push(values);});
     Object.assign(process.env,{AUTH_ORIGIN:origin,GITHUB_CLIENT_ID:'client',GITHUB_CLIENT_SECRET:'secret',GOOGLE_CLIENT_ID:'google-client',GOOGLE_CLIENT_SECRET:'secret',TRUST_PROXY:'true'});
     mock.method(globalThis,'fetch',async (input: string|URL|Request, init?:RequestInit)=>{
         const url=String(input);
@@ -92,6 +94,15 @@ test('provider failures redirect safely and do not expose tokens',async ()=>{
     account();const flow=await begin();failProvider=true;
     try {const response=await finish(flow);assert.equal(response.headers.get('Location'),'/?login=1&auth_error=oauth');assert.equal(response.headers.get('Referrer-Policy'),'no-referrer');}
     finally {failProvider=false;}
+    assert.deepEqual(diagnostics.at(-1),['Falha no login OAuth:',{provider:'github',step:'provider_identity',reason:'unexpected_error'}]);
+    assert.ok(!JSON.stringify(diagnostics).includes('confidential-provider-token'));
+});
+test('OAuth diagnostics distinguish missing browser state without logging the state',async ()=>{
+    const state='a'.repeat(64);
+    await finishOAuth(new Request(origin+'/api/auth/google/callback?state='+state+'&code=secret-code'),'google');
+    assert.deepEqual(diagnostics.at(-1),['Falha no login OAuth:',{provider:'google',step:'state',reason:'browser_state_mismatch'}]);
+    assert.ok(!JSON.stringify(diagnostics).includes(state));
+    assert.ok(!JSON.stringify(diagnostics).includes('secret-code'));
 });
 test('OAuth requires configured credentials and a fixed HTTPS or loopback origin',async ()=>{
     const client=process.env.GOOGLE_CLIENT_ID;delete process.env.GOOGLE_CLIENT_ID;

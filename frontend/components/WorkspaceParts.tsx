@@ -9,7 +9,7 @@ export function Sidebar({ data }: { data: BootstrapData }) {
     return (
 <aside className="sidebar tw:flex tw:flex-col tw:bg-surface" id="sidebar" aria-label="Menu lateral">
         <div className="sidebar__top">
-            <a className="sidebar__logo tw:grid tw:place-items-center tw:rounded-8px" href="./principal.html" aria-label="Comet — tela principal"></a>
+            <a className="sidebar__logo tw:grid tw:place-items-center tw:rounded-8px" href="/principal.html" aria-label="Comet — tela principal"></a>
             <div className="sidebar__top-actions">
             </div>
             <button className="sidebar__toggle" type="button" aria-label="Recolher menu" aria-expanded="true" aria-controls="sidebar-nav" title="Recolher menu">
@@ -18,13 +18,13 @@ export function Sidebar({ data }: { data: BootstrapData }) {
         </div>
 
         <div className="sidebar__new-chat">
-            <a className="sidebar__link" href="./novo.html?new=1" aria-current={data.activePage === 'computer' && !data.conversationId ? 'page' : undefined} aria-label="Novo chat" title="Novo chat"><span className="sidebar__icon sidebar__new-icon" aria-hidden="true"></span><span className="sidebar__label">Novo Chat</span></a>
+            <a className="sidebar__link" href="/new?new=1" aria-current={data.activePage === 'computer' && !data.conversationId ? 'page' : undefined} aria-label="Novo chat" title="Novo chat"><span className="sidebar__icon sidebar__new-icon" aria-hidden="true"></span><span className="sidebar__label">Novo Chat</span></a>
 
-            <a className="sidebar__link" href="./financas.html" aria-current={data.activePage === 'graficos' ? 'page' : undefined} aria-label="Finanças" title="Finanças"><span className="sidebar__icon sidebar__finance-icon" aria-hidden="true"></span>
+            <a className="sidebar__link" href="/finance" aria-current={data.activePage === 'graficos' ? 'page' : undefined} aria-label="Finanças" title="Finanças"><span className="sidebar__icon sidebar__finance-icon" aria-hidden="true"></span>
                 <span className="sidebar__label">Finanças</span>
             </a>
-            <a className="sidebar__link" href="./academico.html" aria-current={data.activePage === 'aprender' ? 'page' : undefined} aria-label="Acadêmico" title="Acadêmico"><span className="sidebar__icon sidebar__learn-icon" aria-hidden="true"></span><span className="sidebar__label">Acadêmico</span></a>
-            <a className="sidebar__link" href="./descobrir.html" aria-current={data.activePage === 'descobrir' ? 'page' : undefined} aria-label="Descobrir" title="Descobrir"><span className="sidebar__icon sidebar__discover-icon" aria-hidden="true"></span><span className="sidebar__label">Descobrir</span></a>
+            <a className="sidebar__link" href="/academic" aria-current={data.activePage === 'aprender' ? 'page' : undefined} aria-label="Acadêmico" title="Acadêmico"><span className="sidebar__icon sidebar__learn-icon" aria-hidden="true"></span><span className="sidebar__label">Acadêmico</span></a>
+            <a className="sidebar__link" href="/discover" aria-current={data.activePage === 'descobrir' ? 'page' : undefined} aria-label="Descobrir" title="Descobrir"><span className="sidebar__icon sidebar__discover-icon" aria-hidden="true"></span><span className="sidebar__label">Descobrir</span></a>
 
         </div>
 
@@ -101,7 +101,7 @@ export function DiscoveryPanel() {
     return (
 <dialog className="mobile-discovery-panel" id="mobile-discovery-panel" aria-label="Descobrir">
         <div className="mobile-discovery-panel__header"><button type="button" className="mobile-discovery-back" aria-label="Voltar"><i className="ui-arrow ui-arrow--left" aria-hidden="true"></i></button><span>Descobrir</span></div>
-        <iframe title="Notícias do Descobrir" data-src="/descobrir.html?panel=1"></iframe>
+        <iframe title="Notícias do Descobrir" data-src="/discover?panel=1"></iframe>
     </dialog>
     );
 }
@@ -118,7 +118,7 @@ export function Settings({ data }: { data: BootstrapData }) {
     if (!user) return null;
     return (<>
 <dialog id="settings-dialog" aria-labelledby="settings-title">
-<div className="settings-layout"><aside className="settings-sidebar"><label className="settings-search"><i className="settings-icon" style={{'--icon': 'url(/static/img/icons/settings-settings-search.svg)'} as CSSProperties} aria-hidden="true"></i><input type="search" placeholder="Pesquisar configurações" aria-label="Pesquisar configurações" /></label><p>Conta</p><nav aria-label="Configurações"><button type="button" data-settings-tab="account"><i className="settings-icon" style={{'--icon': 'url(/static/img/icons/settings-account.svg)'} as CSSProperties} aria-hidden="true"></i>Conta</button><button type="button" data-settings-tab="preferences"><i className="settings-icon" style={{'--icon': 'url(/static/img/icons/settings-preferences.svg)'} as CSSProperties} aria-hidden="true"></i>Preferências</button><button type="button" data-settings-tab="personalization"><i className="settings-icon" style={{'--icon': 'url(/static/img/icons/settings-personalization.svg)'} as CSSProperties} aria-hidden="true"></i>Personalização</button><button type="button" data-settings-tab="memory"><i className="settings-icon" style={{'--icon': 'url(/static/img/icons/settings-memory.svg)'} as CSSProperties} aria-hidden="true"></i>Configurações de memória</button><button type="button" data-settings-tab="notifications"><i className="settings-icon" style={{'--icon': 'url(/static/img/icons/notification.svg)'} as CSSProperties} aria-hidden="true"></i>Notificações</button></nav></aside>
+<div className="settings-layout"><aside className="settings-sidebar"><label className="settings-search"><i className="settings-icon" style={{'--icon': 'url(/static/img/icons/settings-settings-search.svg)'} as CSSProperties} aria-hidden="true"></i><input type="search" placeholder="Pesquisar configurações" aria-label="Pesquisar configurações" /></label><p>Conta</p><nav aria-label="Configurações"><button type="button" data-settings-tab="account"><i className="settings-icon" style={{'--icon': 'url(/static/img/icons/settings-account.svg)'} as CSSProperties} aria-hidden="true"></i>Conta</button><button type="button" data-settings-tab="preferences"><i className="settings-icon" style={{'--icon': 'url(/static/img/icons/settings-preferences.svg)'} as CSSProperties} aria-hidden="true"></i>Preferências</button><button type="button" data-settings-tab="personalization"><i className="settings-icon" style={{'--icon': 'url(/static/img/icons/library/brain.svg)'} as CSSProperties} aria-hidden="true"></i>Personalização</button><button type="button" data-settings-tab="memory"><i className="settings-icon" style={{'--icon': 'url(/static/img/icons/settings-memory.svg)'} as CSSProperties} aria-hidden="true"></i>Configurações de memória</button><button type="button" data-settings-tab="notifications"><i className="settings-icon" style={{'--icon': 'url(/static/img/icons/notification.svg)'} as CSSProperties} aria-hidden="true"></i>Notificações</button></nav></aside>
 <button type="button" className="settings-close" aria-label="Fechar configurações"><i className="ui-icon-x" aria-hidden="true"></i></button>
 <div className="settings-content"><h1 id="settings-title">Personalização</h1>
 <section data-settings-panel="preferences" hidden><h2>Aparência</h2><div className="settings-card appearance-card"><div className="appearance-row"><div>Tema<p className="settings-hint">Como a Comet aparece no seu dispositivo</p></div><div className="appearance-options" role="group" aria-label="Tema"><button type="button" className="appearance-choice" data-theme-choice="light" aria-pressed="false"><img src="/static/img/icons/theme-light-preview.svg" alt="" width="112" height="80" /><span>Claro</span></button><button type="button" className="appearance-choice" data-theme-choice="dark" aria-pressed="false"><img src="/static/img/icons/theme-dark-preview.svg" alt="" width="112" height="80" /><span>Escuro</span></button><button type="button" className="appearance-choice" data-theme-choice="system" aria-pressed="false"><img src="/static/img/icons/theme-system-preview.svg" alt="" width="112" height="80" /><span>Automático</span></button></div></div><div className="appearance-row"><div>Fonte das respostas<p className="settings-hint">Estilo da fonte do texto das respostas da IA</p></div><div className="appearance-options" role="group" aria-label="Fonte das respostas"><button type="button" className="appearance-choice" data-response-font="serif" aria-pressed="false"><span className="appearance-font appearance-font--serif" aria-hidden="true">Aa</span><span>Serifada</span></button><button type="button" className="appearance-choice" data-response-font="sans" aria-pressed="false"><span className="appearance-font appearance-font--sans" aria-hidden="true">Aa</span><span>Sans-serif</span></button></div></div></div></section>

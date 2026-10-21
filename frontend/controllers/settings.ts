@@ -1,3 +1,5 @@
+import { showLoading } from './loading-indicator';
+import { invalidateWorkspaceResource } from './workspace-cache';
 import { userInitials } from '../../shared/user-initials';
 import { optionalElement, requiredElement, formField, present, elementList, errorMessage } from './dom';
 import { record, stringValue, numberValue, booleanValue, optionalString, apiError } from './api-data';
@@ -12,19 +14,35 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
  elementList(document, '.sidebar__profile-label', HTMLElement).forEach(el=>{el.textContent=stringValue(data.full_name);el.title=stringValue(data.full_name);});
  elementList(document, '.sidebar__avatar', HTMLElement).forEach(el=>el.textContent=userInitials(stringValue(data.full_name)||'?'));
  version=numberValue(data.version); enabled=booleanValue(data.memory_enabled); location=optionalString(data.location)||''; toggle.setAttribute('aria-checked',String(enabled)); locationButton.textContent=location?'Remover':'Compartilhar'; requiredElement(present(dialog), '#settings-location-status', HTMLElement).textContent=location?'Localização aproximada compartilhada.':'Compartilhe sua localização para personalizar as respostas.'; }
- async function request(method='GET',payload?: Record<string,string|number|boolean>):Promise<unknown>{const response=await fetch('/api/ai/personalization',{method,credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json','X-CSRFToken':(optionalElement(document, 'meta[name="csrf-token"]', HTMLMetaElement)?.content || optionalElement(document, 'input[name="csrf_token"]', HTMLInputElement)?.value || '')},body:payload?JSON.stringify(payload):undefined});const data:unknown=await response.json();if(!response.ok)throw new Error(apiError(data,'Não foi possível salvar as configurações.'));return data;}
- async function load(){loading=true;fieldset.disabled=true;status.textContent='Carregando…';reload.hidden=true;try{render(await request());dirty=false;fieldset.disabled=false;status.textContent='';}catch(error){status.textContent=errorMessage(error);reload.hidden=false;}finally{loading=false;}}
+ async function request(method='GET',payload?: Record<string,string|number|boolean>):Promise<unknown>{const response=await fetch('/api/ai/personalization',{method,credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json','X-CSRFToken':(optionalElement(document, 'meta[name="csrf-token"]', HTMLMetaElement)?.content || optionalElement(document, 'input[name="csrf_token"]', HTMLInputElement)?.value || '')},body:payload?JSON.stringify(payload):undefined});const data:unknown=await response.json();if(!response.ok)throw new Error(apiError(data,'Não foi possível salvar as configurações.'));if(method!=='GET')invalidateWorkspaceResource('/api/ai/personalization');return data;}
+ async function load(){loading=true;fieldset.disabled=true;showLoading(status, 'Carregando configurações');reload.hidden=true;try{render(await request());dirty=false;fieldset.disabled=false;status.textContent='';}catch(error){status.textContent=errorMessage(error);reload.hidden=false;}finally{loading=false;}}
  function tab(key: string | undefined){elementList(present(dialog), '[data-settings-tab]', HTMLButtonElement).forEach(button=>button.setAttribute('aria-current',String(button.dataset.settingsTab===key)));elementList(present(dialog), '[data-settings-panel]', HTMLElement).forEach(panel=>panel.hidden=panel.dataset.settingsPanel!==key);const active=present(dialog).querySelector(`[data-settings-tab="${key}"]`);requiredElement(present(dialog), '#settings-title', HTMLElement).textContent=present(active).textContent;const implemented=['account','personalization','memory'].includes(key || '');form.hidden=!implemented;requiredElement(present(dialog), '#settings-placeholder', HTMLElement).hidden=implemented||key==='preferences';requiredElement(present(dialog), '.settings-content', HTMLElement).scrollTop=0;}
- elementList(document, '[data-open-settings]', HTMLElement).forEach(button=>button.addEventListener('click',()=>{opener=optionalElement(document, '.sidebar__profile', HTMLButtonElement)||button;optionalElement(document, '#profile-menu', HTMLElement)?.hidePopover();dialog.showModal();if(!dirty&&!loading)load();}, {signal: scope.signal}));
+ elementList(document, '[data-open-settings]', HTMLElement).forEach(button=>button.addEventListener('click',()=>{opener=optionalElement(document, '.sidebar__profile', HTMLButtonElement)||button;optionalElement(document, '#profile-menu', HTMLElement)?.hidePopover();openSettings('general');}, {signal: scope.signal}));
  requiredElement(dialog, '.settings-close', HTMLElement).addEventListener('click',()=>dialog.close(), {signal: scope.signal});
  dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}}, {signal: scope.signal});
- dialog.addEventListener('close',()=>opener?.focus(), {signal: scope.signal});
- elementList(dialog, '[data-settings-tab]', HTMLButtonElement).forEach(button=>button.addEventListener('click',()=>tab(button.dataset.settingsTab), {signal: scope.signal}));
+ dialog.addEventListener('close',()=>{if(window.location.hash.startsWith('#settings/')) history.replaceState(history.state,'',window.location.pathname+window.location.search);opener?.focus();}, {signal: scope.signal});
+ elementList(dialog, '[data-settings-tab]', HTMLButtonElement).forEach(button=>button.addEventListener('click',()=>openSettings(button.dataset.settingsTab || 'general'), {signal: scope.signal}));
  requiredElement(dialog, '[type=search]', HTMLInputElement).addEventListener('input',event=>{const normalize=(s:string)=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();const term=normalize(requiredElement(dialog, '[type=search]', HTMLInputElement).value);elementList(dialog, '[data-settings-tab]', HTMLButtonElement).forEach(button=>button.hidden=!normalize(button.textContent).includes(term));}, {signal: scope.signal});
  toggle.addEventListener('click',()=>{dirty=true;enabled=!enabled;toggle.setAttribute('aria-checked',String(enabled));status.textContent='Salve as alterações para aplicar.';}, {signal: scope.signal});
  form.addEventListener('input',()=>{dirty=true;status.textContent='Salve as alterações para aplicar.';}, {signal: scope.signal});
  locationButton.addEventListener('click',()=>{if(location){dirty=true;location='';locationButton.textContent='Compartilhar';requiredElement(dialog, '#settings-location-status', HTMLElement).textContent='Salve para remover a localização.';return;}if(!navigator.geolocation){status.textContent='Seu navegador não oferece localização.';return;}locationButton.disabled=true;navigator.geolocation.getCurrentPosition(position=>{dirty=true;location=`Latitude ${position.coords.latitude.toFixed(2)}, longitude ${position.coords.longitude.toFixed(2)}`;locationButton.textContent='Remover';locationButton.disabled=false;requiredElement(dialog, '#settings-location-status', HTMLElement).textContent='Localização aproximada obtida. Salve para compartilhar com o Computer.';},()=>{locationButton.disabled=false;status.textContent='Não foi possível obter sua localização. Verifique a permissão do navegador.';},{enableHighAccuracy:false,timeout:10000,maximumAge:300000});}, {signal: scope.signal});
- form.addEventListener('submit',async event=>{event.preventDefault();const payload: Record<string,string|number|boolean>={version,memory_enabled:enabled,location};names.forEach(name=>payload[name]=formField(form,name).value);fieldset.disabled=true;status.textContent='Salvando…';reload.hidden=true;try{render(await request('PUT',payload));dirty=false;status.textContent='Configurações salvas.';}catch(error){status.textContent=errorMessage(error);reload.hidden=false;}finally{fieldset.disabled=false;}}, {signal: scope.signal});
- reload.addEventListener('click',load, {signal: scope.signal});tab('personalization');
- if(new URLSearchParams(window.location.search).get('settings')==='personalization'){dialog.showModal();load();}
+ form.addEventListener('submit',async event=>{event.preventDefault();const payload: Record<string,string|number|boolean>={version,memory_enabled:enabled,location};names.forEach(name=>payload[name]=formField(form,name).value);fieldset.disabled=true;showLoading(status, 'Salvando configurações');reload.hidden=true;try{render(await request('PUT',payload));dirty=false;status.textContent='Configurações salvas.';}catch(error){status.textContent=errorMessage(error);reload.hidden=false;}finally{fieldset.disabled=false;}}, {signal: scope.signal});
+ function openSettings(key: string, updateURL=true) {
+  const actual = key === 'general' ? 'preferences' : key;
+  if (!elementList(present(dialog), '[data-settings-tab]', HTMLButtonElement).some(button=>button.dataset.settingsTab===actual)) return;
+  tab(actual);
+  const wasOpen=present(dialog).open;
+  if(!wasOpen) present(dialog).showModal();
+  if(updateURL) history.replaceState(history.state,'',window.location.pathname+window.location.search+'#settings/'+(actual==='preferences'?'general':actual));
+  if(!wasOpen&&!dirty&&!loading) void load();
+ }
+ function restoreSettings() {
+  if(window.location.hash.startsWith('#settings/')) openSettings(window.location.hash.slice(10),false);
+  else if(present(dialog).open) present(dialog).close();
+ }
+ scope.listen(window,'hashchange',restoreSettings);
+ scope.listen(window,'popstate',restoreSettings);
+ restoreSettings();
+ reload.addEventListener('click',load, {signal: scope.signal});if(!dialog.open)tab('preferences');
+ if(new URLSearchParams(window.location.search).get('settings')==='personalization'){openSettings('personalization');}
 }

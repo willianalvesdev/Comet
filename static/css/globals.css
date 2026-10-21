@@ -509,3 +509,9 @@ code, pre, kbd {
 
 
 /* Broader radii compensate for the flatter shoulders of continuous corners. */
+
+.loading-indicator { display: inline-flex; position: relative; align-items: center; justify-content: center; vertical-align: middle; color: var(--text-secondary); }
+.loading-indicator__icon { display: block; width: 24px; height: 24px; flex: 0 0 24px; background: currentColor; mask: url('../img/icons/loading.svg') center / contain no-repeat; animation: comet-loading-spin .9s linear infinite; }
+.loading-indicator__label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@keyframes comet-loading-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .loading-indicator__icon { animation: none; } }

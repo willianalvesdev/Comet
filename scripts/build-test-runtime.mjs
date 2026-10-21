@@ -4,6 +4,8 @@ import { build } from 'esbuild';
 import ts from 'typescript';
 const output = 'artifacts/test-runtime';
 fs.mkdirSync(output, {recursive:true});
+fs.mkdirSync('artifacts/types/shared', {recursive:true});
+for (const name of fs.readdirSync('shared').filter(name=>name.endsWith('.d.ts'))) fs.copyFileSync(path.join('shared',name),path.join('artifacts/types/shared',name));
 let declarations = '';
 for (const name of fs.readdirSync('frontend/controllers').filter(name => name.endsWith('.ts'))) {
     const source = fs.readFileSync('frontend/controllers/' + name, 'utf8');

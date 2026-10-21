@@ -1,6 +1,9 @@
 import { ApiError } from '../http';
 
 const messages = {
+  tavily_auth: 'Não foi possível autenticar a pesquisa Tavily. Confira a configuração da pesquisa.',
+  tavily_quota: 'O limite da pesquisa Tavily foi atingido. Tente novamente mais tarde.',
+  tavily_unavailable: 'A pesquisa Tavily está indisponível. Tente novamente em instantes.',
   context_size: 'Esta conversa excedeu o contexto disponível do modelo. Abra um novo chat ou escolha um modelo com maior capacidade.',
   attachment_size: 'Cada arquivo pode ter até 8 MB.',
   attachment_type: 'Envie PNG, JPG, WebP, PDF, DOCX ou arquivos de texto.',
@@ -35,7 +38,7 @@ export class AIError extends ApiError {
   constructor(public code: keyof typeof messages, status = 502) { super(status, messages[code]); }
 }
 export type Message = { role: 'system' | 'user' | 'assistant'; content: string; images?: string[] };
-export type Event = { type: 'delta' | 'thinking'; text: string } | { type: 'grounding'; data: Record<string, unknown> } | { type: 'search'; state: string; [key: string]: unknown };
+export type Event = {type:'artifact';state:'creating'|'complete'|'failed';artifact?:import('../../shared/artifacts').Artifact;message?:string} | { type: 'delta' | 'thinking'; text: string } | { type: 'grounding'; data: Record<string, unknown> } | { type: 'search'; state: string; [key: string]: unknown };
 export type Metadata = Record<string, unknown>;
 export type ChatPayload = {
   conversation_id: string | null; message: string; request_id: string; provider: string;

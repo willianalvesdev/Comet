@@ -12,7 +12,7 @@ async function handle(original: Request): Promise<Response> {
     try {
         const path = new URL(original.url).pathname.slice('/api/'.length).split('/');
         const request = ['POST','PUT','PATCH','DELETE'].includes(original.method)
-            ? await boundedRequest(original, path.join('/') === 'ai/attachments' ? 9*1024*1024 : path.join('/') === 'ai/chat' ? 256*1024 : 64*1024) : original;
+            ? await boundedRequest(original, path.join('/') === 'ai/attachments' ? 9*1024*1024 : ['ai/chat','ai/artifacts/render'].includes(path.join('/')) ? 256*1024 : 64*1024) : original;
         if (['POST','PUT','PATCH','DELETE'].includes(request.method)) await verifyCSRF(request);
         if (path.join('/') === 'bootstrap' && request.method === 'GET') return await bootstrap(request);
         if (path[0] === 'auth') {

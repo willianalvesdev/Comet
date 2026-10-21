@@ -1,4 +1,4 @@
-import { cp, mkdir, access } from 'node:fs/promises';
+import { cp, mkdir, access, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -8,7 +8,9 @@ for (const directory of ['img', 'fonts', 'schemas']) {
     await mkdir(destination, {recursive:true});
     await cp(path.join(root, 'static', directory), destination, {recursive:true});
 }
-for (const filename of ['manifest.webmanifest', 'robots.txt', 'llms.txt']) {
+for (const filename of ['manifest.webmanifest', 'llms.txt']) {
     await access(path.join(root, filename));
     await cp(path.join(root, filename), path.join(root, 'public', filename));
 }
+// robots.txt is served by the metadata route; remove the former generated copy.
+await rm(path.join(root, 'public', 'robots.txt'), {force:true});

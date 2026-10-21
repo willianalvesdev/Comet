@@ -1,3 +1,4 @@
+import ComputerRipple from '../components/ComputerRipple';
 import type { BootstrapData } from "../types";
 import { ChatComposer, MobileMenu } from "../components/WorkspaceParts";
 import "./computer-logo.css";
@@ -15,11 +16,12 @@ export default function ComputerPage({ bootstrap }: { bootstrap: BootstrapData }
             <main className="workspace__content" aria-label="Área de trabalho">
                 <header className="workspace__header computer-header">
                     <MobileMenu />
-                    <nav className="chat-tabs" aria-label="Visualização da resposta" hidden><button type="button" data-chat-view="answer" aria-current="page"><i className="chat-tab-logo" aria-hidden="true"></i>Resposta</button><button type="button" data-chat-view="links" hidden><i className="chat-tab-links" aria-hidden="true"></i>Links</button></nav>
+                    <nav className="chat-tabs" aria-label="Visualização da resposta" hidden><button type="button" data-chat-view="answer" aria-current="page"><i className="chat-tab-logo" aria-hidden="true"></i>Resposta</button><button type="button" data-chat-view="images" hidden><i className="chat-tab-images" aria-hidden="true"></i>Imagens</button><button type="button" data-chat-view="links" hidden><i className="chat-tab-links" aria-hidden="true"></i>Links</button></nav>
                     <button className="workspace__header-button chat-options-toggle" type="button" aria-label="Opções do chat" aria-haspopup="dialog" aria-expanded="false" hidden><i className="sessions-icon sessions-icon--more" aria-hidden="true"></i></button>
                     <button className="workspace__header-button anonymous-toggle" type="button" aria-label="Ativar modo anônimo" aria-pressed="false"><i aria-hidden="true"></i></button>
                 </header>
-                <section className="computer-page" aria-labelledby="computer-title">
+                <section className={bootstrap.conversationId ? "computer-page has-conversation" : "computer-page"} aria-labelledby="computer-title">
+                    <ComputerRipple />
                     <div className="computer-intro">
                         <h1 id="computer-title"><svg className="computer-intro__animated-logo" aria-hidden="true" width="44" height="36" viewBox="0 0 44 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M35.9999 6.00192C35.9999 4.89618 35.1026 4.00128 33.9992 4.00128H9.9986C8.8952 4.00128 7.99796 4.89618 7.99796 6.00192V22.0047C7.99796 23.1104 8.8952 24.0053 9.9986 24.0053H33.9992C35.1026 24.0053 35.9999 23.1104 35.9999 22.0047V6.00192ZM39.9988 22.0047C39.9988 25.3196 37.3118 28.0066 33.9992 28.0066H9.9986C6.68606 28.0066 3.99902 25.3196 3.99902 22.0047V6.00192C3.99902 2.68704 6.68606 0 9.9986 0H33.9992C37.3118 0 39.9988 2.68704 39.9988 6.00192V22.0047Z" fill="currentColor"></path>
@@ -32,15 +34,34 @@ export default function ComputerPage({ bootstrap }: { bootstrap: BootstrapData }
                             <span data-chat-greeting="" data-account-name={bootstrap.user.nome} data-account-id={bootstrap.user.id}>Olá</span></h1>
                     </div>
                     <button className="computer-history__older" type="button" hidden>Carregar mensagens anteriores</button>
-                    <section className="computer-messages" aria-label="Conversa com Computer" aria-live="polite" aria-relevant="additions text" hidden></section>
+                    <section className="computer-messages" aria-label="Conversa com Computer" aria-live="polite" aria-relevant="additions text" hidden={!bootstrap.conversationId}></section>
+                    <div className="computer-history-status" hidden></div>
                     <div className="computer-composer">
-                        <ChatComposer readonly />
-                        <p className="anonymous-note" hidden>Esse chat não será salvo no histórico</p>
+                        <div className="anonymous-composer-shell">
+                            <div className="anonymous-composer-banner">
+                                <span><i aria-hidden="true"></i>Você está no modo anônimo.</span>
+                                <button type="button" className="anonymous-composer-exit">Sair da navegação anônima</button>
+                            </div>
+                            <ChatComposer readonly />
+                        </div>
+                        <p className="anonymous-note" hidden>As conversas que você criar não serão salvas no histórico e expiram após 24 horas.</p>
                         <p className="computer-note" role="status"></p>
                     </div>
                 </section>
                 <section className="chat-links" aria-label="Links pesquisados" hidden></section>
+                <section className="chat-images" aria-label="Imagens pesquisadas" hidden></section>
             </main>
         </div>
     );
 }
+
+import controller0 from '../controllers/computer-service';
+import controller1 from '../controllers/model-menu';
+import controller2 from '../controllers/response-details';
+import controller3 from '../controllers/attachments';
+import controller4 from '../controllers/chat-options';
+import controller5 from '../controllers/computer';
+import controller6 from '../controllers/chat-greeting';
+import controller7 from '../controllers/message-navigator';
+import controller8 from '../controllers/dictation';
+export const controllers: PageFactory[] = [controller0, controller1, controller2, controller3, controller4, controller5, controller6, controller7, controller8];

@@ -5,6 +5,7 @@ import { ApiError, json } from './http';
 
 const PAGE_SIZE = 100;
 const TOPICS: Record<string, string> = {
+    crypto: 'cryptocurrency OR bitcoin OR ethereum OR criptomoeda',
     technology: 'technology OR science OR tecnologia OR ciencia',
     business: 'finance OR stocks OR investments OR economia OR investimentos OR juros OR bolsa',
     culture: 'art OR culture OR arte OR cultura',

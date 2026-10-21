@@ -25,7 +25,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             const amount = fade * relief;
             entry.mark.style.setProperty('--mark-blur', (amount * 1.8).toFixed(2) + 'px');
             entry.mark.style.setProperty('--mark-depth', (amount * 42).toFixed(2) + 'deg');
-            entry.mark.style.setProperty('--mark-opacity', String(1 - amount * .5));
+            entry.mark.style.setProperty('--mark-opacity', String(1 - amount * .97));
         });
     }
     function open(index = Math.max(0, current)) {

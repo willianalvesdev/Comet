@@ -31,7 +31,11 @@ function configuration(provider: Provider) {
 }
 async function providerJson(url: string, init: RequestInit = {}) {
     const response = await fetch(url,{...init,redirect:'error',cache:'no-store',signal:AbortSignal.timeout(10000)});
-    if (!response.ok) throw new Error('provider_failed');
+    if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        const code = ['invalid_client','invalid_grant','invalid_request','unauthorized_client','redirect_uri_mismatch','access_denied'].includes(body?.error) ? body.error : 'http_'+response.status;
+        throw new Error('provider_'+code);
+    }
     return response.json();
 }
 export async function validateGoogleToken(token: string, clientId: string, nonce: string, keys: JWTVerifyGetKey = googleKeys): Promise<Identity> {
@@ -86,14 +90,25 @@ function redirectFailure(provider: Provider, reason = 'oauth') {
 }
 export async function finishOAuth(request: Request, value: string) {
     const provider = providerName(value);
+    let step = 'state';
+    function fail(reason: string) {
+        // Never log request URLs, cookies, provider responses, tokens or personal data.
+        console.warn('Falha no login OAuth:', {provider, step, reason});
+        return redirectFailure(provider);
+    }
     try {
         const params = new URL(request.url).searchParams, state = params.get('state') || '';
-        if (!/^[a-f0-9]{64}$/.test(state) || !equal(state,cookie(request,'comet_oauth_'+provider))) return redirectFailure(provider);
+        if (!/^[a-f0-9]{64}$/.test(state) || !equal(state,cookie(request,'comet_oauth_'+provider))) return fail('browser_state_mismatch');
+        step = 'state_lookup';
         const [pending] = await query<{verifier:string;nonce:string}>(`DELETE FROM auth_oauth_states
             WHERE state_hash=$1 AND provider=$2 AND expires_at>CURRENT_TIMESTAMP RETURNING verifier,nonce`,[hash(state),provider]);
         const code = params.get('code');
-        if (!pending || params.has('error') || !code || code.length > 4096) return redirectFailure(provider);
+        if (!pending) return fail('state_expired_or_used');
+        if (params.has('error')) return fail('provider_denied');
+        if (!code || code.length > 4096) return fail('missing_or_invalid_code');
+        step = 'provider_identity';
         const profile = await identity(provider,code,pending.verifier,pending.nonce);
+        step = 'session_database';
         const session = await transaction(async db => {
             await db.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['oauth:'+provider+':'+profile.subject]);
             const [known] = await db.query<{usuario_id:string}>('SELECT usuario_id FROM auth_identities WHERE provider=$1 AND subject=$2',[provider,profile.subject]);
@@ -113,8 +128,16 @@ export async function finishOAuth(request: Request, value: string) {
         response.headers.set('Referrer-Policy','no-referrer');
         setCookie(response,'comet_oauth_'+provider,'',0);
         return new Response(null,{status:303,headers:response.headers});
-    } catch {
-        // Provider errors may contain tokens; expose only the fixed retry message.
-        return redirectFailure(provider);
+    } catch (error) {
+        const known = ['provider_invalid_client','provider_invalid_grant','provider_invalid_request','provider_unauthorized_client',
+            'provider_redirect_uri_mismatch','provider_access_denied','invalid_token','unverified_identity'];
+        const failure = error as {code?:unknown; message?:unknown; cause?:{code?:unknown}} | null;
+        const code = failure?.code || failure?.cause?.code;
+        const message = typeof failure?.message === 'string' ? failure.message : '';
+        const reason = known.includes(message) || /^provider_http_\d{3}$/.test(message) ? message
+            : typeof code === 'string' && (/^[0-9A-Z]{5}$/.test(code) || ['ERR_JWT_EXPIRED','ERR_JWT_CLAIM_VALIDATION_FAILED',
+                'ERR_JWS_SIGNATURE_VERIFICATION_FAILED','ERR_JWKS_TIMEOUT','ERR_JWKS_NO_MATCHING_KEY','ECONNREFUSED','ECONNRESET','ETIMEDOUT','ENOTFOUND','UND_ERR_CONNECT_TIMEOUT'].includes(code)) ? code
+            : 'unexpected_error';
+        return fail(reason);
     }
 }

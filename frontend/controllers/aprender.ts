@@ -34,7 +34,7 @@ export default function mount({scope, ResizeObserver, MutationObserver, requestA
         sending = true;
         window.CometStudyQuestion = {message: input.value.trim() || 'Analise os arquivos anexados.', attachments: window.ComputerAttachments.files(), provider: window.ComputerModels.selected()};
         controls();
-        void window.WorkspaceNavigation.go('/novo.html?new=1&study=1');
+        void window.WorkspaceNavigation.go('/new?new=1&study=1');
     }, {signal: scope.signal});
     input.addEventListener('keydown', event => {
         if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); form.requestSubmit(); }

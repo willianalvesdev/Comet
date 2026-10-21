@@ -5,7 +5,7 @@
     position: fixed;
     inset: auto;
     margin: 0;
-    width: min(324px, calc(100vw - 24px));
+    width: min(252px, calc(100vw - 24px));
     max-height: calc(100svh - 24px);
     overflow-y: auto;
     padding: 14px;
@@ -16,10 +16,10 @@
     box-shadow: var(--shadow-lg);
     font-size: var(--font-size-4);
 }
-.chat-options__title { margin: 0 0 14px; font-size: var(--font-size-3); font-weight: var(--weight-500); overflow-wrap: anywhere; }
+.chat-options__title { margin: 0 0 14px; font-size: var(--font-size-4); overflow-wrap: anywhere; }
 .chat-options dl { margin: 0; padding-bottom: 10px; font-size: var(--font-size-5); }
 .chat-options dl > div { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; }
-.chat-options dt { flex-shrink: 0; color: var(--text-secondary); }
+.chat-options dt { flex-shrink: 0; color: var(--text-tertiary); }
 .chat-options dd { margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; }
 .chat-options__group { padding: 6px 0; border-top: 1px solid var(--border); }
 .chat-options__group:last-child { padding-bottom: 0; }

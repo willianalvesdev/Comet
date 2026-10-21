@@ -16,7 +16,7 @@ export default class PageRecovery extends Component<Props, {failed: boolean; rev
         return <main role="alert" className="tw:fixed tw:inset-0 tw:z-[200] tw:flex tw:flex-col tw:items-center tw:justify-center tw:gap-4 tw:bg-surface tw:p-8">
             <p>Não foi possível abrir esta página.</p>
             <button type="button" onClick={this.props.onRetry}>Tentar novamente</button>
-            <a href="/novo.html">Voltar ao chat</a>
+            <a href="/new">Voltar ao chat</a>
         </main>;
     }
 }
