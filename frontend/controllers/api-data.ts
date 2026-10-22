@@ -88,8 +88,8 @@ export function weatherData(value:unknown) {
 }
 
 export function isOpenRouterModel(value:unknown):value is string {return typeof value==='string' && /^openrouter:[a-zA-Z0-9][a-zA-Z0-9._-]*\/[a-zA-Z0-9][a-zA-Z0-9._:-]*:free$/.test(value) && value.length<=200;}
-export function isLocalModel(value:unknown):value is LocalModel {
- return typeof value==='string' && value!=='gemini' && value!=='qwen' && !value.startsWith('openrouter:') && value.length<=200 && !value.includes('://') && !value.toLowerCase().includes('cloud') && /^[A-Za-z0-9][A-Za-z0-9_.:/-]*$/.test(value);
+export function isOllamaModel(value:unknown):value is LocalModel {
+ return typeof value==='string' && value!=='gemini' && value!=='qwen' && !value.startsWith('openrouter:') && value.length<=200 && !value.includes('://') && /^[A-Za-z0-9][A-Za-z0-9_.:/-]*$/.test(value);
 }
 export function researchState(value:unknown):ResearchState|undefined {
  if(value==null)return undefined;

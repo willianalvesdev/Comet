@@ -96,7 +96,7 @@
 .settings-content {
     padding: var(--spacing-8);
     overflow: auto;
-    scrollbar-width: thin;
+
 }
 
 .settings-content h1 {
@@ -529,7 +529,10 @@
 .appearance-choice[aria-pressed="true"] > span:last-child::before { content: ''; display: inline-block; width: var(--input-xs); height: var(--input-xs); margin-right: var(--spacing-1); vertical-align: -3px; background: currentColor; mask: url('../img/icons/check.svg') center/contain no-repeat; }
 .appearance-choice img, .appearance-font { width: 112px; height: 80px; border-radius: var(--radius-4); }
 .appearance-font { display: grid; place-items: center; border: 1px solid var(--border); font-size: 42px; color: var(--text); }
-.appearance-font--serif { font-family: var(--font-heading); }
+.appearance-font--serif { font-family: var(--font-heading);
+    --weight-400:var(--font-weight-serif-regular); --font-weight-regular:var(--weight-400); --weight-500:var(--font-weight-serif-medium); --font-weight-medium:var(--weight-500); --weight-600:var(--font-weight-serif-semibold); --font-weight-semibold:var(--weight-600); --weight-700:var(--font-weight-serif-bold); --font-weight-bold:var(--weight-700);
+    font-weight:var(--font-weight-regular);
+}
 .appearance-font--sans { font-family: var(--font-body); }
 
 .memory-switch:not(:disabled):not([aria-checked=true]):hover { background:var(--text-tertiary); }

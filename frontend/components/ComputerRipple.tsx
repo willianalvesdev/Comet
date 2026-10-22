@@ -45,7 +45,8 @@ export default function ComputerRipple() {
             const rect=element.getBoundingClientRect();if(!rect.width||!rect.height)return;
             const ratio=Math.min(devicePixelRatio||1,1.5,Math.sqrt(1500000/(rect.width*rect.height)));
             element.width=Math.floor(rect.width*ratio);element.height=Math.floor(rect.height*ratio);gl.viewport(0,0,element.width,element.height);
-            const origin=page?.querySelector('.computer-intro__animated-logo')?.getBoundingClientRect();
+            const logo=page?.querySelector('.computer-intro__animated-logo')?.getBoundingClientRect();
+            const origin=logo?.width && logo.height ? logo : page?.querySelector('#computer-title')?.getBoundingClientRect();
             gl.uniform2f(uniform.u_size,element.width,element.height);gl.uniform1f(uniform.u_pixelRatio,ratio);
             gl.uniform2f(uniform.u_rippleOrigin,origin?.width?((origin.left+origin.width/2-rect.left)/rect.width):.5,origin?.height?((origin.top+origin.height/2-rect.top)/rect.height):.35);
             const mask=page?.querySelector('.home__composer')?.getBoundingClientRect();

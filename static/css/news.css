@@ -71,6 +71,7 @@
     font-weight: var(--font-weight-regular);
     line-height: 1.5;
     overflow-wrap: anywhere;
+    --weight-400:var(--font-weight-serif-regular); --font-weight-regular:var(--weight-400); --weight-500:var(--font-weight-serif-medium); --font-weight-medium:var(--weight-500); --weight-600:var(--font-weight-serif-semibold); --font-weight-semibold:var(--weight-600); --weight-700:var(--font-weight-serif-bold); --font-weight-bold:var(--weight-700);
 }
 
 .news-card__title a {
@@ -119,6 +120,8 @@
     font-family: var(--font-heading);
     font-size: var(--font-size-3);
     line-height: 1.5;
+    --weight-400:var(--font-weight-serif-regular); --font-weight-regular:var(--weight-400); --weight-500:var(--font-weight-serif-medium); --font-weight-medium:var(--weight-500); --weight-600:var(--font-weight-serif-semibold); --font-weight-semibold:var(--weight-600); --weight-700:var(--font-weight-serif-bold); --font-weight-bold:var(--weight-700);
+    font-weight:var(--font-weight-regular);
 }
 
 .news-card__footer {

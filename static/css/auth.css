@@ -22,7 +22,9 @@ html:has(.auth[open]) { overflow: hidden; }
     border: 0; border-radius: var(--radius-4); background: transparent; color: var(--text-secondary);
 }
 .auth__close .ui-icon-x { width: 18px; height: 18px; }
-.auth__title { font-family: var(--font-heading); font-size: 32px; font-weight: var(--font-weight-regular); line-height: 1.2; text-wrap: balance; margin: 0; }
+.auth__title { font-family: var(--font-heading); font-size: 32px; font-weight: var(--font-weight-regular); line-height: 1.2; text-wrap: balance; margin: 0;
+    --weight-400:var(--font-weight-serif-regular); --font-weight-regular:var(--weight-400); --weight-500:var(--font-weight-serif-medium); --font-weight-medium:var(--weight-500); --weight-600:var(--font-weight-serif-semibold); --font-weight-semibold:var(--weight-600); --weight-700:var(--font-weight-serif-bold); --font-weight-bold:var(--weight-700);
+}
 .auth__policy { margin: var(--spacing-5) 0 0; font-size: var(--font-size-3); line-height: 1.5; color: var(--text-secondary); overflow-wrap: anywhere; }
 .auth__options { width: min(100%, 348px); margin: var(--spacing-8) auto 0; display: flex; flex-direction: column; gap: var(--spacing-2); }
 .auth__provider, .auth__submit {

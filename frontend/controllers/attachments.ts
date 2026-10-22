@@ -1,5 +1,5 @@
 import { showLoading } from './loading-indicator';
-import { isLocalModel } from './api-data';
+import { isOllamaModel } from './api-data';
 import { optionalElement, requiredElement, errorMessage, elementList } from './dom';
 import { apiError, attachmentData } from './api-data';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
@@ -86,7 +86,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
                 const response=await fetch('/api/ai/attachments',{method:'POST',credentials:'same-origin',signal:controller.signal,headers:{'X-CSRFToken':requiredElement(document, 'meta[name="csrf-token"]', HTMLMetaElement).content},body});
                 const raw:unknown=await response.json();if(!response.ok)throw new Error(apiError(raw,'Não foi possível anexar o arquivo.'));const data=attachmentData(raw);if(expected!==version)return;
                 if(data.kind==='image')previews.set(data.id,URL.createObjectURL(file));
-                files.push(data);if(isLocalModel(window.ComputerModels?.selected()))window.ComputerModels?.select('gemini');render();
+                files.push(data);if(isOllamaModel(window.ComputerModels?.selected()))window.ComputerModels?.select('gemini');render();
             }
             status.textContent='';
         }catch(error){if(expected===version&&(error instanceof Error ? error.name : '')!=='AbortError')status.textContent=errorMessage(error);}

@@ -51,15 +51,29 @@
     --panel-shadow: var(--shadow-lg);
 
     /* Typography */
-    --weight-300: 300;
+    --font-weight-sans-light: 300;
+    --font-weight-sans-regular: 360;
+    --font-weight-sans-medium: 470;
+    --font-weight-sans-semibold: 580;
+    --font-weight-sans-bold: 690;
+    --font-weight-serif-light: 300;
+    --font-weight-serif-regular: 350;
+    --font-weight-serif-medium: 465;
+    --font-weight-serif-semibold: 580;
+    --font-weight-serif-bold: 690;
+    --font-weight-mono-regular: 380;
+    --font-weight-mono-medium: 480;
+    --font-weight-mono-semibold: 580;
+    --font-weight-mono-bold: 680;
+    --weight-300: var(--font-weight-sans-light);
     --font-weight-light: var(--weight-300);
-    --weight-400: 400;
+    --weight-400: var(--font-weight-sans-regular);
     --font-weight-regular: var(--weight-400);
-    --weight-500: 500;
+    --weight-500: var(--font-weight-sans-medium);
     --font-weight-medium: var(--weight-500);
-    --weight-600: 600;
+    --weight-600: var(--font-weight-sans-semibold);
     --font-weight-semibold: var(--weight-600);
-    --weight-700: 700;
+    --weight-700: var(--font-weight-sans-bold);
     --font-weight-bold: var(--weight-700);
     --weight-800: 800;
     --font-weight-extrabold: var(--weight-800);
@@ -190,28 +204,16 @@ html {
     overflow-x: clip;
 }
 
-* {
-    scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--text-secondary) 14%, transparent) transparent;
-}
-
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-
-::-webkit-scrollbar-track,
-::-webkit-scrollbar-corner {
-    background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    border-radius: var(--radius-full);
-    background: color-mix(in srgb, var(--text-secondary) 14%, transparent);
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in srgb, var(--text-secondary) 14%, transparent);
+/* Perplexity's native thin scrollbar; retain system colors in forced-colors mode. */
+@media (forced-colors: none) {
+    html, html :where(*) {
+        --scrollbar-thumb: color-mix(in srgb, var(--text) 15%, transparent);
+        scrollbar-width: thin;
+        scrollbar-color: var(--scrollbar-thumb) transparent;
+    }
+    ::-webkit-scrollbar { width:8px; height:8px; }
+    ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:var(--scrollbar-thumb); }
 }
 
 ::selection {
@@ -491,6 +493,8 @@ button, input, textarea, select {
 
 code, pre, kbd {
     font-family: var(--font-mono);
+    --weight-400:var(--font-weight-mono-regular); --font-weight-regular:var(--weight-400); --weight-500:var(--font-weight-mono-medium); --font-weight-medium:var(--weight-500); --weight-600:var(--font-weight-mono-semibold); --font-weight-semibold:var(--weight-600); --weight-700:var(--font-weight-mono-bold); --font-weight-bold:var(--weight-700);
+    font-weight:var(--font-weight-regular);
 }
 
 :is(textarea, input:not([type]), input[type="text"], input[type="search"], input[type="email"], input[type="password"], input[type="tel"], input[type="url"], input[type="number"]):focus {

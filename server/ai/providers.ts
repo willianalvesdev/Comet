@@ -1,10 +1,10 @@
-import { AIError, isLocalModel, isObject, type Event, type Message } from './types';
+import { AIError, isOllamaModel, isObject, type Event, type Message } from './types';
 
 export function aiConfig() {
   const base = new URL(process.env.OLLAMA_BASE_URL || 'http://localhost:11434');
   const model = process.env.OLLAMA_MODEL || 'qwen3:1.7b';
   const timeout = Number(process.env.OLLAMA_TIMEOUT_SECONDS || 120) * 1000;
-  if (base.protocol !== 'http:' || !['localhost', '127.0.0.1', '[::1]'].includes(base.hostname) || base.username || base.password || base.pathname !== '/' || base.search || base.hash || !isLocalModel(model) || !Number.isFinite(timeout) || timeout < 1000 || timeout > 300000) throw new AIError('incompatible', 503);
+  if (base.protocol !== 'http:' || !['localhost', '127.0.0.1', '[::1]'].includes(base.hostname) || base.username || base.password || base.pathname !== '/' || base.search || base.hash || !isOllamaModel(model) || !Number.isFinite(timeout) || timeout < 1000 || timeout > 300000) throw new AIError('incompatible', 503);
   if (base.hostname === 'localhost') base.hostname = '127.0.0.1';
   return { base: base.origin, model, timeout };
 }
@@ -133,15 +133,31 @@ async function objectResponse(response: Response, signal: AbortSignal, maxBytes 
   if (!isObject(value)) throw new AIError('invalid_response');
   return value;
 }
-export async function localModels(signal = AbortSignal.timeout(3000)): Promise<string[]> {
+function ollamaExecution(info: Record<string, unknown>, name: string): 'local' | 'cloud' {
+  if (info.remote_host) {
+    let host: URL;
+    try { host=new URL(String(info.remote_host)); } catch { throw new AIError('incompatible',503); }
+    if (host.origin!=='https://ollama.com' || host.pathname!=='/' || host.username || host.password || host.search || host.hash) throw new AIError('incompatible',503);
+  }
+  return info.remote_model || info.remote_host || /[:-]cloud(?::latest)?$/i.test(name) ? 'cloud' : 'local';
+}
+export async function ollamaModels(signal = AbortSignal.timeout(3000)): Promise<{name:string;execution:'local'|'cloud'}[]> {
   const config = aiConfig();
   try {
     const response = await fetchAI(config.base + '/api/tags', { headers: { Accept: 'application/json' } }, signal, 3000);
     if (!response.ok) { await response.body?.cancel(); throw new AIError('unavailable', 503); }
     const data = await objectResponse(response, signal);
     if (!Array.isArray(data.models)) throw new AIError('invalid_response');
-    return [...new Set(data.models.filter(isObject).filter(item => isLocalModel(item.name) && !item.remote_model && !item.remote_host).map(item => String(item.name)))].sort();
+    const models = new Map<string,{name:string;execution:'local'|'cloud'}>();
+    for (const item of data.models.filter(isObject)) {
+      if (!isOllamaModel(item.name)) continue;
+      try { models.set(item.name,{name:item.name,execution:ollamaExecution(item,item.name)}); } catch { continue; }
+    }
+    return [...models.values()].sort((a,b)=>a.name.localeCompare(b.name));
   } catch (error) { networkError(error, signal, true); }
+}
+export async function localModels(signal = AbortSignal.timeout(3000)): Promise<string[]> {
+  return (await ollamaModels(signal)).filter(model=>model.execution==='local').map(model=>model.name);
 }
 class ContextError extends AIError { constructor(public required: number) { super('context_size', 422); } }
 async function localPost(path: string, payload: unknown, signal: AbortSignal) {
@@ -155,14 +171,14 @@ async function localPost(path: string, payload: unknown, signal: AbortSignal) {
     } catch (error) { if (error instanceof ContextError) throw error; }
   }
   await response.body?.cancel().catch(() => {});
-  throw new AIError(response.status === 404 ? 'model_missing' : [400, 422].includes(response.status) ? 'incompatible' : 'unavailable', 503);
+  throw new AIError([401,403].includes(response.status) ? 'ollama_auth' : response.status === 429 ? 'provider_quota' : response.status === 404 ? 'model_missing' : [400, 422].includes(response.status) ? 'incompatible' : 'unavailable', 503);
 }
 async function modelInfo(model: string, signal: AbortSignal) {
   const info = await objectResponse(await localPost('/api/show', { model }, signal), signal);
-  if (info.remote_model || info.remote_host) throw new AIError('incompatible', 503);
+  const cloud = ollamaExecution(info,model) === 'cloud';
   const limits = isObject(info.model_info) ? Object.entries(info.model_info).filter(([key, value]) => key.endsWith('.context_length') && Number.isInteger(value) && Number(value) > 0).map(([, value]) => Number(value)) : [];
   const thinking = Array.isArray(info.capabilities) ? info.capabilities.includes('thinking') : !model.startsWith('gemma3:') && !model.includes('-instruct-');
-  return { context: Math.min(...(limits.length ? limits : [4096])), thinking, info };
+  return { context: Math.min(...(limits.length ? limits : [cloud ? 32768 : 4096])), thinking, info, cloud };
 }
 function clipped(text: string, budget: number) {
   const raw = Buffer.from(text);
@@ -196,14 +212,15 @@ export function fitMessages(messages: Message[], budget: number): Message[] {
 }
 export async function* streamLocal(model: string, messages: Message[], signal: AbortSignal): AsyncGenerator<Event> {
   try {
-    const { context, thinking, info } = await modelInfo(model, signal);
+    const { context, thinking, info, cloud } = await modelInfo(model, signal);
     const values = isObject(info.thinking) && Array.isArray(info.thinking.values) ? info.thinking.values : [];
-    if (thinking && values.length && !values.includes(true)) throw new AIError('incompatible', 503);
-    const local = messages.map((message, index) => index ? message : { ...message, content: message.content + `\nModelo desta resposta: ${model}. Provedor: Ollama local. O processamento acontece no computador que hospeda o Comet.` });
+    const think = values.length && !values.includes(true) ? values.find(value=>value==='medium') ?? values.find(value=>['low','high'].includes(String(value))) : true;
+    if (thinking && think === undefined) throw new AIError('incompatible', 503);
+    const local = messages.map((message, index) => index ? message : { ...message, content: message.content + `\nModelo desta resposta: ${model}. Provedor: ${cloud ? 'Ollama Cloud. O processamento acontece na nuvem do Ollama' : 'Ollama local. O processamento acontece no computador que hospeda o Comet'}.` });
     const configured = Number(process.env.OLLAMA_CONTEXT_LENGTH || 8192);
     if (!Number.isInteger(configured) || configured < 4096 || configured > 32768) throw new AIError('incompatible', 503);
-    const limit = Math.min(context, configured), budget = Math.max(512, (limit - 1024) * 2);
-    const payload = { model, messages: fitMessages(local, budget), stream: true, ...(thinking ? { think: true } : {}), options: { num_ctx: limit } };
+    const limit = cloud ? context : Math.min(context, configured), budget = Math.max(512, (limit - 1024) * 2);
+    const payload = { model, messages: fitMessages(local, budget), stream: true, ...(thinking ? { think } : {}), ...(!cloud ? {options:{num_ctx:limit}} : {}) };
     let response: Response;
     try { response = await localPost('/api/chat', payload, signal); }
     catch (error) {
@@ -301,13 +318,15 @@ export async function* streamGemini(messages: Message[], signal: AbortSignal, se
 export async function structured(provider: string, system: string, data: unknown, schema: unknown, signal: AbortSignal): Promise<unknown> {
   if (provider !== 'gemini') {
     const model = provider === 'qwen' ? aiConfig().model : provider;
-    const { context, thinking } = await modelInfo(model, signal);
-    const limit = Math.min(context, 16384), messages: Message[] = [{ role: 'system', content: system }, { role: 'user', content: JSON.stringify(data) }];
+    const { context, thinking, cloud, info } = await modelInfo(model, signal);
+    const limit = Math.min(context, 16384), messages: Message[] = [{ role: 'system', content: cloud ? system + '\nRetorne apenas JSON válido que corresponda a este schema: ' + JSON.stringify(schema) : system }, { role: 'user', content: JSON.stringify(data) }];
     if (messages.reduce((n, m) => n + m.content.length, 0) > Math.max(512, (limit - 1024) * 2)) throw new AIError('context_size', 422);
-    const payload = { model, messages, stream: false, format: schema, options: { temperature: 0, num_ctx: limit, num_predict: 8192 }, ...(thinking ? { think: false } : {}) };
+    const levels = isObject(info.thinking) && Array.isArray(info.thinking.values) ? info.thinking.values : [];
+    const think = levels.length && !levels.includes(false) ? levels.find(value=>value==='low') ?? levels.find(value=>value==='medium') ?? false : false;
+    const payload = { model, messages, stream: false, ...(!cloud ? {format:schema} : {}), options: { temperature: 0, ...(!cloud ? {num_ctx:limit,num_predict:8192} : {}) }, ...(thinking ? { think } : {}) };
     const response = await objectResponse(await localPost('/api/chat', payload, signal), signal, 131072);
     if (response.done !== true || response.error || response.done_reason && response.done_reason !== 'stop' || !isObject(response.message) || response.message.tool_calls || typeof response.message.content !== 'string') throw new AIError('invalid_response');
-    return strictJSON(response.message.content);
+    return strictJSON(cloud ? response.message.content.trim().replace(/^```(?:json)?\s*\n([\s\S]*?)\n```$/,'$1') : response.message.content);
   }
   const models = geminiModels();
   for (let index = 0; index < models.length; index++) {

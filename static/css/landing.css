@@ -20,7 +20,7 @@
     font-family: "GT Canon", var(--font-heading);
     font-size: var(--font-size-1);
     color: #ffffff;
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     font-variation-settings: "opsz" 60, "wdth" 75, "wght" 600;
     line-height: 1;
     white-space: normal;
@@ -405,7 +405,9 @@
 .landing-footer__brand img { width: 44px; height: 44px; }
 :root[data-theme="light"] .landing-footer__brand img { filter: invert(1); }
 .landing-footer__column { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
-.landing-footer__column h2 { font-family: var(--font-mono); font-size: 12px; font-weight: 400; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary); margin: 0 0 16px; }
+.landing-footer__column h2 { font-family: var(--font-mono); font-size: 12px; font-weight: var(--font-weight-regular); text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary); margin: 0 0 16px;
+    --weight-400:var(--font-weight-mono-regular); --font-weight-regular:var(--weight-400); --weight-500:var(--font-weight-mono-medium); --font-weight-medium:var(--weight-500); --weight-600:var(--font-weight-mono-semibold); --font-weight-semibold:var(--weight-600); --weight-700:var(--font-weight-mono-bold); --font-weight-bold:var(--weight-700);
+}
 .landing-footer a, .landing-footer button { font: inherit; font-size: 14px; line-height: 1.5; text-decoration: none; }
 .landing-footer button { padding: 0; border: 0; background: none; color: inherit; text-align: left; cursor: pointer; }
 .landing-footer a:hover, .landing-footer button:hover { text-decoration: underline; text-underline-offset: 4px; }

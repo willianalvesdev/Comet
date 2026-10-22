@@ -91,7 +91,7 @@
     min-height: 0;
     padding: var(--spacing-3);
     overflow-y: auto;
-    scrollbar-width: thin;
+
 }
 
 .chat-search h2 {

@@ -40,7 +40,7 @@ test('finance SVG: real values, modes, hover, selection, zoom, menus and exports
   assert.equal(await p.locator('.finance-total__sparkline').count(),3);
   assert.equal(await p.getByLabel('Valor exibido',{exact:true}).count(),0);assert.equal(await p.locator('button.finance-total').count(),0);assert.equal(await p.locator('.finance-total__sparkline pattern').count(),0);
   const input=p.locator('.finance-composer textarea');assert.equal(await input.getAttribute('rows'),'1');const initialHeight=await input.evaluate(el=>el.getBoundingClientRect().height);assert(initialHeight<=30);await input.fill('Linha 1\nLinha 2\nLinha 3');assert((await input.boundingBox())!.height>initialHeight);await input.fill('');assert.equal((await input.boundingBox())!.height,initialHeight);
-  assert((await p.locator('.sidebar__logo').evaluate(el=>getComputedStyle(el,'::before').maskImage)).includes('comet-wordmark'));
+  assert.equal(await p.locator('.sidebar__wordmark').textContent(),'Comet');
   const summary=await p.locator('.finance-total').first().boundingBox();assert(summary&&summary.height===154);
   assert.equal(await p.locator('#market-chart canvas').count(),0);assert.equal(await p.locator('.finance-main-svg').getByText('comet',{exact:true}).count(),0);assert.deepEqual(await p.locator('[data-range]').allTextContents(),['1D','5D','1M','6M','YTD','1Y','5Y','MAX']);
   assert.match(await p.locator('[data-finance-total="balance"] .finance-total__values').ariaSnapshot(),/210,00/);

@@ -2,7 +2,7 @@ import {artifactContext} from '../../shared/artifacts';
 import { conversationPath, conversationIdFromURL } from '../routes';
 import { showLoading } from './loading-indicator';
 import { publishConversationChange, cachedConversation, cacheConversation, invalidateConversation, invalidateWorkspaceResource, saveChatView, chatView, clearChatView } from './workspace-cache';
-import { isLocalModel } from './api-data';
+import { isOllamaModel } from './api-data';
 import { requiredElement, optionalElement, errorMessage, present, elementList } from './dom';
 import { record, numberValue, apiError, stringValue } from './api-data';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
@@ -231,7 +231,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             button.addEventListener('click',async event=>{
                 event.preventDefault();
                 if(kind==='copy') {
-                    try { await navigator.clipboard.writeText(body.textContent); status.textContent=''; copied(button,icon,"url('/static/img/icons/copy.svg')"); }
+                    try { await navigator.clipboard.writeText(answerText(body)); status.textContent=''; copied(button,icon,"url('/static/img/icons/copy.svg')"); }
                     catch { status.textContent='Não foi possível copiar. Selecione o texto para copiar.'; }
                     return;
                 }
@@ -717,7 +717,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const text = rewriting ? rewriting.message : present(input).value.trim() || (attached.length ? 'Analise os arquivos anexados.' : '');
         if (!text) { present(input).focus(); return; }
         if (text.length > 8000) { note.textContent = 'Escreva uma mensagem com até 8.000 caracteres.'; return; }
-        if(attached.length&&isLocalModel(models.selected()))models.select('gemini');
+        if(attached.length&&isOllamaModel(models.selected()))models.select('gemini');
         const modelError = models.error();
         if (modelError === 'Carregando modelos. Aguarde um instante.') {
             showLoading(note, 'Carregando modelos');
@@ -969,4 +969,4 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     initialize();
     resizeInput();
 }
-import { renderAnswer } from './answer-content';
+import {answerText, renderAnswer } from './answer-content';

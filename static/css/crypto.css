@@ -14,7 +14,7 @@
 .crypto-main,.crypto-sidebar { min-width:0; }
 .market-section { min-width:0; margin:0 0 32px; }
 .market-section-heading { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px 12px; min-height:24px; margin:0 0 12px; padding:0 4px; }
-.market-section-heading h2 { margin:0; color:var(--text); font-size:14px; font-weight:500; line-height:1.45; }
+.market-section-heading h2 { margin:0; color:var(--text); font-size:14px; font-weight: var(--font-weight-medium); line-height:1.45; }
 .crypto-page .market-card { display:block; min-width:0; padding:0; border:1px solid var(--border-focus); border-radius:14px; background:var(--surface); color:var(--text); box-shadow:none; }
 .market-caption { margin:0 0 12px; font-size:12px; line-height:1.5; color:var(--text-quaternary); }
 .market-section-heading .market-caption { margin:0; }
@@ -50,7 +50,7 @@
 .market-asset-row { display:flex; align-items:center; gap:2px; min-width:0; padding:6px 10px; }
 .market-asset-row:hover { background:var(--surface-hover-strong); }
 .market-asset-open { display:flex; flex:1; align-items:center; gap:9px; width:100%; min-width:0; padding:4px 0; border:0; border-radius:6px; background:transparent; color:var(--text); font:inherit; text-align:left; cursor:pointer; }
-.market-logo { display:grid; place-items:center; flex:0 0 28px; width:28px; height:28px; overflow:hidden; border-radius:6px; background:var(--surface-selected); color:var(--text-secondary); font-size:11px; font-weight:500; }
+.market-logo { display:grid; place-items:center; flex:0 0 28px; width:28px; height:28px; overflow:hidden; border-radius:6px; background:var(--surface-selected); color:var(--text-secondary); font-size:11px; font-weight: var(--font-weight-medium); }
 .market-logo img { width:100%; height:100%; object-fit:contain; }
 .market-asset-name { display:block; flex:1; min-width:0; font-size:13px; }
 .market-asset-name>span { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -62,7 +62,7 @@
 .market-watch-button .market-icon { width:15px; height:15px; }
 .market-watchlist { overflow:hidden; padding:4px 0!important; }
 .market-watch-hint { margin:10px 16px; color:var(--text-quaternary); font-size:12px; line-height:1.5; }
-.market-watchlist details>div { max-height:360px; overflow-y:auto; scrollbar-width:thin; scrollbar-gutter:stable; overscroll-behavior:contain; }
+.market-watchlist details>div { max-height:360px; overflow-y:auto;  scrollbar-gutter:stable; overscroll-behavior:contain; }
 .market-card:has(>.market-movers-tabs) { overflow:hidden; }
 .market-watchlist>.market-caption { padding:12px 16px; }
 .market-movers-tabs { display:flex; gap:6px; padding:8px 10px; border-bottom:1px solid var(--border); }
@@ -72,7 +72,7 @@
 button.market-small-pill { cursor:pointer; }
 .market-table-wrap { overflow-x:auto; }
 .market-table { table-layout:fixed; min-width:650px; width:100%; border-collapse:collapse; font-size:12px; font-variant-numeric:tabular-nums; }
-.market-table th,.market-table td { padding:13px 12px; border-bottom:1px solid var(--border-focus); text-align:right; white-space:nowrap; font-weight:400; }
+.market-table th,.market-table td { padding:13px 12px; border-bottom:1px solid var(--border-focus); text-align:right; white-space:nowrap; font-weight: var(--font-weight-regular); }
 .market-table th:first-child { width:28%; text-align:left; }
 .market-table tr:last-child>* { border-bottom:0; }
 .market-table thead th { color:var(--text-quaternary); font-size:11px; }
@@ -86,14 +86,14 @@ button.market-small-pill { cursor:pointer; }
 .market-news-card>img { width:100%; height:130px; object-fit:cover; }
 .market-news-card>span { display:grid; align-content:start; gap:10px; padding:16px; }
 .market-news-card small,.market-news-card time { color:var(--text-quaternary); font-size:11px; }
-.market-news-card strong { display:-webkit-box; overflow:hidden; -webkit-line-clamp:3; -webkit-box-orient:vertical; font-size:14px; font-weight:500; line-height:1.45; }
+.market-news-card strong { display:-webkit-box; overflow:hidden; -webkit-line-clamp:3; -webkit-box-orient:vertical; font-size:14px; font-weight: var(--font-weight-medium); line-height:1.45; }
 .market-highlights { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
 .crypto-page .market-highlight { padding:14px 0; text-align:left; cursor:pointer; }
 .market-highlight-name { display:flex; align-items:center; gap:8px; padding:0 12px; }
 .market-highlight-name>span:last-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; }
 .market-highlight-name small { display:block; margin-top:3px; color:var(--text-quaternary); font-size:10px; }
 .market-highlight-quote { display:flex; flex-wrap:wrap; gap:6px 10px; padding:14px 12px 0; }
-.market-highlight-quote strong { font-weight:500; }
+.market-highlight-quote strong { font-weight: var(--font-weight-medium); }
 .market-highlight-quote .market-change { font-size:12px; }
 .market-highlight-meta { display:block; padding:10px 12px 0; color:var(--text-quaternary); font-size:11px; }
 .market-attribution { margin:12px 4px 24px; color:var(--text-quaternary); font-size:11px; line-height:1.6; }
@@ -135,7 +135,7 @@ button.market-small-pill { cursor:pointer; }
 .crypto-search-result .market-logo { flex-basis:30px; width:30px; height:30px; }
 .crypto-search-result>.market-icon { width:16px; height:16px; flex-basis:16px; color:var(--text-quaternary); }
 .crypto-search-name { display:grid; flex:1; min-width:0; gap:4px; }
-.crypto-search-name strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:14px; font-weight:400; }
+.crypto-search-name strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:14px; font-weight: var(--font-weight-regular); }
 .crypto-search-name small { color:var(--text-quaternary); font-size:11px; }
 .crypto-search-price { color:var(--text-tertiary); font-size:13px; font-variant-numeric:tabular-nums; white-space:nowrap; }
 .crypto-search-change { flex-shrink:0; padding:4px 7px; border-radius:5px; background:var(--surface-hover-strong); font-size:12px; font-variant-numeric:tabular-nums; white-space:nowrap; }
@@ -159,7 +159,7 @@ button.market-small-pill { cursor:pointer; }
 .market-visually-hidden { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
 .market-asset-detail { margin-bottom:32px; }
 .market-asset-detail>header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px; }
-.market-asset-detail h1 { margin:0; font-size:26px; font-weight:500; letter-spacing:-.5px; }
+.market-asset-detail h1 { margin:0; font-size:26px; font-weight: var(--font-weight-medium); letter-spacing:-.5px; }
 .crypto-page button:focus-visible,.crypto-page a:focus-visible,.crypto-search a:focus-visible,.crypto-search button:focus-visible { outline:2px solid var(--text-tertiary); outline-offset:3px; }
 @keyframes crypto-news-in { from { opacity:.5; } to { opacity:1; } }
 @media(max-width:1280px) { .crypto-layout { grid-template-columns:minmax(0,1fr) 270px; gap:24px; } .market-top-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .market-highlights { grid-template-columns:repeat(2,minmax(0,1fr)); } }
@@ -182,7 +182,7 @@ button.market-small-pill { cursor:pointer; }
 .crypto-chart.is-fullscreen .crypto-chart-card { margin:16px 32px; }
 .crypto-layout:has(.is-fullscreen) .finance-composer { visibility:hidden; }
 .crypto-page number-flow-react { font-variant-numeric:tabular-nums; }
-.crypto-timeline { max-height:440px; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; }
+.crypto-timeline { max-height:440px; overflow-y:auto; overscroll-behavior:contain;  }
 .crypto-timeline ol { margin:0; padding:24px; list-style:none; }
 .crypto-timeline li { position:relative; display:grid; grid-template-columns:95px 12px minmax(0,1fr); align-items:start; gap:20px; padding-bottom:28px; }
 .crypto-timeline li:last-child { padding-bottom:0; }
@@ -194,7 +194,7 @@ button.market-small-pill { cursor:pointer; }
 .crypto-timeline-dot.is-latest { background:var(--turquoise); border-color:var(--turquoise); }
 .crypto-timeline p { margin:0 0 12px; color:var(--text-secondary); line-height:1.55; font-size:14px; }
 .crypto-timeline .crypto-timeline-price { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
-.crypto-timeline-price strong { color:var(--text); font-weight:500; }
+.crypto-timeline-price strong { color:var(--text); font-weight: var(--font-weight-medium); }
 .crypto-timeline-source { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border:1px solid var(--border-focus); border-radius:999px; font-size:12px; color:var(--text-tertiary); text-decoration:none; }
 .crypto-timeline-source:hover { color:var(--text); }
 .crypto-timeline-note { margin:10px 4px 0; font-size:12px; line-height:1.5; color:var(--text-quaternary); }

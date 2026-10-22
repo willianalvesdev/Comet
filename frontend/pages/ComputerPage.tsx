@@ -36,12 +36,14 @@ export default function ComputerPage({ bootstrap }: { bootstrap: BootstrapData }
                     <button className="computer-history__older" type="button" hidden>Carregar mensagens anteriores</button>
                     <section className="computer-messages" aria-label="Conversa com Computer" aria-live="polite" aria-relevant="additions text" hidden={!bootstrap.conversationId}></section>
                     <div className="computer-history-status" hidden></div>
+                    <p className="computer-disclaimer">O Comet pode cometer erros. Confira informações importantes.</p>
                     <div className="computer-composer">
                         <div className="anonymous-composer-shell">
                             <div className="anonymous-composer-banner">
                                 <span><i aria-hidden="true"></i>Você está no modo anônimo.</span>
                                 <button type="button" className="anonymous-composer-exit">Sair da navegação anônima</button>
                             </div>
+                            <div className="local-composer-banner"><span><i aria-hidden="true"></i>Você está trabalhando localmente</span></div>
                             <ChatComposer readonly />
                         </div>
                         <p className="anonymous-note" hidden>As conversas que você criar não serão salvas no histórico e expiram após 24 horas.</p>

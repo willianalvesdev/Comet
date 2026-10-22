@@ -1,5 +1,8 @@
+import {codeBlock} from './code-block';
 import {citationLink} from './citations';
 import {csvText,type Sheet} from '../../shared/artifacts';
+const answerSources = new WeakMap<HTMLElement, string>();
+export function answerText(body: HTMLElement) { return answerSources.get(body) ?? body.textContent; }
 function renderInline(body: HTMLElement, text: string, sources: ResearchSource[] = []) {
     const fragment = document.createDocumentFragment();
     // Create DOM nodes, never interpret model output as HTML; keep code literal.
@@ -19,6 +22,8 @@ function renderInline(body: HTMLElement, text: string, sources: ResearchSource[]
             const ids = [...match[3].matchAll(/\d+/g)].map(value=>Number(value[0])-1);
             const link = citationLink(ids.map(id=>sources[id]));
             fragment.append(link ?? document.createTextNode(match[0]));
+        } else if (match[0].startsWith('`')) {
+            const code=document.createElement('code');code.className='answer-inline-code';code.textContent=match[0].slice(1,-1);fragment.append(code);
         } else fragment.append(document.createTextNode(match[0]));
         end = match.index + match[0].length;
     }
@@ -60,6 +65,7 @@ export function positionTableHeaders(root:HTMLElement){
     }
 }
 export function renderAnswer(body:HTMLElement,text:string,sources:ResearchSource[]=[]){
+    answerSources.set(body,text);
     const lines=text.replace(/\r\n?/g,'\n').split('\n'),fragment=document.createDocumentFragment();let pending:string[]=[];
     const flush=()=>{if(pending.length){const span=document.createElement('span');renderInline(span,pending.join('\n'),sources);fragment.append(...span.childNodes);pending=[];}};
     const cells=(line:string)=>line.trim().replace(/^\||\|$/g,'').split(/(?<!\\)\|/).map(v=>v.trim().replace(/\\\|/g,'|'));
@@ -68,10 +74,10 @@ export function renderAnswer(body:HTMLElement,text:string,sources:ResearchSource
     for(let i=0;i<lines.length;i++){
         const line=lines[i],fence=/^ {0,3}(`{3,}|~{3,})/.exec(line);
         if(fence){
-            flush();lists.length=0;const code=[line],closing=new RegExp('^ {0,3}'+fence[1][0]+'{'+fence[1].length+',}[ \t]*$');
-            while(++i<lines.length){code.push(lines[i]);if(closing.test(lines[i]))break;}
-            // Fenced content remains literal, including list markers, dividers and HTML.
-            fragment.append(document.createTextNode(code.join('\n')+(i<lines.length-1?'\n':'')));continue;
+            flush();lists.length=0;const code:string[]=[],closing=new RegExp('^ {0,3}'+fence[1][0]+'{'+fence[1].length+',}[ \t]*$');
+            const language=line.slice(fence[0].length).trim().split(/\s+/)[0];
+            while(++i<lines.length&&!closing.test(lines[i]))code.push(lines[i]);
+            fragment.append(codeBlock(code.join('\n')+(i<lines.length&&code.length?'\n':''),language));continue;
         }
         if(/^ {0,3}(?:(?:-[ \t]*){3,}|(?:\*[ \t]*){3,}|(?:_[ \t]*){3,})$/.test(line)){
             flush();lists.length=0;const rule=document.createElement('hr');rule.className='answer-divider';fragment.append(rule);continue;

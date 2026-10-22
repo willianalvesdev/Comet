@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {afterEach,test} from 'node:test';
 import {randomUUID} from 'node:crypto';
 import {curatedModels,parseFreeModels,freeModels,streamOpenRouter,structuredOpenRouter} from '../../server/ai/openrouter';
-import {AIError,isLocalModel,validateChat,type Event} from '../../server/ai/types';
+import {AIError,isOllamaModel,validateChat,type Event} from '../../server/ai/types';
 import {chatResponse} from '../../server/ai';
 const originalFetch=globalThis.fetch, originalKey=process.env.OPENROUTER_API_KEY;
 afterEach(()=>{globalThis.fetch=originalFetch;if(originalKey===undefined)delete process.env.OPENROUTER_API_KEY;else process.env.OPENROUTER_API_KEY=originalKey;});
@@ -21,7 +21,7 @@ test('curated catalog contains exactly the selected 11 models in company order',
 });
 test('catalog only exposes free text models; excludes hidden charges and rejects local confusion',async()=>{
  setup();assert.deepEqual(parseFreeModels(catalog).map(m=>m.id),['openrouter:nvidia/nemotron-3.5-super-vl:free','openrouter:nvidia/nemotron-3.5-lightning:free']);
- assert.equal((await freeModels()).length,2);assert.equal(isLocalModel('openrouter:nvidia/nemotron-3.5-super-vl:free'),false);
+ assert.equal((await freeModels()).length,2);assert.equal(isOllamaModel('openrouter:nvidia/nemotron-3.5-super-vl:free'),false);
  assert.throws(()=>validateChat({conversation_id:null,message:'Oi',request_id:randomUUID(),provider:'openrouter:test/paid'}),code('invalid_request'));
  const payload=validateChat({conversation_id:null,message:'Imagem',request_id:randomUUID(),provider:'openrouter:nvidia/nemotron-3.5-super-vl:free',attachments:['a'.repeat(32)]});assert.equal(payload.provider,'openrouter:nvidia/nemotron-3.5-super-vl:free');
 });

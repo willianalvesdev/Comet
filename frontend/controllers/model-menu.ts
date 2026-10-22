@@ -1,7 +1,6 @@
-import { showLoading } from './loading-indicator';
 import { workspaceGet } from './workspace-cache';
 import { optionalElement, isRecord, present, requiredElement, eventElement } from './dom';
-import { isOpenRouterModel, isLocalModel, record, arrayValue, stringValue, booleanValue } from './api-data';
+import { isOpenRouterModel, isOllamaModel, record, arrayValue, stringValue, booleanValue } from './api-data';
 import { composerState } from '../components/composer-state';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
     const gemini = optionalElement(document, '.model-picker', HTMLButtonElement), computer = optionalElement(document, '.computer-provider', HTMLButtonElement);
@@ -11,35 +10,42 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     trigger.popoverTargetElement = menu;
     const companies: Record<string,string> = {nvidia:'NVIDIA',thinkingmachines:'Thinking Machines',cohere:'Cohere',google:'Google'};
     const labels: Record<string,string> = {};
+    const executions: Record<string,'local'|'cloud'> = {};
     let options: HTMLButtonElement[] = [];
     const geminiOption = document.createElement('button');
     geminiOption.type = 'button'; geminiOption.dataset.provider = 'gemini';
     geminiOption.setAttribute('role', 'menuitemradio');
     geminiOption.innerHTML = '<i class="model-icon model-icon--gemini" aria-hidden="true"></i><span>Gemini</span><i class="model-check" aria-hidden="true"></i>';
     let remoteOptions: HTMLButtonElement[]=[geminiOption], remote='gemini', remoteError='', remoteEnabled=false;
-    function visibleOptions() { return isLocalModel(selected)||!selected ? options : remoteOptions; }
+    function visibleOptions() { return isOllamaModel(selected)||!selected ? options : remoteOptions; }
     let selected: ModelProvider = 'gemini', local: LocalModel = '', availability: Record<string,boolean> | undefined;
     let localError = 'Carregando os modelos do Ollama…', loading: Promise<void> | null = null;
     const preferenceKey = 'ascenda-model-preference-' + optionalElement(document, '[data-user-id]', HTMLElement)?.dataset.userId;
     try {
         const saved: unknown = JSON.parse(localStorage.getItem(preferenceKey) || '{}');
         const preference = isRecord(saved) ? saved : {};
-        if (isLocalModel(preference.local)) local = preference.local;
+        if (isOllamaModel(preference.local)) local = preference.local;
         if (preference.provider === 'computer') selected = local;
         else if(isOpenRouterModel(preference.remote)) selected=remote=preference.remote;
     } catch {}
     function savePreference() {
-        try { localStorage.setItem(preferenceKey, JSON.stringify({provider:isLocalModel(selected)||!selected ? 'computer' : 'online', remote, local})); } catch {}
+        try { localStorage.setItem(preferenceKey, JSON.stringify({provider:isOllamaModel(selected)||!selected ? 'computer' : 'online', remote, local})); } catch {}
     }
     function update() {
-        const computerMode=isLocalModel(selected)||!selected;
+        const computerMode=isOllamaModel(selected)||!selected;
         composerState.update({ computer: computerMode });
+        const localExecution=computerMode && executions[selected]==='local';
+        document.querySelector('.computer-page')?.classList.toggle('is-local-model',localExecution);
         present(trigger).hidden = false;
         const name = selected === 'gemini' ? 'Gemini' : labels[selected] || (isOpenRouterModel(selected)?'Escolher modelo':local || 'Ollama');
-        present(menu).setAttribute('aria-label', computerMode ? 'Modelos locais' : 'Modelos gratuitos');
+        present(menu).setAttribute('aria-label', computerMode ? 'Modelos do Ollama' : 'Modelos gratuitos');
         present(menu).replaceChildren();
-        let company = '';
+        let company = '', execution = '';
+        if(computerMode&&!options.length&&localError){const message=document.createElement('p');message.textContent=localError;present(menu).append(message);}
         for (const option of visibleOptions()) {
+            if(computerMode && option.dataset.execution!==execution){
+                execution=option.dataset.execution||'local';const heading=document.createElement('div');heading.className='model-company'+(execution==='cloud'?' model-company--cloud':'');heading.textContent=execution==='cloud'?'Nuvem · Ollama':'No seu computador';present(menu).append(heading);
+            }
             const vendor = option.dataset.company || '';
             if (vendor && vendor !== company) {
                 const heading = document.createElement('div'); heading.className = 'model-company'; heading.textContent = companies[vendor];
@@ -47,7 +53,10 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             }
             present(menu).append(option);
         }
-        if (computerMode && !options.length) { const message = document.createElement('p'); if (localError === 'Carregando os modelos do Ollama…') showLoading(message, 'Carregando modelos do Ollama'); else message.textContent = localError; present(menu).append(message); }
+
+        if(computerMode && options.length && !options.some(option=>option.dataset.execution==='cloud')) {
+            const heading=document.createElement('div');heading.className='model-company model-company--cloud';heading.textContent='Nuvem · Ollama';const note=document.createElement('p');note.textContent='Os modelos Cloud adicionados no Ollama aparecerão aqui.';present(menu).append(heading,note);
+        }
         if(!computerMode&&remoteError){const message=document.createElement('p');message.textContent=remoteError;present(menu).append(message);}
         geminiOption.setAttribute('aria-checked', String(selected === 'gemini'));
         requiredElement(present(trigger), '.local-model-name', HTMLElement).textContent = name;
@@ -69,7 +78,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         loading = workspaceGet('/api/ai/models', 15000, force).then(raw => {
             if (!scope.active) return;
             const result = record(raw);
-            const models = arrayValue(result.models, value => {const m=record(value);return {id:stringValue(m.id),name:typeof m.name==='string'?m.name:stringValue(m.id),configured:booleanValue(m.configured)};});
+            const models = arrayValue(result.models, value => {const m=record(value);return {id:stringValue(m.id),name:typeof m.name==='string'?m.name:stringValue(m.id),configured:booleanValue(m.configured),execution:m.execution==='cloud'?'cloud' as const:'local' as const};});
             availability = Object.fromEntries(models.map(m=>[m.id,m.configured]));
             remoteEnabled=result.openrouter_configured===true;
             remoteError=typeof result.openrouter_error==='string'?result.openrouter_error:'';
@@ -80,10 +89,13 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
                 option.append(label,check);return option;
             }) : [geminiOption];
             if(!remoteOptions.some(o=>o.dataset.provider===remote))remote=remoteOptions.find(o=>o.dataset.provider===result.default_remote_model)?.dataset.provider || remoteOptions[0]?.dataset.provider || 'openrouter:unavailable/model:free';
-            if(!isLocalModel(selected)&&selected)selected=remote;
-            options = models.filter(m=>isLocalModel(m.id) && m.configured).map(m=>{
+            if(!isOllamaModel(selected)&&selected)selected=remote;
+            options = models.filter(m=>isOllamaModel(m.id) && m.configured).sort((a,b)=>Number(a.execution==='cloud')-Number(b.execution==='cloud')).map(m=>{
+                executions[m.id]=m.execution;
                 labels[m.id] = m.id === 'qwen-turbo1.7:latest' ? '1.7b turbo' : m.id.replace(/^qwen3:/, '').replace(/:latest$/, '');
-                const option=document.createElement('button'); option.type='button';option.dataset.provider=m.id;
+                const option=document.createElement('button'); option.type='button';option.dataset.provider=m.id;option.dataset.execution=m.execution;
+                const brand = m.execution==='local' ? 'cpu' : '';
+                if(brand){const icon=document.createElement('i');icon.className='model-icon model-icon--'+brand;icon.setAttribute('aria-hidden','true');option.append(icon);}
                 option.setAttribute('role','menuitemradio');
                 const label=document.createElement('span');label.textContent=labels[m.id];
                 const check=document.createElement('i');check.className='model-check';check.setAttribute('aria-hidden','true');
@@ -92,7 +104,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             localError = typeof result.local_error==='string' ? result.local_error : options.length ? '' : 'Nenhum modelo instalado no Ollama.';
             if (!options.some(o=>o.dataset.provider===local)) {
                 local = options.find(o=>o.dataset.provider===result.default_model)?.dataset.provider || options[0]?.dataset.provider || '';
-                if (isLocalModel(selected)||!selected) selected=local;
+                if (isOllamaModel(selected)||!selected) selected=local;
             }
             update();
         }).catch(()=>{if(!scope.active)return;remoteError=localError='Não foi possível carregar os modelos. Tente novamente.';update();}).finally(()=>{loading=null;});
@@ -100,7 +112,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     }
     async function open() {
         if (!scope.active || present(trigger).disabled) return;
-        if(!availability || isLocalModel(selected) || !selected || (remoteEnabled && remoteError)) await refreshModels(true);
+        if(!availability || isOllamaModel(selected) || !selected || (remoteEnabled && remoteError)) await refreshModels(true);
         if(!scope.active||present(trigger).disabled)return;update();
         present(menu).showPopover(); position(); visibleOptions().find(option=>option.dataset.provider===selected)?.focus({preventScroll:true});
     }
@@ -110,8 +122,8 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     trigger.addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();open();}}, {signal: scope.signal});
     menu.addEventListener('toggle',()=>trigger.setAttribute('aria-expanded',String(menu.matches(':popover-open'))), {signal: scope.signal});
     menu.addEventListener('click',e=>{
-        const option=eventElement(e.target)?.closest<HTMLButtonElement>('[data-provider]'); if(!option || (option.dataset.provider !== 'gemini' && !isOpenRouterModel(option.dataset.provider) && !isLocalModel(option.dataset.provider)))return;
-        selected=option.dataset.provider!; if(isLocalModel(selected)) local=selected;else remote=selected;savePreference();update();menu.hidePopover();trigger.focus({preventScroll:true});
+        const option=eventElement(e.target)?.closest<HTMLButtonElement>('[data-provider]'); if(!option || (option.dataset.provider !== 'gemini' && !isOpenRouterModel(option.dataset.provider) && !isOllamaModel(option.dataset.provider)))return;
+        selected=option.dataset.provider!; if(isOllamaModel(selected)) local=selected;else remote=selected;savePreference();update();menu.hidePopover();trigger.focus({preventScroll:true});
     }, {signal: scope.signal});
     menu.addEventListener('keydown',e=>{
         if(e.key==='Escape'){e.preventDefault();menu.hidePopover();trigger.focus();}
@@ -128,8 +140,8 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     window.ComputerModels={
         whenReady:()=>loading || refreshModels(),
         selected:()=>selected,
-        select:value=>{if(value==='qwen')value=local;if(value==='gemini'&&remoteEnabled)value=remote;if(value==='gemini'||[...options,...remoteOptions].some(o=>o.dataset.provider===value)){selected=value;if(isLocalModel(value))local=value;else remote=value;update();}},
-        error:()=>!availability?remoteError || 'Carregando modelos. Aguarde um instante.':isLocalModel(selected)||!selected ? localError : isOpenRouterModel(selected) ? remoteError || (!availability?.[selected]?'Este modelo está indisponível. Escolha outro modelo.':'') : availability&&!availability.gemini?'Configure a chave do Gemini no servidor para começar.':'',
+        select:value=>{if(value==='qwen')value=local;if(value==='gemini'&&remoteEnabled)value=remote;if(value==='gemini'||[...options,...remoteOptions].some(o=>o.dataset.provider===value)){selected=value;if(isOllamaModel(value))local=value;else remote=value;update();}},
+        error:()=>!availability?remoteError || 'Carregando modelos. Aguarde um instante.':isOllamaModel(selected)||!selected ? localError : isOpenRouterModel(selected) ? remoteError || (!availability?.[selected]?'Este modelo está indisponível. Escolha outro modelo.':'') : availability&&!availability.gemini?'Configure a chave do Gemini no servidor para começar.':'',
         setBusy:value=>{composerState.update({busy:value});trigger.disabled=value;if(value&&menu.matches(':popover-open'))menu.hidePopover();}
     };
     update();

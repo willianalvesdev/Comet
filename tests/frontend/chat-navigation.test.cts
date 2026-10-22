@@ -650,3 +650,88 @@ test('connection cursor: restored running chats follow the same phases',async()=
   await thought.locator('summary').click();history.turns[0].answer+=' com atualização';await p.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')));await p.getByText('Resposta em andamento com atualização',{exact:true}).waitFor();assert.equal(await thought.getAttribute('open'),'');assert.deepEqual(f.errors,[]);
  }finally{await f.close();}
 });
+for (const width of [1280,390]) test(`code blocks: safe highlighting, literal copy and layout ${width}`,async()=>{
+ const f=await fixture(),p=f.page;
+ try {
+  await p.setViewportSize({width,height:900});
+  await f.context.grantPermissions(['clipboard-read','clipboard-write']);
+  const source='const html = "<img src=x onerror=alert(1)>";\nconsole.log(html);\n';
+  const answer='Código `inline [1]`\n\n```javascript\n'+source+'```\n\n~~~unknown\n<script>alert(1)</script>\n~~~\n\n```python\nprint("incompleto")';
+  const history=f.histories.get('2')!;history.turns=[{...history.turns[0],answer}];await open(p,'2');
+  const body=p.locator('.computer-message--assistant .computer-message__text'),blocks=body.locator('.answer-code');
+  assert.equal(await blocks.count(),3);assert.equal(await blocks.first().locator('pre code').textContent(),source);
+  assert.ok(await blocks.first().locator('.hljs-keyword').count()>0);
+  assert.equal(await blocks.nth(1).locator('code').textContent(),'<script>alert(1)</script>\n');
+  assert.equal(await blocks.nth(2).locator('code').textContent(),'print("incompleto")');
+  assert.equal(await body.locator('img,script,.computer-citation').count(),0);assert.equal(await body.locator('.answer-inline-code').textContent(),'inline [1]');
+  await blocks.first().getByRole('button',{name:'Copiar código',exact:true}).click();assert.equal(await p.evaluate(async()=>(await navigator.clipboard.readText()).replace(/\r\n/g,'\n')),source);
+  assert.equal(await blocks.first().locator('[data-copied]').count(),1);
+  await p.locator('.computer-message__actions').getByRole('button',{name:'Copiar',exact:true}).click();assert.equal(await p.evaluate(async()=>(await navigator.clipboard.readText()).replace(/\r\n/g,'\n')),answer);
+  for (const theme of ['dark','light']) {
+   await p.evaluate(theme=>{document.documentElement.dataset.theme=theme;},theme);
+   assert.equal(await body.evaluate(e=>getComputedStyle(e).fontWeight),'350');assert.equal(await blocks.first().locator('code').evaluate(e=>getComputedStyle(e).fontWeight),'380');
+   assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+   await p.locator('.workspace__content').evaluate(e=>e.scrollTop=0);await p.evaluate(()=>(document.activeElement as HTMLElement)?.blur());await p.mouse.move(0,0);
+   assert.equal(await p.locator('.computer-message__actions').evaluate(e=>getComputedStyle(e).opacity),'1');
+   await p.waitForFunction(()=>getComputedStyle(document.querySelector('.response-time')!).opacity==='0');
+   const send=p.locator('.home__send');const before=await send.evaluate(e=>({opacity:getComputedStyle(e).opacity,bg:getComputedStyle(e).backgroundColor}));assert.equal(before.opacity,'1');
+   await send.hover();await p.waitForTimeout(250);assert.deepEqual(await send.evaluate(e=>({opacity:getComputedStyle(e).opacity,bg:getComputedStyle(e).backgroundColor})),before);
+   await p.mouse.move(0,0);await p.screenshot({path:path.join(root,`artifacts/code-blocks-${width}-${theme}.png`)});
+  }
+  assert.equal(await p.locator('.sidebar__wordmark').textContent(),'Comet');assert.equal(await p.locator('.computer-disclaimer').textContent(),'O Comet pode cometer erros. Confira informações importantes.');
+  assert.deepEqual(f.errors,[]);
+ } finally {await f.close();}
+});
+
+for(const width of [1280,390]) test(`Ollama menu and banners: local, cloud and anonymous priority ${width}`,async()=>{
+ const f=await fixture(),p=f.page;
+ try {
+  await p.setViewportSize({width,height:950});await p.emulateMedia({colorScheme:'dark'});await p.evaluate(()=>document.documentElement.dataset.theme='dark');
+  await f.context.route('**/api/ai/models',r=>r.fulfill({json:{models:[{id:'gemini',configured:true},{id:'qwen3:4b',configured:true,execution:'local'},{id:'gpt-oss:120b-cloud',configured:true,execution:'cloud'},...['gemma4:31b-cloud','glm-5.3-flash:cloud','kimi-k3:cloud','deepseek-v4.1-flash:cloud'].map(id=>({id,configured:true,execution:'cloud'}))],default_model:'qwen3:4b'}}));
+  await p.evaluate(()=>window.dispatchEvent(new Event('sessions:new')));
+  await p.getByRole('button',{name:'Usar Computer',exact:true}).click();await p.waitForFunction(()=>window.ComputerModels.selected()==='qwen3:4b');
+  assert.equal(await p.locator('.local-composer-banner').isVisible(),false);assert.equal(await p.locator('.anonymous-composer-banner').isVisible(),false);
+  const composer=p.locator('.home__composer');const base=await composer.boundingBox();assert(base);assert.equal(await composer.evaluate(e=>getComputedStyle(e,'::before').content),'none');
+  await open(p,'2');assert.equal(await p.locator('.local-composer-banner').isVisible(),true);
+  await p.locator('.local-model-picker').click();await p.locator('.model-menu:popover-open').waitFor();
+  assert.equal(await p.locator('[data-provider="qwen3:4b"] .model-icon--cpu').count(),1);assert.equal(await p.locator('[data-provider="gpt-oss:120b-cloud"] .model-icon--cpu').count(),0);
+  assert.equal(await p.locator('.model-menu').getByText('Nuvem · Ollama',{exact:true}).count(),1);
+  for(const id of ['gemma4:31b-cloud','glm-5.3-flash:cloud','kimi-k3:cloud','deepseek-v4.1-flash:cloud']) assert.equal(await p.locator('[data-provider="'+id+'"] .model-icon').count(),0);
+  assert.equal(await composer.evaluate(e=>getComputedStyle(e).borderTopWidth),'1px');
+  assert.notEqual(await composer.evaluate(e=>getComputedStyle(e).borderTopLeftRadius),'0px');
+  if(width===1280) for(const height of await p.locator('.sidebar__link').evaluateAll(es=>es.map(e=>e.getBoundingClientRect().height))) assert.equal(height,36);
+  await p.screenshot({path:path.join(root,`artifacts/ollama-local-menu-${width}.png`)});
+  await p.locator('[data-provider="gpt-oss:120b-cloud"]').click();assert.equal(await p.getByRole('button',{name:'Usar Computer'}).getAttribute('aria-pressed'),'true');assert.equal(await p.locator('.local-composer-banner').isVisible(),false);assert.equal(await p.locator('.local-model-name').textContent(),'gpt-oss:120b-cloud');
+  await p.locator('.local-model-picker').click();await p.locator('[data-provider="qwen3:4b"]').click();
+  await p.evaluate(()=>window.dispatchEvent(new Event('chat:toggle-anonymous')));
+  assert.equal(await p.locator('.anonymous-composer-banner').isVisible(),false);
+  await p.route('**/api/ai/chat',r=>r.fulfill({contentType:'application/x-ndjson',body:[{type:'delta',text:'Resposta privada para validar o aviso'},{type:'done',metadata:{}}].map(e=>JSON.stringify(e)).join('\n')+'\n'}));
+  await p.locator('.home__input').fill('Teste do aviso');await p.locator('.home__input').press('Enter');await p.getByText('Resposta privada para validar o aviso',{exact:true}).waitFor();
+  await p.screenshot({path:path.join(root,'artifacts/banner-connected-'+width+'.png')});
+  assert.equal(await p.locator('.anonymous-composer-banner').isVisible(),true);assert.equal(await p.locator('.local-composer-banner').isVisible(),false);assert.equal(await p.locator('.anonymous-composer-banner').evaluate(e=>getComputedStyle(e).borderTopWidth),'1px');
+  assert.equal(await p.locator('.anonymous-composer-shell').evaluate(e=>getComputedStyle(e).backgroundColor),await p.locator('.anonymous-composer-banner').evaluate(e=>getComputedStyle(e).backgroundColor));
+  await p.evaluate(()=>window.dispatchEvent(new Event('sessions:new')));
+  assert.equal(await p.locator('.anonymous-composer-banner').isVisible(),false);
+  assert.equal(await p.locator('.local-composer-banner').isVisible(),false);
+  assert.equal((await composer.boundingBox())!.height,base.height);await p.screenshot({path:path.join(root,`artifacts/ollama-anonymous-banner-${width}.png`)});
+  if(width===1280){await p.locator('.sidebar__profile').click();const menu=await p.locator('.profile-menu').boundingBox(),trigger=await p.locator('.sidebar__profile').boundingBox();assert(menu&&trigger);assert.equal(menu.x,trigger.x);assert.ok(Math.abs(menu.width-trigger.width)<=1);
+   const text=await p.locator('.sidebar__wordmark').boundingBox(),icon=await p.locator('.sidebar__new-chat .sidebar__icon').first().boundingBox();assert.equal(text!.x,icon!.x);
+   await p.evaluate(()=>document.querySelector<HTMLElement>('.workspace')!.style.setProperty('--sidebar-expanded-width','360px'));await p.waitForTimeout(400);const resizedMenu=await p.locator('.profile-menu').boundingBox(),resizedTrigger=await p.locator('.sidebar__profile').boundingBox();assert.ok(Math.abs(resizedMenu!.width-resizedTrigger!.width)<=1);await p.screenshot({path:path.join(root,'artifacts/profile-menu-matched.png')});
+  }
+  assert.deepEqual(f.errors,[]);
+ } finally {await f.close();}
+});
+
+for(const width of [390,1280]) test('anonymous ripple follows greeting center '+width,async()=>{
+ const f=await fixture(),p=f.page;
+ try {
+  await p.setViewportSize({width,height:900});await p.emulateMedia({reducedMotion:'no-preference'});
+  await p.evaluate(()=>window.dispatchEvent(new Event('chat:toggle-anonymous')));
+  await p.getByRole('button',{name:'Usar Computer',exact:true}).click();
+  await p.waitForFunction(()=>document.querySelector<HTMLElement>('.computer-ripple')?.dataset.running==='true');
+  await p.waitForTimeout(150);
+  const result=await p.locator('.computer-ripple').evaluate(e=>{const c=e as HTMLCanvasElement,g=c.getContext('webgl2')!,program=g.getParameter(g.CURRENT_PROGRAM) as WebGLProgram;const origin=Array.from(g.getUniform(program,g.getUniformLocation(program,'u_rippleOrigin')!) as Float32Array);const rect=c.getBoundingClientRect(),title=document.querySelector('#computer-title')!.getBoundingClientRect();return {origin,expected:[(title.left+title.width/2-rect.left)/rect.width,(title.top+title.height/2-rect.top)/rect.height]};});
+  result.origin.forEach((value,i)=>assert(Math.abs(value-result.expected[i])<.001));
+  await p.screenshot({path:path.join(root,'artifacts/anonymous-ripple-'+width+'.png')});assert.deepEqual(f.errors,[]);
+ }finally{await f.close();}
+});

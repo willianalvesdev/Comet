@@ -26,7 +26,8 @@ const messages = {
   stale_conversation: 'A conversa mudou em outra aba. Reabra-a antes de continuar.',
   history_unavailable: 'Não foi possível salvar a conversa. Confira a conexão com o banco e tente novamente.',
   unavailable: 'Não consegui me conectar ao meu modelo local. Verifique se o serviço local está em execução e tente novamente.',
-  model_missing: 'Meu modelo local ainda não está disponível. Peça ao responsável pelo Comet para concluir a instalação.',
+  ollama_auth: 'Entre na sua conta no aplicativo Ollama para usar os modelos Cloud.',
+  model_missing: 'Este modelo não está disponível no Ollama. Adicione-o no aplicativo e tente novamente.',
   timeout: 'A resposta demorou mais que o esperado. Tente novamente em instantes.',
   invalid_response: 'Recebi uma resposta incompleta. Tente enviar a mensagem novamente.',
   stream_error: 'A resposta foi interrompida. Você pode tentar novamente.',
@@ -50,10 +51,10 @@ export function id(value: unknown): string {
   return value;
 }
 export function isOpenRouterModel(value: unknown): value is string { return typeof value === 'string' && /^openrouter:[a-zA-Z0-9][a-zA-Z0-9._-]*\/[a-zA-Z0-9][a-zA-Z0-9._:-]*:free$/.test(value) && value.length <= 200; }
-export function isLocalModel(value: unknown): value is string {
-  return typeof value === 'string' && !['gemini', 'qwen'].includes(value) && !value.startsWith('openrouter:') && value.length <= 200 && !value.includes('://') && !value.toLowerCase().includes('cloud') && /^[A-Za-z0-9][A-Za-z0-9_.:/-]*$/.test(value);
+export function isOllamaModel(value: unknown): value is string {
+  return typeof value === 'string' && !['gemini', 'qwen'].includes(value) && !value.startsWith('openrouter:') && value.length <= 200 && !value.includes('://') && /^[A-Za-z0-9][A-Za-z0-9_.:/-]*$/.test(value);
 }
-export const isProvider = (value: unknown): value is string => value === 'gemini' || value === 'qwen' || isOpenRouterModel(value) || isLocalModel(value);
+export const isProvider = (value: unknown): value is string => value === 'gemini' || value === 'qwen' || isOpenRouterModel(value) || isOllamaModel(value);
 export function validateChat(raw: Record<string, unknown>): ChatPayload {
   const allowed = ['conversation_id', 'message', 'request_id', 'provider', 'attachments', 'regenerate', 'web_search', 'anonymous', 'history'];
   if (Object.keys(raw).some(key => !allowed.includes(key)) || !['conversation_id', 'message', 'request_id'].every(key => key in raw)) throw new AIError('invalid_request', 422);

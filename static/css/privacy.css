@@ -10,7 +10,9 @@
 .privacy-layout { width: min(1120px, calc(100% - 2 * var(--spacing-10))); margin-inline: auto; padding-top: calc(var(--header-height) + var(--spacing-24)); display: grid; grid-template-columns: 240px minmax(0, 1fr); column-gap: var(--spacing-24); }
 .privacy-intro { grid-column: 1 / -1; padding-bottom: var(--spacing-12); margin-bottom: var(--spacing-12); border-bottom: 1px solid var(--border-focus); }
 .privacy-eyebrow { display: flex; gap: var(--spacing-3); color: var(--text-tertiary); font-size: var(--font-size-4); margin-bottom: var(--spacing-6); }
-.privacy-intro h1 { font-family: var(--font-heading); font-weight: var(--font-weight-regular); font-size: clamp(42px, 5vw, var(--font-size-1)); line-height: 1.05; letter-spacing: -.035em; }
+.privacy-intro h1 { font-family: var(--font-heading); font-weight: var(--font-weight-regular); font-size: clamp(42px, 5vw, var(--font-size-1)); line-height: 1.05; letter-spacing: -.035em;
+    --weight-400:var(--font-weight-serif-regular); --font-weight-regular:var(--weight-400); --weight-500:var(--font-weight-serif-medium); --font-weight-medium:var(--weight-500); --weight-600:var(--font-weight-serif-semibold); --font-weight-semibold:var(--weight-600); --weight-700:var(--font-weight-serif-bold); --font-weight-bold:var(--weight-700);
+}
 .privacy-lead { max-width: 580px; margin-top: var(--spacing-6); font-size: var(--font-size-0); line-height: 1.6; color: var(--text-secondary); }
 .privacy-updated { margin-top: var(--spacing-6); color: var(--text-tertiary); font-size: var(--font-size-4); }
 .privacy-index { align-self: start; position: sticky; top: calc(var(--header-height) + var(--spacing-8)); max-height: calc(100dvh - var(--header-height) - var(--spacing-12)); overflow-y: auto; }

@@ -9,7 +9,7 @@ export function Sidebar({ data }: { data: BootstrapData }) {
     return (
 <aside className="sidebar tw:flex tw:flex-col tw:bg-surface" id="sidebar" aria-label="Menu lateral">
         <div className="sidebar__top">
-            <a className="sidebar__logo tw:grid tw:place-items-center tw:rounded-8px" href="/principal.html" aria-label="Comet — tela principal"></a>
+            <a className="sidebar__logo tw:grid tw:place-items-center tw:rounded-8px" href="/principal.html" aria-label="Comet — tela principal"><span className="sidebar__wordmark">Comet</span></a>
             <div className="sidebar__top-actions">
             </div>
             <button className="sidebar__toggle" type="button" aria-label="Recolher menu" aria-expanded="true" aria-controls="sidebar-nav" title="Recolher menu">
