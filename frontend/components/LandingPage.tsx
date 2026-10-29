@@ -25,7 +25,7 @@ export default function LandingPage({ bootstrap }: { bootstrap: BootstrapData })
     <footer className="landing-footer">
         <div className="landing-footer__inner">
             <div className="landing-footer__brand">
-                <a href="#inicio" aria-label="Comet — início"><img src="/static/img/logos/logo.svg" alt="Comet" width="44" height="44" /></a>
+                <a href="#inicio" aria-label="Comet — início"><img src="/static/img/logos/Logo.svg" alt="Comet" width="44" height="44" /></a>
             </div>
             <nav className="landing-footer__column" aria-label="Explore o Comet">
                 <h2>Explore</h2>

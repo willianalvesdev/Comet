@@ -1081,7 +1081,7 @@ html.discovery-embedded .workspace__content {
     color: var(--text-secondary);
 }
 
-.is-sidebar-collapsed .sidebar__logo::before { width:24px; height:24px; mask-image: url("../img/logos/logo.svg"); }
+.is-sidebar-collapsed .sidebar__logo::before { width:24px; height:24px; mask-image: url("../img/logos/Logo.svg"); }
 
 .sidebar__new-chat, .sidebar__footer { position: relative; }
 

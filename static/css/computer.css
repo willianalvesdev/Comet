@@ -1706,7 +1706,7 @@
 }
 
 .chat-tab-logo {
-    mask: url('../img/logos/logo.svg') center/contain no-repeat;
+    mask: url('../img/logos/Logo.svg') center/contain no-repeat;
 }
 
 .chat-tab-links {
