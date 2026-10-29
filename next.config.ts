@@ -5,6 +5,7 @@ const config: NextConfig = {
     poweredByHeader: false,
     serverExternalPackages: ['pdf-parse', 'pdfkit'],
     agentRules: false,
+    experimental: { agentUpgrade: 'security' },
     images: { unoptimized: true },
     turbopack: { root: process.cwd() },
     async headers() {
