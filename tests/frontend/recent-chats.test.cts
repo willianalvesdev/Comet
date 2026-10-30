@@ -1078,7 +1078,7 @@ for (const width of [375,1280]) test(`auth: e-mail com código, provedores e lay
             return route.fulfill({status:503,json:{error:'Este acesso ainda não foi configurado.'}});
         });
         await p.goto(nextServer.origin+'/index.html');
-        await p.locator('[data-auth-open="signup"]').click();
+        await p.locator('.hero__signup').click();
         assert.equal(await p.locator('.auth [name="age"], .auth [type="password"]').count(),0);
         assert.equal(await p.locator('[data-auth-provider]').count(),2);
         assert.equal(await p.locator('[data-auth-email] [name="csrf_token"]').inputValue(),'test-csrf');
@@ -1086,6 +1086,12 @@ for (const width of [375,1280]) test(`auth: e-mail com código, provedores e lay
         await p.waitForFunction(()=>document.querySelector('[data-auth-entry-message]')?.textContent?.includes('não foi configurado'));
         assert.equal(provider,'/api/auth/github/start');
         assert(await p.locator('[data-auth-email] button').isDisabled());
+        await p.locator('#auth-email').fill('p');
+        assert(await p.locator('[data-auth-email] button').isDisabled());
+        const buttonColors = (e: Element) => { const style = getComputedStyle(e); return [style.backgroundColor, style.color, style.opacity]; };
+        assert.deepEqual(await p.locator('[data-auth-email] button').evaluate(buttonColors), await p.locator('[data-auth-provider=google]').evaluate(buttonColors));
+        await p.locator('#auth-email').fill('');
+        assert.notDeepEqual(await p.locator('[data-auth-email] button').evaluate(buttonColors), await p.locator('[data-auth-provider=google]').evaluate(buttonColors));
         await p.locator('#auth-email').fill('pessoa@example.com');
         assert(!await p.locator('[data-auth-email] button').isDisabled());
         await p.screenshot({path:path.join(root,`artifacts/auth-entry-${width}.png`)});
@@ -1108,7 +1114,7 @@ for (const width of [375,1280]) test(`auth: e-mail com código, provedores e lay
         assert.equal(await p.locator('.auth').evaluate(e=>e.scrollWidth<=e.clientWidth),true);
         await p.screenshot({path:path.join(root,`artifacts/auth-code-${width}.png`)});
         await p.locator('[data-auth-verify] button').click();
-        await p.waitForURL('**/novo.html?new=1');
+        await p.waitForURL(url => url.pathname === '/new');
         await p.locator('.computer-page').waitFor();
         assert.equal(submitted,'123456');
         assert.deepEqual(f.errors,[]);

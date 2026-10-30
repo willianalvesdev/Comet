@@ -1,0 +1,25 @@
+.keyboard-shortcuts { width:min(560px,calc(100vw - 24px)); max-height:calc(100dvh - 48px); margin:auto; padding:16px; border:1px solid var(--border); border-radius:16px; background:var(--surface); color:var(--text); box-shadow:var(--shadow-md); overflow:hidden; }
+.keyboard-shortcuts[open] { display:flex; flex-direction:column; }
+.keyboard-shortcuts::backdrop { background:rgb(0 0 0 / .5); backdrop-filter:blur(4px); }
+@keyframes shortcuts-enter { from { opacity:0; transform:scale(.8); } to { opacity:1; transform:scale(1); } }
+@keyframes shortcuts-backdrop-enter { from { opacity:0; } to { opacity:1; } }
+@media (prefers-reduced-motion: no-preference) {
+    .keyboard-shortcuts { --shortcuts-enter-easing:linear(0,.309 16%,.968 46%,1.018 56%,1.024 67%,1.015 76%,1.007 85%,1.004 93%,1); }
+    .keyboard-shortcuts[open] { animation:shortcuts-enter 300ms var(--shortcuts-enter-easing) both; transform-origin:center; }
+    .keyboard-shortcuts[open]::backdrop { animation:shortcuts-backdrop-enter 300ms var(--shortcuts-enter-easing) both; }
+}
+.keyboard-shortcuts header { display:flex; justify-content:space-between; align-items:center; gap:12px; padding-bottom:16px; }
+.keyboard-shortcuts h2 { margin:0; font-size:20px; font-weight:var(--font-weight-medium); }
+.keyboard-shortcuts header button { display:grid; place-items:center; width:32px; height:32px; flex:none; padding:0; border:1px solid var(--border); border-radius:50%; background:transparent; color:var(--text-secondary); cursor:pointer; }
+.keyboard-shortcuts header button:hover { background:var(--surface-hover); }
+.keyboard-shortcuts__body { min-height:0; overflow:auto; }
+.keyboard-shortcuts h3 { margin:8px 0; color:var(--text-tertiary); font-size:12px; font-weight:var(--font-weight-regular); text-transform:uppercase; }
+.keyboard-shortcuts section + section { margin-top:28px; }
+.keyboard-shortcuts dl { margin:0; }
+.keyboard-shortcuts dl > div { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:44px; padding:8px 0; border-bottom:1px solid var(--border); }
+.keyboard-shortcuts dt { font-size:14px; color:var(--text-secondary); }
+.keyboard-shortcuts dd { display:flex; gap:4px; margin:0; flex:none; }
+.keyboard-shortcuts kbd { display:inline-grid; place-items:center; min-width:26px; height:26px; padding:0 5px; border:1px solid var(--border); border-radius:6px; background:var(--surface-hover); color:var(--text-secondary); font-size:12px; }
+.keyboard-shortcuts footer { display:flex; align-items:center; gap:6px; margin-top:16px; padding-top:12px; border-top:1px solid var(--border); color:var(--text-secondary); font-size:12px; }
+.keyboard-shortcuts footer kbd:not(:first-child) { margin-left:10px; }
+@media (width < 480px) { .keyboard-shortcuts { padding:12px; } .keyboard-shortcuts dt { font-size:13px; } .keyboard-shortcuts kbd { min-width:22px; padding:0 3px; } }

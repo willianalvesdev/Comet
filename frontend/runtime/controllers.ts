@@ -9,5 +9,6 @@ import exportNotices from '../controllers/export-notices';
 import settings from '../controllers/settings';
 import notifications from '../controllers/notifications';
 import tooltips from '../controllers/tooltips';
+import keyboardShortcuts from '../controllers/keyboard-shortcuts';
 export const sharedControllers = [cookies, theme, tooltips];
-export const workspaceControllers = [sidebar, profileMenu, chatSearch, sessions, chatPreview, settings, notifications, exportNotices];
+export const workspaceControllers = [sidebar, profileMenu, chatSearch, sessions, chatPreview, settings, notifications, exportNotices, keyboardShortcuts];

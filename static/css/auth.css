@@ -9,7 +9,7 @@
     background: var(--bg);
     color: var(--text);
     text-align: center;
-    box-shadow: 0 8px 32px rgb(0 0 0 / 20%);
+    box-shadow: var(--shadow-md);
 }
 .auth::backdrop { background: rgb(0 0 0 / 60%); backdrop-filter: none; }
 .auth[open] { animation: auth-appear 240ms ease-out both; }
@@ -28,6 +28,7 @@ html:has(.auth[open]) { overflow: hidden; }
 .auth__policy { margin: var(--spacing-5) 0 0; font-size: var(--font-size-3); line-height: 1.5; color: var(--text-secondary); overflow-wrap: anywhere; }
 .auth__options { width: min(100%, 348px); margin: var(--spacing-8) auto 0; display: flex; flex-direction: column; gap: var(--spacing-2); }
 .auth__provider, .auth__submit {
+    transition: background-color var(--duration-ui) ease, color var(--duration-ui) ease, opacity var(--duration-ui) ease;
     display: flex; align-items: center; justify-content: center; gap: var(--spacing-2);
     min-height: 40px; width: 100%; padding: var(--spacing-2) var(--spacing-3);
     border: 0; border-radius: var(--radius-8); background: var(--text); color: var(--bg);
@@ -47,6 +48,7 @@ html:has(.auth[open]) { overflow: hidden; }
 .auth__form input::placeholder { color: var(--text-tertiary); opacity: 1; }
 .auth__submit:disabled, .auth__provider:disabled { opacity: .5; cursor: default; }
 .auth__submit--email:disabled { background: var(--surface); color: var(--text-secondary); opacity: .7; }
+.auth__form.has-email .auth__submit--email { background: var(--text); color: var(--bg); opacity: 1; }
 .auth[aria-busy="true"] .auth__submit, .auth[aria-busy="true"] .auth__provider { cursor: wait; }
 .auth__message { color: var(--red); font-size: var(--font-size-4); line-height: 1.5; margin: var(--spacing-2) 0 0; }
 .auth__message:empty { display: none; }
@@ -68,4 +70,4 @@ html:has(.auth[open]) { overflow: hidden; }
     .auth__digits input:not([type="hidden"]) { height: 56px; }
     .auth__form--verify { margin-top: var(--spacing-8); }
 }
-@media (prefers-reduced-motion: reduce) { .auth[open] { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .auth[open] { animation: none; } .auth__provider, .auth__submit { transition: none; } }

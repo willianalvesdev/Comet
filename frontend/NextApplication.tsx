@@ -37,10 +37,16 @@ export default function NextApplication() {
         const controller = new AbortController();
         async function load() {
             try {
-                const [response, pageModule] = await Promise.all([fetch('/api/bootstrap?page=' + page, {credentials:'same-origin', cache:'no-store', signal:controller.signal}), loadPage(page)]);
-                if (response.status === 401) { location.assign('/?login=1'); return; }
-                if (!response.ok) throw new Error('Não foi possível abrir esta página. Tente novamente.');
-                const data = await response.json() as BootstrapData;
+                const [data, pageModule] = await Promise.all([
+                    fetch('/api/bootstrap?page=' + page, {credentials:'same-origin', cache:'no-store', signal:controller.signal}).then(response => {
+                        if (response.status === 401) { location.assign('/?login=1'); return null; }
+                        if (!response.ok) throw new Error('Não foi possível abrir esta página. Tente novamente.');
+                        return response.json() as Promise<BootstrapData>;
+                    }),
+                    loadPage(page),
+                    import('./App'),
+                ]);
+                if (!data) return;
                 if (controller.signal.aborted) return;
                 if (page === 'index' && data.user) { location.assign('/principal.html'); return; }
                 if (!isPublicPage(page) && !data.user) { location.assign('/?login=1'); return; }

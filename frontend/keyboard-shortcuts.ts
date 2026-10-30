@@ -1,0 +1,17 @@
+export const keyboardShortcuts = [
+    {group:'Geral', label:'Novo chat', code:'KeyI', keys:['Ctrl','I'], action:'new'},
+    {group:'Geral', label:'Focar na mensagem', code:'KeyJ', keys:['Ctrl','J'], action:'focus'},
+    {group:'Geral', label:'Parar geração ou fechar painel', code:'Escape', keys:['Esc'], action:'stop'},
+    {group:'Geral', label:'Ativar/desativar ditado', code:'KeyD', keys:['Ctrl','D'], action:'dictation'},
+    {group:'Geral', label:'Copiar link da conversa', code:'KeyC', shift:true, keys:['Shift','Ctrl','C'], action:'link'},
+    {group:'Geral', label:'Enviar arquivo', code:'KeyU', keys:['Ctrl','U'], action:'upload'},
+    {group:'Geral', label:'Enviar mensagem ou concluir edição', code:'Enter', keys:['Ctrl','Enter'], action:'send'},
+    {group:'Navegação', label:'Focar na busca de finanças', code:'Slash', keys:['/'], action:'finance'},
+    {group:'Navegação', label:'Todas as configurações', code:'Comma', shift:true, keys:['Shift','Ctrl',','], action:'settings'},
+    {group:'Navegação', label:'Buscar chats', code:'KeyK', keys:['Ctrl','K'], action:'search'},
+    {group:'Navegação', label:'Modo: Pesquisa', code:'Digit1', shift:true, keys:['Shift','Ctrl','1'], action:'research'},
+    {group:'Navegação', label:'Modo: Computer', code:'Digit2', shift:true, keys:['Shift','Ctrl','2'], action:'computer'},
+    {group:'Interface', label:'Mostrar atalhos', code:'Slash', keys:['Ctrl','/'], action:'shortcuts'},
+    {group:'Interface', label:'Alternar modo anônimo', code:'Semicolon', keys:['Ctrl',';'], action:'anonymous'},
+    {group:'Interface', label:'Alternar painel de artefato ou menu lateral', code:'Period', keys:['Ctrl','.'], action:'sidebar'},
+] as const;

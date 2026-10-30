@@ -105,9 +105,12 @@ export async function executeActions(userId: number, payload: unknown) {
     const targetActions = new Map<string, Exclude<Action, { type: 'create' }>>();
     for (const action of actions) if (action.type !== 'create') for (const id of action.transaction_ids) targetActions.set(id, action);
     const targets = new Map<string, TransactionRow>(), updates = new Map<string, Transaction>();
-    for (const identifier of [...targetActions.keys()].sort(idOrder)) {
+    const identifiers = [...targetActions.keys()].sort(idOrder);
+    const storedRows = identifiers.length ? await db.query<TransactionRow>('SELECT * FROM finance_transactions WHERE usuario_id=$1 AND id=ANY($2::bigint[]) ORDER BY id FOR UPDATE', [userId, identifiers]) : [];
+    const storedById = new Map(storedRows.map(row => [String(row.id), row]));
+    for (const identifier of identifiers) {
       const action = targetActions.get(identifier)!;
-      const [stored] = await db.query<TransactionRow>('SELECT * FROM finance_transactions WHERE usuario_id=$1 AND id=$2 FOR UPDATE', [userId, identifier]);
+      const stored = storedById.get(identifier);
       if (!stored) throw new ApiError(409, 'A transação não está mais disponível nesta conta. Atualize os dados.');
       const row = normalizeRow(stored), deleted = row.deleted_at != null;
       if (['update', 'delete'].includes(action.type) && deleted) throw new ApiError(409, 'Esta transação está na lixeira. Restaure antes de alterá-la.');
@@ -115,41 +118,52 @@ export async function executeActions(userId: number, payload: unknown) {
       targets.set(identifier, row);
       if (action.type === 'update') updates.set(identifier, validateTransaction({ ...Object.fromEntries(fields.map(key => [key, row[key]])), ...action.changes }, false, now));
     }
+    const creations = actions.flatMap((action, index) => action.type === 'create' ? [validateTransaction({ ...action.transaction, external_id: `${operationId}:${index}` }, true, now)] : []);
+    const createdRows = creations.length ? await db.query<{id: string; external_id: string}>(`INSERT INTO finance_transactions (usuario_id, external_id, kind, amount, description, category, occurred_on, occurred_time)
+      SELECT $1, external_id, kind, amount, description, category, occurred_on, occurred_time FROM jsonb_populate_recordset(NULL::finance_transactions, $2::jsonb) RETURNING id, external_id`, [userId, JSON.stringify(creations)]) : [];
+    const createdByExternalId = new Map(createdRows.map(row => [row.external_id, String(row.id)]));
+    if (updates.size) await db.query(`UPDATE finance_transactions AS target SET kind=source.kind, amount=source.amount, description=source.description, category=source.category, occurred_on=source.occurred_on, occurred_time=source.occurred_time
+      FROM jsonb_populate_recordset(NULL::finance_transactions, $2::jsonb) AS source WHERE target.usuario_id=$1 AND target.id=source.id`, [userId, JSON.stringify([...updates].map(([id, values]) => ({...values, id})))]);
+    const timestamp = new Date();
+    for (const kind of ['delete', 'restore', 'permanent_delete'] as const) {
+      const ids = identifiers.filter(id => targetActions.get(id)!.type === kind);
+      if (!ids.length) continue;
+      if (kind === 'delete') await db.query('UPDATE finance_transactions SET deleted_at=$3 WHERE usuario_id=$1 AND id=ANY($2::bigint[])', [userId, ids, timestamp]);
+      else if (kind === 'restore') await db.query('UPDATE finance_transactions SET deleted_at=NULL WHERE usuario_id=$1 AND id=ANY($2::bigint[])', [userId, ids]);
+      else await db.query('DELETE FROM finance_transactions WHERE usuario_id=$1 AND id=ANY($2::bigint[]) AND deleted_at IS NOT NULL', [userId, ids]);
+    }
+    const audit: {transaction_id: string; event: string; before_json: unknown; after_json: unknown}[] = [];
     const operations: { type: string; transaction_ids: string[] }[] = [];
     for (const [index, action] of actions.entries()) {
       const kind = action.type, ids: string[] = [];
       if (action.type === 'create') {
         const values = validateTransaction({ ...action.transaction, external_id: `${operationId}:${index}` }, true, now);
-        const [created] = await db.query<{ id: string }>(insertSql + ' RETURNING id', [userId, ...dataValues(values)]);
-        const identifier = String(created.id), { external_id: _, ...after } = values;
-        await recordEvent(db, userId, operationId, identifier, 'TRANSACTION_CREATED', null, after);
+        const identifier = createdByExternalId.get(values.external_id)!, { external_id: _, ...after } = values;
+        audit.push({transaction_id: identifier, event: 'TRANSACTION_CREATED', before_json: null, after_json: after});
         ids.push(identifier);
       } else {
         for (const identifier of [...action.transaction_ids].sort(idOrder)) {
-          const row = targets.get(identifier)!, timestamp = new Date();
+          const row = targets.get(identifier)!;
           let before: Record<string, unknown> | null = null, after: Record<string, unknown> | null = null;
           if (kind === 'update') {
             const values = updates.get(identifier)!;
-            await db.query('UPDATE finance_transactions SET kind=$1, amount=$2, description=$3, category=$4, occurred_on=$5, occurred_time=$6 WHERE usuario_id=$7 AND id=$8', [...fields.slice(1).map(key => values[key]), userId, identifier]);
             const changed = fields.filter(key => key !== 'external_id' && row[key] !== values[key]);
             before = Object.fromEntries(changed.map(key => [key, row[key]]));
             after = Object.fromEntries(changed.map(key => [key, values[key]]));
           } else if (kind === 'delete') {
-            await db.query('UPDATE finance_transactions SET deleted_at=$1 WHERE usuario_id=$2 AND id=$3', [timestamp, userId, identifier]);
             before = { deleted_at: null }; after = { deleted_at: timestamp.toISOString() };
           } else if (kind === 'restore') {
-            await db.query('UPDATE finance_transactions SET deleted_at=NULL WHERE usuario_id=$1 AND id=$2', [userId, identifier]);
             before = { deleted_at: timestampString(row.deleted_at!) }; after = { deleted_at: null };
-          } else {
-            await db.query('DELETE FROM finance_transactions WHERE usuario_id=$1 AND id=$2 AND deleted_at IS NOT NULL', [userId, identifier]);
           }
           const event = { update: 'TRANSACTION_UPDATED', delete: 'TRANSACTION_DELETED', restore: 'TRANSACTION_RESTORED', permanent_delete: 'TRANSACTION_PERMANENTLY_DELETED' }[action.type];
-          await recordEvent(db, userId, operationId, identifier, event, before, after, timestamp);
+          audit.push({transaction_id: identifier, event, before_json: before, after_json: after});
           ids.push(identifier);
         }
       }
       operations.push({ type: kind, transaction_ids: ids });
     }
+    await db.query(`INSERT INTO finance_transaction_events (usuario_id, operation_id, transaction_id, event, occurred_at, before_json, after_json)
+      SELECT $1, $2, transaction_id, event, $3, before_json, after_json FROM jsonb_populate_recordset(NULL::finance_transaction_events, $4::jsonb)`, [userId, operationId, timestamp, JSON.stringify(audit)]);
     const result = { operation_id: operationId, operations };
     await db.query('UPDATE finance_operations SET result=$1 WHERE usuario_id=$2 AND operation_id=$3', [JSON.stringify(result), userId, operationId]);
     return result;

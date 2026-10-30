@@ -28,6 +28,55 @@ async function fixture(run: (user: number, other: number) => Promise<void>) {
 }
 const events = (user: number) => query<{event: string; before_json: unknown; after_json: unknown; occurred_at: Date; transaction_id: string}>('SELECT event, before_json, after_json, occurred_at, transaction_id FROM finance_transaction_events WHERE usuario_id=$1 ORDER BY id', [user]);
 
+test('PostgreSQL batch query count stays constant for 1 and 100 transactions', { skip: !configured }, async t => fixture(async user => {
+  const { pool } = await import('../../server/db');
+  const connectionPool = pool(), connect = connectionPool.connect.bind(connectionPool);
+  let queries = 0;
+  const replacement = t.mock.method(connectionPool, 'connect', async () => {
+    const client = await connect();
+    return new Proxy(client, {
+      get(target, property, receiver) {
+        if (property === 'query') return (...args: unknown[]) => {
+          queries++;
+          return Reflect.apply(target.query, target, args);
+        };
+        const value = Reflect.get(target, property, receiver);
+        return typeof value === 'function' ? value.bind(target) : value;
+      },
+    });
+  });
+  const batches: string[][] = [];
+  try {
+    const counts: number[][] = [];
+    for (const size of [1, 100]) {
+      const count = async (actions: unknown[]) => {
+        queries = 0;
+        const result = await execute(user, actions);
+        return {result, count: queries};
+      };
+      const created = await count(Array.from({length: size}, (_, i) => create({amount: `${i + 1}.01`, description: `Row ${i}`, occurred_time: '09:45:17'})));
+      const ids = created.result.operations.flatMap(operation => operation.transaction_ids);
+      batches.push(ids);
+      const updated = await count([{type: 'update', transaction_ids: ids, changes: {category: 'Updated'}}]);
+      const deleted = await count([{type: 'delete', transaction_ids: ids}]);
+      const restored = await count([{type: 'restore', transaction_ids: ids}]);
+      const redeleted = await count([{type: 'delete', transaction_ids: ids}]);
+      const removed = await count([{type: 'permanent_delete', transaction_ids: ids, confirmation: 'explicit_permanent_delete'}]);
+      counts.push([created.count, updated.count, deleted.count, restored.count, redeleted.count, removed.count]);
+    }
+    assert.deepEqual(counts[0], [7, 8, 8, 8, 8, 8]);
+    assert.deepEqual(counts[1], counts[0]);
+  } finally { replacement.mock.restore(); }
+  const audit = await events(user);
+  for (const ids of batches) for (const [i, id] of ids.entries()) {
+    const own = audit.filter(event => event.transaction_id === id);
+    assert.equal(own.length, 6);
+    assert.deepEqual(own[0].after_json, transaction({amount: `${i + 1}.01`, description: `Row ${i}`, occurred_time: '09:45:17'}));
+    assert.deepEqual(own[1].before_json, {category: 'Alimentação'});
+    assert.deepEqual(own[1].after_json, {category: 'Updated'});
+  }
+}));
+
 test('PostgreSQL financial lifecycle preserves IDs, exact cents, audit and account isolation', { skip: !configured }, async () => fixture(async (user, other) => {
   const initial = await execute(user, [create({ amount: '80.01', occurred_time: '09:45:17' })]);
   const id = initial.operations[0].transaction_ids[0];
@@ -150,7 +199,7 @@ test('PostgreSQL audit failure rolls back earlier writes and allows a clean oper
     return new Proxy(client, {
       get(target, property, receiver) {
         if (property === 'query') return (...args: unknown[]) => {
-          if (String(args[0]).startsWith('INSERT INTO finance_transaction_events') && ++auditWrites === 2) throw new Error('simulated audit storage failure');
+          if (String(args[0]).startsWith('INSERT INTO finance_transaction_events') && ++auditWrites === 1) throw new Error('simulated audit storage failure');
           return Reflect.apply(target.query, target, args);
         };
         const value = Reflect.get(target, property, receiver);
@@ -160,7 +209,7 @@ test('PostgreSQL audit failure rolls back earlier writes and allows a clean oper
   });
   try { await assert.rejects(execute(user, actions, operationId), /simulated audit storage failure/); }
   finally { replacement.mock.restore(); }
-  assert.equal(auditWrites, 2);
+  assert.equal(auditWrites, 1);
   const remaining = (await history(user)).transactions;
   assert.equal(remaining.length, 1);
   assert.equal(remaining[0].amount, '80.00');

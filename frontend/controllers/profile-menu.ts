@@ -23,6 +23,26 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     const triggers = [...elementList(menu, "[data-profile-submenu]", HTMLElement)];
     window.CometNewsPreferences = {topics:['business'], languages:'pt-en'};
     let active: HTMLElement | null = null;
+    function positionMenu() {
+        if (!menu.matches(':popover-open')) return;
+        const rect = trigger.getBoundingClientRect();
+        const collapsed = document.body.classList.contains('is-sidebar-collapsed') && innerWidth >= 640;
+        menu.style.width = Math.min(innerWidth - 24, Math.max(311.2, rect.width)) + 'px';
+        const left = collapsed ? rect.right - 4 : rect.left;
+        menu.style.left = Math.max(12, Math.min(left, innerWidth - menu.offsetWidth - 12)) + 'px';
+        menu.style.top = Math.max(12, (collapsed ? rect.bottom : rect.top) - menu.offsetHeight) + 'px';
+        menu.style.bottom = 'auto';
+        menu.style.setProperty('--menu-origin', collapsed ? 'left bottom' : 'bottom left');
+    }
+    function positionSubmenu(button: HTMLElement, panel: HTMLElement) {
+        if (innerWidth < 640) return;
+        const rect = button.getBoundingClientRect(), parent = menu.getBoundingClientRect();
+        const left = parent.right - 4;
+        const rightSide = left + panel.offsetWidth <= innerWidth - 12;
+        panel.style.left = (rightSide ? menu.offsetWidth - 4 : -panel.offsetWidth + 4) + 'px';
+        panel.style.top = Math.max(12 - parent.top, Math.min(rect.top - parent.top - 4, innerHeight - parent.top - panel.offsetHeight - 12)) + 'px';
+        panel.dataset.side = rightSide ? 'right' : 'left';
+    }
     function closeSubmenu(focus = false) {
         elementList(menu, ".profile-menu__submenu", HTMLElement).forEach(panel => panel.hidden = true);
         triggers.forEach(button => button.setAttribute("aria-expanded", "false"));
@@ -38,7 +58,8 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         present(panel).hidden = false;
         button.setAttribute("aria-expanded", "true");
         menu.classList.add("has-submenu");
-        if (focus) requiredElement(present(panel), "button:not(.profile-menu__back)", HTMLButtonElement).focus();
+        positionSubmenu(button, present(panel));
+        if (focus) requiredElement(present(panel), "button:not(.profile-menu__back), a[href]", HTMLElement).focus();
     }
     triggers.forEach(button => {
         button.addEventListener("pointerenter", event => {
@@ -54,9 +75,13 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     hover.addEventListener("change", () => closeSubmenu(), {signal: scope.signal});
     menu.addEventListener("toggle", event => {
         trigger.setAttribute("aria-expanded", String(event.newState === "open"));
+        if (event.newState === 'open') { positionMenu(); requiredElement(menu, '.profile-menu__main button', HTMLButtonElement).focus({preventScroll:true}); }
         if (event.newState === "closed") closeSubmenu();
     }, {signal: scope.signal});
     menu.addEventListener("keydown", event => {
+        const button = triggers.find(button => button === event.target);
+        if (event.key === 'ArrowRight' && button) { event.preventDefault(); openSubmenu(button, true); }
+        if (event.key === 'ArrowLeft' && active) { event.preventDefault(); closeSubmenu(true); }
         if (event.key === "Escape") {
             event.preventDefault();
             event.stopPropagation();
@@ -65,6 +90,8 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         }
     }, {signal: scope.signal});
     const workspace = requiredElement(document, ".workspace", HTMLElement);
+    new ResizeObserver(positionMenu).observe(trigger);
+    scope.listen(window, 'resize', () => { positionMenu(); if (active) positionSubmenu(active, present(document.getElementById(active.getAttribute('aria-controls') || ''))); });
     const sidebarState = () => ["is-sidebar-collapsed", "is-sidebar-resizing"].map(name => workspace.classList.contains(name)).join();
     let previousSidebarState = sidebarState();
     new MutationObserver(() => {

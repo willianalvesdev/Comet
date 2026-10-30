@@ -20,7 +20,7 @@ export default function SiteHeader({home = false, signedIn = false}: {home?: boo
         </div>
     </header>
     <dialog className={home ? "landing-menu" : "landing-menu landing-menu--themed"} ref={mobileMenu} aria-label="Menu principal">
-        <div className="landing-menu__header"><img src="/static/img/logos/TextLogo.svg" alt="Comet" /><button type="button" aria-label="Fechar menu" onClick={() => mobileMenu.current?.close()}><i className="ui-icon-x" aria-hidden="true"></i></button></div>
+        <div className="landing-menu__header"><img src="/static/img/logos/textlogo.svg" alt="Comet" /><button type="button" aria-label="Fechar menu" onClick={() => mobileMenu.current?.close()}><i className="ui-icon-x" aria-hidden="true"></i></button></div>
         <nav aria-label="Navegação móvel" onClick={() => mobileMenu.current?.close()}>
             <a href={home ? "#inicio" : "/#inicio"}>Início</a><a href="/privacy#contato">Contato</a><a href={home ? "#sobre" : "/#sobre"}>Sobre a Comet</a>
             <div className="site-header__actions">{signedIn ? <a className="site-header__login" href="/new">Abrir Comet</a> : <>{home ? <button className="site-header__login" type="button" data-auth-open="signup">Criar conta</button> : <a className="site-header__login" href="/?login=1">Criar conta</a>}{home ? <button className="site-header__login site-header__login--outline" type="button" data-auth-open="login">Iniciar sessão</button> : <a className="site-header__login site-header__login--outline" href="/?login=1">Iniciar sessão</a>}</>}</div>

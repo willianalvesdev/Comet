@@ -20,6 +20,7 @@ export default function mount({scope, fetch, setInterval}: PageContext) {
 
     function code() { return digits.map(input => input.value).join(''); }
     function update() {
+        emailForm.classList.toggle('has-email', Boolean(emailInput.value.trim()));
         emailButton.disabled = busy || !emailInput.validity.valid || !emailInput.value.trim();
         verifyButton.disabled = busy || !/^\d{6}$/.test(code());
         const seconds = Math.max(0,Math.ceil((resendAt-Date.now())/1000));

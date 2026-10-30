@@ -229,8 +229,8 @@
 
 .memory-switch {
     flex: none;
-    width: 32px;
-    height: 20px;
+    width: 24px;
+    height: 14px;
     border: 0;
     border-radius: var(--radius-full);
     padding: 2px;
@@ -240,8 +240,8 @@
 
 .memory-switch span {
     display: block;
-    width: 16px;
-    height: 16px;
+    width: 10px;
+    height: 10px;
     border-radius: var(--radius-full);
     background: #ffffff;
     transition: transform var(--duration-press);
@@ -252,7 +252,7 @@
 }
 
 .memory-switch[aria-checked=true] span {
-    transform: translateX(12px);
+    transform: translateX(10px);
 }
 
 [data-settings-panel=memory] .settings-card+.settings-card {
@@ -535,6 +535,6 @@
 }
 .appearance-font--sans { font-family: var(--font-body); }
 
-.memory-switch:not(:disabled):not([aria-checked=true]):hover { background:var(--text-tertiary); }
+.settings-row:has(.memory-switch):hover { background:rgb(from var(--text) r g b / .03); }
 .memory-switch:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
 .memory-switch:disabled { opacity:.4; cursor:default; }

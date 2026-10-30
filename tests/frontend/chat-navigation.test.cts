@@ -279,6 +279,195 @@ test('editar: conclusão tardia não troca o chat escolhido depois nem envia nel
         assert.deepEqual(f.errors,[]);
     } finally {await f.close();}
 });
+test('profile reference behavior: resize, collapse, submenus and keyboard', async () => {
+    const f = await fixture(), p = f.page;
+    try {
+        const rail = p.locator('.sidebar'), profile = p.locator('.sidebar__profile'), menu = p.locator('#profile-menu');
+        const initial = await rail.boundingBox();
+        assert.ok(initial && initial.width === 280);
+        const icon = p.locator('.sidebar__finance-icon'), before = await icon.boundingBox();
+        await profile.click();
+        await p.waitForFunction(() => document.querySelector('#profile-menu')?.matches(':popover-open'));
+        assert.equal(await menu.evaluate(e => (e as HTMLElement).offsetWidth), 311);
+        const appearance = p.locator('[data-profile-submenu="appearance"]');
+        await appearance.focus();
+        await appearance.press('ArrowRight');
+        const sub = p.locator('#profile-appearance');
+        assert(await sub.isVisible());
+        assert.equal(await appearance.getAttribute('aria-expanded'), 'true');
+        const boxes = await Promise.all([menu.boundingBox(), sub.boundingBox()]);
+        assert.ok(boxes[0] && boxes[1] && boxes[1].x >= boxes[0].x + boxes[0].width - 5);
+        await p.keyboard.press('ArrowLeft');
+        assert.equal(await sub.isVisible(), false);
+        await p.keyboard.press('Escape');
+        assert.equal(await menu.evaluate(e => e.matches(':popover-open')), false);
+        const resize = p.locator('.sidebar__resize');
+        for (let i = 0; i < 6; i++) await resize.press('ArrowRight');
+        await profile.click();
+        await p.waitForFunction(() => {const m=document.querySelector<HTMLElement>('#profile-menu'),t=document.querySelector<HTMLElement>('.sidebar__profile');return !!m&&!!t&&Math.abs(m.offsetWidth-t.offsetWidth)<1;});
+        assert.equal(await rail.evaluate(e => e.getBoundingClientRect().width), 400);
+        await p.keyboard.press('Escape');
+        await menu.waitFor({state:'hidden'});
+        await p.locator('.sidebar__toggle').click();
+        await p.waitForFunction(() => Math.abs(document.querySelector('.sidebar')!.getBoundingClientRect().width - 56) < 1);
+        const after = await icon.boundingBox();
+        assert.ok(before && after && Math.abs(before.x-after.x)<1 && Math.abs(before.y-after.y)<1);
+        assert.equal(after?.width, 18);
+        await profile.click();
+        await p.waitForFunction(() => document.querySelector('#profile-menu')?.matches(':popover-open'));
+        const collapsedMenu = await menu.boundingBox(), anchor = await profile.boundingBox();
+        assert.ok(collapsedMenu && anchor && Math.abs(collapsedMenu.x-anchor.x-anchor.width+4)<1);
+        await p.screenshot({path:path.join(root,'artifacts/profile-reference-collapsed.png')});
+        await p.locator('.workspace__header').click();
+        await p.waitForFunction(() => !document.querySelector('#profile-menu')?.matches(':popover-open'));
+        assert.deepEqual(f.errors, []);
+    } finally { await f.close(); }
+});
+
+for(const width of [390,1280])test(`help and keyboard shortcuts ${width}`,async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  await p.setViewportSize({width,height:850});
+  await p.keyboard.press('Control+/');
+  const shortcuts=p.getByRole('dialog',{name:'Atalhos do teclado'});
+  await shortcuts.waitFor();assert.equal(await shortcuts.locator('dl > div').count(),15);
+  assert.equal(await shortcuts.evaluate(e=>e.scrollWidth<=e.clientWidth),true);
+  await p.screenshot({path:path.join(root,`artifacts/keyboard-shortcuts-${width}.png`)});
+  await p.keyboard.press('Escape');await shortcuts.waitFor({state:'hidden'});
+  await p.keyboard.press('Control+j');assert(await p.locator('.home__input').evaluate(e=>e===document.activeElement));
+  await p.keyboard.press('Control+k');await p.getByRole('dialog',{name:'Pesquisar chats',exact:true}).waitFor();
+  await p.keyboard.press('Escape');
+  await p.keyboard.press('Control+Shift+,');await p.locator('#settings-dialog[open]').waitFor();
+  await p.keyboard.press('Escape');
+  await p.keyboard.press('Control+i');await p.locator('.computer-intro').waitFor({state:'visible'});
+  await p.keyboard.press('Control+Shift+2');await p.waitForFunction(()=>document.querySelector('.computer-provider')?.getAttribute('aria-pressed')==='true');
+  await p.keyboard.press('Control+Shift+1');await p.waitForFunction(()=>document.querySelector('.model-picker')?.getAttribute('aria-pressed')==='true');
+  await p.keyboard.press('Control+;');await p.waitForFunction(()=>document.body.classList.contains('is-anonymous'));
+  await p.keyboard.press('Control+;');await p.waitForFunction(()=>!document.body.classList.contains('is-anonymous'));
+  if(width<640){await p.locator('.workspace__menu-toggle').click();}
+  await p.locator('.sidebar__profile').click();
+  const anonymous=p.getByRole('switch',{name:'Modo anônimo'}),track=p.locator('.profile-anonymous__switch');
+  assert.equal(await track.evaluate(e=>e.getBoundingClientRect().width),24);
+  assert.equal(await track.evaluate(e=>e.getBoundingClientRect().height),14);
+  assert.equal(await p.locator('.profile-menu__identity').evaluate(e=>getComputedStyle(e).borderBottomWidth),'0px');
+  const bg=await track.evaluate(e=>getComputedStyle(e).backgroundColor);
+  await anonymous.hover();assert.equal(await track.evaluate(e=>getComputedStyle(e).backgroundColor),bg);
+  await anonymous.click();await p.waitForFunction(()=>document.body.classList.contains('is-anonymous'));assert.notEqual(await track.evaluate(e=>getComputedStyle(e).backgroundColor),bg);
+  await anonymous.click();await p.waitForFunction(()=>!document.body.classList.contains('is-anonymous'));
+  assert.match(await anonymous.getAttribute('data-tooltip')||'',/24 horas/);
+  await p.locator('[data-profile-submenu="help"]').click();
+  for(const icon of ['help','keyboard','privacy']){
+   const mask=await p.locator(`.profile-menu__icon--${icon}`).evaluate(e=>{const s=getComputedStyle(e);return {size:s.maskSize,position:s.maskPosition,repeat:s.maskRepeat};});
+   assert.deepEqual(mask,{size:'contain',position:'50% 50%',repeat:'no-repeat'});
+  }
+  assert.equal(await p.locator('#profile-help a').getAttribute('href'),'/privacy');
+  await p.locator('[data-open-shortcuts]').click();await shortcuts.waitFor();
+  await p.getByRole('button',{name:'Fechar atalhos do teclado'}).click();
+  await p.emulateMedia({reducedMotion:'no-preference'});
+  await p.keyboard.press('Control+/');
+  const motion=await shortcuts.evaluate(e=>({name:getComputedStyle(e).animationName,duration:getComputedStyle(e).animationDuration,backdrop:getComputedStyle(e,'::backdrop').backdropFilter}));
+  assert.equal(motion.name,'shortcuts-enter');assert.equal(motion.duration,'0.3s');assert.equal(motion.backdrop,'blur(4px)');
+  await p.keyboard.press('Escape');
+  await p.emulateMedia({reducedMotion:'reduce'});await p.keyboard.press('Control+/');
+  assert.equal(await shortcuts.evaluate(e=>getComputedStyle(e).animationName),'none');
+  await p.keyboard.press('Escape');
+  assert.deepEqual(f.errors,[]);
+ }finally{await f.close();}
+});
+
+test('keyboard send and private link reuse the chat actions',async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  let sent=0;
+  await p.route('**/api/ai/chat',route=>{sent++;return route.fulfill({contentType:'application/x-ndjson',body:[{type:'delta',text:'Resposta por atalho'},{type:'done',metadata:{}}].map(x=>JSON.stringify(x)).join('\n')+'\n'});});
+  await p.locator('.home__input').fill('Mensagem por atalho');
+  await p.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async(text:string)=>{document.body.dataset.copiedLink=text;}}}));
+  await p.keyboard.press('Control+Shift+c');
+  assert.match(await p.locator('body').getAttribute('data-copied-link')||'',/\/chat\/1$/);
+  await p.keyboard.press('Control+Enter');await p.getByText('Resposta por atalho',{exact:true}).waitFor();assert.equal(sent,1);
+  await p.keyboard.press('Control+Enter');assert.equal(sent,1);
+  assert.deepEqual(f.errors,[]);
+ }finally{await f.close();}
+});
+
+test('Escape stops generation without collapsing the sidebar',async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  await p.evaluate(()=>{const original=window.fetch;window.fetch=async(input,init)=>String(input)==='/api/ai/chat'?new Response(new ReadableStream({start(controller){init?.signal?.addEventListener('abort',()=>controller.error(new DOMException('Cancelado','AbortError')),{once:true});}}),{headers:{'Content-Type':'application/x-ndjson'}}):original(input,init);});
+  await p.locator('.home__input').fill('Esperar resposta');await p.keyboard.press('Control+Enter');
+  await p.locator('.home__composer.is-responding').waitFor();await p.keyboard.press('Escape');
+  await p.waitForFunction(()=>!document.querySelector('.home__composer.is-responding'));
+  assert.equal(await p.locator('body').evaluate(e=>e.classList.contains('is-sidebar-collapsed')),false);
+ }finally{await f.close();}
+});
+
+for(const width of [390,1280])test(`new chat matches reference geometry and anonymous outline ${width}`,async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  await p.setViewportSize({width,height:850});await p.keyboard.press('Control+i');await p.locator('.computer-intro').waitFor({state:'visible'});
+  const form=p.locator('.home__composer'),before=await form.boundingBox();
+  assert.ok(before&&before.width<=640&&before.x>=0&&before.x+before.width<=width);
+  if(width===1280){assert.equal(before?.width,640);assert.equal(before?.height,120);}
+  assert.equal(await form.evaluate(e=>getComputedStyle(e).borderRadius),'20px');
+  await p.keyboard.press('Control+;');await p.waitForFunction(()=>document.body.classList.contains('is-anonymous'));
+  const after=await form.boundingBox();assert.equal(after?.width,before?.width);assert.equal(after?.height,before?.height);
+  const outline=await form.evaluate(e=>{const s=getComputedStyle(e,'::before');return {style:s.borderTopStyle,width:s.borderTopWidth,color:s.borderTopColor,text:getComputedStyle(e).color,pointer:s.pointerEvents,shadow:getComputedStyle(e).boxShadow};});
+  assert.equal(outline.style,'dashed');assert.equal(outline.width,'1px');assert.equal(outline.color,outline.text);assert.equal(outline.pointer,'none');assert.equal(outline.shadow,'none');
+  if(width<640)await p.locator('.workspace__menu-toggle').click();
+  await p.locator('.sidebar__profile').click();
+  assert.equal(await p.locator('.profile-menu__identity .sidebar__avatar').evaluate(e=>getComputedStyle(e,'::after').content),'none');
+  assert.match(await p.locator('.sidebar__profile .sidebar__avatar').evaluate(e=>getComputedStyle(e,'::after').maskImage),/anonymous/);
+  assert.match(await p.locator('.profile-menu__icon--help').evaluate(e=>getComputedStyle(e).maskImage),/question-mark-circle/);
+  const arrow=await p.locator('[data-profile-submenu="appearance"] > svg').getAttribute('viewBox');
+  assert.equal(await p.locator('[data-profile-submenu="help"] > svg').getAttribute('viewBox'),arrow);
+  await p.keyboard.press('Escape');if(width<640)await p.locator('.sidebar__toggle').click();
+  await p.screenshot({path:path.join(root,`artifacts/new-chat-reference-${width}.png`)});
+  assert.deepEqual(f.errors,[]);
+ }finally{await f.close();}
+});
+
+for (const width of [390, 1280]) test(`composer menu appearance and placement ${width}`, async () => {
+    const f = await fixture(), p = f.page;
+    try {
+        await p.setViewportSize({width, height: 900});
+        await p.evaluate(() => window.WorkspaceNavigation.go('/new'));
+        await p.locator('.computer-intro').waitFor({state: 'visible'});
+        await p.mouse.move(0, 0);
+        for (const selector of ['.attachment-toggle', '.local-model-picker']) {
+            assert.equal(await p.locator(selector).evaluate(e => getComputedStyle(e).backgroundColor), 'rgba(0, 0, 0, 0)');
+        }
+        assert.equal(await p.locator('.provider-toggle').evaluate(e => getComputedStyle(e).boxShadow), 'none');
+        assert.equal(await p.locator('.provider-toggle').evaluate(e => getComputedStyle(e).borderTopWidth), '0px');
+        assert.equal(await p.locator('.provider-toggle__indicator').evaluate(e => getComputedStyle(e).borderTopWidth), '1px');
+        for(const theme of ['dark','light']){
+            await p.evaluate(theme=>{document.documentElement.dataset.theme=theme;},theme);
+            const indicator=await p.locator('.provider-toggle__indicator').evaluate(e=>{const s=getComputedStyle(e);return {border:s.borderTopColor,fill:s.backgroundColor,shadow:s.boxShadow};});
+            assert.notEqual(indicator.border,indicator.fill);assert.equal(indicator.shadow,'none');
+        }
+        await p.locator('.local-model-picker').click();
+        await p.mouse.move(0, 0);
+        assert.notEqual(await p.locator('.local-model-picker').evaluate(e => getComputedStyle(e).backgroundColor), 'rgba(0, 0, 0, 0)');
+        await p.keyboard.press('Escape');
+        const trigger = p.locator('.attachment-toggle');
+        await trigger.click();
+        const menu = p.locator('#attachment-menu');
+        await menu.waitFor({state: 'visible'});
+        await p.mouse.move(0, 0);
+        assert.notEqual(await trigger.evaluate(e => getComputedStyle(e).backgroundColor), 'rgba(0, 0, 0, 0)');
+        await p.waitForTimeout(200);
+        const anchor = await trigger.boundingBox(), box = await menu.boundingBox();
+        assert.ok(anchor && box && Math.abs(box.y - anchor.y - anchor.height - 8) < 2);
+        assert.ok(anchor && box && Math.abs(box.x - Math.max(12, Math.min(anchor.x, width - box.width - 12))) < 2);
+        assert.notEqual(await menu.evaluate(e => getComputedStyle(e).boxShadow), 'none');
+        assert.equal(await menu.evaluate(e => getComputedStyle(e).borderTopWidth), '1px');
+        assert.equal(await p.locator('.home__composer').evaluate(e => getComputedStyle(e).boxShadow), await menu.evaluate(e => getComputedStyle(e).boxShadow));
+        assert.equal(await trigger.locator('.attachment-plus').evaluate(e => getComputedStyle(e).transform), 'matrix(1, 0, 0, 1, 0, 0)');
+        await p.keyboard.press('Escape');
+        await p.evaluate(() => window.WorkspaceNavigation.go('/academic'));
+        assert.equal(await p.locator('.study-topic-list').evaluate(e => getComputedStyle(e).scrollbarWidth), 'none');
+    } finally { await f.close(); }
+});
+
  test('anônimo: visual e expiração em 24 horas', async()=>{
     const f=await fixture(),p=f.page;
     try {
@@ -292,7 +481,7 @@ test('editar: conclusão tardia não troca o chat escolhido depois nem envia nel
         const size=await p.locator('.model-menu').boundingBox();
         assert.equal(size?.width,280);assert.ok(size && size.height>0 && size.height<100);
         await p.keyboard.press('Escape');
-        assert.equal(await p.locator('.home__composer').evaluate(e=>getComputedStyle(e).borderTopStyle),'dashed');
+        assert.equal(await p.locator('.home__composer').evaluate(e=>getComputedStyle(e,'::before').borderTopStyle),'dashed');
         await p.locator('.home__input').fill('Mensagem privada');
         await p.locator('.home__input').press('Enter');
         await p.getByText('Resposta privada',{exact:true}).waitFor();
@@ -624,7 +813,7 @@ for(const width of [1280,390])test(`connection cursor: thinking transition, one-
   await p.screenshot({path:path.join(root,`artifacts/chat-connecting-${width}.png`)});
   await event({type:'conversation',conversation_id:'1',turn_id:'1-20',provider:'qwen3:1.7b'});assert.equal(await cursor.isVisible(),true);
   await event({type:'thinking',text:'Conferindo os dados.'});await thought.waitFor();await cursor.waitFor({state:'hidden'});
-  assert.equal(await thought.locator('summary').textContent(),'Pensando');await thought.locator('summary').click();assert.equal(await thought.getAttribute('open'),'');
+  assert.equal(await thought.locator('summary').textContent(),'Pensando');assert.equal(await thought.getAttribute('open'),'');
   await event({type:'delta',text:'Resultado inicial. '});await response.locator('.computer-message__text').waitFor();assert.equal(await thought.getAttribute('open'),null);
   await thought.locator('summary').click();await event({type:'delta',text:'Complemento.'});assert.equal(await thought.getAttribute('open'),'');
   assert.match(await thought.textContent()||'',/Conferindo os dados/);

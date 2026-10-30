@@ -327,6 +327,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         cursor.setAttribute('role','status');cursor.setAttribute('aria-label','Conectando à IA');
         const details = document.createElement('details');
         details.className = 'computer-thinking is-thinking';
+        details.open = true;
         details.hidden=connecting;
         const summary = document.createElement('summary');
         summary.className = 'computer-thinking__toggle';
@@ -499,7 +500,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
                 const thinking = addThinking(assistant, running && !turn.thinking && !turn.metadata?.research && !turn.metadata?.artifacts?.length);
                 thinking.text.appendData(turn.thinking);
                 const firstAnswer=!!turn.answer && existing?.assistant.dataset.answerStarted!=='true';
-                thinking.details.open = opened.has(turn.id) && !firstAnswer;
+                thinking.details.open = !firstAnswer && (opened.has(turn.id) || (!existing && running && !turn.answer));
                 if(turn.answer&&!turn.thinking&&!turn.metadata?.research)thinking.details.hidden=true;
                 thinking.details.classList.toggle('is-thinking', running);
                 thinking.label.textContent = running ? 'Pensando' : ['completed', 'running'].includes(turn.status) ? thoughtLabel(turn.metadata?.thinking_seconds ?? durations[turn.id ?? '']) : 'Pensamento interrompido';

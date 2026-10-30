@@ -91,9 +91,9 @@
 
 .sessions-icon {
     display: inline-block;
-    width: var(--icon-medium);
-    height: var(--icon-medium);
-    flex: 0 0 var(--input-2xs);
+    width: var(--icon-small-medium);
+    height: var(--icon-small-medium);
+    flex: 0 0 var(--icon-small-medium);
     background: currentColor;
     mask: var(--session-icon) center / contain no-repeat;
     -webkit-mask: var(--session-icon) center / contain no-repeat;

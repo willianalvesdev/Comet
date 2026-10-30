@@ -5,6 +5,8 @@
     gap: 0;
     padding: 2px;
     background: var(--bg);
+    border: 0;
+    box-shadow: none;
     --provider-progress: 0;
     --gemini-width: 94px;
     --computer-width: 36px;
@@ -16,7 +18,7 @@
     inset-block: 2px;
     inset-inline-start: calc(var(--indicator-x) + 2px);
     width: var(--indicator-width);
-    border: 1px solid var(--border);
+    border: 1px solid rgb(from var(--text) r g b / .14);
     border-radius: inherit;
 
     box-shadow: none;
@@ -51,7 +53,23 @@
 .hero .provider-toggle__indicator { background: #ffffff; }
 .model-menu { --menu-origin: bottom right; }
 .attachment-menu[popover], #profile-menu { --menu-origin: bottom left; }
+@keyframes profile-submenu-enter { from { opacity:0; transform:translateX(-5px); } to { opacity:1; transform:translateX(0); } }
+@keyframes profile-submenu-enter-left { from { opacity:0; transform:translateX(5px); } to { opacity:1; transform:translateX(0); } }
+@media (prefers-reduced-motion: no-preference) and (width >= 640px) {
+    .profile-menu__submenu:not([hidden]) { animation:profile-submenu-enter 150ms cubic-bezier(.16,1,.3,1); }
+    .profile-menu__submenu[data-side="left"]:not([hidden]) { animation-name:profile-submenu-enter-left; }
+}
 .home__composer.has-inline-options > .attachment-menu { overflow: hidden; }
+.home__composer { border: 1px solid var(--border); box-shadow: var(--shadow-md); }
+.attachment-menu[popover] { border: 1px solid var(--border); box-shadow: var(--shadow-md); }
+.home__toolbar :is(.attachment-toggle, .local-model-picker) { background: transparent; }
+.home__toolbar :is(.attachment-toggle, .local-model-picker)[aria-expanded="true"] { background: var(--control-segment); }
+@media (hover: hover) {
+    .workspace .home__toolbar :is(.attachment-toggle, .local-model-picker):not(:disabled):hover,
+    .home__toolbar :is(.attachment-toggle, .local-model-picker):not(:disabled):hover { background: var(--control-segment); }
+}
+.attachment-toggle > .attachment-plus { mask-image: url('../img/icons/x.svg'); mask-size: 125% 125%; transform: rotate(-45deg); }
+.attachment-toggle[aria-expanded="true"] > .attachment-plus { transform: rotate(0deg); }
 .computer-page:not(.has-conversation) .home__composer.has-inline-options::before,
 .computer-page:not(.has-conversation) .home__composer.has-inline-options.is-dictating::after { bottom: calc(var(--spacing-3) + var(--attachment-menu-height, 0px)); }
 

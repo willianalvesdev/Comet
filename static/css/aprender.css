@@ -17,7 +17,8 @@
 .study-list-controls [data-topic-direction="-1"] { left: -20px; }
 .study-list-controls [data-topic-direction="1"] { right: -20px; }
 .study-list-controls button:disabled { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 300ms ease, visibility 0s 300ms; }
-.study-topic-list { display: flex; gap: var(--spacing-3); overflow-x: auto; scroll-snap-type: x mandatory;  list-style: none; padding: 0; margin: 0; }
+.study-topic-list { display: flex; gap: var(--spacing-3); overflow-x: auto; scrollbar-width: none; scroll-snap-type: x mandatory;  list-style: none; padding: 0; margin: 0; }
+.study-topic-list::-webkit-scrollbar { display: none; }
 .study-topic-list li { display: flex; align-items: flex-end; flex: 0 0 calc((100% - 24px) / 3); min-height: 0; height: clamp(140px, 27svh, 250px); padding: 22px; border: 1px solid var(--border); border-radius: var(--radius-12); background: var(--surface); scroll-snap-align: start; font-size: var(--font-size-3); }
 @media (min-width: 900px) and (max-height: 800px) {
     .study-page { padding: var(--spacing-4) 0; gap: var(--spacing-5); }

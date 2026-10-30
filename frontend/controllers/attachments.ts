@@ -39,15 +39,15 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         files.forEach(file=>list.append(card(file,()=>{files=files.filter(item=>item.id!==file.id);render();})));
         toggle.disabled=locked||uploading;window.dispatchEvent(new Event('attachments:changed'));
     }
-    const page = composer.closest('.computer-page');
     menu.setAttribute('popover', 'auto');
     menu.hidden = false;
     toggle.popoverTargetElement = menu;
     function position() {
         if (!menu.matches(':popover-open')) return;
         const rect = toggle.getBoundingClientRect();
-        const below = !!page && !page.classList.contains('has-conversation');
-        const top = below ? composer.getBoundingClientRect().bottom + 8 : Math.max(12, rect.top - menu.offsetHeight - 8);
+        menu.style.maxHeight = '';
+        const below = rect.bottom + 8 + menu.offsetHeight <= innerHeight - 12;
+        const top = below ? rect.bottom + 8 : Math.max(12, rect.top - menu.offsetHeight - 8);
         menu.style.left = Math.max(12, Math.min(rect.left, innerWidth - menu.offsetWidth - 12)) + 'px';
         menu.style.top = top + 'px';
         menu.style.maxHeight = below ? Math.max(0, innerHeight - top - 12) + 'px' : '';

@@ -13,7 +13,7 @@
 }
 
 .sidebar__search:hover {
-    color: var(--text);
+    color: var(--text-secondary);
     background: var(--surface-hover-strong);
 }
 

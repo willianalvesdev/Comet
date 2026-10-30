@@ -2,12 +2,13 @@ import { userInitials } from '../../shared/user-initials';
 import type { CSSProperties } from 'react';
 import type { BootstrapData } from '../types';
 import { ProviderToggle } from './ProviderToggle';
+import KeyboardShortcuts from './KeyboardShortcuts';
 
 export function Sidebar({ data }: { data: BootstrapData }) {
     const user = data.user;
     if (!user) return null;
     return (
-<aside className="sidebar tw:flex tw:flex-col tw:bg-surface" id="sidebar" aria-label="Menu lateral">
+<><aside className="sidebar tw:flex tw:flex-col tw:bg-surface" id="sidebar" aria-label="Menu lateral">
         <div className="sidebar__top">
             <a className="sidebar__logo tw:grid tw:place-items-center tw:rounded-8px" href="/principal.html" aria-label="Comet — tela principal"><span className="sidebar__wordmark">Comet</span></a>
             <div className="sidebar__top-actions">
@@ -46,7 +47,8 @@ export function Sidebar({ data }: { data: BootstrapData }) {
         <div className="profile-menu" id="profile-menu" data-user-id={user.id} popover="auto" aria-label="Menu do perfil">
             <div className="profile-menu__main">
                 <div className="profile-menu__identity"><span className="sidebar__avatar">{userInitials(user.nome)}</span><div><span>{user.nome}</span><small>{user.email}</small></div></div>
-                <button className="profile-menu__item profile-anonymous" type="button" role="switch" aria-checked="false" aria-label="Modo anônimo"><i className="profile-anonymous__icon" aria-hidden="true"></i><span>Anônima</span><span className="profile-anonymous__switch" aria-hidden="true"></span></button>
+                <button className="profile-menu__item profile-anonymous" type="button" role="switch" aria-checked="false" aria-label="Modo anônimo" data-tooltip="Crie sessões anônimas que não são salvas no seu histórico e expiram após 24 horas"><i className="profile-anonymous__icon" aria-hidden="true"></i><span>Anônima</span><span className="profile-anonymous__switch" aria-hidden="true"></span></button>
+                <div className="profile-menu__divider" />
                 <button className="profile-menu__item" type="button" data-profile-submenu="appearance" aria-expanded="false" aria-controls="profile-appearance"><i className="profile-menu__icon profile-menu__icon--dark" aria-hidden="true"></i><span>Aparência<small data-theme-label>Escuro</small></span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
 <path d="M9.29289 18.7071C8.90237 18.3166 8.90237 17.6834 9.29289 17.2929L14.5858 12L9.29289 6.70711C8.90237 6.31658 8.90237 5.68342 9.29289 5.29289C9.68342 4.90237 10.3166 4.90237 10.7071 5.29289L16.7071 11.2929C16.8946 11.4804 17 11.7348 17 12C17 12.2652 16.8946 12.5196 16.7071 12.7071L10.7071 18.7071C10.3166 19.0976 9.68342 19.0976 9.29289 18.7071Z" fill="currentColor"/>
 </svg></button>
@@ -54,7 +56,10 @@ export function Sidebar({ data }: { data: BootstrapData }) {
 <path d="M9.29289 18.7071C8.90237 18.3166 8.90237 17.6834 9.29289 17.2929L14.5858 12L9.29289 6.70711C8.90237 6.31658 8.90237 5.68342 9.29289 5.29289C9.68342 4.90237 10.3166 4.90237 10.7071 5.29289L16.7071 11.2929C16.8946 11.4804 17 11.7348 17 12C17 12.2652 16.8946 12.5196 16.7071 12.7071L10.7071 18.7071C10.3166 19.0976 9.68342 19.0976 9.29289 18.7071Z" fill="currentColor"/>
 </svg></button>
 
+                <div className="profile-menu__divider" />
                 <button className="profile-menu__item" type="button" data-open-settings><i className="settings-icon" style={{'--icon': 'url(/static/img/icons/settings-settings.svg)'} as CSSProperties} aria-hidden="true"></i><span>Todas as configurações</span></button>
+                <div className="profile-menu__divider" />
+                <button className="profile-menu__item" type="button" data-profile-submenu="help" aria-expanded="false" aria-controls="profile-help"><i className="profile-menu__icon profile-menu__icon--help" aria-hidden="true" /><span>Central de ajuda</span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9.29289 18.7071C8.90237 18.3166 8.90237 17.6834 9.29289 17.2929L14.5858 12L9.29289 6.70711C8.90237 6.31658 8.90237 5.68342 9.29289 5.29289C9.68342 4.90237 10.3166 4.90237 10.7071 5.29289L16.7071 11.2929C16.8946 11.4804 17 11.7348 17 12C17 12.2652 16.8946 12.5196 16.7071 12.7071L10.7071 18.7071C10.3166 19.0976 9.68342 19.0976 9.29289 18.7071Z" fill="currentColor" /></svg></button>
 <div className="profile-menu__divider"></div>
                 <form action="/logout" method="post"><input type="hidden" name="csrf_token" defaultValue={data.csrfToken} /><button className="profile-menu__item" type="submit"><i className="profile-menu__icon profile-menu__icon--logout" aria-hidden="true"></i><span>Sair</span></button></form>
             </div>
@@ -70,8 +75,13 @@ export function Sidebar({ data }: { data: BootstrapData }) {
                 <button className="profile-menu__item" type="button"><span>English</span></button>
             </div>
 
+            <div className="profile-menu__submenu" id="profile-help" aria-label="Central de ajuda" hidden>
+                <button className="profile-menu__back" type="button"><i className="ui-arrow ui-arrow--left" aria-hidden="true" /> Central de ajuda</button>
+                <a className="profile-menu__item" href="/privacy"><i className="profile-menu__icon profile-menu__icon--privacy" aria-hidden="true" /><span>Política de privacidade</span></a>
+                <button className="profile-menu__item" type="button" data-open-shortcuts><i className="profile-menu__icon profile-menu__icon--keyboard" aria-hidden="true" /><span>Atalhos do teclado</span><kbd>Ctrl /</kbd></button>
+            </div>
         </div>
-    </aside>
+    </aside><KeyboardShortcuts /></>
     );
 }
 

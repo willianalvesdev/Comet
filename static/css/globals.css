@@ -3,23 +3,24 @@
 @font-face { font-family:"PPLX Serif"; src:url("../fonts/pplx/PPLX-Serif.woff2") format("woff2"); font-weight:100 900; font-style:normal; font-display:swap; }
 
 :root {
-    /* Theme roles: surfaces, foreground, borders and accent */
-    --background-primary: #171717;
-    --background-secondary: #1f1f1f;
-    --background-tertiary: #242424;
+    --background-primary: #000000;
+    --background-secondary: #1a1a1a;
+    --background-tertiary: #1f1f1f;
+    --background-quaternary: #292929;
+    --background-quinternary: #2e2e2e;
     --bg: var(--background-primary);
     --surface: var(--background-secondary);
-    --surface-hover: var(--background-secondary);
-    --surface-hover-strong: var(--background-tertiary);
-    --surface-selected: var(--background-tertiary);
-    --text: #e8e8e8;
-    --text-secondary: #cdcdcd;
-    --text-tertiary: #afafaf;
-    --text-quaternary: #919191;
+    --surface-hover: var(--background-tertiary);
+    --surface-hover-strong: var(--background-quaternary);
+    --surface-selected: var(--background-quinternary);
+    --text: #ededed;
+    --text-secondary: rgb(from var(--text) r g b / .8);
+    --text-tertiary: rgb(from var(--text) r g b / .7);
+    --text-quaternary: rgb(from var(--text) r g b / .6);
     --text-inverted: #afafaf;
     --control-selected: var(--text);
     --control-on-selected: var(--bg);
-    --control-track: #919191;
+    --control-track: #292929;
     --control-segment: var(--background-tertiary);
     --icon-primary: var(--text);
     --icon-secondary: var(--text-secondary);
@@ -34,11 +35,10 @@
 
     --accent-brand: var(--turquoise);
     --accent: var(--turquoise);
-    --sidebar-surface: #141414;
-    --border: rgb(from var(--text) r g b / .05);
+    --sidebar-surface: #0b0b0b;
+    --border: #1f1f1f;
     --border-focus: rgb(from var(--text) r g b / .1);
 
-    /* Elevation: layered shadows with progressively wider blur */
     --shadow-hairline-width: 1px;
     --shadow-overlay: 0 0 0 100vmax var(--text);
         --shadow-autofill: 0 0 0 1000px color-mix(in srgb, var(--accent) 20%, var(--surface)) inset;
@@ -50,7 +50,6 @@
     --shadow-lg: inset 0 var(--shadow-hairline-width) 0 0 color-mix(in srgb,#fff 6%,#0000),inset 0 0 0 var(--shadow-hairline-width) color-mix(in srgb,#fff 7%,#0000),0 1px 4px 0 color-mix(in srgb,#000 30%,#0000),0 2px 8px 0 color-mix(in srgb,#000 38%,#0000),0 6px 18px -2px color-mix(in srgb,#000 28%,#0000);
     --panel-shadow: var(--shadow-lg);
 
-    /* Typography */
     --font-weight-sans-light: 300;
     --font-weight-sans-regular: 360;
     --font-weight-sans-medium: 470;
@@ -92,7 +91,6 @@
     --font-size-5: 12px;
     --font-size-6: 10px;
 
-    /* Geometry and motion */
     --spacing-1: 0.25rem;
     --spacing-2: 0.5rem;
     --spacing-3: 0.75rem;
