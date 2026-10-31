@@ -1,5 +1,5 @@
 import {arrayValue, booleanValue, record, stringValue} from './api-data';
-import {errorMessage, requiredElement} from './dom';
+import {appendSheetClose,errorMessage, requiredElement} from './dom';
 
 type Person={id:string;name:string;email?:string};
 type Sharing={access:'restricted'|'public';is_owner:boolean;owner?:Person;members:Person[];requests:Person[];requested:boolean};
@@ -12,6 +12,7 @@ function sharingData(value:unknown):Sharing {
 export default function mount({scope}:PageContext) {
     const header=requiredElement(document,'.computer-header',HTMLElement);
     const trigger=document.createElement('button');trigger.type='button';trigger.className='workspace__header-button chat-share-toggle';trigger.textContent='Compartilhar';trigger.hidden=true;trigger.setAttribute('aria-haspopup','dialog');trigger.setAttribute('aria-expanded','false');
+    const shareLabel=document.createElement('span');shareLabel.className='chat-share-label';shareLabel.textContent=trigger.textContent;trigger.replaceChildren(shareLabel);trigger.setAttribute('aria-label','Compartilhar sessão');
     const shareIcon=document.createElement('i');shareIcon.className='sharing-share';shareIcon.setAttribute('aria-hidden','true');trigger.prepend(shareIcon);
     const anonymous=header.querySelector('.anonymous-toggle');if(anonymous)anonymous.before(trigger);else header.append(trigger);
     const panel=document.createElement('div');panel.className='chat-sharing';panel.id='chat-sharing';panel.popover='auto';panel.setAttribute('role','dialog');panel.setAttribute('aria-label','Compartilhar esta sessão');trigger.setAttribute('aria-controls',panel.id);trigger.popoverTargetElement=panel;
@@ -35,6 +36,7 @@ export default function mount({scope}:PageContext) {
             const form=document.createElement('form');form.className='chat-sharing__invite';const label=document.createElement('label');label.className='sr-only';label.textContent='E-mail de uma conta Comet';const email=document.createElement('input');email.type='email';email.required=true;email.maxLength=254;email.placeholder='E-mail de uma conta Comet';email.autocomplete='email';email.setAttribute('aria-label','E-mail de uma conta Comet');label.append(email);const add=document.createElement('button');add.type='submit';add.textContent='Compartilhar';form.append(email,add);form.addEventListener('submit',event=>{event.preventDefault();if(form.reportValidity())void change('/sharing/members','POST',{email:email.value.trim()});});panel.append(form);
             if(data.requests.length){section('Pedidos de acesso');for(const person of data.requests){const row=personRow(person);row.append(action('Aprovar acesso de '+person.name,'check',()=>void change('/sharing/requests/'+encodeURIComponent(person.id),'POST',{approve:true})),action('Recusar acesso de '+person.name,'x',()=>void change('/sharing/requests/'+encodeURIComponent(person.id),'POST',{approve:false})));panel.append(row);}}
         }
+        appendSheetClose(panel,'Fechar compartilhamento');
         const invite=panel.querySelector('form');if(invite){
             title.after(invite);const email=invite.querySelector('input')!,submit=invite.querySelector('button')!;
             const choices=document.createElement('div');choices.className='sharing-suggestions';choices.id='sharing-suggestions';choices.setAttribute('role','listbox');choices.hidden=true;

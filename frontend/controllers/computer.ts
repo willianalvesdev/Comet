@@ -109,7 +109,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     syncScrollbarWidth();
     function syncKeyboard() {
         const viewport = window.visualViewport;
-        const offset = viewport && matchMedia('(width < 640px)').matches && viewport.scale === 1
+        const offset = viewport && matchMedia('(width < 769px)').matches && viewport.scale === 1
             ? Math.max(0, innerHeight - viewport.height - viewport.offsetTop) : 0;
         present(page).style.setProperty('--computer-keyboard-offset', `${offset}px`);
     }
@@ -148,12 +148,9 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     jump.type = 'button'; jump.className = 'computer-jump'; jump.hidden = true;
     jump.setAttribute('aria-label', 'Descer para a última mensagem');
     jump.innerHTML = '<i aria-hidden="true"></i>';
-    page.append(jump);
+    composer.append(jump);
     function updateJump() {
         jump.hidden = present(conversation).hidden || nearLatest();
-        const rect = composer.getBoundingClientRect();
-        jump.style.left = (rect.left + rect.width / 2 - 16) + 'px';
-        jump.style.bottom = Math.max(16, innerHeight - rect.top + 12) + 'px';
     }
     jump.addEventListener('click', scrollToLatest, {signal: scope.signal});
     scope.listen(scroller, 'scroll', updateJump, {passive:true});

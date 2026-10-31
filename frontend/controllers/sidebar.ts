@@ -18,7 +18,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     new ResizeObserver(updateScrollFades).observe(nav);
     new MutationObserver(updateScrollFades).observe(nav, {childList:true, subtree:true, characterData:true});
     updateScrollFades();
-    const smallScreen = window.matchMedia("(width < 640px)");
+    const smallScreen = window.matchMedia("(width < 769px)");
     const storageKey = "ascensao-sidebar-collapsed";
     let initialCollapsed = smallScreen.matches;
 

@@ -9,13 +9,15 @@ export function ProviderToggle() {
     useLayoutEffect(() => {
         const element = group.current!;
         const labels = [...element.querySelectorAll<HTMLElement>('.provider-toggle__content')];
+        const container=element.closest<HTMLElement>('.computer-composer')||element.closest<HTMLElement>('.home__composer')!;
         const reduced = matchMedia('(prefers-reduced-motion: reduce)');
         const current = motion.current;
         const target = Number(computer);
         let previous = performance.now();
         function paint() {
             const collapsed = 36;
-            const widths = labels.map(label => Math.max(36, label.scrollWidth));
+            const compact=container.getBoundingClientRect().width<=540;
+            const widths = labels.map(label => compact?36:Math.max(36, label.scrollWidth));
             const progress = current.value;
             element.style.setProperty('--provider-progress', String(progress));
             element.style.setProperty('--gemini-width', `${collapsed + (widths[0] - collapsed) * (1 - progress)}px`);
@@ -46,6 +48,7 @@ export function ProviderToggle() {
         current.ready = true;
         const observer = new ResizeObserver(paint);
         labels.forEach(label => observer.observe(label));
+        observer.observe(container);
         reduced.addEventListener('change', settle);
         return () => { cancelAnimationFrame(current.frame); observer.disconnect(); reduced.removeEventListener('change', settle); };
     }, [computer]);

@@ -2,7 +2,7 @@ import {citationPreviews} from './citations';
 import {chatArtifacts} from './chat-artifacts';
 import {positionTableHeaders} from './answer-content';
 import {chatImages} from './chat-images';
-import { requiredElement, optionalElement, present, elementList, eventElement } from './dom';
+import { appendSheetClose,requiredElement, optionalElement, present, elementList, eventElement } from './dom';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
     const citations=citationPreviews({scope,setTimeout,MutationObserver});
     const scroller = requiredElement(document, '.workspace__content', HTMLElement);
@@ -94,6 +94,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     const sourceHost=document.createElement('div');
     const artifacts=chatArtifacts({scope,fetch,ResizeObserver,requestAnimationFrame},()=>{updateTrigger();collapse.setAttribute('aria-label',artifacts.hasFiles()?'Abrir artefatos e fontes':'Abrir fontes');positionPanel();});
     panel.append(artifacts.section,sourceHost);
+    appendSheetClose(panel,'Fechar fontes e artefatos');
     function positionPanel() {
         panelVisible=panel.matches(':popover-open');
         const sidebar=requiredElement(document,'.sidebar',HTMLElement);

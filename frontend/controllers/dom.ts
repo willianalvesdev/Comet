@@ -26,7 +26,12 @@ export function formField(form:HTMLFormElement,name:string):HTMLInputElement|HTM
  throw new Error('Campo ausente: '+name);
 }
 
+export function appendSheetClose(menu:HTMLElement,label='Fechar menu') {
+    const button=document.createElement('button');button.type='button';button.className='mobile-sheet-close';button.setAttribute('aria-label',label);button.innerHTML='<i class="ui-icon-x" aria-hidden="true"></i>';button.addEventListener('click',()=>menu.hidePopover());menu.prepend(button);
+}
 export function setupSortMenu(menu: HTMLElement, trigger: HTMLButtonElement) {
+    menu.classList.add('responsive-sort-menu');
+    const close=document.createElement('button');close.type='button';close.className='responsive-sort-menu__close';close.setAttribute('aria-label','Fechar ordenação');close.innerHTML='<i class="ui-icon-x" aria-hidden="true"></i>';close.addEventListener('click',()=>{menu.hidePopover();trigger.focus();});menu.append(close);
     menu.addEventListener('toggle', () => {
         const open = menu.matches(':popover-open');
         trigger.setAttribute('aria-expanded', String(open));

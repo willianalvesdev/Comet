@@ -1,11 +1,13 @@
 import { workspaceGet } from './workspace-cache';
-import { optionalElement, isRecord, present, requiredElement, eventElement } from './dom';
+import { appendSheetClose, optionalElement, isRecord, present, requiredElement, eventElement } from './dom';
 import { isOpenRouterModel, isOllamaModel, record, arrayValue, stringValue, booleanValue } from './api-data';
 import { composerState } from '../components/composer-state';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
     const gemini = optionalElement(document, '.model-picker', HTMLButtonElement), computer = optionalElement(document, '.computer-provider', HTMLButtonElement);
     const trigger = optionalElement(document, '.local-model-picker', HTMLButtonElement), menu = optionalElement(document, '.model-menu', HTMLElement);
     if (!gemini || !computer || !trigger || !menu) return;
+    const compactLabel=document.createElement('span');compactLabel.className='local-model-compact-label';compactLabel.textContent='Modelo';trigger.append(compactLabel);
+    scope.cleanup(()=>compactLabel.remove());
     composerState.update({busy:false});
     trigger.popoverTargetElement = menu;
     const companies: Record<string,string> = {nvidia:'NVIDIA',thinkingmachines:'Thinking Machines',cohere:'Cohere',google:'Google'};
@@ -58,8 +60,13 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             const heading=document.createElement('div');heading.className='model-company model-company--cloud';heading.textContent='Nuvem · Ollama';const note=document.createElement('p');note.textContent='Os modelos Cloud adicionados no Ollama aparecerão aqui.';present(menu).append(heading,note);
         }
         if(!computerMode&&remoteError){const message=document.createElement('p');message.textContent=remoteError;present(menu).append(message);}
+        appendSheetClose(present(menu),'Fechar modelos');
         geminiOption.setAttribute('aria-checked', String(selected === 'gemini'));
         requiredElement(present(trigger), '.local-model-name', HTMLElement).textContent = name;
+        present(trigger).querySelector('.selected-model-icon')?.remove();
+        const selectedOption=[...options,...remoteOptions,geminiOption].find(option=>option.dataset.provider===selected);
+        const logo=selectedOption?.querySelector('.model-icon')?.cloneNode(true) as HTMLElement|undefined;
+        const selectedLogo=logo||document.createElement('i');selectedLogo.classList.add('model-icon','selected-model-icon');if(!logo)selectedLogo.classList.add('model-icon--cpu');selectedLogo.setAttribute('aria-hidden','true');present(trigger).prepend(selectedLogo);
         present(trigger).setAttribute('aria-label', 'Modelo: ' + name);
         present(gemini).removeAttribute('title'); present(gemini).removeAttribute('data-tooltip');
         present(gemini).setAttribute('aria-label', 'Usar Pesquisar');

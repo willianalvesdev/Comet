@@ -282,7 +282,7 @@
     }
 }
 
-@media (width >= 640px) {
+@media (width >= 769px) {
     .workspace {
         padding-top: 0;
         background: var(--bg);
@@ -309,7 +309,7 @@
     }
 }
 
-@media (width < 640px) {
+@media (width < 769px) {
     .sidebar {
         width: 240px;
         max-width: calc(100vw - 32px);
@@ -499,7 +499,7 @@
     display: none;
 }
 
-@media (width < 640px) {
+@media (width < 769px) {
     .profile-menu.has-submenu .profile-menu__main {
         display: none;
     }
@@ -725,7 +725,7 @@
     display: none;
 }
 
-@media (width < 640px) {
+@media (width < 769px) {
     .mobile-discover-toggle {
         display: grid;
         margin-left: auto;
@@ -815,7 +815,7 @@ html.discovery-embedded .workspace {
     }
 }
 
-@media (width < 640px) {
+@media (width < 769px) {
     .workspace {
         --mobile-menu-width: min(240px, calc(100vw - 32px));
         --mobile-page-offset: 0px;
@@ -854,7 +854,7 @@ html.discovery-embedded .workspace {
     }
 }
 
-@media (width < 640px) {
+@media (width < 769px) {
     html.discovery-panel-shift .workspace {
         --mobile-page-offset: -100vw;
     }
@@ -881,7 +881,7 @@ html.discovery-embedded .workspace {
 
 
 
-@media (width < 640px) {
+@media (width < 769px) {
     .workspace {
         --sidebar-duration: 450ms;
     }
@@ -991,7 +991,7 @@ html.discovery-embedded .workspace__content {
 .sidebar .sidebar__resize:focus-visible { outline: none; }
 .is-sidebar-collapsed .sidebar .sidebar__resize { display: none; }
 .workspace.is-sidebar-resizing { --sidebar-duration: 0ms; cursor: col-resize; user-select: none; }
-@media (width < 640px) { .sidebar .sidebar__resize { display: none; } }
+@media (width < 769px) { .sidebar .sidebar__resize { display: none; } }
 
 .sidebar__new-chat .sidebar__link:focus-visible {
     background: var(--surface-hover);
@@ -1017,7 +1017,7 @@ html.discovery-embedded .workspace__content {
 .sidebar.is-nav-scrolled .sidebar__nav { --nav-fade-top: var(--spacing-6); }
 .sidebar.has-nav-overflow .sidebar__nav { --nav-fade-bottom: var(--spacing-8); }
 
-@media (width >= 640px) {
+@media (width >= 769px) {
     .is-sidebar-collapsed .sidebar__nav,
     .is-sidebar-collapsed .sidebar__new-chat {
         padding-inline: 0;
@@ -1070,11 +1070,11 @@ html.discovery-embedded .workspace__content {
         height: 44px;
     }
 }
-@media (width >= 640px) and (hover: none) {
+@media (width >= 769px) and (hover: none) {
     .is-sidebar-collapsed .sidebar__logo { visibility: hidden; }
 }
 
-@media (width < 640px) {
+@media (width < 769px) {
     .workspace { --page-gutter: 16px; }
 }
 
@@ -1119,7 +1119,7 @@ html.discovery-embedded .workspace__content {
 .sidebar .sidebar__resize:hover { background:transparent; }
 
 /* Keep navigation glyphs anchored while the sidebar changes width. */
-@media (width >= 640px) {
+@media (width >= 769px) {
     .is-sidebar-collapsed .sidebar__top { flex-basis:var(--header-height); }
     .is-sidebar-collapsed .sidebar__new-chat { align-items:stretch; padding:0 var(--sidebar-inset) 1px; border-bottom:0; }
     .is-sidebar-collapsed .sidebar__nav { align-items:stretch; padding-inline:var(--sidebar-inset); scrollbar-gutter:auto; }
@@ -1136,7 +1136,7 @@ html.discovery-embedded .workspace__content {
 .sidebar__link { gap:8px; }
 .sidebar .sidebar__icon, .is-sidebar-collapsed .sidebar__icon,
 .is-sidebar-collapsed .sidebar-recents i { flex:0 0 18px; width:18px; height:18px; margin-inline:3px; }
-@media (width >= 640px) {
+@media (width >= 769px) {
     .is-sidebar-collapsed .sidebar__logo { left:8px; width:40px; }
     .is-sidebar-collapsed .sidebar__footer .sidebar__profile { flex-basis:40px; width:40px; height:40px; }
 }

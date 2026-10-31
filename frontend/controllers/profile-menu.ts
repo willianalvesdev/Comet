@@ -26,7 +26,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     function positionMenu() {
         if (!menu.matches(':popover-open')) return;
         const rect = trigger.getBoundingClientRect();
-        const collapsed = document.body.classList.contains('is-sidebar-collapsed') && innerWidth >= 640;
+        const collapsed = document.body.classList.contains('is-sidebar-collapsed') && innerWidth >= 769;
         menu.style.width = Math.min(innerWidth - 24, Math.max(311.2, rect.width)) + 'px';
         const left = collapsed ? rect.right - 4 : rect.left;
         menu.style.left = Math.max(12, Math.min(left, innerWidth - menu.offsetWidth - 12)) + 'px';
@@ -35,7 +35,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         menu.style.setProperty('--menu-origin', collapsed ? 'left bottom' : 'bottom left');
     }
     function positionSubmenu(button: HTMLElement, panel: HTMLElement) {
-        if (innerWidth < 640) return;
+        if (innerWidth < 769) return;
         const rect = button.getBoundingClientRect(), parent = menu.getBoundingClientRect();
         const left = parent.right - 4;
         const rightSide = left + panel.offsetWidth <= innerWidth - 12;
@@ -50,7 +50,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         if (focus && active) active.focus();
         active = null;
     }
-    const hover = matchMedia("(min-width: 640px) and (hover: hover) and (pointer: fine)");
+    const hover = matchMedia("(min-width: 769px) and (hover: hover) and (pointer: fine)");
     function openSubmenu(button: HTMLElement, focus = false) {
         closeSubmenu();
         active = button;

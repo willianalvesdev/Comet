@@ -45,6 +45,73 @@ async function open(page: import('playwright').Page, id:string) {
     await page.waitForFunction(id=>document.querySelector('.computer-message--assistant')?.getAttribute('data-turn')===id+'-0',id);
 }
 
+test('mobile controls: Modelo label, close buttons and slide animation',async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  await p.setViewportSize({width:390,height:900});await p.emulateMedia({reducedMotion:'no-preference'});
+  assert.equal(await p.locator('.local-model-compact-label').textContent(),'Modelo');assert.equal(await p.locator('.selected-model-icon').isVisible(),false);
+  for(const [trigger,menu,label] of [['.local-model-picker','.model-menu','Fechar modelos'],['.attachment-toggle','.attachment-menu','Fechar opções de arquivos']]){
+   await p.locator(trigger).click();await p.getByRole('button',{name:label,exact:true}).waitFor();await p.locator(menu).evaluate(e=>Promise.all(e.getAnimations().map(a=>a.finished.catch(()=>{}))));
+   const style=await p.locator(menu).evaluate(e=>({transform:getComputedStyle(e).transform,origin:getComputedStyle(e).transformOrigin}));assert.equal(style.transform,'matrix(1, 0, 0, 1, 0, 0)');
+   await p.getByRole('button',{name:label,exact:true}).click();await p.locator(menu).waitFor({state:'hidden'});
+  }
+  assert.deepEqual(f.errors,[]);
+ }finally{await f.close();}
+});
+
+for(const width of [1536,1280,768,390])test(`responsive review: sharing, sources, shadows, hover and Discover ${width}`,async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  await p.setViewportSize({width,height:900});
+  f.histories.get('2')!.turns[19].metadata={research:{sources:[{title:'Fonte',url:'https://example.com',domain:'example.com'}]}};await open(p,'2');
+  if(width===1536){await p.locator('.message-navigator__mark').first().hover();assert.equal(await p.locator('.message-navigator__panel').isVisible(),true);await p.mouse.move(0,0);}
+  await p.route('**/conversations/2/sharing',route=>route.fulfill({json:{access:'restricted',is_owner:true,owner:{id:'7',name:'Teste',email:'teste@example.invalid'},members:[],requests:[]}}));
+  const share=p.locator('.chat-share-toggle'),before=await share.evaluate(e=>getComputedStyle(e).backgroundColor),bounds=await share.boundingBox();await share.hover();
+  await p.waitForFunction(before=>getComputedStyle(document.querySelector('.chat-share-toggle')!).backgroundColor!==before,before);assert.deepEqual(await share.boundingBox(),bounds);
+  await share.click();await p.getByRole('radio',{name:'Qualquer pessoa com o link pode visualizar'}).waitFor();const sharing=(await p.locator('.chat-sharing').boundingBox())!;
+  if(width<=768){assert.ok(Math.abs(sharing.y+sharing.height-900)<2);assert.ok(sharing.width>=width-1);}await p.keyboard.press('Escape');
+  await p.locator(width===1536?'.sources-side-close':'.sources-menu-toggle').click();await p.locator('.computer-sources-panel').evaluate(e=>Promise.all(e.getAnimations().map(a=>a.finished.catch(()=>{}))));const sources=(await p.locator('.computer-sources-panel').boundingBox())!;if(width<=768)assert.ok(Math.abs(sources.y+sources.height-900)<2,JSON.stringify({sources,css:await p.locator(".computer-sources-panel").evaluate(e=>({bottom:getComputedStyle(e).bottom,top:getComputedStyle(e).top,transform:getComputedStyle(e).transform}))}));await p.keyboard.press('Escape');
+  assert.notEqual(await p.locator('.message-navigator__panel').evaluate(e=>getComputedStyle(e).boxShadow),'none');
+  if(width<=768){await p.locator('.workspace__menu-toggle').click();assert.notEqual(await p.locator('.sidebar').evaluate(e=>getComputedStyle(e,'::after').boxShadow),'none');await p.keyboard.press('Escape');}
+  await p.route('**/api/news?*',route=>route.fulfill({status:503,json:{error:'Notícias indisponíveis neste teste'}}));await p.evaluate(()=>window.WorkspaceNavigation.go('/discover'));await p.locator('.news-page').waitFor();
+  if(width<=768){const topics=p.locator('.discovery-mobile-topics');assert.equal(await topics.isVisible(),true);await topics.locator('[data-discovery-topic="sports"]').click();assert.equal(await topics.locator('[data-discovery-topic="sports"]').getAttribute('aria-pressed'),'true');assert.equal(await p.locator('.discovery-nav').isVisible(),false);}
+  assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.deepEqual(f.errors,[]);
+ }finally{await f.close();}
+});
+
+test('mobile reference: new chat arrow and recent conversation bottom sheet',async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  await p.setViewportSize({width:390,height:900});await p.evaluate(()=>window.dispatchEvent(new Event('sessions:new')));
+  assert.ok((await p.locator('.computer-composer').boundingBox())!.y>650);
+  assert.equal(await p.locator('.home__send .ui-arrow').evaluate(e=>getComputedStyle(e).transform),'matrix(0, -1, 1, 0, 0, 0)');
+  await p.evaluate(()=>window.WorkspaceNavigation.go('/recent'));await p.locator('.recent-chats__more').first().waitFor();
+  await p.locator('.recent-chats__more').first().click();const menu=p.locator('#sessions-menu');await menu.waitFor({state:'visible'});
+  const bounds=(await menu.boundingBox())!;assert.ok(Math.abs(bounds.y+bounds.height-900)<2);assert.ok(bounds.width>=389);
+  assert.equal(await p.locator('#root').evaluate(e=>(e as HTMLElement).inert),true);assert.match(await menu.locator('h2').textContent()||'',/Conversa/);
+  await p.getByRole('button',{name:'Fechar opções da conversa'}).click();assert.equal(await p.locator('#root').evaluate(e=>(e as HTMLElement).inert),false);
+  await p.setViewportSize({width:1280,height:900});await p.locator('.recent-chats__more').first().click();assert.ok((await menu.boundingBox())!.width<300);await p.keyboard.press('Escape');assert.deepEqual(f.errors,[]);
+ }finally{await f.close();}
+});
+
+test('responsive reference: sidebar boundary, compact controls and composer across widths',async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  for(const width of [1536,1024,820,769,768,640,500,390]){
+   await p.setViewportSize({width,height:900});
+   await p.waitForFunction(width=>document.querySelector('.workspace')?.classList.contains('is-sidebar-collapsed')===(width<=768),width);
+   const sidebar=(await p.locator('.sidebar').boundingBox())!,composer=(await p.locator('.computer-composer').boundingBox())!;
+   if(width<=768){assert.ok(sidebar.x+sidebar.width<=1);assert.equal(await p.locator('.workspace__menu-toggle').isVisible(),true);assert.ok((await p.locator('.computer-header').boundingBox())!.height<=57);}
+   assert.ok(composer.x>=0&&composer.x+composer.width<=width+1,`composer ${width}`);
+   if(composer.width<=540){assert.equal(await p.locator('.local-model-name').isVisible(),false);assert.equal(await p.locator('.local-model-compact-label').isVisible(),true);for(const button of await p.locator('.provider-toggle > button').all())assert.ok((await button.boundingBox())!.width<=37);}
+   assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  }
+  await p.locator('.workspace__menu-toggle').click();assert.equal(await p.locator('.sidebar').evaluate(e=>(e as HTMLElement).inert),false);
+  await p.keyboard.press('Escape');assert.equal(await p.locator('.sidebar').evaluate(e=>(e as HTMLElement).inert),true);
+  assert.deepEqual(f.errors,[]);
+ }finally{await f.close();}
+});
+
 test('compartilhamento: painel, permissões, cópia do link e tamanho responsivo',async()=>{
     const f=await fixture(),p=f.page;let access='restricted';
     try {

@@ -18,9 +18,12 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     const seen = new Set<string>();
     let currentPage = 0, busy = false, generation = 0;
     let mode = 'for-you', topic: string | null | undefined = null;
+    const mobileTopics=document.createElement('nav');mobileTopics.className='discovery-mobile-topics';mobileTopics.setAttribute('aria-label','Tópicos de notícias');
+    for(const button of elementList(document,'.discovery-nav [data-news-mode],.discovery-nav [data-discovery-topic]',HTMLButtonElement))mobileTopics.append(button.cloneNode(true));
+    requiredElement(document,'.workspace__header',HTMLElement).after(mobileTopics);scope.cleanup(()=>mobileTopics.remove());
     elementList(document, '[data-discovery-topic]', HTMLButtonElement).forEach(button => button.addEventListener('click', () => {
         topic = button.dataset.discoveryTopic; mode = 'topic';
-        present(button.closest('details')).open = false; refreshFeed();
+        const details=button.closest('details');if(details)details.open=false;refreshFeed();
     }, {signal: scope.signal}));
     function refreshFeed() {
         const topicsMenu = requiredElement(document, '.discovery-topics', HTMLDetailsElement);

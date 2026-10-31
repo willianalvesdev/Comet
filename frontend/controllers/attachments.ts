@@ -1,10 +1,11 @@
 import { showLoading } from './loading-indicator';
 import { isOllamaModel } from './api-data';
-import { optionalElement, requiredElement, errorMessage, elementList } from './dom';
+import { appendSheetClose, optionalElement, requiredElement, errorMessage, elementList } from './dom';
 import { apiError, attachmentData } from './api-data';
 export default function mount({scope, setTimeout, setInterval, requestAnimationFrame, fetch, ResizeObserver, MutationObserver}: PageContext) {
     const picker=optionalElement(document, '#attachment-input', HTMLInputElement), menu=requiredElement(document, '#attachment-menu', HTMLElement), toggle=requiredElement(document, '.attachment-toggle', HTMLButtonElement);
     if(!picker)return;
+    appendSheetClose(menu,'Fechar opções de arquivos');
     const webToggle = optionalElement(menu, '.web-search-toggle', HTMLButtonElement);
     webToggle?.addEventListener('click', () => webToggle.setAttribute('aria-pressed', String(webToggle.getAttribute('aria-pressed') !== 'true')), {signal: scope.signal});
 

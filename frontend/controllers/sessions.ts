@@ -172,7 +172,12 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     menu.className = 'sessions-menu'; menu.id = 'sessions-menu'; menu.setAttribute('popover','auto');
     menu.setAttribute('aria-label','Opções da conversa');
     menu.innerHTML = '<button type="button" data-action="pin"><i class="sessions-icon sessions-icon--pin" aria-hidden="true"></i><span>Fixar</span></button><button type="button" data-action="rename"><i class="sessions-icon sessions-icon--rename" aria-hidden="true"></i>Renomear</button><button type="button" data-action="read"><i class="sessions-icon sessions-icon--read" aria-hidden="true"></i>Marcar como lida</button><button type="button" class="sessions-menu__delete" data-action="delete"><i class="sessions-icon sessions-icon--delete" aria-hidden="true"></i>Apagar</button>';
-    requiredElement(document, '.sidebar', HTMLElement).append(menu);
+    const menuTitle=document.createElement('h2');menuTitle.className='sessions-menu__title';menuTitle.id='sessions-menu-title';menu.prepend(menuTitle);
+    const closeMenu=document.createElement('button');closeMenu.type='button';closeMenu.className='sessions-menu__close';closeMenu.setAttribute('aria-label','Fechar opções da conversa');closeMenu.innerHTML='<i class="ui-icon-x" aria-hidden="true"></i>';closeMenu.addEventListener('click',()=>{menu.hidePopover();opener?.focus({preventScroll:true});},{signal:scope.signal});menu.append(closeMenu);
+    scope.append(menu);
+    const workspace=requiredElement(document,'#root',HTMLElement);
+    menu.addEventListener('beforetoggle',event=>{if(event.newState==='closed'){workspace.inert=false;document.body.classList.remove('is-session-sheet-open');}},{signal:scope.signal});
+    scope.cleanup(()=>{workspace.inert=false;document.body.classList.remove('is-session-sheet-open');});
     const dialog = document.createElement('dialog');
     dialog.className = 'sessions-dialog';
     dialog.setAttribute('aria-labelledby','sessions-dialog-title');
@@ -181,7 +186,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     let action: string | undefined, changing = false;
     const error = requiredElement(dialog, '.sessions-dialog__error', HTMLElement);
     function emit(name: string | undefined, detail: Record<string,unknown> = {}) { window.dispatchEvent(new CustomEvent('sessions:' + name, {detail})); }
-    function closeMobile() { if (matchMedia('(width < 640px)').matches && !document.body.classList.contains('is-sidebar-collapsed')) requiredElement(document, '.sidebar__toggle', HTMLButtonElement).click(); }
+    function closeMobile() { if (matchMedia('(width < 769px)').matches && !document.body.classList.contains('is-sidebar-collapsed')) requiredElement(document, '.sidebar__toggle', HTMLButtonElement).click(); }
     async function request(path: string, method = 'GET', data?: unknown):Promise<unknown> {
         if (method === 'GET' && path.startsWith('/api/ai/conversations?')) return workspaceGet(path, 10000);
         const csrf = optionalElement(document, 'meta[name="csrf-token"]', HTMLMetaElement)?.content || optionalElement(document, '[name="csrf_token"]', HTMLInputElement)?.value || '';
@@ -233,6 +238,9 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         if (menu.matches(':popover-open') && opener === options) { menu.hidePopover(); return; }
         if (menu.matches(':popover-open')) menu.hidePopover();
         target = item; opener = options;
+        menuTitle.textContent=item.title;
+        menu.setAttribute('role',innerWidth<=768?'dialog':'menu');
+        if(innerWidth<=768){menu.setAttribute('aria-modal','true');menu.setAttribute('aria-labelledby',menuTitle.id);}else{menu.removeAttribute('aria-modal');menu.removeAttribute('aria-labelledby');}
         requiredElement(menu, '[data-action="pin"] span', HTMLElement).textContent = pins[item.id] ? 'Desafixar' : 'Fixar';
         requiredElement(menu, '[data-action="pin"] i', HTMLElement).classList.toggle('sessions-icon--unpin', Boolean(pins[item.id]));
         requiredElement(menu, '[data-action="read"]', HTMLButtonElement).lastChild!.textContent = isUnread(item) ? 'Marcar como lida' : 'Marcar como não lida';
@@ -292,7 +300,8 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         drawn = true;
     }
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && menu.matches(':popover-open')) { event.preventDefault(); event.stopPropagation(); menu.hidePopover(); opener?.focus({preventScroll:true}); } }, {capture:true, signal: scope.signal});
-    menu.addEventListener('toggle', event => { if (event.newState === 'closed') opener?.setAttribute('aria-expanded','false'); }, {signal: scope.signal});
+    menu.addEventListener('toggle', event => { const sheet=event.newState==='open'&&innerWidth<=768;workspace.inert=sheet;document.body.classList.toggle('is-session-sheet-open',sheet);if (event.newState === 'closed') opener?.setAttribute('aria-expanded','false'); }, {signal: scope.signal});
+    menu.addEventListener('keydown',event=>{if(event.key!=='Tab'||innerWidth>768)return;const buttons=elementList(menu,'button:not(:disabled)',HTMLButtonElement),first=buttons[0],last=buttons.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}},{signal:scope.signal});
     window.addEventListener('resize', () => { if (menu.matches(':popover-open')) menu.hidePopover(); }, {signal: scope.signal});
     function runAction(item: Conversation, value: string, origin: HTMLElement) {
         target=item;opener=origin;action=value;
@@ -322,7 +331,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     }
     menu.addEventListener('click', event => {
         const button=eventElement(event.target)?.closest('button');
-        if (button && target && opener) runAction(target,button.dataset.action || '',opener);
+        if (button?.dataset.action && target && opener) runAction(target,button.dataset.action,opener);
     }, {signal: scope.signal});
     requiredElement(dialog, '[data-cancel]', HTMLElement).addEventListener('click', () => { if (!changing) dialog.close(); }, {signal: scope.signal});
     dialog.addEventListener('cancel', event => { if (changing) event.preventDefault(); }, {signal: scope.signal});

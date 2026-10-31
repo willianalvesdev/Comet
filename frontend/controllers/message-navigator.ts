@@ -80,15 +80,22 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         depth();
     }
     function schedule() {
-        const sidebar=requiredElement(document,'.sidebar',HTMLElement).getBoundingClientRect(),text=messages!.getBoundingClientRect();
-        const gap=text.left-sidebar.right,width=nav.offsetWidth;
-        nav.style.visibility=gap<width+16?'hidden':'';
-        nav.style.left=(sidebar.right+(gap-width)/2)+'px';
-        if (!frame) frame = requestAnimationFrame(update);
+        if(frame)return;
+        frame=requestAnimationFrame(()=>{
+        const sidebar=requiredElement(document,'.sidebar',HTMLElement).getBoundingClientRect();
+        const texts=[...messages!.querySelectorAll('.computer-message--assistant .computer-message__text')].map(node=>node.getBoundingClientRect()).filter(rect=>rect.width>0&&rect.height>0);
+        const textLeft=texts.length?Math.min(...texts.map(rect=>rect.left)):messages!.getBoundingClientRect().left;
+        const marks=[...nav.querySelectorAll<HTMLElement>('.message-navigator__mark')];
+        if(marks.length&&!nav.hidden){
+            const rect=marks[0].getBoundingClientRect(),center=rect.left+rect.width/2;
+            nav.style.visibility=textLeft>0&&textLeft+sidebar.right<2*center-.5?'hidden':'';
+        }
+        update();
+        });
     }
     function rebuild() {
         const nodes = [...elementList(present(messages), '.computer-message--user', HTMLElement)];
-        if (nodes.length === entries.length && nodes.every((node, i) => node === entries[i].message)) { if (!panel.hidden) open(previewIndex); return; }
+        if (nodes.length === entries.length && nodes.every((node, i) => node === entries[i].message)) { if (!panel.hidden) open(previewIndex); schedule(); return; }
         const marks = document.createDocumentFragment(), items = document.createDocumentFragment(); current = -1;
         entries = nodes.map((message, index) => {
             const text = requiredElement(message, '.computer-message__text', HTMLElement).textContent.trim();
@@ -124,6 +131,10 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     scope.listen(rail, 'scroll', schedule, {passive:true});
     scope.listen(window, 'resize', schedule);
     new ResizeObserver(schedule).observe(messages);
+    new ResizeObserver(schedule).observe(scroller);
+    const workspace=requiredElement(document,'.workspace',HTMLElement);
+    new MutationObserver(schedule).observe(workspace,{attributes:true,attributeFilter:['class','style']});
+    scope.listen(workspace,'transitionend',schedule);
     new ResizeObserver(schedule).observe(requiredElement(document,'.sidebar',HTMLElement));
     const composer = requiredElement(document, '.computer-composer', HTMLElement);
     if (composer) new ResizeObserver(schedule).observe(composer);
