@@ -79,7 +79,13 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         entries[index].item.setAttribute('aria-current', 'true');
         depth();
     }
-    function schedule() { if (!frame) frame = requestAnimationFrame(update); }
+    function schedule() {
+        const sidebar=requiredElement(document,'.sidebar',HTMLElement).getBoundingClientRect(),text=messages!.getBoundingClientRect();
+        const gap=text.left-sidebar.right,width=nav.offsetWidth;
+        nav.style.visibility=gap<width+16?'hidden':'';
+        nav.style.left=(sidebar.right+(gap-width)/2)+'px';
+        if (!frame) frame = requestAnimationFrame(update);
+    }
     function rebuild() {
         const nodes = [...elementList(present(messages), '.computer-message--user', HTMLElement)];
         if (nodes.length === entries.length && nodes.every((node, i) => node === entries[i].message)) { if (!panel.hidden) open(previewIndex); return; }
@@ -118,6 +124,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     scope.listen(rail, 'scroll', schedule, {passive:true});
     scope.listen(window, 'resize', schedule);
     new ResizeObserver(schedule).observe(messages);
+    new ResizeObserver(schedule).observe(requiredElement(document,'.sidebar',HTMLElement));
     const composer = requiredElement(document, '.computer-composer', HTMLElement);
     if (composer) new ResizeObserver(schedule).observe(composer);
     new MutationObserver(rebuild).observe(messages, {childList:true, subtree:true, characterData:true});

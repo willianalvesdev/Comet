@@ -51,7 +51,7 @@ export function cachedConversation(id: string) {
     return entry;
 }
 export function cacheConversation(value: ConversationHistory, checked = Date.now()) {
-    if (!enabled) return;
+    if (!enabled || value.conversation.is_owner === false) return;
     const snapshot = structuredClone(value), size = JSON.stringify(snapshot).length;
     histories.delete(value.conversation.id);
     if (size > 4_000_000) return;

@@ -1,0 +1,91 @@
+.chat-share-toggle { display:inline-flex; align-items:center; gap:6px; flex-shrink:0; height:32px; min-height:32px; padding:0 12px; border:1px solid var(--border); border-radius:8px; background:var(--text-secondary); color:var(--bg); font-size:14px; font-weight:var(--font-weight-medium); }
+.chat-share-toggle { width:auto; white-space:nowrap; }
+.chat-share-toggle[hidden] { display:none; }
+.chat-share-toggle:is(:hover,[aria-expanded="true"]) { background:var(--text); }
+.sharing-share { display:block; width:16px; height:16px; background:currentColor; mask:url('../img/icons/library/share.svg') center/contain no-repeat; }
+.chat-sharing { position:fixed; inset:auto; margin:0; width:min(576px,calc(100vw - 32px)); max-height:calc(100dvh - 16px); overflow:auto; padding:20px; border:1px solid var(--border); border-radius:12px; background:var(--surface); color:var(--text); box-shadow:var(--shadow-md); font:16px/1.5 var(--font-ui); transform-origin:top right; opacity:0; transform:scale(.95); transition:opacity .15s cubic-bezier(.7,0,.84,0),transform .15s cubic-bezier(.7,0,.84,0),display .15s allow-discrete,overlay .15s allow-discrete; }
+.chat-sharing:popover-open { opacity:1; transform:scale(1); transition-timing-function:cubic-bezier(.16,1,.3,1); }
+@starting-style { .chat-sharing:popover-open { opacity:0; transform:scale(.95); } }
+.chat-sharing h2 { margin:0 0 8px; font-size:16px; font-weight:var(--font-weight-medium); }
+.chat-sharing h3 { margin:16px 0 8px; color:var(--text-secondary); font-size:14px; font-weight:var(--font-weight-regular); }
+.chat-sharing__person { display:flex; align-items:center; gap:8px; min-height:58px; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:12px; }
+.sharing-avatar { display:grid; place-items:center; flex:0 0 28px; width:28px; height:28px; border-radius:50%; background:var(--surface-hover); color:var(--text-secondary); font-size:12px; }
+.chat-sharing__person > div { flex:1; min-width:0; }
+.chat-sharing__person > div > span,.chat-sharing__person > div > small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.chat-sharing__person small { color:var(--text-secondary); font-size:12px; }
+.chat-sharing__invite { display:flex; gap:8px; margin-top:0; }
+.chat-sharing__invite input { min-width:0; width:100%; flex:1; height:40px; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:transparent; color:inherit; font:inherit; font-size:14px; }
+.chat-sharing__invite button,.chat-sharing__copy,.chat-private-dialog > .sharing-request { min-height:36px; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface-hover); color:inherit; font:inherit; cursor:pointer; }
+.chat-sharing__invite button:hover,.chat-sharing__copy:hover,.chat-private-dialog > .sharing-request:hover { background:var(--surface-hover-strong); }
+.chat-sharing__access { display:grid; overflow:hidden; border:1px solid var(--border); border-radius:8px; }
+.chat-sharing__access-row + .chat-sharing__access-row { border-top:1px solid var(--border); border-radius:0; }
+.chat-sharing__access-row { display:flex; align-items:center; gap:8px; min-height:40px; width:100%; padding:8px 12px; border:0; border-radius:8px; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer; transition:background-color .15s ease-out; }
+.chat-sharing__access-row:not(:disabled):hover { background:var(--surface-hover); }
+.chat-sharing__access-row:disabled { cursor:default; opacity:1; }
+.chat-sharing__access-row > span { flex:1; }
+.chat-sharing__access-row > .sharing-check { opacity:0; transition:opacity .15s ease-out; }
+.chat-sharing__access-row[aria-checked="true"] > .sharing-check { opacity:1; color:var(--accent); }
+.chat-sharing i,.chat-private-dialog i { display:block; flex:0 0 16px; width:16px; height:16px; background:currentColor; mask:var(--sharing-icon) center/contain no-repeat; }
+.sharing-check { --sharing-icon:url('../img/icons/check.svg'); }
+.sharing-x { --sharing-icon:url('../img/icons/x.svg'); }
+.sharing-lock { --sharing-icon:url('../img/icons/library/lock-key-hole.svg'); }
+.sharing-web { --sharing-icon:url('../img/icons/web-links.svg'); }
+.sharing-copy { --sharing-icon:url('../img/icons/library/link.svg'); }
+.chat-sharing__link-row { display:flex; align-items:center; gap:8px; min-height:40px; margin-top:16px; padding:4px; border:1px solid var(--border); border-radius:8px; background:var(--surface-hover); }
+.chat-sharing__link { flex:1; min-width:0; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:0 12px; color:var(--text-secondary); text-decoration:none; font-size:14px; }
+.chat-sharing__link:hover { text-decoration:underline; }
+.chat-sharing__copy { display:flex; align-items:center; justify-content:center; flex-shrink:0; gap:8px; min-height:32px; padding:4px 12px; background:var(--text); color:var(--bg); }
+.chat-sharing__copy:hover { background:var(--text-secondary); }
+.chat-sharing__status { margin:8px 0 0; min-height:0; color:var(--text-secondary); font-size:12px; }
+.chat-sharing__status:empty { display:none; }
+.sharing-icon-button { display:grid; place-items:center; flex:0 0 28px; width:28px; height:28px; padding:0; border:0; border-radius:6px; background:transparent; color:var(--text-secondary); cursor:pointer; }
+.sharing-icon-button:hover { background:var(--surface-hover); color:var(--text); }
+.chat-sharing :is(button,input,a):focus-visible,.chat-private-dialog :is(button,a):focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.chat-sharing[aria-busy="true"] { cursor:progress; }
+.chat-sharing :is(button,input):disabled { cursor:default; }
+.chat-private-dialog { position:fixed; margin:auto; width:min(440px,calc(100vw - 32px)); padding:40px 24px 24px; border:1px solid var(--border); border-radius:16px; background:var(--surface); color:var(--text); box-shadow:var(--shadow-md); text-align:center; font:14px/1.5 var(--font-ui); }
+.chat-private-dialog::backdrop { background:rgb(0 0 0 / .5); backdrop-filter:blur(4px); }
+.chat-private-dialog h2 { margin:0 0 12px; font-size:22px; font-weight:var(--font-weight-medium); }
+.chat-private-dialog p { color:var(--text-secondary); }
+.chat-private-dialog .sharing-close { position:absolute; right:12px; top:12px; }
+.chat-private-dialog > .sharing-request { width:100%; margin-top:16px; }
+.chat-private-dialog > a { display:block; padding:12px; margin-top:4px; color:var(--text-secondary); text-decoration:none; }
+.chat-private-dialog > a:hover { color:var(--text); }
+.chat-private-dialog .sharing-request:disabled { cursor:default; opacity:.7; }
+.chat-private-dialog { opacity:0; transform:scale(.95); transition:opacity .15s cubic-bezier(.7,0,.84,0),transform .15s cubic-bezier(.7,0,.84,0),display .15s allow-discrete,overlay .15s allow-discrete; }
+.chat-private-dialog[open] { opacity:1; transform:scale(1); transition-timing-function:cubic-bezier(.16,1,.3,1); }
+@starting-style { .chat-private-dialog[open] { opacity:0; transform:scale(.95); } }
+.sharing-switch-account { padding:8px 12px; border:0; border-radius:8px; background:transparent; color:var(--text-secondary); font:inherit; cursor:pointer; }
+.sharing-switch-account:hover { background:var(--surface-hover); color:var(--text); }
+@media(prefers-reduced-motion:reduce) { .chat-sharing,.chat-private-dialog,.chat-sharing__access-row,.chat-sharing__access-row > .sharing-check { transition:none; } }
+.chat-shared-notice { margin:0; padding:12px 20px; font:14px/1.5 var(--font-ui); color:var(--text-secondary); }
+.chat-shared-notice[hidden] { display:none; }
+.is-shared-conversation :is(.computer-rewrite,.computer-download,.computer-user-actions button[aria-label="Editar"]) { display:none; }
+.is-anonymous .computer-share { display:none; }
+.chat-share-toggle { background:var(--text); }
+.chat-share-toggle:is(:hover,[aria-expanded="true"]) { background:var(--text-secondary); }
+.chat-sharing__invite button { background:var(--text); color:var(--bg); }
+.chat-sharing__invite button:hover { background:var(--text-secondary); }
+.chat-sharing__invite button:disabled { opacity:.5; }
+.chat-sharing__link:hover { text-decoration:none; color:var(--text); }
+.chat-options { width:min(247px,calc(100vw - 24px)); padding:4px; border-radius:12px; box-shadow:var(--shadow-md); opacity:0; transform:scale(.95); transform-origin:top right; transition:opacity .15s ease-out,transform .15s ease-out,display .15s allow-discrete,overlay .15s allow-discrete; }
+.chat-options:popover-open { opacity:1; transform:scale(1); }
+@starting-style { .chat-options:popover-open { opacity:0; transform:scale(.95); } }
+.chat-options__title { padding:12px 8px 0; font-weight:var(--font-weight-regular); }
+.chat-options dl { padding:0 8px 10px; }
+.chat-options button { min-height:34px; gap:8px; padding:8px; font-size:14px; line-height:18px; }
+.chat-options button i { width:16px; height:16px; flex:0 0 16px; }
+.workspace .computer-page.has-conversation .computer-composer { transition:none; }
+.message-navigator { transition:none; }
+@media(prefers-reduced-motion:reduce) { .chat-options { transition:none; } }
+.chat-sharing__invite { position:relative; align-items:center; }
+.sharing-suggestions { position:absolute; z-index:1; top:calc(100% + 4px); left:0; right:0; padding:4px; border:1px solid var(--border); border-radius:8px; background:var(--surface); box-shadow:var(--shadow-md); }
+.sharing-suggestions[hidden] { display:none; }
+.sharing-suggestions button { width:100%; text-align:left; background:transparent; color:var(--text); }
+.sharing-suggestions button:hover { background:var(--surface-hover); }
+.sharing-email-chip { display:flex; flex:1; align-items:center; justify-content:space-between; gap:8px; min-width:0; padding:4px 8px; border:1px solid var(--border); border-radius:8px; overflow-wrap:anywhere; font-size:14px; }
+.sharing-permission { position:relative; flex-shrink:0; color:var(--text-secondary); font-size:14px; }
+.sharing-permission summary { cursor:pointer; padding:8px; border-radius:6px; }
+.sharing-permission summary:hover { background:var(--surface-hover); }
+.sharing-permission button { position:absolute; top:100%; right:0; z-index:2; min-width:120px; padding:8px; background:var(--surface); border:1px solid var(--border); border-radius:8px; box-shadow:var(--shadow-md); color:var(--text); font:inherit; cursor:pointer; }
+.sharing-permission button:hover { background:var(--surface-hover); }

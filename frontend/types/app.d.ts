@@ -19,8 +19,8 @@ interface PageContext {
     MutationObserver: typeof MutationObserver;
 }
 type PageFactory = (context: PageContext) => void;
-interface Attachment { id: string; name: string; size: number; kind: 'image' | 'file'; }
-interface Conversation { last_response_at?: string | null; id: string; title: string; created_at: string; updated_at: string; }
+interface Attachment { preview_url?: string; id: string; name: string; size: number; kind: 'image' | 'file'; }
+interface Conversation { is_owner?: boolean; shared?: boolean; owner_name?: string; last_response_at?: string | null; id: string; title: string; created_at: string; updated_at: string; }
 interface ResearchSource { title: string; url: string; domain: string; snippet?: string; image?: string; excerpt?: string; published_at?: string; date_approximate?: boolean; evidence_type?: string; read_status?: string; }
 interface Research { error?: string; query?: string; sources?: ResearchSource[]; suggestions?: string; status?: string; state?: ResearchState; seconds?: number; queries?: string[]; engine?: string; }
 interface ResponseVersion { answer: string; thinking: string; metadata: ResponseMetadata; }
@@ -49,7 +49,7 @@ interface Window {
     ComputerAttachments: {files():Attachment[];busy():boolean;clear():void;restore(items:Attachment[]):void;setBusy(value:boolean):void};
     ComputerAttachmentCard: (file:Attachment,onRemove?:()=>void)=>HTMLDivElement;
     ComputerSessions: {runAction(item:Conversation,action:string,origin:HTMLElement):void;isUnread(chat:Conversation):boolean;markRead(id:string,version?:string|null,force?:boolean):void;render(items:Conversation[],append?:boolean,hasMore?:boolean):void;select(id:string|null,title?:string):void;setBusy(value:boolean):void;openOptions(item:Conversation,button:HTMLElement):void;request(path:string,method?:string,body?:unknown):Promise<unknown>;isPinned(id:string):boolean};
-    ComputerResponseDetails: {artifacts(article:HTMLElement,files:import('../../shared/artifact-types').Artifact[],state?:string,message?:string):void;research(article:HTMLElement,value?:Research,complete?:boolean):void;reset():void};
+    ComputerResponseDetails: {files(article:HTMLElement,files:Attachment[]):void;artifacts(article:HTMLElement,files:import('../../shared/artifact-types').Artifact[],state?:string,message?:string):void;research(article:HTMLElement,value?:Research,complete?:boolean):void;reset():void};
     CometNewsPreferences?: {topics:string[];languages:string};
 }
 interface WindowEventMap {
@@ -62,6 +62,9 @@ interface WindowEventMap {
     'chat:toggle-anonymous': Event;
     'chat:anonymous': CustomEvent<boolean>;
     'chat:context': CustomEvent<Conversation|null>;
+    'chat:share': CustomEvent<{id:string;trigger?:HTMLElement}>;
+    'chat:private': CustomEvent<{id:string}>;
+    'chat:sharing-updated': CustomEvent<{id:string}>;
     'chat:export': CustomEvent<{id:string;title:string;turnId?:string;format:'pdf'|'markdown'|'docx'}>;
     'sessions:open': CustomEvent<{id:string}>;
     'sessions:changed': CustomEvent<{id:string;deleted?:boolean;title?:string}>;

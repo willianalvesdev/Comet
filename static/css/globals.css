@@ -3,7 +3,7 @@
 @font-face { font-family:"PPLX Serif"; src:url("../fonts/pplx/PPLX-Serif.woff2") format("woff2"); font-weight:100 900; font-style:normal; font-display:swap; }
 
 :root {
-    --background-primary: #000000;
+    --background-primary: #0a0a0a;
     --background-secondary: #1a1a1a;
     --background-tertiary: #1f1f1f;
     --background-quaternary: #292929;
@@ -35,7 +35,7 @@
 
     --accent-brand: var(--turquoise);
     --accent: var(--turquoise);
-    --sidebar-surface: #0b0b0b;
+    --sidebar-surface: var(--background-primary);
     --border: #1f1f1f;
     --border-focus: rgb(from var(--text) r g b / .1);
 

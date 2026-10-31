@@ -35,5 +35,8 @@ export function codeBlock(source: string, info: string): HTMLElement {
     if (language && hljs.getLanguage(language)) {
         try { code.innerHTML = hljs.highlight(source, {language, ignoreIllegals: true}).value; } catch { code.textContent = source; }
     }
+    if (language === 'python' || language === 'py') for (const token of code.querySelectorAll('.hljs-built_in')) {
+        if (token.textContent === 'print') token.classList.add('hljs-python-print');
+    }
     pre.append(code); figure.append(header, pre); return figure;
 }

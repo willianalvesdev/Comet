@@ -13,10 +13,13 @@ import { pageForPath, conversationIdFromURL, conversationPath, titles, isPublicP
 
 const App = dynamic(() => import('./App'), {ssr: false, loading: () => <div role="status" className="tw:grid tw:min-h-screen tw:place-items-center"><LoadingIndicator label="Carregando página"/></div>});
 
+const SharedConversation = dynamic(() => import('./components/SharedConversation'));
+
 export default function NextApplication() {
     const pathname = usePathname(), search = useSearchParams().toString(), router = useRouter();
     const [view, setView] = useState<{bootstrap: BootstrapData; revision: number; pageModule:PageModule} | null>(null);
     const [reload, setReload] = useState(0), [error, setError] = useState('');
+    const [guestId,setGuestId]=useState<string|null>(null);
     const silentURL = useRef(''), navigating = useRef(false);
     const currentRoute = useRef(pathname + (search ? '?' + search : ''));
     currentRoute.current = pathname + (search ? '?' + search : '');
@@ -35,11 +38,12 @@ export default function NextApplication() {
         if (!resolvedPage) return;
         const page = resolvedPage;
         const controller = new AbortController();
+        setGuestId(null);
         async function load() {
             try {
                 const [data, pageModule] = await Promise.all([
                     fetch('/api/bootstrap?page=' + page, {credentials:'same-origin', cache:'no-store', signal:controller.signal}).then(response => {
-                        if (response.status === 401) { location.assign('/?login=1'); return null; }
+                        if (response.status === 401) { if(/^\/chat\/[1-9]\d{0,19}$/.test(pathname)){setGuestId(pathname.split('/')[2]);setError('');ready();}else location.assign('/?login=1');return null; }
                         if (!response.ok) throw new Error('Não foi possível abrir esta página. Tente novamente.');
                         return response.json() as Promise<BootstrapData>;
                     }),
@@ -48,6 +52,7 @@ export default function NextApplication() {
                 ]);
                 if (!data) return;
                 if (controller.signal.aborted) return;
+                if(data.user){try{const destination=sessionStorage.getItem('comet-login-return');if(destination&&/^\/chat\/[1-9]\d{0,19}$/.test(destination)){sessionStorage.removeItem('comet-login-return');if(pathname!==destination){location.assign(destination);return;}}}catch{}}
                 if (page === 'index' && data.user) { location.assign('/principal.html'); return; }
                 if (!isPublicPage(page) && !data.user) { location.assign('/?login=1'); return; }
                 let meta = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]');
@@ -107,6 +112,7 @@ export default function NextApplication() {
         return () => { controller.abort(); pending.current.splice(0).forEach(resolve => resolve()); };
     }, [router]);
 
+    if(guestId)return <SharedConversation key={guestId} id={guestId} />;
     if (error) return <main className="tw:mx-auto tw:flex tw:min-h-screen tw:max-w-xl tw:flex-col tw:items-center tw:justify-center tw:gap-4 tw:p-8" role="alert"><p>{error}</p><button type="button" onClick={() => setReload(value => value + 1)}>Tentar novamente</button></main>;
     if (!view) return <div role="status" className="tw:grid tw:min-h-screen tw:place-items-center"><LoadingIndicator/></div>;
     const {bootstrap, revision, pageModule} = view;

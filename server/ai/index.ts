@@ -1,3 +1,4 @@
+import {sharingInfo,changeSharing,addMember,removeMember,requestAccess,decideRequest,forkConversation,sharedAttachment} from './sharing';
 import {artifactDownload} from './artifacts';
 import {artifactData} from '../../shared/artifacts';
 import { freeModels, requireFreeModel, defaultFreeModel, openRouterConfigured, structuredOpenRouter } from './openrouter';
@@ -202,6 +203,20 @@ export async function handleAI(request: Request, user: { id: number }, segments:
     return json(await listConversations(user.id, /^\d+$/.test(offset) ? Number(offset) : NaN, args.get('q') ?? ''));
   }
   const cid = segments[1];
+  if(segments[2]==='sharing'){
+    if(segments.length===3&&method==='GET')return json(await sharingInfo(user.id,cid));
+    if(segments.length===3&&method==='PATCH'){const data=await readJson(request);if(Object.keys(data).length!==1||!('access' in data))throw new AIError('invalid_request',422);return json(await changeSharing(user.id,cid,data.access));}
+    if(segments.length===4&&segments[3]==='members'&&method==='POST'){const data=await readJson(request);if(Object.keys(data).length!==1||!('email' in data))throw new AIError('invalid_request',422);return json(await addMember(user.id,cid,data.email));}
+    if(segments.length===5&&segments[3]==='members'&&method==='DELETE')return json(await removeMember(user.id,cid,segments[4]));
+    if(segments.length===5&&segments[3]==='requests'&&method==='POST'){const data=await readJson(request);if(Object.keys(data).length!==1||!('approve' in data))throw new AIError('invalid_request',422);return json(await decideRequest(user.id,cid,segments[4],data.approve));}
+  }
+  if(segments.length===3&&segments[2]==='access-request'&&method==='POST'){const data=await readJson(request);if(Object.keys(data).length)throw new AIError('invalid_request',422);return json(await requestAccess(user.id,cid));}
+  if(segments.length===3&&segments[2]==='fork'&&method==='POST'){const data=await readJson(request);if(Object.keys(data).length)throw new AIError('invalid_request',422);return json(await forkConversation(user.id,cid));}
+  if(segments.length===5&&segments[2]==='attachments'&&segments[4]==='preview'&&method==='GET'){
+    const data=await sharedAttachment(user.id,cid,segments[3]);if(data.kind!=='image'||!data.image)throw new AIError('attachment_missing',404);
+    return new Response(Buffer.from(data.image,'base64'),{headers:{'Content-Type':'image/jpeg','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
+  }
+
   if (segments.length === 2) {
     if (method === 'GET') return json(await getConversation(user.id, cid, args.get('before')));
     if (method === 'DELETE') return json(await changeConversation(user.id, cid, null, true));

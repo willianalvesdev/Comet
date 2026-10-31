@@ -66,7 +66,7 @@ test('saved chats retain answers, thinking, metadata and only expose the owner d
   turn.response_meta.research = {state:'complete',sources:[],query:'consulta'};
   await query('UPDATE computer_mensagens SET pensamento=$1 WHERE id=$2',[packResponse('Pensamento privado',turn.response_meta),turn.turn_id]);
   assert.equal((await previewConversation(users[0],turn.conversation_id!)).has_search,true);
-  await assert.rejects(getConversation(users[1],turn.conversation_id!,null),errorCode('conversation_missing'));
+  await assert.rejects(getConversation(users[1],turn.conversation_id!,null),{status:403,code:'conversation_private'});
   await assert.rejects(beginTurn(users[1],payload('Ataque',turn.conversation_id)),errorCode('conversation_missing'));
   await assert.rejects(previewConversation(users[1],turn.conversation_id!),errorCode('conversation_missing'));
   await assert.rejects(changeConversation(users[1],turn.conversation_id!,'Roubar',false),errorCode('conversation_missing'));
@@ -298,7 +298,7 @@ test('artifacts persist with response, remain private, survive regeneration and 
  const turn=await beginTurn(users[0],payload('Crie uma planilha'));turn.response_meta.artifacts=[artifact];await saveTurn(users[0],turn,'Planilha criada','','completed');
  assert.equal((await getConversation(users[0],turn.conversation_id!,null)).turns[0].metadata.artifacts instanceof Array,true);
  assert.deepEqual(await getConversationArtifact(users[0],turn.conversation_id!,artifact.id),artifact);
- await assert.rejects(getConversationArtifact(users[1],turn.conversation_id!,artifact.id),errorCode('conversation_missing'));
+ await assert.rejects(getConversationArtifact(users[1],turn.conversation_id!,artifact.id),{status:403,code:'conversation_private'});
  const next=await beginTurn(users[0],payload('Altere o valor para 15',turn.conversation_id));assert.match(next.messages[1].content,/Café/);await saveTurn(users[0],next,'Ok','','completed');
  const regenerated=await beginTurn(users[0],payload('Reescrever',turn.conversation_id,{regenerate:turn.turn_id}));await saveTurn(users[0],regenerated,'Nova resposta','','completed');
  assert.deepEqual(await getConversationArtifact(users[0],turn.conversation_id!,artifact.id),artifact);

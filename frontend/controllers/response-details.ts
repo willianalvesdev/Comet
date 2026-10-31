@@ -78,20 +78,45 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     tabs.addEventListener('click',event=>{const button=eventElement(event.target)?.closest<HTMLElement>('[data-chat-view]');if(button)view(button.dataset.chatView);}, {signal: scope.signal});
     renderLinks(null);
     const panel=document.createElement('aside');panel.className='computer-sources-panel';panel.id='computer-sources-menu';panel.setAttribute('popover','auto');panel.setAttribute('aria-label','Fontes da resposta');scope.append(panel);
+    const sideClose=document.createElement('button');sideClose.type='button';sideClose.className='sources-side-close';sideClose.hidden=true;sideClose.setAttribute('aria-label','Recolher fontes');sideClose.innerHTML='<i aria-hidden="true"></i>';scope.append(sideClose);
+    sideClose.addEventListener('click',()=>setPanelVisible(!panel.matches(':popover-open'),true),{signal:scope.signal});
+    scope.cleanup(()=>workspace.classList.remove('has-source-panel'));
     const collapse=document.createElement('button');collapse.type='button';collapse.className='workspace__header-button sources-menu-toggle';collapse.hidden=true;
     collapse.setAttribute('aria-label','Abrir fontes');collapse.setAttribute('aria-expanded','false');collapse.setAttribute('aria-controls',panel.id);collapse.innerHTML='<i aria-hidden="true"></i>';
     const options=optionalElement(header,'.chat-options-toggle',HTMLElement);if(options)options.after(collapse);else header.append(collapse);
-    let latestArticle:HTMLElement|null=null,panelVisible=false,cardOpen=true;
+    let latestArticle:HTMLElement|null=null,panelVisible=false,cardOpen=true,preferenceApplied=false;
+    const preferenceKey='comet-sources-panel-open';
+    let preferredOpen=false;try{preferredOpen=localStorage.getItem(preferenceKey)==='true';}catch{}
+    const uploaded=new Map<HTMLElement,Attachment[]>();
+    const hasUploads=()=>[...uploaded].some(([article,files])=>article.isConnected&&files.length);
+    const hasDetails=()=>artifacts.hasFiles()||!!validSources(activeResearch?.sources).length||hasUploads();
+    function updateTrigger(){collapse.hidden=panel.classList.contains('is-docked')||!hasDetails();}
     const sourceHost=document.createElement('div');
-    const artifacts=chatArtifacts({scope,fetch,ResizeObserver,requestAnimationFrame},()=>{collapse.hidden=!artifacts.hasFiles()&&!validSources(activeResearch?.sources).length;collapse.setAttribute('aria-label',artifacts.hasFiles()?'Abrir artefatos e fontes':'Abrir fontes');positionPanel();});
+    const artifacts=chatArtifacts({scope,fetch,ResizeObserver,requestAnimationFrame},()=>{updateTrigger();collapse.setAttribute('aria-label',artifacts.hasFiles()?'Abrir artefatos e fontes':'Abrir fontes');positionPanel();});
     panel.append(artifacts.section,sourceHost);
     function positionPanel() {
+        panelVisible=panel.matches(':popover-open');
+        const sidebar=requiredElement(document,'.sidebar',HTMLElement);
+        const artifactWidth=workspace.classList.contains('has-artifact-preview')?parseFloat(getComputedStyle(workspace).getPropertyValue('--artifact-panel-width'))||0:0;
+        const wide=innerWidth-sidebar.getBoundingClientRect().width-artifactWidth>=1024;
+        const mode=wide?'manual':'auto';
+        if(panel.getAttribute('popover')!==mode){const opened=panelVisible;panel.setAttribute('popover',mode);if(opened)panel.showPopover();}
+        panel.classList.toggle('is-docked',wide);
+        if(wide&&hasDetails()&&!preferenceApplied){preferenceApplied=true;if(preferredOpen){panel.showPopover();panelVisible=true;}}
+        const sideTop=header.getBoundingClientRect().bottom+16;
+        sideClose.style.top=(sideTop-4)+'px';
+        sideClose.classList.toggle('is-collapsed',!panelVisible);
+        sideClose.setAttribute('aria-label',panelVisible?'Recolher fontes':'Expandir fontes');
+        sideClose.setAttribute('aria-expanded',String(panelVisible));
+        workspace.classList.toggle('has-source-panel',wide&&panelVisible);
+        sideClose.hidden=!wide||!hasDetails();updateTrigger();
         if(!panelVisible)return;
+        if(wide){const top=header.getBoundingClientRect().bottom+16;panel.style.setProperty('--sources-menu-top',top+'px');panel.style.top=top+'px';panel.style.left=(innerWidth-336)+'px';sideClose.style.top=(top-4)+'px';return;}
         const r=collapse.getBoundingClientRect();
         const top=Math.min(r.bottom+8,innerHeight-160);
         panel.style.setProperty('--sources-menu-top',Math.max(8,top)+'px');
         panel.style.top=Math.max(8,top)+'px';
-        panel.style.left=Math.max(8,Math.min(r.right-panel.getBoundingClientRect().width,innerWidth-panel.getBoundingClientRect().width-8))+'px';
+        panel.style.left=Math.max(8,Math.min(r.right-panel.offsetWidth,innerWidth-panel.offsetWidth-8))+'px';
     }
     function updateSourcesFade() {
         const list=optionalElement(panel,'.sources-card__list',HTMLElement);if(!list)return;
@@ -99,7 +124,10 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         list.classList.toggle('has-overflow',list.scrollHeight-list.clientHeight-list.scrollTop>1);
     }
     new ResizeObserver(()=>{positionPanel();updateSourcesFade();}).observe(panel);
-    function setPanelVisible(value:boolean) {
+    new ResizeObserver(positionPanel).observe(requiredElement(document,'.sidebar',HTMLElement));
+    new ResizeObserver(positionPanel).observe(scroller);
+    function setPanelVisible(value:boolean,remember=false) {
+        if(remember){preferredOpen=value;preferenceApplied=true;try{localStorage.setItem(preferenceKey,String(value));}catch{}}
         panelVisible=value;
         if(value&&!panel.matches(':popover-open'))panel.showPopover();
         if(!value&&panel.matches(':popover-open'))panel.hidePopover();
@@ -107,10 +135,11 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         positionPanel();updateSourcesFade();
     }
     panel.addEventListener('toggle',()=>{panelVisible=panel.matches(':popover-open');collapse.setAttribute('aria-expanded',String(panelVisible));positionPanel();updateSourcesFade();},{signal:scope.signal});
-    collapse.addEventListener('click',()=>setPanelVisible(!panelVisible),{signal:scope.signal});
+    collapse.popoverTargetElement=panel;
+    collapse.addEventListener('click',event=>{event.preventDefault();setPanelVisible(!panel.matches(':popover-open'),true);},{signal:scope.signal});
     scope.listen(window,'resize',positionPanel);
     function reset() {
-        citations.reset();images.reset();artifacts.reset();latestArticle=null;showSources(null,{},false);collapse.hidden=true;view('answer');
+        citations.reset();images.reset();uploaded.clear();artifacts.reset();latestArticle=null;showSources(null,{},false);collapse.hidden=true;view('answer');preferenceApplied=false;
     }
     function showSources(article: HTMLElement | null,value: Research,visible=false) {
         renderLinks(value);
@@ -128,7 +157,11 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const total=document.createElement('span');total.textContent=String(sources.length);compact.append(total);
         const arrow=document.createElement('i');arrow.className='ui-arrow';arrow.setAttribute('aria-hidden','true');
         heading.append(label);if(sources.length)heading.append(compact);heading.append(arrow);card.append(heading);
-        const query=document.createElement('p');query.className='sources-card__query';query.textContent='Resultados para "'+(value.query || article?.previousElementSibling?.querySelector('.computer-message__text')?.textContent || '')+'"';card.append(query);
+        const groups=document.createElement('div');groups.className='sources-card__groups';
+        const web=document.createElement('details');web.className='sources-group';
+        const webHeading=document.createElement('summary');webHeading.innerHTML='<i class="sources-group__web" aria-hidden="true"></i><span>Web</span>';
+        webHeading.querySelector('i')!.className='chat-tab-links';
+        const webCount=document.createElement('span');webCount.textContent=String(sources.length);webHeading.append(webCount,arrow.cloneNode());web.append(webHeading);if(sources.length)groups.append(web);
         const list=document.createElement('div');list.className='sources-card__list';
         list.tabIndex=0;list.setAttribute('role','region');list.setAttribute('aria-label','Fontes pesquisadas');
         list.addEventListener('scroll',updateSourcesFade,{...{passive:true}, signal: scope.signal});
@@ -142,7 +175,23 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             link.append(icon(source.domain),content);list.append(link);
         }
         if (!sources.length) { const empty=document.createElement('p');empty.textContent='As fontes citadas da pesquisa aparecerão aqui.';list.append(empty); }
-        card.append(list);sourceHost.replaceChildren(card);card.hidden=!sources.length&&artifacts.hasFiles();setPanelVisible(visible);
+        web.append(list);
+        const files=new Map<string,{file:Attachment;article:HTMLElement}>();
+        for(const [owner,items] of uploaded){if(!owner.isConnected){uploaded.delete(owner);continue;}for(const file of items)files.set(file.id,{file,article:owner});}
+        if(files.size){
+            const group=document.createElement('details');group.className='sources-group sources-uploaded';
+            const summary=document.createElement('summary');summary.innerHTML='<i class="artifact-file-icon" aria-hidden="true"></i><span>Arquivos</span>';
+            const count=document.createElement('span');count.textContent=String(files.size);summary.append(count,arrow.cloneNode());group.append(summary);
+            const rows=document.createElement('div');rows.className='sources-uploaded__list';
+            for(const {file,article:owner} of files.values()){
+                const button=document.createElement('button');button.type='button';button.className='sources-uploaded__file';button.innerHTML='<i class="artifact-file-icon" aria-hidden="true"></i>';
+                const name=document.createElement('span');name.textContent=file.name;button.append(name);
+                button.addEventListener('click',()=>{setPanelVisible(false);view('answer');owner.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});},{signal:scope.signal});rows.append(button);
+            }
+            group.append(rows);groups.append(group);
+        }
+        if(!files.size)groups.replaceChildren(list);
+        card.append(groups);sourceHost.replaceChildren(card);card.hidden=!sources.length&&!files.size&&artifacts.hasFiles();setPanelVisible(visible);updateTrigger();
     }
     function research(article: HTMLElement,value: Research | undefined,completed=false) {
         elementList(article, '.computer-research,.computer-sources,.computer-source-list,.computer-search-suggestions', HTMLElement).forEach(e=>e.remove());
@@ -187,7 +236,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         }
         if ((sources.length || researchQuery(value)) && (!latestArticle?.isConnected || latestArticle===article || (latestArticle.compareDocumentPosition(article) & Node.DOCUMENT_POSITION_FOLLOWING))) {
             latestArticle=article;
-            collapse.hidden=!sources.length&&!artifacts.hasFiles();
+            updateTrigger();
             showSources(article,value,panelVisible);
         }
         if(value.suggestions){
@@ -197,6 +246,6 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             article.append(widget);
         }
     }
-    window.ComputerResponseDetails={research,reset,artifacts:artifacts.register};
+    window.ComputerResponseDetails={research,reset,artifacts:artifacts.register,files(article,files){if(!files.length&&!uploaded.has(article))return;uploaded.set(article,files);showSources(latestArticle,activeResearch||{},panelVisible);}};
     reset();
 }

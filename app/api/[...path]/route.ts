@@ -6,6 +6,10 @@ import { rateLimit } from '../../../server/rate-limit';
 import { handleAI } from '../../../server/ai';
 import { handleFinance } from '../../../server/finance';
 import { handleNews } from '../../../server/news';
+import { getConversation, getConversationArtifact } from '../../../server/ai/conversations';
+import { sharedAttachment } from '../../../server/ai/sharing';
+import { artifactDownload } from '../../../server/ai/artifacts';
+import { json } from '../../../server/http';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 async function handle(original: Request): Promise<Response> {
@@ -24,6 +28,18 @@ async function handle(original: Request): Promise<Response> {
                 if (request.method === 'GET' && path[2] === 'callback') return await finishOAuth(request,path[1]);
             }
             throw new ApiError(404,'Rota de autenticação não encontrada.');
+        }
+        if (path[0] === 'shared' && path[1] === 'conversations' && request.method === 'GET') {
+            await rateLimit(request,'shared-read',120);
+            const cid=path[2];let response:Response;
+            if(path.length===3) response=json(await getConversation(0,cid,new URL(request.url).searchParams.get('before')));
+            else if(path.length===5&&path[3]==='artifacts') response=await artifactDownload(await getConversationArtifact(0,cid,path[4]),new URL(request.url).searchParams.get('format'));
+            else if(path.length===6&&path[3]==='attachments'&&path[5]==='preview') {
+                const file=await sharedAttachment(0,cid,path[4]);
+                if(file.kind!=='image'||!file.image)throw new ApiError(404,'Arquivo não encontrado.');
+                response=new Response(Buffer.from(file.image,'base64'),{headers:{'Content-Type':'image/jpeg','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
+            }else throw new ApiError(404,'Rota não encontrada.');
+            response.headers.set('X-Robots-Tag','noindex, nofollow');return response;
         }
         const user = await requireUser(request);
         let response: Response | null = null;

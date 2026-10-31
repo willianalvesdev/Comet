@@ -66,4 +66,5 @@ import controller5 from '../controllers/computer';
 import controller6 from '../controllers/chat-greeting';
 import controller7 from '../controllers/message-navigator';
 import controller8 from '../controllers/dictation';
-export const controllers: PageFactory[] = [controller0, controller1, controller2, controller3, controller4, controller5, controller6, controller7, controller8];
+import chatSharing from '../controllers/chat-sharing';
+export const controllers: PageFactory[] = [controller0, controller1, controller2, controller3, controller4, chatSharing, controller5, controller6, controller7, controller8];

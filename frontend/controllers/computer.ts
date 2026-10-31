@@ -50,7 +50,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     const models = window.ComputerModels;
     const olderButton = requiredElement(page, '.computer-history__older', HTMLButtonElement);
     const service = new window.ComputerService();
-    let editing: HTMLElement | null = null, anonymous = false;
+    let editing: HTMLElement | null = null, anonymous = false, forking=false;
     if(!optionalElement(document, '.anonymous-toggle', HTMLButtonElement)){
         const button=document.createElement('button');button.type='button';button.className='workspace__header-button anonymous-toggle';button.setAttribute('aria-label','Ativar modo anônimo');button.setAttribute('aria-pressed','false');button.innerHTML='<i aria-hidden="true"></i>';requiredElement(document, '.computer-header', HTMLElement).append(button);
     }
@@ -97,6 +97,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     }
     let followingLatest = true, previousScrollTop = scroller.scrollTop;
     const composer = requiredElement(page, '.computer-composer', HTMLElement);
+    const sharedNotice=document.createElement('p');sharedNotice.className='chat-shared-notice';sharedNotice.hidden=true;sharedNotice.setAttribute('role','status');sharedNotice.textContent='Você está vendo uma sessão compartilhada. Suas perguntas de seguimento serão privadas.';composer.prepend(sharedNotice);
     function syncComposerSpace() {
         present(page).style.setProperty('--computer-composer-height', `${Math.ceil(composer.getBoundingClientRect().height)}px`);
     }
@@ -212,7 +213,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         copyTimers.set(button,setTimeout(()=>{glyph.style.setProperty('--action-icon',original);button.setAttribute('aria-label','Copiar');},2200));
     }
     async function rewrite(article: HTMLElement) {
-        if(active || loading || remoteActive || editing)return;
+        if(active || loading || remoteActive || editing || currentConversation?.is_owner===false)return;
         const turn=turns.find(item=>item.id===article.dataset.turn);if(!turn)return;
         await submitMessage(turn);
     }
@@ -252,10 +253,11 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             if (!currentId || !article.dataset.turn) { status.textContent='Esta resposta ainda não está salva para exportação.'; return; }
             window.dispatchEvent(new CustomEvent('chat:export',{detail:{id:currentId,title:currentTitle||'Resposta',format:'pdf',turnId:article.dataset.turn}}));
         },{signal:scope.signal});
-        actions.append(status,download,rewriteButton); article.append(actions);
+        const share=document.createElement('button');share.type='button';share.className='computer-share';share.setAttribute('aria-label','Compartilhar sessão');share.innerHTML='<i aria-hidden="true" style="--action-icon:url(/static/img/icons/library/share.svg)"></i>';share.addEventListener('click',()=>{if(currentId&&!anonymous)window.dispatchEvent(new CustomEvent('chat:share',{detail:{id:currentId,trigger:share}}));},{signal:messageSignal(article)});actions.append(status,download,rewriteButton,share); article.append(actions);
     }
     function messageAttachments(article: HTMLElement, files: Attachment[] | undefined) {
         attachedFiles.set(article,files||[]);
+        window.ComputerResponseDetails.files(article,files||[]);
         optionalElement(article, '.attachment-list', HTMLElement)?.remove();
         if(!files?.length)return;
         const list=document.createElement('div');list.className='attachment-list';
@@ -276,7 +278,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             const glyph=document.createElement('i');glyph.style.setProperty('--action-icon',`url('/static/img/icons/${icon}.svg')`);glyph.setAttribute('aria-hidden','true');button.append(glyph);
             button.addEventListener('click',async()=>{
                 if(kind==='copy'){try{await navigator.clipboard.writeText(body.textContent);status.textContent='';copied(button,glyph,"url('/static/img/icons/copy.svg')");}catch{status.textContent='Não foi possível copiar.';}return;}
-                if(active||loading||remoteActive||editing||anonymous||!article.dataset.turn)return;
+                if(active||loading||remoteActive||editing||anonymous||currentConversation?.is_owner===false||!article.dataset.turn)return;
                 const original=body.textContent;
                 const editor=document.createElement('div');editor.className='computer-user-editor';
                 const text=document.createElement('textarea');text.value=original;text.maxLength=8000;text.setAttribute('aria-label','Editar mensagem');
@@ -364,7 +366,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const empty = !present(input).value.trim() && !(window.ComputerAttachments?.files()?.length);
         send.classList.toggle('is-empty', empty && !busy);
 
-        const unavailable = loading || !ready || remoteActive;
+        const unavailable = loading || !ready || remoteActive || forking;
         const historyLoading=loading&&Boolean(currentId)&&!turns.length;
         if(!historyLoading)resetHistoryLoading();
         else if(!historyLoadingVisible&&!historyLoadingTimer)historyLoadingTimer=setTimeout(()=>{
@@ -383,7 +385,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const privateToggle = optionalElement(document, '.profile-anonymous', HTMLButtonElement);
         if (privateToggle) privateToggle.disabled = unavailable;
         const options=optionalElement(document,'.chat-options-toggle',HTMLButtonElement);
-        if(options){options.hidden=!currentId || anonymous;options.disabled=busy || unavailable;}
+        if(options){options.hidden=!currentId || anonymous || currentConversation?.is_owner===false;options.disabled=busy || unavailable;}
         document.body.classList.toggle('chat-is-empty', present(conversation).children.length === 0);
         requiredElement(document, '.chat-tabs', HTMLElement).hidden = present(conversation).children.length === 0;
         elementList(present(conversation), '.computer-rewrite', HTMLButtonElement).forEach(button=>button.disabled=busy||unavailable);
@@ -405,6 +407,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         if (leaving) return;
         if (id !== currentId) window.ComputerResponseDetails.reset();
         currentId = id;
+        if(!id){sharedNotice.hidden=true;present(page).classList.remove('is-shared-conversation');}
         currentTitle = id ? (title || "") : "";
         document.title = (id ? (title || 'Conversa') : 'Novo chat');
         const url = new URL(location.href);
@@ -532,13 +535,14 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         if (leaving || anonymous) return [];
         nextOffset = result.next_offset;
         const saved=result.conversations.find(chat=>chat.id===currentId);
-        if(saved){currentConversation=saved;window.dispatchEvent(new CustomEvent('chat:context',{detail:saved}));}
+        if(saved && currentConversation?.is_owner!==false){currentConversation={...currentConversation,...saved};window.dispatchEvent(new CustomEvent('chat:context',{detail:saved}));}
         sessions.render(result.conversations, append, nextOffset !== null);
         if (currentId) sessions.select(currentId);
         return result.conversations;
     }
     function applyHistory(result: ConversationHistory, merge = false, checked = Date.now()) {
         remember(result.conversation.id, result.conversation.title, result.conversation);
+        sharedNotice.hidden=result.conversation.is_owner!==false;present(page).classList.toggle('is-shared-conversation',result.conversation.is_owner===false);
         const first = result.turns[0]?.id;
         const offset = merge && first ? turns.findIndex(turn => turn.id === first) : -1;
         turns = offset > 0 ? [...turns.slice(0, offset), ...result.turns] : [...result.turns];
@@ -582,7 +586,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             note.textContent='';
         }
         restoreView(id); controls();
-        if (cached && !cached.value.active && Date.now() - cached.checked < 15000) { resetRecovery(); return; }
+        if (cached && cached.value.conversation.is_owner!==false && !cached.value.active && Date.now() - cached.checked < 15000) { resetRecovery(); return; }
         try {
             const result = await service.load(id, null, controller.signal);
             if (!current() || editing) return;
@@ -594,7 +598,9 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             if (error instanceof Error && 'status' in error && [401,403,404].includes(Number(error.status))) {
                 invalidateConversation(id, true); ready = false; turns = []; renderTurns(turns);
             }
-            recovery(error, () => loadConversation(id));
+            if(error instanceof Error && 'code' in error && error.code==='conversation_private'){
+                sharedNotice.hidden=true;resetRecovery();note.textContent='Esta resposta é privada.';window.dispatchEvent(new CustomEvent('chat:private',{detail:{id}}));
+            }else recovery(error, () => loadConversation(id));
         } finally {
             if (current()) { loading = false; controls(); schedulePoll(); }
         }
@@ -707,9 +713,24 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     }, {signal: scope.signal});
     async function submitMessage(rewriting: Turn | null = null) {
         expirePrivateChats();
-        if(active)return;
+        if(active||forking)return;
         if (editing || loading || !ready || remoteActive || microphone.getAttribute('aria-pressed') === 'true') return;
         if(window.ComputerAttachments?.busy())return;
+        if(currentConversation?.is_owner===false){
+            if(rewriting)return;
+            const draft=present(input).value,files=window.ComputerAttachments?.files()||[],sourceId=currentId,version=revision;
+            if(!draft.trim()&&!files.length)return;
+            forking=true;controls();send.disabled=true;
+            try{
+                const result=record(await sessions.request('/api/ai/conversations/'+encodeURIComponent(sourceId!)+'/fork','POST',{}));
+                if(leaving||revision!==version||currentId!==sourceId)return;
+                const id=stringValue(record(result.conversation).id);await loadConversation(id);
+                if(currentId!==id||!ready)return;
+                present(input).value=draft;window.ComputerAttachments?.restore(files);present(input).dispatchEvent(new Event('input',{bubbles:true}));
+            }catch(error){note.textContent=errorMessage(error);return;}
+            finally{forking=false;controls();}
+            await submitMessage();return;
+        }
         navigation?.abort();
         const privateTurn = anonymous, requestRevision = ++revision;
         if(privateTurn && !privateExpiresAt) privateExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
@@ -883,7 +904,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
     scope.listen(window, 'pageshow', event => { if (event.persisted) { leaving = false; active = null; initialize(); } });
     let syncing = false, syncAgain = false;
     async function syncHistory() {
-        if (anonymous || document.hidden || editing || loading || active || leaving) return;
+        if (anonymous || document.hidden || editing || loading || active || forking || leaving) return;
         if (syncing) { syncAgain = true; return; }
         if (!ready) {
             syncing = true;
@@ -908,7 +929,15 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             } else await listConversations();
             if (recover === syncHistory) note.textContent = '';
             resetRecovery();
-        } catch (error) { if (revision === version && !leaving) recovery(error, syncHistory); }
+        } catch (error) {
+            if (revision === version && !leaving) {
+                if(error instanceof Error && 'status' in error && [401,403,404].includes(Number(error.status)) && currentConversation?.is_owner===false){
+                    invalidateConversation(id!,true);ready=false;turns=[];renderTurns(turns);sharedNotice.hidden=true;window.ComputerResponseDetails.reset();resetRecovery();controls();
+                    if('code' in error && error.code==='conversation_private')window.dispatchEvent(new CustomEvent('chat:private',{detail:{id:id!}}));
+                    else note.textContent=errorMessage(error);
+                }else recovery(error,syncHistory);
+            }
+        }
         finally {
             syncing = false;
             if (syncAgain) { syncAgain = false; void syncHistory(); }

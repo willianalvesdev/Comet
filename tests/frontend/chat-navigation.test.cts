@@ -44,6 +44,66 @@ async function open(page: import('playwright').Page, id:string) {
     await page.evaluate(id=>window.dispatchEvent(new CustomEvent('sessions:open',{detail:{id}})),id);
     await page.waitForFunction(id=>document.querySelector('.computer-message--assistant')?.getAttribute('data-turn')===id+'-0',id);
 }
+
+test('compartilhamento: painel, permissões, cópia do link e tamanho responsivo',async()=>{
+    const f=await fixture(),p=f.page;let access='restricted';
+    try {
+        await p.context().grantPermissions(['clipboard-read','clipboard-write']);
+        await p.route('**/conversations/1/sharing',async route=>{if(route.request().method()==='PATCH')access=route.request().postDataJSON().access;await route.fulfill({json:{access,is_owner:true,owner:{id:'7',name:'Teste',email:'teste@example.com'},members:[],requests:[]}});});
+        await p.locator('.chat-share-toggle').click();await p.getByRole('radio',{name:'Qualquer pessoa com o link pode visualizar'}).waitFor();
+        assert.equal(Math.round((await p.locator('.chat-sharing').boundingBox())!.width),576);
+        const invite=p.locator('.chat-sharing__invite');let invited='';
+        await p.route('**/conversations/1/sharing/members',async route=>{invited=route.request().postDataJSON().email;await route.fulfill({json:{}});});
+        await invite.getByRole('combobox').fill('destinatario@example.invalid');await invite.getByRole('option',{name:'Convidar destinatario@example.invalid'}).click();
+        assert.equal(await invite.locator('.sharing-email-chip').isVisible(),true);await invite.getByRole('button',{name:'Compartilhar',exact:true}).click();
+        await p.waitForFunction(()=>!document.querySelector('.chat-sharing')?.hasAttribute('aria-busy'));assert.equal(invited,'destinatario@example.invalid');
+        if(process.env.ARTIFACT_QA)await p.screenshot({path:path.join(root,'artifacts','sharing-panel.png')});
+        await p.getByRole('radio',{name:'Qualquer pessoa com o link pode visualizar'}).click();
+        await p.waitForFunction(()=>document.querySelectorAll('.chat-sharing [role="radio"]')[1]?.getAttribute('aria-checked')==='true');assert.equal(access,'public');
+        await p.getByRole('button',{name:'Copiar link',exact:true}).click();assert.equal(await p.evaluate(()=>navigator.clipboard.readText()),server.origin+'/chat/1');
+        await p.setViewportSize({width:390,height:844});assert.ok((await p.locator('.chat-sharing').boundingBox())!.width<=358);
+        await p.keyboard.press('Escape');assert.equal(await p.locator('.chat-sharing').evaluate(e=>e.matches(':popover-open')),false);
+        assert.deepEqual(f.errors,[]);
+    }finally{await f.close();}
+});
+
+test('compartilhamento: visualizador não edita e perde o conteúdo após revogação',async()=>{
+    const f=await fixture(),p=f.page;let revoked=false;
+    try {
+        f.histories.get('2')!.conversation.is_owner=false;
+        await p.route('**/conversations/2',route=>route.fulfill(revoked?{status:403,json:{error:'Esta conversa é privada.',code:'conversation_private'}}:{json:f.histories.get('2')}));
+        await p.route('**/conversations/2/sharing',route=>route.fulfill({json:{access:'restricted',is_owner:false,requested:false}}));
+        await p.route('**/conversations/2/access-request',route=>route.fulfill({json:{requested:true}}));
+        await open(p,'2');assert.equal(await p.locator('.chat-shared-notice').isVisible(),true);assert.equal(await p.locator('.computer-rewrite').first().isVisible(),false);
+        assert.equal(await p.getByRole('button',{name:'Editar',exact:true}).first().isVisible(),false);
+        revoked=true;await p.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')));
+        await p.getByRole('heading',{name:'Esta resposta é privada'}).waitFor();assert.equal(await p.locator('.computer-message--assistant').count(),0);
+        await p.getByRole('button',{name:'Solicitar acesso',exact:true}).click();await p.getByRole('button',{name:'Acesso solicitado',exact:true}).waitFor();assert.deepEqual(f.errors,[]);
+    }finally{await f.close();}
+});
+
+test('compartilhamento: visitante lê sessão pública e mantém destino ao entrar',async()=>{
+    const f=await fixture(),p=f.page;
+    try{
+        await p.route('**/api/bootstrap?*',route=>route.fulfill({status:401,json:{error:'Entre na sua conta.'}}));
+        await p.route('**/api/shared/conversations/1',route=>route.fulfill({json:f.histories.get('1')}));
+        await p.reload();await p.getByRole('link',{name:'Entre para continuar esta conversa'}).waitFor();
+        assert.equal(await p.locator('.shared-conversation__turn').count(),20);await p.getByRole('link',{name:'Entre para continuar esta conversa'}).click();
+        assert.equal(await p.evaluate(()=>sessionStorage.getItem('comet-login-return')),'/chat/1');assert.deepEqual(f.errors,[]);
+    }finally{await f.close();}
+});
+
+test('compartilhamento: seguimento cria cópia privada e envia apenas na cópia',async()=>{
+    const f=await fixture(),p=f.page;let forks=0;
+    try{
+        f.histories.get('2')!.conversation.is_owner=false;
+        await p.route('**/conversations/2/fork',route=>{forks++;return route.fulfill({json:{conversation:f.histories.get('3')!.conversation}});});
+        let payload:Record<string,unknown>|undefined;
+        await p.route('**/api/ai/chat',async route=>{payload=route.request().postDataJSON();await route.fulfill({contentType:'application/x-ndjson',body:[{type:'conversation',conversation_id:'3',turn_id:'new-turn',provider:'gemini'},{type:'delta',text:'Seguimento privado'},{type:'done',metadata:{provider:'gemini'}}].map(v=>JSON.stringify(v)).join('\n')+'\n'});});
+        await open(p,'2');await p.locator('.home__input').fill('Minha pergunta privada');await p.locator('.home__send').click();await p.getByText('Seguimento privado',{exact:true}).waitFor();
+        assert.equal(new URL(p.url()).pathname,'/chat/3');assert.equal(payload?.conversation_id,'3');assert.equal(payload?.message,'Minha pergunta privada');assert.equal(await p.locator('.chat-shared-notice').isVisible(),false);assert.equal(forks,1);assert.deepEqual(f.errors,[]);
+    }finally{await f.close();}
+});
 test('cache: voltar ao chat não busca de novo e restaura rascunho, anexos e rolagem', async()=>{
     const f=await fixture(),p=f.page;
     try {
@@ -606,9 +666,16 @@ for(const width of [1280,390])test(`artifacts: cards, sources panel, spreadsheet
  try{
   await p.setViewportSize({width,height:800});const turn=f.histories.get('2')!.turns[19];turn.metadata={artifacts:[sheet,html],research:{query:'Passos',sources:[{title:'Uma fonte',url:'https://example.com',domain:'example.com'}]}};turn.answer='Uma tabela:\n\n| Dia | Passos |\n| --- | --- |\n| Segunda | 6500 |\n| Terça | 8200 |';
   await open(p,'2');assert.equal(await p.locator('.artifact-card').count(),3);assert.equal(await p.locator('.computer-message__text table').count(),1);assert.equal(await p.getByRole('button',{name:'Baixar CSV',exact:true}).count(),1);
-  await p.locator('.sources-menu-toggle').click();await p.locator('.artifact-section').waitFor();
+  await toggleSources(p);await p.locator('.artifact-section').waitFor();
+  assert.equal(Math.round((await p.locator('.computer-sources-panel').boundingBox())!.width),336);
+  assert.equal(await p.locator('.computer-sources-panel').evaluate(e=>getComputedStyle(e).borderTopWidth),'1px');
+  assert.equal(await p.locator('.sources-group').count(),0);await p.locator('.sources-card__source').waitFor();
+  await p.emulateMedia({reducedMotion:'no-preference'});
+  assert.match(await p.locator('.computer-sources-panel').evaluate(e=>getComputedStyle(e).transitionProperty),/overlay/);
+  await toggleSources(p);await p.waitForTimeout(180);assert.equal(await p.locator('.computer-sources-panel').isVisible(),false);
+  await toggleSources(p);await p.emulateMedia({reducedMotion:'reduce'});
   assert.equal(await p.locator('.artifact-section').evaluate(e=>e.nextElementSibling?.querySelector('summary')?.textContent?.startsWith('Fontes')),true);
-  await p.locator('.sources-menu-toggle').click();await p.locator('.response-artifacts').getByRole('button',{name:'Abrir Lista de passos.xlsx',exact:true}).click();
+  await toggleSources(p);await p.locator('.response-artifacts').getByRole('button',{name:'Abrir Lista de passos.xlsx',exact:true}).click();
   const preview=p.locator('.artifact-preview');await preview.waitFor();assert.equal(await preview.locator('table tbody tr').count(),2);
   await preview.getByRole('button',{name:'Total',exact:true}).click();assert.match(await preview.locator('table').textContent()||'',/14700/);
   await preview.getByRole('button',{name:'Dados',exact:true}).click();await p.screenshot({path:path.join(root,`artifacts/files-preview-${width}.png`)});
@@ -707,13 +774,13 @@ test('artifacts: stacked files, nonmodal split, drag, restore, menu and chat swi
   await preview.getByRole('button',{name:'Fechar artefato'}).click();assert.equal(await p.locator('.workspace__content').evaluate(e=>(e as HTMLElement).inert),false);
   let request='';await p.route('**/api/ai/conversations/2/artifacts/*',route=>{request=route.request().url();return route.fulfill({contentType:'application/octet-stream',body:'PK-test'});});
   await cards.last().getByRole('button',{name:'Opções de Passos.csv'}).click();const pending=p.waitForEvent('download');await p.getByRole('menuitem',{name:'Baixar arquivo'}).click();assert.equal((await pending).suggestedFilename(),'Passos.csv');assert.match(request,/format=csv/);
-  await p.locator('.sources-menu-toggle').click();const section=p.locator('.artifact-section');await section.waitFor();
+  await toggleSources(p);const section=p.locator('.artifact-section');await section.waitFor();
   assert.equal(await section.locator('.artifact-row small').count(),0);assert.equal(await section.locator('summary .ui-arrow').count(),1);
   assert.equal(await section.locator('.artifact-file-icon').first().evaluate(e=>getComputedStyle(e).backgroundColor),'rgba(0, 0, 0, 0)');
-  await section.locator('summary').click();assert.equal(await section.locator('.artifact-count').isVisible(),true);assert.equal(await section.locator('.artifact-download-all').isVisible(),false);
+  await section.locator('summary').click();assert.equal(await section.locator('.artifact-count').isVisible(),true);assert.equal(await section.locator('.artifact-download-all').evaluate(e=>getComputedStyle(e).opacity),'0');assert.equal(await section.locator('.artifact-download-all').evaluate(e=>(e as HTMLElement).inert),true);
   await section.locator('summary').click();const zipped=p.waitForEvent('download');await section.getByRole('button',{name:'Baixar todos os arquivos em ZIP'}).click();const zipDownload=await zipped;assert.equal(zipDownload.suggestedFilename(),'artefatos.zip');
   const bytes=await (await import('node:fs/promises')).readFile((await zipDownload.path())!);const unpacked=(await import('fflate')).unzipSync(bytes);assert.deepEqual(Object.keys(unpacked).sort(),['Passos.csv','Passos.xlsx']);assert.equal(new TextDecoder().decode(unpacked['Passos.csv']),'PK-test');assert.equal(await section.evaluate(e=>(e as HTMLDetailsElement).open),true);
-  await p.screenshot({path:path.join(root,'artifacts/artifact-menu-zip.png')});await p.locator('.sources-menu-toggle').click();
+  await p.screenshot({path:path.join(root,'artifacts/artifact-menu-zip.png')});if(await p.locator('.sources-side-close').isVisible())await p.locator('.sources-side-close').click();else await toggleSources(p);
   await p.locator('.response-artifacts').getByRole('button',{name:'Abrir Passos.xlsx',exact:true}).click();await open(p,'1');assert.equal(await preview.isVisible(),false);assert.equal(await p.locator('.workspace').evaluate(e=>e.classList.contains('has-artifact-preview')),false);assert.deepEqual(f.errors,[]);
  }finally{await f.close();}
 });
@@ -922,5 +989,86 @@ for(const width of [390,1280]) test('anonymous ripple follows greeting center '+
   const result=await p.locator('.computer-ripple').evaluate(e=>{const c=e as HTMLCanvasElement,g=c.getContext('webgl2')!,program=g.getParameter(g.CURRENT_PROGRAM) as WebGLProgram;const origin=Array.from(g.getUniform(program,g.getUniformLocation(program,'u_rippleOrigin')!) as Float32Array);const rect=c.getBoundingClientRect(),title=document.querySelector('#computer-title')!.getBoundingClientRect();return {origin,expected:[(title.left+title.width/2-rect.left)/rect.width,(title.top+title.height/2-rect.top)/rect.height]};});
   result.origin.forEach((value,i)=>assert(Math.abs(value-result.expected[i])<.001));
   await p.screenshot({path:path.join(root,'artifacts/anonymous-ripple-'+width+'.png')});assert.deepEqual(f.errors,[]);
+ }finally{await f.close();}
+});
+
+test('sources menu: uploaded files, disclosure and conversation isolation',async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  f.histories.get('2')!.turns[19].attachments=[{id:'c'.repeat(32),name:'Documento enviado.pdf',kind:'file',size:1234}];
+  await open(p,'2');await toggleSources(p);
+  await p.locator('.sources-uploaded > summary').click();
+  await p.getByRole('button',{name:'Documento enviado.pdf',exact:true}).click();
+  assert.equal(await p.locator('.sources-menu-toggle').getAttribute('aria-expanded'),'false');
+  await toggleSources(p);await p.locator('.sources-uploaded__file').waitFor();
+  await p.screenshot({path:path.join(root,'artifacts/sources-menu-uploads.png')});
+  await open(p,'1');assert.equal(await p.locator('.sources-menu-toggle').isVisible(),false);assert.equal(await p.locator('.sources-uploaded__file').count(),0);
+  assert.deepEqual(f.errors,[]);
+ }finally{await f.close();}
+});
+
+
+test('code colors: measured Perplexity dark Python palette',async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  const source='# Comentário\ndef tarefa():\n    print("texto")\n    return int(1), False';
+  f.histories.get('2')!.turns=[{...f.histories.get('2')!.turns[0],answer:'\x60\x60\x60python\n'+source+'\n\x60\x60\x60'}];
+  await open(p,'2');await p.evaluate(()=>document.documentElement.dataset.theme='dark');
+  const code=p.locator('.answer-code code');
+  const color=(selector:string)=>code.locator(selector).first().evaluate(e=>getComputedStyle(e).color);
+  assert.equal(await code.textContent(),source+'\n');
+  assert.equal(await code.evaluate(e=>getComputedStyle(e).color),'rgb(214, 208, 200)');
+  assert.equal(await color('.hljs-comment'),'rgb(167, 163, 154)');
+  assert.equal(await color('.hljs-keyword'),'rgb(255, 123, 114)');
+  assert.equal(await color('.hljs-string'),'rgb(165, 214, 255)');
+  assert.equal(await color('.hljs-title'),'rgb(210, 168, 255)');
+  assert.equal(await color('.hljs-built_in:not(.hljs-python-print)'),'rgb(255, 166, 87)');
+  assert.equal(await color('.hljs-python-print'),'rgb(255, 123, 114)');
+  assert.equal(await color('.hljs-number'),'rgb(255, 166, 87)');
+  assert.equal(await color('.hljs-literal'),'rgb(214, 208, 200)');
+  assert.equal(await code.locator('.hljs-python-print').filter({hasText:'print'}).count(),1);
+  assert.deepEqual(f.errors,[]);
+ }finally{await f.close();}
+});
+
+test('sources responsive: dock, hover close, resize, direct sites and grouped files',async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  await p.setViewportSize({width:1440,height:900});
+  const turn=f.histories.get('2')!.turns[19];turn.metadata={research:{sources:[{title:'Fonte de teste',url:'https://example.com',domain:'example.com'}]}};
+  await open(p,'2');await toggleSources(p);
+  const panel=p.locator('.computer-sources-panel');await p.waitForFunction(()=>document.querySelector('.workspace')?.classList.contains('has-source-panel'));
+  assert.equal((await panel.boundingBox())!.width,320);assert.equal(await panel.getAttribute('popover'),'manual');
+  assert.equal(await p.locator('.sources-group').count(),0);await p.locator('.sources-card__source').waitFor();
+  const close=p.locator('.sources-side-close');await p.mouse.move(600,400);assert.equal(await close.evaluate(e=>getComputedStyle(e).opacity),'0');
+  await panel.hover();assert.equal(await close.evaluate(e=>getComputedStyle(e).opacity),'1');
+  await p.screenshot({path:path.join(root,'artifacts/sources-docked-chrome.png')});
+  await p.locator('.home__input').click();assert.equal(await panel.evaluate(e=>e.matches(':popover-open')),true);
+  await close.click();assert.equal(await panel.isVisible(),false);assert.equal(await p.locator('.workspace').evaluate(e=>e.classList.contains('has-source-panel')),false);
+  await toggleSources(p);await p.setViewportSize({width:1100,height:900});
+  await p.waitForFunction(()=>document.querySelector('.computer-sources-panel')?.getAttribute('popover')==='auto');assert.equal((await panel.boundingBox())!.width,336);
+  await open(p,'1');turn.attachments=[{id:'d'.repeat(32),name:'Fonte.pdf',kind:'file',size:100}];await p.goto(new URL('/chat/2',p.url()).href);await p.locator('.attachment-chip__name').filter({hasText:'Fonte.pdf'}).waitFor();await toggleSources(p);
+  assert.equal(await p.locator('.sources-group').count(),2);const web=p.locator('.sources-group > summary').filter({hasText:'Web'});
+  assert.match(await web.locator('i').first().evaluate(e=>getComputedStyle(e).maskImage),/web-links/);
+  await web.click();await p.locator('.sources-card__source').waitFor();assert.deepEqual(f.errors,[]);
+ }finally{await f.close();}
+});
+
+async function toggleSources(p:import('playwright').Page){const side=p.locator('.sources-side-close');if(await side.isVisible())await side.click();else await p.locator('.sources-menu-toggle').click();}
+
+test('sources preference: closed default, corner button, open and closed survive reload',async()=>{
+ const f=await fixture(),p=f.page;
+ try{
+  await p.setViewportSize({width:1536,height:900});
+  f.histories.get('2')!.turns[19].metadata={research:{sources:[{title:'Fonte',url:'https://example.com',domain:'example.com'}]}};
+  await open(p,'2');const panel=p.locator('.computer-sources-panel'),button=p.locator('.sources-side-close');await button.waitFor();
+  assert.equal(await panel.isVisible(),false);assert.equal(await p.locator('.sources-menu-toggle').isVisible(),false);
+  assert.equal(await button.getAttribute('aria-label'),'Expandir fontes');
+  assert.equal(await p.locator('.workspace').evaluate(e=>getComputedStyle(e).getPropertyValue('--chat-content-width').trim()),'720px');
+  await button.click();await p.waitForFunction(()=>localStorage.getItem('comet-sources-panel-open')==='true');
+  await p.reload();await p.locator('.computer-sources-panel:popover-open').waitFor();assert.equal(await p.locator('.sources-menu-toggle').isVisible(),false);
+  await button.click();await p.waitForFunction(()=>localStorage.getItem('comet-sources-panel-open')==='false');await p.reload();await button.waitFor();
+  assert.equal(await panel.isVisible(),false);assert.equal(await button.getAttribute('aria-expanded'),'false');
+  assert.ok((await button.boundingBox())!.x>1450);await p.screenshot({path:path.join(root,'artifacts/sources-corner-closed.png')});assert.deepEqual(f.errors,[]);
  }finally{await f.close();}
 });

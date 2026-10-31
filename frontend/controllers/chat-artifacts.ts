@@ -105,7 +105,8 @@ export function chatArtifacts({scope,fetch,ResizeObserver,requestAnimationFrame}
     function update(){
         const files=all();section.hidden=!files.length;
         const summary=document.createElement('summary'),label=document.createElement('span');label.textContent='Artefatos';summary.append(label);const count=document.createElement('span');count.className='artifact-count';count.textContent=String(files.reduce((n,a)=>n+a.files.length,0));const save=document.createElement('button');save.type='button';save.className='artifact-download-all';save.setAttribute('aria-label','Baixar todos os arquivos em ZIP');save.innerHTML='<i aria-hidden="true"></i>';
-        const arrow=document.createElement('i');arrow.className='ui-arrow';arrow.setAttribute('aria-hidden','true');summary.append(count,save,arrow);
+        const arrow=document.createElement('i');arrow.className='ui-arrow';arrow.setAttribute('aria-hidden','true');const action=document.createElement('span');action.className='artifact-summary-action';action.append(count,save);summary.append(action,arrow);
+        const reflect=()=>{save.inert=!section.open;save.setAttribute('aria-hidden',String(!section.open));count.setAttribute('aria-hidden',String(section.open));};reflect();section.ontoggle=reflect;
         const status=document.createElement('p');status.className='artifact-card__status';status.setAttribute('role','status');
         save.addEventListener('click',async event=>{
             event.preventDefault();event.stopPropagation();if(zipController)return;

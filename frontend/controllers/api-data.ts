@@ -26,11 +26,13 @@ export function apiError(value:unknown, fallback:string): string { return isReco
 export function attachmentData(value: unknown): Attachment {
     const data=record(value);
     if(data.kind!=='image' && data.kind!=='file')throw new Error('Anexo inválido.');
-    return {id:stringValue(data.id),name:stringValue(data.name),size:numberValue(data.size),kind:data.kind};
+    const preview=optionalString(data.preview_url);
+    if(preview&&!/^\/api\/(?:ai|shared)\/conversations\/[0-9]+\/attachments\/[a-f0-9]{32}\/preview$/.test(preview))throw new Error('Prévia inválida.');
+    return {preview_url:preview,id:stringValue(data.id),name:stringValue(data.name),size:numberValue(data.size),kind:data.kind};
 }
 export function conversationData(value: unknown): Conversation {
     const data=record(value);
-    return {last_response_at:optionalString(data.last_response_at),id:stringValue(data.id),title:stringValue(data.title),created_at:stringValue(data.created_at ?? ''),updated_at:stringValue(data.updated_at ?? '')};
+    return {is_owner:data.is_owner==null?undefined:booleanValue(data.is_owner),shared:data.shared==null?undefined:booleanValue(data.shared),owner_name:optionalString(data.owner_name),last_response_at:optionalString(data.last_response_at),id:stringValue(data.id),title:stringValue(data.title),created_at:stringValue(data.created_at ?? ''),updated_at:stringValue(data.updated_at ?? '')};
 }
 export function conversationsData(value: unknown): ConversationList {
     const data=record(value);

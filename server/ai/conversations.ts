@@ -1,3 +1,4 @@
+import {conversationAccess,sharedInfo} from './sharing';
 import {artifactContext,artifactData,type Artifact} from '../../shared/artifacts';
 import { ApiError } from '../http';
 import { query, transaction } from '../db';
@@ -41,21 +42,23 @@ export async function getConversationExport(userId: number, cid: string, turnId?
 }
 export async function getConversation(userId: number, cid: string, before: string | null) {
   if (before !== null) id(before);
-  const conversation = await owned({ query }, userId, cid);
-  const [latest] = await query<{ last_response_at: Date | null }>("SELECT MAX(atualizado_em) AS last_response_at FROM computer_mensagens WHERE conversa_id=$1 AND estado='completed'", [cid]);
+  return transaction(async db=>{
+  const conversation = await conversationAccess(db, userId, cid);
+  const [latest] = await db.query<{ last_response_at: Date | null }>("SELECT MAX(atualizado_em) AS last_response_at FROM computer_mensagens WHERE conversa_id=$1 AND estado='completed'", [cid]);
   conversation.last_response_at = latest.last_response_at;
-  const rows = await query<StoredTurn>('SELECT id,pergunta,resposta,pensamento,estado,criado_em FROM computer_mensagens WHERE conversa_id=$1' + (before ? ' AND id<$2' : '') + ' ORDER BY id DESC LIMIT 31', before ? [cid, before] : [cid]);
+  const rows = await db.query<StoredTurn>('SELECT id,pergunta,resposta,pensamento,estado,criado_em FROM computer_mensagens WHERE conversa_id=$1' + (before ? ' AND id<$2' : '') + ' ORDER BY id DESC LIMIT 31', before ? [cid, before] : [cid]);
   const running = active(conversation);
   const turns = await Promise.all(rows.slice(0, 30).reverse().map(async row => {
     const [message, tokens] = unpackMessage(row.pergunta);
     const [thinking, metadata] = unpackResponse(row.pensamento);
     const attachments = (await Promise.all(tokens.map(async token => {
-      try { return publicAttachment(await readAttachment(userId, token)); }
+      try { return {...publicAttachment(await readAttachment(Number(conversation.usuario_id), token)),...(!conversation.is_owner?{preview_url:`/api/${userId===0?'shared':'ai'}/conversations/${cid}/attachments/${token}/preview`}:{})}; }
       catch (error) { if (error instanceof AIError && error.code === 'attachment_missing') return null; throw error; }
     }))).filter(file => file !== null);
     return { id: String(row.id), message, attachments, answer: row.resposta, thinking, metadata, status: row.estado === 'running' && !running ? 'interrupted' : row.estado, created_at: iso(row.criado_em) };
   }));
-  return { conversation: serialize(conversation), turns, active: running, before: rows.length > 30 ? String(rows[29].id) : null };
+  return { conversation: sharedInfo(conversation), turns, active: conversation.is_owner && running, before: rows.length > 30 ? String(rows[29].id) : null };
+  });
 }
 export async function beginTurn(userId: number, payload: ChatPayload): Promise<Turn> {
   if (payload.anonymous) return { conversation_id: null, turn_id: payload.request_id, request_id: payload.request_id, messages: payload.messages!, created_at: new Date().toISOString(), has_attachments: false, attachments: [], response_meta: {} };
@@ -162,10 +165,12 @@ export async function truncateConversation(userId: number, cid: string, tid: str
 
 export async function getConversationArtifact(userId:number,cid:string,artifactId:string):Promise<Artifact> {
   if(!/^[a-f0-9]{32}$/.test(artifactId))throw new ApiError(404,'Arquivo não encontrado.');
-  await owned({query},userId,cid);
-  const rows=await query<{pensamento:string}>('SELECT pensamento FROM computer_mensagens WHERE conversa_id=$1 AND pensamento LIKE $2',[cid,'%'+artifactId+'%']);
+  return transaction(async db=>{
+  await conversationAccess(db,userId,cid);
+  const rows=await db.query<{pensamento:string}>('SELECT pensamento FROM computer_mensagens WHERE conversa_id=$1 AND pensamento LIKE $2',[cid,'%'+artifactId+'%']);
   for(const row of rows){const metadata=unpackResponse(row.pensamento)[1];const versions=Array.isArray(metadata.versions)?metadata.versions:[];
     for(const m of [metadata,...versions.map(v=>v.metadata)])if(m&&Array.isArray(m.artifacts))for(const raw of m.artifacts)if(raw?.id===artifactId)return artifactData(raw);
   }
   throw new ApiError(404,'Arquivo não encontrado.');
+  });
 }

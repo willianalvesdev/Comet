@@ -22,7 +22,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
         const fallback=document.createElement('i');fallback.className='attachment-chip__file-icon';thumb.append(fallback);
         if(file.kind==='image'){
             const image=document.createElement('img');image.alt='';image.loading='lazy';
-            image.src=previews.get(file.id)||'/api/ai/attachments/'+encodeURIComponent(file.id)+'/preview';
+            image.src=previews.get(file.id)||file.preview_url||'/api/ai/attachments/'+encodeURIComponent(file.id)+'/preview';
             image.addEventListener('load',()=>fallback.hidden=true,{...{once:true}, signal: scope.signal});
             image.addEventListener('error',()=>image.remove(),{...{once:true}, signal: scope.signal});thumb.append(image);
         }

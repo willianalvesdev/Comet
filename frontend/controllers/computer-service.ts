@@ -10,7 +10,7 @@ export default function mount({scope, setTimeout, setInterval, requestAnimationF
             const response = await fetch(path, { credentials: 'same-origin', cache: 'no-store', signal }).catch(error => { if (error?.name === 'AbortError') throw error; throw new Error(connectionError); });
             const result: unknown = await response.json().catch(() => ({}));
             if (response.status === 401) clearWorkspaceCache(false);
-            if (!response.ok) throw Object.assign(new Error(apiError(result, connectionError)), {status:response.status});
+            if (!response.ok) throw Object.assign(new Error(apiError(result, connectionError)), {status:response.status,code:typeof result==='object'&&result!==null&&'code' in result?result.code:undefined});
             return result;
         }
         list(offset: number | null = 0) { return this.get(`/api/ai/conversations?offset=${offset}`).then(conversationsData); }
